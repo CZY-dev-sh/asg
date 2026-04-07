@@ -1,0 +1,3 @@
+# Local tokens (do not commit real secrets)
+GITHUB_USERNAME=CZY-dev-sh
+GITHUB_PAT=PASTE_NEW_PAT_HERE
