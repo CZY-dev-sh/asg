@@ -1,0 +1,16 @@
+[Unit]
+Description=ASG TV Dashboard Kiosk
+After=tv-remote.service graphical.target
+Wants=tv-remote.service
+
+[Service]
+Type=simple
+User=asgtech
+Environment=DISPLAY=:0
+Environment=DASHBOARD_URL=http://127.0.0.1:8080/dashboard
+ExecStart=/bin/bash /home/asgtech/Desktop/Cursor/scripts/start-dashboard.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

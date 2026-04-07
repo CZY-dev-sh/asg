@@ -1,0 +1,14 @@
+{
+  "name": "asg-tv-remote-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ASG TV remote and dashboard workspace",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

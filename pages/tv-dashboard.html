@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASG Office Live Dashboard Mockup v4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f5f6f8;
+      --bg-grad-1:#f8fafc;
+      --bg-grad-2:#f3f4f6;
+      --panel:#ffffff;
+      --panel-soft:#fafafa;
+      --line:rgba(15,23,42,.08);
+      --text:#101828;
+      --muted:#667085;
+      --blue:#3b82f6;
+      --green:#16a34a;
+      --amber:#d97706;
+      --shadow:0 12px 40px rgba(15,23,42,.08);
+      --radius:28px;
+      --bar:#dbe5f3;
+      --bar-fill:#7aa2ff;
+      --topbar:rgba(255,255,255,.78);
+      --topbar-line:rgba(255,255,255,.65);
+    }
+    body.dark{
+      --bg:#2a2a2a;
+      --bg-grad-1:#2f2f2f;
+      --bg-grad-2:#3a3a3a;
+      --panel:#424242;
+      --panel-soft:#373737;
+      --line:rgba(255,255,255,.08);
+      --text:#f5f5f5;
+      --muted:#d0d0d0;
+      --blue:#bdbdbd;
+      --green:#4ade80;
+      --amber:#fbbf24;
+      --shadow:0 14px 42px rgba(0,0,0,.28);
+      --bar:#5a5a5a;
+      --bar-fill:#ef4444;
+      --topbar:rgba(58,58,58,.88);
+      --topbar-line:rgba(255,255,255,.08);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:"Inter",system-ui,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+      transition:background .25s ease,color .25s ease;
+    }
+    .screen{
+      width:100vw;
+      height:100vh;
+      padding:24px;
+      display:grid;
+      grid-template-rows:86px 160px 1fr;
+      gap:18px;
+    }
+    .topbar{
+      background:var(--topbar);
+      backdrop-filter: blur(12px);
+      border:1px solid var(--topbar-line);
+      box-shadow:var(--shadow);
+      border-radius:22px;
+      padding:0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:18px;min-width:0;flex:1}
+    .logo-wrap{
+      width:56px;
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .logo{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      display:block;
+    }
+    .brand-copy h1{
+      margin:0;
+      font-size:30px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:-.05em;
+      white-space:nowrap;
+    }
+    .brand-copy p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+    .status{
+      display:flex;align-items:center;gap:12px;
+      font-size:15px;font-weight:600;color:var(--muted);
+      flex-shrink:0;
+    }
+    .datetime{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      justify-content:center;
+      line-height:1.05;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .datetime-day{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      letter-spacing:-.01em;
+    }
+    .datetime-time{
+      margin-top:2px;
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-.04em;
+      color:var(--text);
+    }
+    .live-pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 16px;border-radius:999px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:color-mix(in srgb, var(--green) 12%, var(--panel));
+      color:var(--green);
+      border-color:color-mix(in srgb, var(--green) 18%, transparent);
+    }
+    .live-dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 0 rgba(22,163,74,.45);
+      animation:pulse 1.8s infinite;
+    }
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(22,163,74,.45)}
+      70%{box-shadow:0 0 0 12px rgba(22,163,74,0)}
+      100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}
+    }
+
+    .toggle-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+    }
+    .apple-toggle{
+      position:relative;
+      width:58px;
+      height:34px;
+      flex-shrink:0;
+    }
+    .apple-toggle input{
+      opacity:0;
+      width:0;
+      height:0;
+      position:absolute;
+    }
+    .apple-slider{
+      position:absolute;
+      inset:0;
+      cursor:pointer;
+      background:#d1d5db;
+      border-radius:999px;
+      transition:.24s ease;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+    }
+    body.dark .apple-slider{
+      background:#4b5563;
+    }
+    .apple-slider:before{
+      content:"";
+      position:absolute;
+      width:28px;
+      height:28px;
+      left:3px;
+      top:3px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
+      transition:.24s ease;
+    }
+    .apple-toggle input:checked + .apple-slider{
+      background:#34c759;
+    }
+    .apple-toggle input:checked + .apple-slider:before{
+      transform:translateX(24px);
+    }
+
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kpi{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:16px 18px;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute;inset:0 auto 0 0;width:5px;
+      background:var(--accent,#111827);
+    }
+    .kpi.total{--accent:var(--blue); background:color-mix(in srgb, var(--blue) 8%, var(--panel))}
+    .kpi.closed{--accent:var(--green)}
+    .kpi.pending{--accent:var(--amber)}
+    .kpi.transactions{--accent:#111827}
+    body.dark .kpi.transactions{--accent:#e5e7eb}
+    body.dark .kpi.total{background:color-mix(in srgb, #ffffff 4%, var(--panel));}
+    body.dark .kpi.total{--accent:#d9d9d9}
+    .kpi-label{
+      color:var(--muted);
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:800;
+    }
+    .kpi-value{
+      margin-top:8px;
+      font-size:34px;
+      line-height:1;
+      letter-spacing:-.05em;
+      font-weight:800;
+    }
+    .kpi-sub{
+      margin-top:8px;
+      font-size:12px;
+      font-weight:600;
+      color:var(--muted);
+    }
+
+    .main{
+      min-height:0;
+      display:grid;
+      grid-template-rows:1.34fr .66fr;
+      gap:12px;
+    }
+    .bottom-row{
+      display:grid;
+      grid-template-columns:.9fr 1.1fr;
+      gap:12px;
+      min-height:0;
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      min-height:0;
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:14px 16px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;align-items:end;justify-content:space-between;
+      gap:16px;
+    }
+    .panel-title{
+      margin:0;
+      font-size:18px;
+      line-height:1;
+      letter-spacing:-.04em;
+      font-weight:800;
+    }
+    .panel-sub{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:600;
+    }
+
+    .leaderboard-wrap{
+      padding:8px 10px 10px;
+      height:calc(100% - 54px);
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:10px;
+    }
+    .leaderboard-head,.agent-row{
+      display:grid;
+      grid-template-columns:1.55fr 1.4fr .9fr .9fr .7fr .55fr .55fr;
+      gap:10px;
+      align-items:center;
+    }
+    .leaderboard-head{
+      padding:6px 8px 6px;
+      color:var(--muted);
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.11em;
+      font-weight:800;
+    }
+    .agent-list{
+      display:grid;
+      gap:8px;
+      align-content:start;
+    }
+    .agent-row{
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:10px 10px;
+      min-height:52px;
+    }
+    .agent-name{
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:-.03em;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .volume-cell{display:grid;gap:7px}
+    .volume-main{
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:-.03em;
+    }
+    .mini-bar{
+      height:8px;
+      border-radius:999px;
+      background:var(--bar);
+      position:relative;
+      overflow:hidden;
+    }
+    .mini-bar-fill{
+      position:absolute;inset:0 auto 0 0;
+      width:var(--w);
+      border-radius:999px;
+      background:linear-gradient(90deg,color-mix(in srgb, var(--bar-fill) 48%, #d1d5db), var(--bar-fill));
+    }
+    body.dark .mini-bar-fill{
+      background:linear-gradient(90deg,#f87171,#ef4444);
+    }
+    .num,.money,.subnum{
+      font-size:14px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .transaction-wrap{
+      padding:8px 10px 10px;
+      height:calc(100% - 54px);
+      display:grid;
+      grid-template-rows:1fr;
+      min-height:0;
+    }
+    .transaction-scroll{
+      overflow:hidden;
+      position:relative;
+      min-height:0;
+    }
+    .transaction-list{
+      display:grid;
+      gap:8px;
+      align-content:start;
+      will-change:transform;
+    }
+    .transaction-row{
+      display:grid;
+      grid-template-columns:.9fr 1.2fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+      border-radius:18px;
+      min-height:70px;
+    }
+    .tx-name{
+      font-size:14px;font-weight:800;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .tx-address{
+      font-size:14px;font-weight:700;color:var(--muted);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .tx-price{
+      font-size:14px;font-weight:800;
+    }
+
+    .system-wrap{
+      padding:8px 10px 10px;
+      height:calc(100% - 54px);
+      display:grid;
+      min-height:0;
+    }
+    .service-list{
+      display:grid;
+      gap:8px;
+      align-content:start;
+    }
+    .service-row{
+      display:grid;
+      grid-template-columns:36px 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:9px 10px;
+      border:1px solid var(--line);
+      background:var(--panel-soft);
+      border-radius:18px;
+    }
+    .service-logo{
+      width:36px;height:36px;
+      object-fit:contain;
+      border-radius:12px;
+      background:#fff;
+      padding:8px;
+      border:1px solid rgba(0,0,0,.05);
+    }
+    body.dark .service-logo{background:#fff}
+    .service-name{
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+    .service-url{
+      margin-top:2px;
+      font-size:10px;
+      color:var(--muted);
+      font-weight:600;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:360px;
+    }
+    .service-status{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 9px;
+      border-radius:999px;
+      background:color-mix(in srgb, var(--green) 12%, var(--panel));
+      color:var(--green);
+      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
+      font-size:11px;
+      font-weight:800;
+    }
+    .service-status::before{
+      content:"";
+      width:8px;height:8px;border-radius:50%;
+      background:currentColor;
+    }
+    .footer-note{
+      padding:0 14px 12px;
+      font-size:11px;
+      color:var(--muted);
+      font-weight:600;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo-wrap">
+          <img class="logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="ASG Logo">
+        </div>
+        <div class="brand-copy">
+          <h1>Live Team Performance</h1>
+          <p>Alex Stoykov Group - 2026 <span style="margin-left:14px;color:var(--muted);font-weight:700;">Last updated 10:41:18 AM</span></p>
+        </div>
+      </div>
+      <div class="status">
+        <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+        <div class="datetime"><div class="datetime-day">Thu, March 26</div><div class="datetime-time">10:42 AM</div></div>
+        
+        <div class="toggle-wrap">
+          <span>Dark Mode</span>
+          <label class="apple-toggle">
+            <input id="themeToggle" type="checkbox">
+            <span class="apple-slider"></span>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <section class="kpis">
+      <article class="kpi total">
+        <div class="kpi-label">Total Volume</div>
+        <div class="kpi-value">$42.8M</div>
+        <div class="kpi-sub">Closed + Pending across all agents</div>
+      </article>
+      <article class="kpi closed">
+        <div class="kpi-label">Closed Volume</div>
+        <div class="kpi-value">$29.6M</div>
+        <div class="kpi-sub">18 closed deals</div>
+      </article>
+      <article class="kpi pending">
+        <div class="kpi-label">Pending Volume</div>
+        <div class="kpi-value">$13.2M</div>
+        <div class="kpi-sub">7 pending deals</div>
+      </article>
+      <article class="kpi transactions">
+        <div class="kpi-label">Total Transactions</div>
+        <div class="kpi-value">25</div>
+        <div class="kpi-sub">18 closed · 7 pending</div>
+      </article>
+    </section>
+
+    <main class="main">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Agent Leaderboard</h2>
+          </div>
+        </div>
+
+        <div class="leaderboard-wrap">
+          <div class="leaderboard-head">
+            <div>Agent</div>
+            <div>Total Volume</div>
+            <div>Closed Vol.</div>
+            <div>Pending Vol.</div>
+            <div>Total Deals</div>
+            <div>Closed</div>
+            <div>Pending</div>
+          </div>
+
+          <div class="agent-list">
+            <div class="agent-row"><div class="agent-name">Alex Stoykov</div><div class="volume-cell"><div class="volume-main">$18.4M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:88%"></div></div></div><div class="money">$13.1M</div><div class="money">$5.3M</div><div class="num">9</div><div class="subnum">6</div><div class="subnum">3</div></div>
+            <div class="agent-row"><div class="agent-name">Nicolas Gamboa Wills</div><div class="volume-cell"><div class="volume-main">$7.3M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:76%"></div></div></div><div class="money">$5.2M</div><div class="money">$2.1M</div><div class="num">5</div><div class="subnum">3</div><div class="subnum">2</div></div>
+            <div class="agent-row"><div class="agent-name">Sam Abadi</div><div class="volume-cell"><div class="volume-main">$5.9M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:69%"></div></div></div><div class="money">$4.4M</div><div class="money">$1.5M</div><div class="num">4</div><div class="subnum">3</div><div class="subnum">1</div></div>
+            <div class="agent-row"><div class="agent-name">Shelly Kapoor</div><div class="volume-cell"><div class="volume-main">$4.8M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:63%"></div></div></div><div class="money">$3.1M</div><div class="money">$1.7M</div><div class="num">4</div><div class="subnum">2</div><div class="subnum">2</div></div>
+            <div class="agent-row"><div class="agent-name">Barbara Laken</div><div class="volume-cell"><div class="volume-main">$3.7M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:56%"></div></div></div><div class="money">$2.9M</div><div class="money">$800K</div><div class="num">3</div><div class="subnum">2</div><div class="subnum">1</div></div>
+            <div class="agent-row"><div class="agent-name">Julian Levit</div><div class="volume-cell"><div class="volume-main">$2.9M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:49%"></div></div></div><div class="money">$1.7M</div><div class="money">$1.2M</div><div class="num">3</div><div class="subnum">2</div><div class="subnum">1</div></div>
+            <div class="agent-row"><div class="agent-name">Angela Engelbrecht</div><div class="volume-cell"><div class="volume-main">$2.4M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:43%"></div></div></div><div class="money">$1.9M</div><div class="money">$500K</div><div class="num">2</div><div class="subnum">1</div><div class="subnum">1</div></div>
+            <div class="agent-row"><div class="agent-name">Mino Conenna</div><div class="volume-cell"><div class="volume-main">$2.1M</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:38%"></div></div></div><div class="money">$1.6M</div><div class="money">$500K</div><div class="num">2</div><div class="subnum">1</div><div class="subnum">1</div></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-row">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Recent Transactions</h2>
+              <p class="panel-sub">Auto-scrolling live tape</p>
+            </div>
+          </div>
+          <div class="transaction-wrap">
+            <div class="transaction-scroll" id="transactionScroll">
+              <div class="transaction-list" id="transactionList">
+                <div class="transaction-row"><div class="tx-name">Sam Abadi</div><div class="tx-address">870 N Wood St</div><div class="tx-price">$1.18M</div></div>
+                <div class="transaction-row"><div class="tx-name">Barbara Laken</div><div class="tx-address">233 E Erie St #1706</div><div class="tx-price">$690K</div></div>
+                <div class="transaction-row"><div class="tx-name">Gabriel Rendon</div><div class="tx-address">640 W Diversey Pkwy</div><div class="tx-price">$512K</div></div>
+                <div class="transaction-row"><div class="tx-name">Angela Engelbrecht</div><div class="tx-address">1017 W Altgeld St</div><div class="tx-price">$1.34M</div></div>
+                <div class="transaction-row"><div class="tx-name">Mino Conenna</div><div class="tx-address">19 E Cedar St #4A</div><div class="tx-price">$980K</div></div>
+                <div class="transaction-row"><div class="tx-name">Alex Stoykov</div><div class="tx-address">1250 W Fullerton Ave</div><div class="tx-price">$2.05M</div></div>
+                <div class="transaction-row"><div class="tx-name">Nicolas Gamboa Wills</div><div class="tx-address">1427 W Addison St #3</div><div class="tx-price">$835K</div></div>
+                <div class="transaction-row"><div class="tx-name">Shelly Kapoor</div><div class="tx-address">451 W Dickens Ave</div><div class="tx-price">$1.62M</div></div>
+                <div class="transaction-row"><div class="tx-name">Julian Levit</div><div class="tx-address">1720 N Damen Ave</div><div class="tx-price">$1.05M</div></div>
+                <div class="transaction-row"><div class="tx-name">Alex Stoykov</div><div class="tx-address">1954 N Orchard St</div><div class="tx-price">$2.45M</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">System Status</h2>
+              <p class="panel-sub">Target services to wire into live status pages</p>
+            </div>
+          </div>
+          <div class="system-wrap">
+            <div class="service-list">
+              <div class="service-row">
+                <img class="service-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=2500w" alt="Squarespace">
+                <div><div class="service-name">Squarespace</div><div class="service-url">status.squarespace.com</div></div>
+                <div class="service-status">Operational</div>
+              </div>
+              <div class="service-row">
+                <img class="service-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d6f3af02-7e7c-438c-a7d0-2d64848024d2/assana.png?format=2500w" alt="Asana">
+                <div><div class="service-name">Asana</div><div class="service-url">status.asana.com</div></div>
+                <div class="service-status">Operational</div>
+              </div>
+              <div class="service-row">
+                <img class="service-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/12e8f92a-f49f-47c4-b107-ade6947e4baf/FUB+Logo+Mark+RGB_Fub+Logo+Mark+Main.png?format=2500w" alt="Follow Up Boss">
+                <div><div class="service-name">Follow Up Boss</div><div class="service-url">followupboss.statuspage.io</div></div>
+                <div class="service-status">Operational</div>
+              </div>
+              <div class="service-row">
+                <img class="service-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/cf940fa6-0e61-48d2-b624-f44acfb3e457/Notion-logo.svg.png?format=2500w" alt="Notion">
+                <div><div class="service-name">Notion</div><div class="service-url">www.notion-status.com</div></div>
+                <div class="service-status">Operational</div>
+              </div>
+              <div class="service-row">
+                <img class="service-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/0c89301b-a741-4e5a-b4d7-1ba6a96ed442/google+%281%29.png?format=2500w" alt="Google Workspace">
+                <div><div class="service-name">Google Workspace</div><div class="service-url">google.com/appsstatus/dashboard</div></div>
+                <div class="service-status">Operational</div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-note">Mockup only. Live status integration would poll each provider's status source separately.</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const checkbox = document.getElementById('themeToggle');
+    checkbox.addEventListener('change', () => {
+      document.body.classList.toggle('dark', checkbox.checked);
+    });
+
+    const scrollWrap = document.getElementById('transactionScroll');
+    const list = document.getElementById('transactionList');
+    const original = list.innerHTML;
+    list.innerHTML = original + original;
+
+    let y = 0;
+    let speed = 0.22;
+    let resetPoint = list.scrollHeight / 2;
+
+    function animateScroll(){
+      y += speed;
+      if(y >= resetPoint){
+        y = 0;
+      }
+      list.style.transform = `translateY(-${y}px)`;
+      requestAnimationFrame(animateScroll);
+    }
+
+    requestAnimationFrame(() => {
+      resetPoint = list.scrollHeight / 2;
+      animateScroll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workspace Editor</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0f1115; color: #e8eaf0; }
+    .topbar { display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: #171a21; border-bottom: 1px solid #2a3040; }
+    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .topbar button { background: #2d6cdf; color: #fff; border: 0; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    .topbar button.secondary { background: #384055; }
+    .topbar .status { margin-left: auto; font-size: 13px; color: #b9c1d6; }
+    .layout { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 50px); }
+    .sidebar { border-right: 1px solid #2a3040; overflow: auto; padding: 10px; }
+    .editor-wrap { display: flex; flex-direction: column; }
+    #fileList { list-style: none; margin: 0; padding: 0; }
+    #fileList li { margin: 2px 0; }
+    #fileList button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: #121722;
+      color: #dce3f4;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #fileList button:hover { background: #1a2335; }
+    #fileList button.active { background: #253557; }
+    .file-head { padding: 10px 14px; border-bottom: 1px solid #2a3040; font-size: 13px; color: #b9c1d6; }
+    textarea {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      margin: 0;
+      padding: 16px;
+      resize: none;
+      background: #0f1115;
+      color: #e8eaf0;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .hint { padding: 10px 14px; border-top: 1px solid #2a3040; color: #8e9ab7; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Workspace Editor</h1>
+    <button id="refreshBtn" class="secondary">Refresh Files</button>
+    <button id="saveBtn">Save</button>
+    <button id="openRawBtn" class="secondary">Open Raw</button>
+    <span class="status" id="status">Loading files...</span>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <ul id="fileList"></ul>
+    </aside>
+    <section class="editor-wrap">
+      <div class="file-head" id="currentPath">No file selected</div>
+      <textarea id="editor" placeholder="Select a file from the left to edit..."></textarea>
+      <div class="hint">Tip: this editor is intended for quick in-project edits to text files.</div>
+    </section>
+  </div>
+
+  <script>
+    const fileListEl = document.getElementById("fileList");
+    const editorEl = document.getElementById("editor");
+    const currentPathEl = document.getElementById("currentPath");
+    const statusEl = document.getElementById("status");
+    const saveBtn = document.getElementById("saveBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const openRawBtn = document.getElementById("openRawBtn");
+
+    let currentPath = "";
+    let fileButtons = [];
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    async function fetchFiles() {
+      setStatus("Loading files...");
+      const res = await fetch("/api/files");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to load files");
+      renderFileList(data.files || []);
+      setStatus("Ready");
+    }
+
+    function renderFileList(files) {
+      fileListEl.innerHTML = "";
+      fileButtons = [];
+      files.forEach((file) => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.textContent = file;
+        btn.onclick = () => openFile(file, btn);
+        li.appendChild(btn);
+        fileListEl.appendChild(li);
+        fileButtons.push(btn);
+      });
+    }
+
+    function markActive(activeBtn) {
+      fileButtons.forEach((btn) => btn.classList.remove("active"));
+      if (activeBtn) activeBtn.classList.add("active");
+    }
+
+    async function openFile(filePath, buttonRef) {
+      setStatus(`Opening ${filePath}...`);
+      const url = `/api/file?path=${encodeURIComponent(filePath)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus(data.error || "Cannot open file");
+        return;
+      }
+      currentPath = data.path || filePath;
+      currentPathEl.textContent = currentPath;
+      editorEl.value = data.content || "";
+      markActive(buttonRef);
+      setStatus("Ready");
+    }
+
+    async function saveFile() {
+      if (!currentPath) {
+        setStatus("Select a file first");
+        return;
+      }
+      setStatus(`Saving ${currentPath}...`);
+      const res = await fetch("/api/file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filePath: currentPath, content: editorEl.value }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus(data.error || "Save failed");
+        return;
+      }
+      setStatus(`Saved ${currentPath}`);
+    }
+
+    saveBtn.addEventListener("click", saveFile);
+    refreshBtn.addEventListener("click", fetchFiles);
+    openRawBtn.addEventListener("click", () => {
+      if (!currentPath) {
+        setStatus("Select a file first");
+        return;
+      }
+      window.open(`/raw/${encodeURI(currentPath)}`, "_blank");
+    });
+
+    fetchFiles().catch((e) => setStatus(e.message));
+  </script>
+</body>
+</html>

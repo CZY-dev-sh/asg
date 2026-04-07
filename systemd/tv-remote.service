@@ -1,0 +1,19 @@
+[Unit]
+Description=ASG TV Remote Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/asgtech/Desktop/Cursor
+ExecStart=/usr/bin/node /home/asgtech/Desktop/Cursor/server.js
+Restart=always
+RestartSec=2
+User=asgtech
+Environment=DISPLAY=:0
+# Optional security token and Wake-on-LAN target MAC:
+# Environment=REMOTE_TOKEN=change-me
+# Environment=WAKE_MAC=AA:BB:CC:DD:EE:FF
+
+[Install]
+WantedBy=multi-user.target

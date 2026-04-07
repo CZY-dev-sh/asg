@@ -1,0 +1,1680 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     ASG LISTING HUB — Standalone Squarespace Code Block
+     This is completely independent from the Admin Dashboard.
+     Paste this into its OWN code block on the page.
+     ═══════════════════════════════════════════════════════════════ -->
+     <div id="asg-listing-hub-root"></div>
+
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+    
+    /* ── RESET & ROOT ──────────────────────────────────────────── */
+    #asg-listing-hub-root{
+      font-family:'Outfit',system-ui,-apple-system,sans-serif;
+      color:#111;
+      width:100%;
+      padding:0;
+      margin:0;
+      --lh-card:#fff;
+      --lh-cream:#f8f8f7;
+      --lh-border:rgba(15,23,42,.12);
+      --lh-border-strong:rgba(15,23,42,.18);
+      --lh-shadow:0 10px 30px rgba(15,23,42,.07);
+      --lh-shadow-soft:0 4px 14px rgba(15,23,42,.05);
+      --lh-radius:30px;
+      --lh-muted:rgba(17,24,39,.62);
+      --lh-blue:#3b82f6;
+      --lh-green:#22c55e;
+      --lh-purple:#8b5cf6;
+    }
+    #asg-listing-hub-root *{box-sizing:border-box;margin:0;padding:0}
+    
+    /* ── SHIELD AGAINST SITEWIDE GLOBAL CSS ────────────────────── */
+    #asg-listing-hub-root img,
+    #asg-listing-hub-root picture,
+    #asg-listing-hub-root video,
+    #asg-listing-hub-root figure,
+    #asg-listing-hub-root iframe{
+      border-radius:0 !important;
+      transform:none !important;
+      transition:none !important;
+      overflow:visible !important;
+      box-shadow:none !important;
+    }
+    #asg-listing-hub-root .lh-media,
+    #asg-listing-hub-root .lh-thumb,
+    #asg-listing-hub-root .lh-modal{
+      overflow:hidden !important;
+    }
+    #asg-listing-hub-root .lh-media img{border-radius:22px 22px 0 0 !important}
+    #asg-listing-hub-root .lh-thumb img{border-radius:10px !important}
+    @media(max-width:920px){
+      #asg-listing-hub-root .lh-thumb img{border-radius:9px !important}
+    }
+    @media(max-width:640px){
+      #asg-listing-hub-root .lh-thumb img{border-radius:8px !important}
+    }
+    
+    /* ── ANIMATIONS ────────────────────────────────────────────── */
+    @keyframes lhFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes lhSpin{to{transform:rotate(360deg)}}
+    @keyframes lhSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes lhOverlayIn{from{opacity:0}to{opacity:1}}
+    @keyframes lhOverlayOut{from{opacity:1}to{opacity:0}}
+    @keyframes lhConfetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    
+    /* ── MAIN SHELL ────────────────────────────────────────────── */
+    .lh-wrap{
+      max-width:1440px;
+      margin:0 auto;
+      background:var(--lh-card);
+      border:1px solid var(--lh-border);
+      border-radius:var(--lh-radius);
+      box-shadow:var(--lh-shadow);
+      padding:44px;
+      animation:lhFadeIn .45s ease both;
+    }
+    .lh-label{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:fit-content;
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid var(--lh-border);
+      background:var(--lh-cream);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(17,24,39,.66);
+      margin-bottom:20px;
+    }
+    .lh-label-dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#111}
+    .lh-title{
+      font-size:32px;
+      font-weight:800;
+      letter-spacing:-.03em;
+      line-height:1.05;
+      color:#111;
+      margin-bottom:10px;
+    }
+    .lh-desc{
+      max-width:620px;
+      font-size:15px;
+      color:var(--lh-muted);
+      line-height:1.6;
+      margin-bottom:30px;
+    }
+    
+    /* ── CONTROLS ──────────────────────────────────────────────── */
+    .lh-controls{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .lh-tabs{
+      display:inline-flex;
+      gap:6px;
+      padding:5px;
+      border-radius:999px;
+      background:#f4f4f3;
+      border:1px solid var(--lh-border);
+    }
+    .lh-tab{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:var(--lh-muted);
+      font-family:inherit;
+      font-size:13px;
+      font-weight:600;
+      line-height:1;
+      padding:11px 20px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:all .18s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .lh-tab-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:currentColor;
+      opacity:.45;
+      flex-shrink:0;
+    }
+    .lh-tab-dot.is-closed{background:#ef4444;opacity:1}
+    .lh-tab:hover{color:#111}
+    .lh-tab.is-on{
+      background:#111;
+      color:#fff;
+      box-shadow:0 4px 12px rgba(17,24,39,.22);
+    }
+    .lh-search,.lh-filter{
+      height:48px;
+      border-radius:999px;
+      border:1px solid var(--lh-border);
+      background:#fff;
+      color:#111;
+      font-size:13px;
+      font-family:inherit;
+      outline:none;
+      transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+    }
+    .lh-search{
+      flex:1;
+      min-width:220px;
+      padding:0 20px;
+    }
+    .lh-search::placeholder{
+      color:rgba(17,24,39,.5);
+      letter-spacing:.01em;
+      opacity:1;
+    }
+    .lh-filter{
+      min-width:196px;
+      padding:0 22px;
+      font-size:14px;
+      line-height:1;
+      -webkit-appearance:none;
+      appearance:none;
+      background-image:linear-gradient(45deg,transparent 50%,#666 50%),linear-gradient(135deg,#666 50%,transparent 50%);
+      background-position:calc(100% - 18px) calc(50% - 2px),calc(100% - 12px) calc(50% - 2px);
+      background-size:6px 6px,6px 6px;
+      background-repeat:no-repeat;
+    }
+    .lh-search:focus,.lh-filter:focus{
+      border-color:var(--lh-border-strong);
+      box-shadow:0 0 0 4px rgba(15,23,42,.06);
+    }
+    .lh-dd{
+      position:relative;
+      min-width:236px;
+      flex:0 0 auto;
+    }
+    .lh-dd-trigger{
+      width:100%;
+      height:56px;
+      border-radius:999px;
+      border:1px solid var(--lh-border);
+      background:#fff;
+      color:#111;
+      font-size:15px;
+      font-family:inherit;
+      padding:0 26px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      cursor:pointer;
+      transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+      text-align:left;
+    }
+    .lh-dd.is-open .lh-dd-trigger{
+      border-color:var(--lh-border-strong);
+      box-shadow:0 0 0 4px rgba(15,23,42,.06);
+    }
+    .lh-dd-label{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      line-height:1.2;
+      color:#111;
+    }
+    .lh-dd-caret{
+      width:0;height:0;flex-shrink:0;
+      border-left:5px solid transparent;
+      border-right:5px solid transparent;
+      border-top:6px solid #666;
+      transition:transform .18s ease;
+    }
+    .lh-dd.is-open .lh-dd-caret{transform:rotate(180deg)}
+    .lh-dd-menu{
+      position:absolute;
+      top:calc(100% + 8px);
+      left:-6px;
+      right:-6px;
+      max-height:360px;
+      overflow-y:auto;
+      background:#fff;
+      border:1px solid var(--lh-border);
+      border-radius:22px;
+      box-shadow:0 18px 34px rgba(15,23,42,.18);
+      z-index:30;
+      padding:12px;
+      display:none;
+    }
+    .lh-dd-menu::-webkit-scrollbar{width:8px}
+    .lh-dd-menu::-webkit-scrollbar-thumb{background:rgba(15,23,42,.2);border-radius:999px}
+    .lh-dd-menu::-webkit-scrollbar-track{background:transparent}
+    .lh-dd.is-open .lh-dd-menu{display:block}
+    .lh-dd-option{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:#111;
+      font:inherit;
+      font-size:16px;
+      font-weight:600;
+      text-align:left;
+      padding:15px 20px;
+      border-radius:14px;
+      cursor:pointer;
+      line-height:1.5;
+      letter-spacing:.01em;
+      display:block;
+      transition:background .16s ease,color .16s ease;
+    }
+    .lh-dd-option + .lh-dd-option{margin-top:6px}
+    .lh-dd-option:hover{background:#f6f8fc}
+    .lh-dd-option.is-selected{
+      background:#eef3fc;
+      color:#0f172a;
+      font-weight:700;
+    }
+    
+    /* ── SUMMARY PILLS ─────────────────────────────────────────── */
+    .lh-summary{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:22px;
+    }
+    .lh-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 20px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--lh-border);
+      box-shadow:var(--lh-shadow-soft);
+      font-size:13px;
+      font-weight:700;
+      color:#111;
+    }
+    .lh-pill.is-active::before{
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--lh-green);
+      box-shadow:0 0 0 2px rgba(34,197,94,.15);
+    }
+    .lh-pill.is-closed::before{
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#ef4444;
+      box-shadow:0 0 0 2px rgba(239,68,68,.16);
+    }
+    .lh-pill span{color:var(--lh-muted);font-weight:500}
+    
+    /* ── CARD GRID ─────────────────────────────────────────────── */
+    .lh-cards-area{margin-bottom:24px}
+    .lh-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+    .lh-card{
+      position:relative;
+      background:#fff;
+      border:1px solid var(--lh-border);
+      border-radius:22px;
+      box-shadow:var(--lh-shadow-soft);
+      transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .lh-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 28px rgba(15,23,42,.1);
+      border-color:var(--lh-border-strong);
+    }
+    .lh-media{
+      position:relative;
+      aspect-ratio:16/7;
+      overflow:hidden;
+      background:linear-gradient(135deg,rgba(17,24,39,.08),rgba(17,24,39,.14));
+    }
+    .lh-media img{width:100%;height:100%;object-fit:cover;display:block;border-radius:22px 22px 0 0}
+    .lh-media-empty{
+      width:100%;
+      height:100%;
+      display:grid;
+      place-items:center;
+      color:rgba(255,255,255,.88);
+      font-size:11px;
+      font-weight:600;
+      border-radius:22px 22px 0 0;
+      background:radial-gradient(circle at top left,rgba(255,255,255,.16),transparent 35%),linear-gradient(145deg,#32353c,#1f2126);
+      text-align:center;
+      padding:10px;
+    }
+    .lh-badge{
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:2;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      min-height:26px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(17,24,39,.14);
+      font-size:10px;
+      font-weight:700;
+      line-height:1;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:#111;
+      box-shadow:0 2px 8px rgba(15,23,42,.08);
+      white-space:nowrap;
+    }
+    .lh-badge::before{
+      content:"";
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#9ca3af;
+      box-shadow:0 0 0 2px rgba(156,163,175,.18);
+    }
+    .lh-badge.is-active::before{background:var(--lh-green);box-shadow:0 0 0 2px rgba(34,197,94,.15)}
+    .lh-badge.status-closed::before{background:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.16)}
+    .lh-badge.status-coming-soon::before{background:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.18)}
+    .lh-badge.status-under-contract::before{background:#eab308;box-shadow:0 0 0 2px rgba(234,179,8,.18)}
+    .lh-badge:nth-child(2){top:46px}
+    .lh-badge-type{background:var(--lh-blue);color:#fff;border-color:var(--lh-blue)}
+    .lh-badge-type,
+    .lh-badge-rental{
+      background:#f4f4f3;
+      color:#111;
+      border-color:rgba(17,24,39,.12);
+      box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
+    }
+    .lh-body{
+      padding:18px;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .lh-address{
+      font-size:18px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+      font-weight:700;
+      color:#111;
+    }
+    .lh-meta{
+      font-size:13px;
+      color:var(--lh-muted);
+      line-height:1.35;
+      font-weight:500;
+      margin-top:6px;
+    }
+    .lh-actions{display:flex;flex-wrap:wrap;gap:8px}
+    .lh-btn,.lh-rbtn{
+      appearance:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid var(--lh-border);
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      font-family:inherit;
+      font-size:12px;
+      font-weight:600;
+      line-height:1;
+      transition:all .18s ease;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    .lh-btn:hover,.lh-rbtn:hover{
+      background:#111;
+      color:#fff;
+      border-color:#111;
+      transform:none;
+    }
+    .lh-btn.is-off,.lh-rbtn.is-off{
+      pointer-events:none;
+      opacity:.38;
+      background:#f5f5f4;
+      color:rgba(17,17,17,.42);
+    }
+    .lh-btn-share,.lh-rbtn-share{
+      background:#111;
+      color:#fff;
+      border-color:#111;
+    }
+    .lh-btn-share:hover,.lh-rbtn-share:hover{
+      background:#000;
+      border-color:#000;
+      color:#fff;
+    }
+    .lh-btn-sent,.lh-rbtn-sent{background:var(--lh-green);color:#fff;border-color:var(--lh-green);pointer-events:none}
+    
+    /* ── LIST VIEW ─────────────────────────────────────────────── */
+    .lh-list-wrap{
+      position:relative;
+      overflow:hidden;
+      min-height:0;
+      border:1px solid var(--lh-border);
+      border-radius:24px;
+      background:#fff;
+      margin-top:8px;
+    }
+    .lh-scroll{
+      overflow-y:auto;
+      max-height:380px;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(17,24,39,.25) transparent;
+    }
+    .lh-scroll.is-message{
+      max-height:none;
+      overflow:visible;
+    }
+    .lh-fade{
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height:36px;
+      background:linear-gradient(to bottom,rgba(255,255,255,0),#fff);
+      pointer-events:none;
+      z-index:2;
+    }
+    .lh-list{display:flex;flex-direction:column}
+    .lh-row{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+      transition:background .15s ease;
+      cursor:default;
+    }
+    .lh-row:last-child{border-bottom:none}
+    .lh-row:hover{background:#fafafa}
+    .lh-thumb{
+      width:96px;
+      height:64px;
+      min-width:96px;
+      border-radius:10px;
+      overflow:hidden;
+      background:linear-gradient(135deg,rgba(17,24,39,.08),rgba(17,24,39,.14));
+    }
+    .lh-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .lh-thumb-empty{
+      width:100%;
+      height:100%;
+      display:grid;
+      place-items:center;
+      color:rgba(255,255,255,.75);
+      font-size:9px;
+      font-weight:600;
+      text-align:center;
+      background:radial-gradient(circle at top left,rgba(255,255,255,.14),transparent 35%),linear-gradient(145deg,#3a3a3a,#1f1f1f);
+    }
+    .lh-row-info{
+      flex:1;
+      min-width:0;
+      max-width:280px;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+    .lh-row-addr{
+      font-size:15px;
+      font-weight:700;
+      color:#111;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .lh-row-meta{font-size:13px;color:var(--lh-muted);font-weight:500}
+    .lh-row-status{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      line-height:1;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      flex-shrink:0;
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(17,24,39,.14);
+      color:#111;
+    }
+    .lh-row-status::before{
+      content:"";
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#9ca3af;
+      box-shadow:0 0 0 2px rgba(156,163,175,.18);
+    }
+    .lh-row-status.is-active::before{background:var(--lh-green);box-shadow:0 0 0 2px rgba(34,197,94,.15)}
+    .lh-row-status.status-closed::before{background:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.16)}
+    .lh-row-status.status-coming-soon::before{background:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.18)}
+    .lh-row-status.status-under-contract::before{background:#eab308;box-shadow:0 0 0 2px rgba(234,179,8,.18)}
+    .lh-row-actions{
+      display:flex;
+      gap:8px;
+      flex-shrink:0;
+      flex-wrap:nowrap;
+      max-width:none;
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:thin;
+      padding:2px 0;
+    }
+    .lh-row-actions::-webkit-scrollbar{height:5px}
+    
+    /* ── STATES ────────────────────────────────────────────────── */
+    .lh-empty,.lh-loading,.lh-error{
+      padding:34px 24px;
+      border-radius:20px;
+      background:#fafaf9;
+      border:1px solid var(--lh-border);
+      text-align:center;
+      color:var(--lh-muted);
+      font-size:14px;
+      line-height:1.45;
+      min-height:160px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      margin:10px;
+    }
+    .lh-spinner{
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      border:2px solid rgba(17,24,39,.12);
+      border-top-color:#111;
+      margin:0 auto 10px;
+      animation:lhSpin .8s linear infinite;
+    }
+    
+    /* ── SHARE MODAL ───────────────────────────────────────────── */
+    .lh-overlay{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:rgba(15,23,42,.5);
+      z-index:99999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation:lhOverlayIn .28s ease;
+      backdrop-filter:blur(5px);
+    }
+    .lh-overlay.closing{animation:lhOverlayOut .28s ease forwards}
+    .lh-modal{
+      background:#fff;
+      border-radius:28px;
+      border:1px solid var(--lh-border);
+      width:min(580px,92vw);
+      max-height:85vh;
+      box-shadow:0 30px 70px rgba(15,23,42,.25);
+      position:relative;
+      overflow:hidden;
+      animation:lhSlideUp .35s ease;
+    }
+    .lh-modal-head{
+      padding:24px 28px;
+      border-bottom:1px solid var(--lh-border);
+      display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+    }
+    .lh-modal-title{font-size:24px;font-weight:800;letter-spacing:-.02em;color:#111;line-height:1.1}
+    .lh-modal-sub{font-size:13px;color:var(--lh-muted);margin-top:6px}
+    .lh-modal-x{
+      appearance:none;
+      border:0;
+      background:transparent;
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background .18s ease;
+      font-size:20px;
+      color:#555;
+    }
+    .lh-modal-x:hover{background:rgba(15,23,42,.08)}
+    .lh-modal-progress{
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+      padding:14px 28px;border-bottom:1px solid var(--lh-border);background:#fafafa;
+    }
+    .lh-prog{
+      display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;
+      border:1px solid var(--lh-border);background:#fff;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#6b7280;
+    }
+    .lh-prog-dot{width:7px;height:7px;border-radius:50%;background:#d1d5db}
+    .lh-prog.is-on{color:#111;border-color:rgba(17,24,39,.2)}
+    .lh-prog.is-on .lh-prog-dot{background:#111}
+    .lh-prog.is-done{color:#166534;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
+    .lh-prog.is-done .lh-prog-dot{background:#22c55e}
+    .lh-modal-body{padding:28px;max-height:calc(85vh - 148px);overflow-y:auto}
+    .lh-step{display:none;animation:lhSlideUp .25s ease}
+    .lh-step.on{display:block}
+    .lh-share-context{
+      border:1px solid var(--lh-border);border-radius:16px;background:#fbfbfb;
+      padding:14px 16px;margin-bottom:18px;
+    }
+    .lh-share-eyebrow{
+      font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin-bottom:6px;
+    }
+    .lh-share-address{font-size:16px;font-weight:700;color:#111;line-height:1.2}
+    .lh-share-meta{font-size:13px;color:var(--lh-muted);margin-top:4px}
+    .lh-field-label{
+      font-size:13px;
+      font-weight:700;
+      color:#111;
+      margin-bottom:10px;
+      display:block;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+    .lh-field-note{font-size:13px;color:var(--lh-muted);margin-top:8px}
+    .lh-input{
+      width:100%;
+      height:52px;
+      border-radius:16px;
+      border:1px solid var(--lh-border);
+      padding:0 16px;
+      font-size:15px;
+      font-family:inherit;
+      outline:none;
+      transition:border-color .2s,box-shadow .2s;
+      background:#fff;
+    }
+    .lh-input:focus{border-color:rgba(59,130,246,.55);box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+    .lh-input-wrap{position:relative}
+    #lhStep1 .lh-input-wrap{margin-top:10px;margin-bottom:14px}
+    #lhStep1 #lhRecipInput{padding:0 20px}
+    #lhStep1 #lhRecipInput::placeholder{color:rgba(17,24,39,.55)}
+    .lh-ac{
+      position:absolute;
+      top:100%;
+      left:0;
+      right:0;
+      margin-top:8px;
+      background:#fff;
+      border-radius:14px;
+      border:1px solid var(--lh-border);
+      box-shadow:0 18px 36px rgba(15,23,42,.14);
+      max-height:240px;
+      overflow-y:auto;
+      z-index:20;
+    }
+    .lh-ac-item{
+      padding:12px 14px;
+      cursor:pointer;
+      transition:background .15s;
+      border-bottom:1px solid rgba(15,23,42,.08);
+    }
+    .lh-ac-item:last-child{border-bottom:0}
+    .lh-ac-item:hover{background:rgba(59,130,246,.08)}
+    .lh-ac-name{font-size:14px;font-weight:600;color:#111}
+    .lh-ac-email{font-size:12px;color:var(--lh-muted);margin-top:2px}
+    .lh-recipients{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;min-height:22px}
+    .lh-recip-empty{font-size:13px;color:var(--lh-muted)}
+    .lh-recip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      background:rgba(59,130,246,.1);
+      border:1px solid rgba(59,130,246,.24);
+      border-radius:999px;
+      font-size:13px;
+      font-weight:600;
+      color:#1e40af;
+    }
+    .lh-inline-msg{
+      margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(239,68,68,.25);
+      background:rgba(239,68,68,.06);font-size:13px;color:#b91c1c;display:none;
+    }
+    .lh-inline-msg.on{display:block}
+    .lh-recip-rm{
+      appearance:none;
+      border:0;
+      background:transparent;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#1e40af;
+      font-size:16px;
+      line-height:1;
+      transition:background .18s ease;
+    }
+    .lh-recip-rm:hover{background:rgba(59,130,246,.2)}
+    .lh-preview{
+      background:#fafafa;
+      border:1px solid var(--lh-border);
+      border-radius:18px;
+      padding:20px;
+      font-size:14px;
+      line-height:1.6;
+      color:#111;
+      margin-bottom:30px;
+      white-space:pre-wrap;
+      font-family:'Outfit',system-ui,-apple-system,sans-serif;
+    }
+    .lh-preview-head{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin-bottom:8px}
+    .lh-modal-foot{
+      padding:22px 28px 26px;
+      border-top:1px solid var(--lh-border);
+      display:flex;
+      gap:14px;
+      justify-content:flex-end;
+      align-items:center;
+      background:#fff;
+    }
+    .lh-mbtn{
+      appearance:none;
+      border:0;
+      padding:0 26px;
+      min-height:48px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      font-family:inherit;
+      cursor:pointer;
+      transition:all .18s ease;
+      min-width:136px;
+    }
+    .lh-mbtn-sec{background:#f4f4f3;color:#111}
+    .lh-mbtn-sec:hover{background:#ececea}
+    .lh-mbtn-pri{background:#111;color:#fff}
+    .lh-mbtn-pri:hover{background:#000;box-shadow:0 8px 16px rgba(0,0,0,.2)}
+    .lh-mbtn-pri:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .lh-mbtn:focus{outline:none}
+    .lh-mbtn:focus-visible{box-shadow:0 0 0 3px rgba(17,24,39,.18)}
+    .lh-success{text-align:center;padding:36px 16px}
+    .lh-success-icon{font-size:56px;margin-bottom:16px}
+    .lh-success-title{font-size:24px;font-weight:800;margin-bottom:10px}
+    .lh-success-text{font-size:15px;color:var(--lh-muted);margin-bottom:20px}
+    .lh-confetti{
+      position:fixed;
+      width:10px;
+      height:10px;
+      z-index:100000;
+      animation:lhConfetti 3s ease-out forwards;
+      pointer-events:none;
+    }
+    
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media(max-width:1200px){
+      .lh-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .lh-row-actions{max-width:360px}
+    }
+    @media(max-width:920px){
+      .lh-wrap{padding:34px}
+      .lh-title{font-size:28px}
+      .lh-controls{gap:10px;margin-bottom:18px}
+      .lh-summary{margin-bottom:20px}
+      .lh-cards-area{margin-bottom:20px}
+      .lh-grid{gap:16px}
+      .lh-search{min-width:100%}
+      .lh-dd{min-width:calc(50% - 4px);flex:1}
+      .lh-row{align-items:flex-start;gap:12px;padding:13px 14px}
+      .lh-thumb{width:86px;height:58px;min-width:86px;border-radius:9px}
+      .lh-row-info{max-width:none}
+      .lh-row-actions{max-width:none}
+    }
+    @media(max-width:640px){
+      .lh-wrap{padding:26px;border-radius:24px}
+      .lh-title{font-size:24px}
+      .lh-desc{font-size:14px;margin-bottom:24px}
+      .lh-grid{grid-template-columns:1fr;gap:14px}
+      .lh-controls{flex-direction:column;align-items:stretch;gap:10px;margin-bottom:18px}
+      .lh-summary{margin-bottom:18px}
+      .lh-cards-area{margin-bottom:18px}
+      .lh-search,.lh-dd{min-width:100%;width:100%}
+      .lh-list-wrap{border-radius:18px;margin-top:8px}
+      .lh-scroll{max-height:300px}
+      .lh-row{
+        flex-wrap:wrap;
+        gap:10px;
+        padding:12px;
+      }
+      .lh-thumb{
+        width:76px;
+        height:54px;
+        min-width:76px;
+        border-radius:8px;
+      }
+      .lh-row-info{flex:1 1 calc(100% - 90px)}
+      .lh-row-status{order:3}
+      .lh-row-actions{
+        flex:1 1 100%;
+        width:100%;
+        gap:6px;
+      }
+      .lh-modal{
+        width:min(580px,95vw);
+        border-radius:24px;
+      }
+      .lh-modal-head,.lh-modal-body,.lh-modal-foot{padding-left:20px;padding-right:20px}
+      .lh-modal-foot{padding-top:16px;padding-bottom:18px}
+      .lh-mbtn{min-height:44px;min-width:112px}
+    }
+
+    /* ── FORCED SPACING OVERRIDES (SCOPED) ─────────────────────── */
+    #asg-listing-hub-root .lh-wrap{padding:44px}
+    #asg-listing-hub-root .lh-label{margin-bottom:20px}
+    #asg-listing-hub-root .lh-title{margin-bottom:10px}
+    #asg-listing-hub-root .lh-desc{margin-bottom:30px}
+    #asg-listing-hub-root .lh-controls{gap:12px;margin-bottom:20px}
+    #asg-listing-hub-root .lh-tabs{gap:6px;padding:5px}
+    #asg-listing-hub-root .lh-tab{padding:11px 20px}
+    #asg-listing-hub-root .lh-search{height:48px}
+    #asg-listing-hub-root .lh-dd-trigger{height:56px;padding:0 26px}
+    #asg-listing-hub-root .lh-search{padding:0 20px}
+    #asg-listing-hub-root .lh-search::placeholder{color:rgba(17,24,39,.5);letter-spacing:.01em}
+    #asg-listing-hub-root .lh-summary{gap:10px;margin-bottom:22px}
+    #asg-listing-hub-root .lh-pill{gap:10px;padding:12px 20px;font-size:13px}
+    #asg-listing-hub-root .lh-pill.is-active::before{width:8px;height:8px}
+    #asg-listing-hub-root .lh-label{gap:10px;padding:10px 16px;font-size:12px}
+    #asg-listing-hub-root .lh-cards-area{margin-bottom:24px}
+    #asg-listing-hub-root .lh-grid{gap:20px}
+    #asg-listing-hub-root .lh-badge{
+      top:12px;
+      right:12px;
+      min-height:26px;
+      padding:7px 12px;
+      letter-spacing:.06em;
+    }
+    #asg-listing-hub-root .lh-badge:nth-child(2){top:46px}
+    #asg-listing-hub-root .lh-body{padding:18px;gap:12px}
+    #asg-listing-hub-root .lh-actions{gap:8px}
+    #asg-listing-hub-root .lh-btn,
+    #asg-listing-hub-root .lh-rbtn{min-height:36px;padding:0 14px;font-size:12px}
+    #asg-listing-hub-root .lh-list-wrap{border-radius:24px;margin-top:8px}
+    #asg-listing-hub-root .lh-scroll{max-height:380px}
+    #asg-listing-hub-root .lh-scroll.is-message{max-height:none;overflow:visible}
+    #asg-listing-hub-root .lh-row{gap:14px;padding:14px 16px}
+    #asg-listing-hub-root .lh-thumb{width:96px;height:64px;min-width:96px;border-radius:10px}
+    #asg-listing-hub-root .lh-row-info{gap:5px}
+    #asg-listing-hub-root .lh-row-addr{font-size:15px}
+    #asg-listing-hub-root .lh-row-meta{font-size:13px}
+    #asg-listing-hub-root .lh-row-status{padding:7px 12px;font-size:11px}
+    #asg-listing-hub-root .lh-row-actions{gap:8px;max-width:none;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}
+
+    @media(max-width:920px){
+      #asg-listing-hub-root .lh-wrap{padding:34px}
+      #asg-listing-hub-root .lh-controls{gap:10px;margin-bottom:18px}
+      #asg-listing-hub-root .lh-summary{margin-bottom:20px}
+      #asg-listing-hub-root .lh-cards-area{margin-bottom:20px}
+      #asg-listing-hub-root .lh-grid{gap:16px}
+      #asg-listing-hub-root .lh-row{gap:12px;padding:13px 14px}
+      #asg-listing-hub-root .lh-thumb{width:86px;height:58px;min-width:86px;border-radius:9px}
+      #asg-listing-hub-root .lh-row-actions{max-width:none}
+    }
+    @media(max-width:640px){
+      #asg-listing-hub-root .lh-wrap{padding:26px;border-radius:24px}
+      #asg-listing-hub-root .lh-desc{margin-bottom:24px}
+      #asg-listing-hub-root .lh-controls{gap:10px;margin-bottom:18px}
+      #asg-listing-hub-root .lh-summary{margin-bottom:18px}
+      #asg-listing-hub-root .lh-cards-area{margin-bottom:18px}
+      #asg-listing-hub-root .lh-grid{gap:14px}
+      #asg-listing-hub-root .lh-dd-trigger{height:52px;padding:0 22px;font-size:15px}
+      #asg-listing-hub-root .lh-dd-menu{left:0;right:0;max-height:300px;padding:10px}
+      #asg-listing-hub-root .lh-dd-option{font-size:15px;padding:13px 16px}
+      #asg-listing-hub-root .lh-list-wrap{border-radius:18px}
+      #asg-listing-hub-root .lh-scroll{max-height:300px}
+      #asg-listing-hub-root .lh-row{padding:12px}
+      #asg-listing-hub-root .lh-thumb{width:76px;height:54px;min-width:76px;border-radius:8px}
+      #asg-listing-hub-root .lh-row-info{flex:1 1 calc(100% - 90px)}
+      #asg-listing-hub-root .lh-row-actions{gap:6px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}
+    }
+    </style>
+     
+     <script>
+     (function(){
+       /* ── CONFIG ────────────────────────────────────────────────── */
+       var LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+     
+       var AGENT_EMAILS={
+         'Alex Stoykov':'alex.stoykov@compass.com',
+         'Sam Abadi':'sam.abadi@compass.com',
+         'Shelly Channey':'shelly.kapoor@compass.com',
+         'Nicolas Gamboa Wills':'nicolas.gamboawills@compass.com',
+         'Julian Levit':'julianlevit@compass.com',
+         'Mino Conenna':'mino.conenna@compass.com',
+         'Angela Engelbrecht':'angela.engelbrecht@compass.com',
+         'Layne Zagorin':'layne.zagorin@compass.com',
+         'Barbara Laken':'barbara.laken@compass.com',
+         'Gabriel Rendon':'gabriel.rendon@compass.com',
+         'Matthew Clevenger':'matthew.clevenger@compass.com',
+         'Justin Curran':'justin.curran@compass.com',
+         'Cheryl Cohn':'cheryl.cohn@compass.com',
+         'David Drzal':'david.drzal@compass.com',
+         'Jason Stone':'jason.stone@compass.com',
+         'Andrea Mirchef':'andrea.mirchef@compass.com',
+         'Andrea Koedjikova':'andrea.koedjikova@compass.com',
+         'Alisa Bok':'alisa.bok@compass.com',
+         'Josie Ontiveros':'josie.ontiveros@compass.com',
+         'Nasir Rizvi':'nasir.rizvi@compass.com',
+         'Preety Sidhu':'preety.sidhu@compass.com',
+         'Chloe Dittmer':'chloe.dittmer@compass.com',
+         'Natali Tzvetkova':'natali.tzvetkova@compass.com',
+         'Myriam El-Khoury':'myriam.elkhoury@compass.com',
+         'Serge Golota':'serge.golota@compass.com',
+         'Cameron Sine':'cameron.sine@compass.com',
+         'Kelsey Glascott':'kelsey.glasscott@compass.com',
+         'Nasir Rizvi':'nasir.rizvi@compass.com'
+       };
+     
+       var SENDERS={
+         '1':{name:'Tim Urmanczy',email:'tim.urmanczy@compass.com'},
+         '2':{name:'Ellie Ngassa',email:'ellie.ngassa@compass.com'},
+         '3':{name:'Ellyn Andree',email:'ellyn.andree@compass.com'},
+         '4':{name:'Seph Gagon',email:'seph.gagon@compass.com'}
+       };
+      var SHARE_DEFAULT_RECIPIENTS=['Ellyn Andree','Seph Gagon','Ellie Ngassa'];
+     
+       /* ── HELPERS ───────────────────────────────────────────────── */
+       function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+       function norm(s){return String(s||"").trim().toLowerCase()}
+       function titleCase(s){var c=String(s||"").trim();if(!c)return"Unknown";return c.toLowerCase().split(" ").map(function(w){return w.charAt(0).toUpperCase()+w.slice(1)}).join(" ")}
+      function statusClass(s){var n=norm(s).replace(/\s+/g,"-");return n?" status-"+n:""}
+      function resolveDriveImageUrl(url){
+        var raw=String(url||"").trim();
+        if(!raw)return"";
+        if(!/drive\.google\.com|docs\.google\.com/.test(raw))return raw;
+        if(/\/drive\/folders\//.test(raw))return"";
+        var filePathMatch=raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if(filePathMatch&&filePathMatch[1])return"https://drive.google.com/thumbnail?id="+filePathMatch[1]+"&sz=w1200";
+        var idParamMatch=raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if(idParamMatch&&idParamMatch[1])return"https://drive.google.com/thumbnail?id="+idParamMatch[1]+"&sz=w1200";
+        return raw;
+      }
+     
+       /* ── STATE ─────────────────────────────────────────────────── */
+       var allListings=[];
+      var counts={active:0,closed:0};
+       var currentView="active";
+       var store={};
+       var idCounter=0;
+       var currentUser=null;
+       var modalState=null;
+     
+       /* ── DOM SETUP ─────────────────────────────────────────────── */
+       var root=document.getElementById("asg-listing-hub-root");
+       if(!root){console.error("Listing Hub: #asg-listing-hub-root not found");return;}
+     
+       root.innerHTML=[
+         '<div class="lh-wrap">',
+           '<div class="lh-label"><span class="lh-label-dot"></span>Listing Hub</div>',
+           '<div class="lh-title">Active Listings</div>',
+           '<p class="lh-desc">Quick access to live listing assets and marketing materials.</p>',
+           '<div class="lh-controls">',
+             '<div class="lh-tabs">',
+              '<button class="lh-tab is-on" data-v="active" id="lhTabActive"><span class="lh-tab-dot"></span>Active</button>',
+              '<button class="lh-tab" data-v="closed" id="lhTabClosed"><span class="lh-tab-dot is-closed"></span>Closed</button>',
+             '</div>',
+             '<input class="lh-search" type="search" placeholder="Search by address, agent..." id="lhSearch">',
+             '<div class="lh-dd" id="lhAgentFilter"></div>',
+             '<div class="lh-dd" id="lhHoodFilter"></div>',
+           '</div>',
+           '<div class="lh-summary" id="lhSummary"></div>',
+           '<div class="lh-cards-area" id="lhCards"></div>',
+           '<div class="lh-list-wrap">',
+             '<div class="lh-scroll" id="lhList"></div>',
+             '<div class="lh-fade"></div>',
+           '</div>',
+         '</div>'
+       ].join("");
+     
+       var $search=document.getElementById("lhSearch");
+      var $agentF=document.getElementById("lhAgentFilter");
+      var $hoodF=document.getElementById("lhHoodFilter");
+       var $summary=document.getElementById("lhSummary");
+       var $cards=document.getElementById("lhCards");
+       var $list=document.getElementById("lhList");
+       var $tabActive=document.getElementById("lhTabActive");
+      var $tabClosed=document.getElementById("lhTabClosed");
+      var filterState={agent:"",hood:""};
+     
+       /* ── TAB SWITCHING ─────────────────────────────────────────── */
+       $tabActive.addEventListener("click",function(){loadView("active")});
+      $tabClosed.addEventListener("click",function(){loadView("closed")});
+     
+       /* ── FILTER EVENTS ─────────────────────────────────────────── */
+       $search.addEventListener("input",render);
+
+      function createFilterDropdown(rootEl,defaultLabel,onChange){
+        var state={options:[{value:"",label:defaultLabel}],value:""};
+        rootEl.innerHTML='<button type="button" class="lh-dd-trigger"><span class="lh-dd-label">'+esc(defaultLabel)+'</span><span class="lh-dd-caret"></span></button><div class="lh-dd-menu"></div>';
+        var trigger=rootEl.querySelector(".lh-dd-trigger");
+        var labelEl=rootEl.querySelector(".lh-dd-label");
+        var menu=rootEl.querySelector(".lh-dd-menu");
+
+        function close(){rootEl.classList.remove("is-open")}
+        function open(){rootEl.classList.add("is-open")}
+        function setValue(value,silent){
+          state.value=String(value||"");
+          var chosen=state.options.find(function(o){return o.value===state.value});
+          labelEl.textContent=chosen?chosen.label:defaultLabel;
+          renderMenu();
+          if(!silent&&onChange)onChange(state.value);
+        }
+        function renderMenu(){
+          menu.innerHTML=state.options.map(function(opt){
+            var cls='lh-dd-option'+(opt.value===state.value?' is-selected':'');
+            return '<button type="button" class="'+cls+'" data-value="'+esc(opt.value)+'">'+esc(opt.label)+'</button>';
+          }).join("");
+        }
+        function setOptions(options){
+          state.options=options&&options.length?options:[{value:"",label:defaultLabel}];
+          var hasSelected=state.options.some(function(o){return o.value===state.value});
+          if(!hasSelected)state.value="";
+          setValue(state.value,true);
+        }
+
+        trigger.addEventListener("click",function(e){
+          e.preventDefault();e.stopPropagation();
+          if(rootEl.classList.contains("is-open"))close();else open();
+        });
+        menu.addEventListener("click",function(e){
+          var btn=e.target.closest(".lh-dd-option");
+          if(!btn)return;
+          setValue(btn.getAttribute("data-value")||"");
+          close();
+        });
+        document.addEventListener("click",function(e){
+          if(!rootEl.contains(e.target))close();
+        });
+
+        setOptions(state.options);
+        return{
+          setOptions:setOptions,
+          getValue:function(){return state.value;},
+          setValue:setValue
+        };
+      }
+
+      var agentDropdown=createFilterDropdown($agentF,"All Agents",function(value){filterState.agent=value;render();});
+      var hoodDropdown=createFilterDropdown($hoodF,"All Neighborhoods",function(value){filterState.hood=value;render();});
+     
+       /* ── USER LOGIN ────────────────────────────────────────────── */
+       function getUser(){
+         if(currentUser)return currentUser;
+         try{var s=localStorage.getItem("asgLhUser");if(s&&SENDERS[s]){currentUser=s;return s;}}catch(e){}
+         var choice=prompt("Who is logging in?\n\n1. Tim Urmanczy\n2. Ellie Ngassa\n3. Ellyn Andree\n4. Seph Gagon\n\nEnter 1-4:");
+         if(choice&&SENDERS[choice]){
+           currentUser=choice;
+           try{localStorage.setItem("asgLhUser",choice)}catch(e){}
+           return choice;
+         }
+         alert("Invalid selection. Please try again.");
+         return null;
+       }
+     
+       /* ── UNIQUE SORTED VALUES ──────────────────────────────────── */
+       function uniqueVals(items,key){
+         var seen={};var out=[];
+         items.forEach(function(item){
+           var v=String(item[key]||"").trim();
+           if(v&&!seen[v]){seen[v]=1;out.push(v)}
+         });
+         return out.sort();
+       }
+     
+       /* ── POPULATE FILTERS ──────────────────────────────────────── */
+       function fillFilters(items){
+         var agents=uniqueVals(items,"agent");
+         var hoods=uniqueVals(items,"neighborhood");
+        agentDropdown.setOptions([{value:"",label:"All Agents"}].concat(agents.map(function(a){return{value:a,label:a}})));
+        hoodDropdown.setOptions([{value:"",label:"All Neighborhoods"}].concat(hoods.map(function(n){return{value:n,label:n}})));
+        filterState.agent=agentDropdown.getValue();
+        filterState.hood=hoodDropdown.getValue();
+       }
+     
+       /* ── FILTER LISTINGS ───────────────────────────────────────── */
+       function filtered(){
+         var q=norm($search.value);
+        var af=norm(filterState.agent);
+        var nf=norm(filterState.hood);
+         return allListings.filter(function(item){
+           var hay=[item.address,item.neighborhood,item.agent,item.status].map(norm).join(" ");
+           if(q&&hay.indexOf(q)===-1)return false;
+           if(af&&norm(item.agent)!==af)return false;
+           if(nf&&norm(item.neighborhood)!==nf)return false;
+           return true;
+         });
+       }
+     
+       /* ── BUTTON BUILDERS ───────────────────────────────────────── */
+       function aBtn(label,url){
+         if(!url)return'<span class="lh-btn is-off">'+esc(label)+'</span>';
+         return'<a class="lh-btn" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(label)+'</a>';
+       }
+       function rBtn(label,url){
+         if(!url)return'<span class="lh-rbtn is-off">'+esc(label)+'</span>';
+         return'<a class="lh-rbtn" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(label)+'</a>';
+       }
+       function shareBtn(item){
+         if(item.emailSent)return'<span class="lh-btn lh-btn-sent">✓ Sent</span>';
+         var sid="lh_"+(idCounter++);
+         store[sid]=item;
+         return'<button class="lh-btn lh-btn-share" onclick="window._lhShare(\''+sid+'\')">Share</button>';
+       }
+       function rShareBtn(item){
+         if(item.emailSent)return'<span class="lh-rbtn lh-rbtn-sent">✓ Sent</span>';
+         var sid="lh_"+(idCounter++);
+         store[sid]=item;
+         return'<button class="lh-rbtn lh-rbtn-share" onclick="window._lhShare(\''+sid+'\')">Share</button>';
+       }
+     
+      /* ── COMBINED STATUS BADGE ─────────────────────────────────── */
+      function statusBadge(item){
+        var status=titleCase(item.status);
+        var listingType=String(item.listingType||"").trim();
+        var label=status&&listingType?(status+" · "+listingType):(status||listingType||"Listing");
+        var isActiveStatus=norm(item.status).indexOf("active")!==-1;
+        var cls="lh-badge"+(isActiveStatus?" is-active":"")+statusClass(item.status);
+        return'<span class="'+cls+'">'+esc(label)+'</span>';
+      }
+     
+       /* ── RENDER ────────────────────────────────────────────────── */
+       function render(){
+         var items=filtered();
+         store={};idCounter=0;
+        $list.classList.remove("is-message");
+     
+         // Summary
+         var aLabel=counts.active===1?"active listing":"active listings";
+        var rLabel=counts.closed===1?"closed listing":"closed listings";
+       $summary.innerHTML='<div class="lh-pill is-active">'+counts.active+' <span>'+aLabel+'</span></div><div class="lh-pill is-closed">'+counts.closed+' <span>'+rLabel+'</span></div>';
+     
+         if(!items.length){
+          $list.classList.add("is-message");
+           $cards.innerHTML="";
+           $list.innerHTML='<div class="lh-empty">No listings found. Adjust the search or filters.</div>';
+           return;
+         }
+     
+        var searching=($search.value.trim()||filterState.agent||filterState.hood);
+     
+         if(searching){
+           // All as cards
+           $cards.innerHTML='<div class="lh-grid">'+items.map(cardHTML).join("")+'</div>';
+           $list.innerHTML="";
+         }else{
+           // Top 3 as cards, rest as list
+           var top=items.slice(0,3);
+           var rest=items.slice(3);
+           $cards.innerHTML=top.length?'<div class="lh-grid">'+top.map(cardHTML).join("")+'</div>':"";
+           $list.innerHTML=rest.length?'<div class="lh-list">'+rest.map(rowHTML).join("")+'</div>':"";
+         }
+       }
+     
+       function cardHTML(item){
+         var addr=esc(item.address||"Untitled");
+         var hood=esc(item.neighborhood||"");
+         var agent=esc(item.agent||"");
+        var cover=resolveDriveImageUrl(item.coverImage);
+         var meta="";
+         if(agent&&hood)meta=agent+" · "+hood;
+         else meta=agent||hood;
+     
+         return[
+           '<article class="lh-card">',
+             '<div class="lh-media">',
+              statusBadge(item),
+              cover?'<img src="'+esc(cover)+'" alt="'+addr+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=&quot;lh-media-empty&quot;>No cover image</div>\'">':'<div class="lh-media-empty">No cover image</div>',
+             '</div>',
+             '<div class="lh-body">',
+               '<div>',
+                 '<h3 class="lh-address">'+addr+'</h3>',
+                 meta?'<p class="lh-meta">'+meta+'</p>':"",
+               '</div>',
+               '<div class="lh-actions">',
+                 shareBtn(item),
+                 aBtn("Photos",item.photos),
+                 aBtn("Matterport",item.matterport),
+                 aBtn("Floor Plan",item.floorPlan),
+                 aBtn("Fact Sheet",item.factSheet),
+                 aBtn("Open House",item.openHouse),
+                 aBtn("Video",item.video),
+               '</div>',
+             '</div>',
+           '</article>'
+         ].join("");
+       }
+     
+       function rowHTML(item){
+         var addr=esc(item.address||"Untitled");
+         var hood=esc(item.neighborhood||"");
+         var agent=esc(item.agent||"");
+        var cover=resolveDriveImageUrl(item.coverImage);
+        var statusText=titleCase(item.status);
+        var isActiveStatus=norm(item.status).indexOf("active")!==-1;
+        var rowStatusClass="lh-row-status"+(isActiveStatus?" is-active":"")+statusClass(item.status);
+         var meta="";
+         if(agent&&hood)meta=agent+" · "+hood;
+         else meta=agent||hood;
+     
+         return[
+           '<div class="lh-row">',
+             '<div class="lh-thumb">',
+              cover?'<img src="'+esc(cover)+'" alt="'+addr+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=&quot;lh-thumb-empty&quot;>No img</div>\'">':'<div class="lh-thumb-empty">No img</div>',
+             '</div>',
+             '<div class="lh-row-info">',
+               '<div class="lh-row-addr">'+addr+'</div>',
+               meta?'<div class="lh-row-meta">'+meta+'</div>':"",
+             '</div>',
+            '<div class="'+rowStatusClass+'">'+esc(statusText)+'</div>',
+             '<div class="lh-row-actions">',
+               rShareBtn(item),
+               rBtn("Photos",item.photos),
+               rBtn("Matterport",item.matterport),
+               rBtn("Floor Plan",item.floorPlan),
+               rBtn("Fact Sheet",item.factSheet),
+               rBtn("Open House",item.openHouse),
+               rBtn("Video",item.video),
+             '</div>',
+           '</div>'
+         ].join("");
+       }
+     
+       /* ── LOADING / ERROR STATES ────────────────────────────────── */
+       function showLoading(){
+        $list.classList.add("is-message");
+         $cards.innerHTML="";
+         $list.innerHTML='<div class="lh-loading"><div class="lh-spinner"></div>Loading listings...</div>';
+       }
+       function showError(){
+        $list.classList.add("is-message");
+         $summary.innerHTML="";
+         $cards.innerHTML="";
+         $list.innerHTML='<div class="lh-error"><strong>Unable to load listings.</strong><br>Check the web app deployment permissions and endpoint.</div>';
+       }
+     
+       /* ── FETCH ─────────────────────────────────────────────────── */
+       function fetchView(view){
+         return fetch(LISTINGS_API+"?view="+encodeURIComponent(view),{method:"GET",cache:"no-store"})
+           .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})
+           .then(function(d){if(!d||!Array.isArray(d.listings))throw new Error("Bad response");return d.listings});
+       }
+     
+       function loadView(view){
+         currentView=view;
+         showLoading();
+         $search.value="";
+         $tabActive.classList.toggle("is-on",view==="active");
+        $tabClosed.classList.toggle("is-on",view==="closed");
+     
+         // Update title
+        root.querySelector(".lh-title").textContent=view==="active"?"Active Listings":"Closed Listings";
+     
+         // Fetch current view + both counts in parallel
+         Promise.all([
+           fetchView(view),
+           fetchView("active").then(function(l){counts.active=l.length}).catch(function(){counts.active=0}),
+          fetchView("closed").then(function(l){counts.closed=l.length}).catch(function(){counts.closed=0})
+         ]).then(function(results){
+           var listings=results[0];
+           allListings=listings.map(function(item){
+             return{
+               address:item.address||"",
+               neighborhood:item.neighborhood||"",
+               agent:item.agent||"",
+               listingType:item.listingType||"Sale",
+               status:item.status||"",
+               coverImage:item.coverImage||"",
+               photos:item.photos||"",
+               matterport:item.matterport||"",
+               floorPlan:item.floorPlan||"",
+               factSheet:item.factSheet||"",
+               openHouse:item.openHouse||"",
+               video:item.video||"",
+               archived:!!item.archived,
+               emailSent:!!item.emailSent
+             };
+           });
+           fillFilters(allListings);
+           render();
+         }).catch(function(err){
+           console.error("Listing Hub fetch error:",err);
+           showError();
+         });
+       }
+     
+       /* ── SHARE MODAL ───────────────────────────────────────────── */
+       window._lhShare=function(sid){
+         var item=store[sid];
+         if(!item){alert("Error: listing not found.");return}
+     
+         var uid=getUser();
+         if(!uid)return;
+         var sender=SENDERS[uid];
+         if(!sender){alert("Invalid user.");return}
+     
+         var recipients=[];
+        // Auto-add listing agent first
+         if(item.agent&&AGENT_EMAILS[item.agent]){
+           recipients.push({name:item.agent,email:AGENT_EMAILS[item.agent]});
+         }
+        // Preset internal recipients (using emails from the team/sender roster)
+        SHARE_DEFAULT_RECIPIENTS.forEach(function(name){
+          var senderMatch=Object.keys(SENDERS).map(function(k){return SENDERS[k]}).find(function(s){return s.name===name});
+          if(senderMatch&&!recipients.some(function(r){return r.email===senderMatch.email})){
+            recipients.push({name:senderMatch.name,email:senderMatch.email});
+          }
+        });
+     
+         var step=1;
+        var isSending=false;
+        var assetCount=[item.photos,item.matterport,item.floorPlan,item.factSheet,item.openHouse,item.video].filter(Boolean).length;
+        var listingMeta=[item.agent,item.neighborhood].filter(Boolean).join(" · ");
+     
+         // Build modal HTML
+         var html=[
+           '<div class="lh-overlay" id="lhModal">',
+             '<div class="lh-modal">',
+               '<div class="lh-modal-head">',
+                '<div>',
+                  '<h3 class="lh-modal-title">Share Listing Assets</h3>',
+                  '<p class="lh-modal-sub">'+esc(item.address||"Listing")+' · '+assetCount+' asset'+(assetCount===1?"":"s")+'</p>',
+                '</div>',
+                 '<button class="lh-modal-x" onclick="window._lhCloseModal()">✕</button>',
+               '</div>',
+              '<div class="lh-modal-progress">',
+                '<span class="lh-prog is-on" id="lhProg1"><span class="lh-prog-dot"></span>Recipients</span>',
+                '<span class="lh-prog" id="lhProg2"><span class="lh-prog-dot"></span>Review</span>',
+                '<span class="lh-prog" id="lhProg3"><span class="lh-prog-dot"></span>Sent</span>',
+              '</div>',
+               '<div class="lh-modal-body">',
+                 '<div class="lh-step on" id="lhStep1">',
+                  '<div class="lh-share-context">',
+                    '<div class="lh-share-eyebrow">Listing</div>',
+                    '<div class="lh-share-address">'+esc(item.address||"Untitled Listing")+'</div>',
+                    (listingMeta?'<div class="lh-share-meta">'+esc(listingMeta)+'</div>':""),
+                  '</div>',
+                  '<label class="lh-field-label">Add recipients</label>',
+                  '<div class="lh-recipients" id="lhRecips1"></div>',
+                  '<div class="lh-input-wrap">',
+                     '<input class="lh-input" id="lhRecipInput" placeholder="Start typing a name or email..." autocomplete="off">',
+                     '<div class="lh-ac" id="lhAC" style="display:none"></div>',
+                   '</div>',
+                  '<p class="lh-field-note">Choose one or more agents. You can adjust recipients before sending.</p>',
+                  '<div class="lh-inline-msg" id="lhMsg1"></div>',
+                 '</div>',
+                 '<div class="lh-step" id="lhStep2">',
+                  '<div class="lh-share-context">',
+                    '<div class="lh-share-eyebrow">Sending from</div>',
+                    '<div class="lh-share-address">'+esc(sender.name)+'</div>',
+                    '<div class="lh-share-meta">'+esc(sender.email)+'</div>',
+                  '</div>',
+                   '<label class="lh-field-label">Recipients</label>',
+                  '<div class="lh-recipients" id="lhRecips2"></div>',
+                  '<div class="lh-input-wrap" style="margin-bottom:16px">',
+                     '<input class="lh-input" id="lhAddMore" placeholder="Add another recipient..." autocomplete="off">',
+                     '<div class="lh-ac" id="lhAC2" style="display:none"></div>',
+                   '</div>',
+                  '<div class="lh-inline-msg" id="lhMsg2"></div>',
+                  '<div class="lh-preview-head">Email preview</div>',
+                   '<div class="lh-preview" id="lhPreview"></div>',
+                 '</div>',
+                 '<div class="lh-step" id="lhStep3">',
+                   '<div class="lh-success">',
+                     '<div class="lh-success-icon">✓</div>',
+                     '<h3 class="lh-success-title">Email Sent!</h3>',
+                     '<p class="lh-success-text">The listing assets have been shared successfully.</p>',
+                   '</div>',
+                 '</div>',
+               '</div>',
+               '<div class="lh-modal-foot">',
+                 '<button class="lh-mbtn lh-mbtn-sec" id="lhBack" style="display:none" onclick="window._lhBack()">Back</button>',
+                 '<button class="lh-mbtn lh-mbtn-pri" id="lhNext" onclick="window._lhNext()">Next</button>',
+               '</div>',
+             '</div>',
+           '</div>'
+         ].join("");
+     
+         document.body.insertAdjacentHTML("beforeend",html);
+     
+         var $modal=document.getElementById("lhModal");
+         var $input1=document.getElementById("lhRecipInput");
+         var $input2=document.getElementById("lhAddMore");
+         var $ac1=document.getElementById("lhAC");
+         var $ac2=document.getElementById("lhAC2");
+        var $recips1=document.getElementById("lhRecips1");
+        var $recips2=document.getElementById("lhRecips2");
+         var $preview=document.getElementById("lhPreview");
+        var $msg1=document.getElementById("lhMsg1");
+        var $msg2=document.getElementById("lhMsg2");
+         var $next=document.getElementById("lhNext");
+         var $back=document.getElementById("lhBack");
+        var $prog1=document.getElementById("lhProg1");
+        var $prog2=document.getElementById("lhProg2");
+        var $prog3=document.getElementById("lhProg3");
+
+        function setMsg(which,msg){
+          var el=which===1?$msg1:$msg2;
+          if(!el)return;
+          if(!msg){el.classList.remove("on");el.textContent="";return}
+          el.textContent=msg;
+          el.classList.add("on");
+        }
+     
+         function showAC(input,dropdown,q){
+           if(!q){dropdown.style.display="none";return}
+           var matches=Object.keys(AGENT_EMAILS).filter(function(name){
+             return name.toLowerCase().indexOf(q.toLowerCase())!==-1||AGENT_EMAILS[name].toLowerCase().indexOf(q.toLowerCase())!==-1;
+           }).slice(0,5);
+           if(!matches.length){dropdown.style.display="none";return}
+           dropdown.innerHTML=matches.map(function(name){
+             return'<div class="lh-ac-item" data-name="'+esc(name)+'" data-email="'+esc(AGENT_EMAILS[name])+'"><div class="lh-ac-name">'+esc(name)+'</div><div class="lh-ac-email">'+esc(AGENT_EMAILS[name])+'</div></div>';
+           }).join("");
+           dropdown.style.display="block";
+         }
+     
+         function updateRecips(){
+          var htmlRecips=recipients.map(function(r,i){
+            return'<div class="lh-recip"><span>'+esc(r.name)+'</span><button class="lh-recip-rm" onclick="window._lhRemoveRecip('+i+')" aria-label="Remove recipient">×</button></div>';
+          }).join("");
+          var fallback='<div class="lh-recip-empty">No recipients selected yet.</div>';
+          $recips1.innerHTML=htmlRecips||fallback;
+          $recips2.innerHTML=htmlRecips||fallback;
+          if(step===1)$next.disabled=!recipients.length;
+         }
+     
+         function updatePreview(){
+           var hour=new Date().getHours();
+           var greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+           var firstName=item.agent?item.agent.split(" ")[0]:"there";
+           var assets=[];
+           if(item.photos)assets.push("📸 Photos: "+item.photos);
+           if(item.matterport)assets.push("🏠 3D Walkthrough: "+item.matterport);
+           if(item.floorPlan)assets.push("📐 Floor Plan: "+item.floorPlan);
+           if(item.factSheet)assets.push("📄 Fact Sheet: "+item.factSheet);
+           if(item.openHouse)assets.push("🏡 Open House: "+item.openHouse);
+           if(item.video)assets.push("🎥 Video: "+item.video);
+           var assetText=assets.length?assets.join("\n\n"):"No assets available yet.";
+           $preview.textContent=greeting+" "+firstName+",\n\nHere are all the marketing assets for "+item.address+", including:\n\n"+assetText+"\n\nBest,\n"+sender.name;
+         }
+     
+         function addRecipient(name,email){
+           if(recipients.some(function(r){return r.email===email}))return;
+           recipients.push({name:name,email:email});
+         }
+
+        function applyProgress(){
+          $prog1.className="lh-prog"+(step===1?" is-on":"")+(step>1?" is-done":"");
+          $prog2.className="lh-prog"+(step===2?" is-on":"")+(step>2?" is-done":"");
+          $prog3.className="lh-prog"+(step===3?" is-on":"");
+        }
+     
+         // Autocomplete for step 1
+         $input1.addEventListener("input",function(){showAC($input1,$ac1,$input1.value)});
+        $input1.addEventListener("blur",function(){setTimeout(function(){$ac1.style.display="none"},120)});
+         $ac1.addEventListener("click",function(e){
+           var el=e.target.closest(".lh-ac-item");
+           if(!el)return;
+           addRecipient(el.dataset.name,el.dataset.email);
+           $input1.value="";$ac1.style.display="none";
+          setMsg(1,"");
+          updateRecips();
+         });
+     
+         // Autocomplete for step 2
+         $input2.addEventListener("input",function(){showAC($input2,$ac2,$input2.value)});
+        $input2.addEventListener("blur",function(){setTimeout(function(){$ac2.style.display="none"},120)});
+         $ac2.addEventListener("click",function(e){
+           var el=e.target.closest(".lh-ac-item");
+           if(!el)return;
+           addRecipient(el.dataset.name,el.dataset.email);
+           $input2.value="";$ac2.style.display="none";
+          setMsg(2,"");
+           updateRecips();
+         });
+     
+         // Close on overlay click
+         $modal.addEventListener("click",function(e){if(e.target===$modal)window._lhCloseModal()});
+        document.addEventListener("keydown",onEsc,true);
+        window._lhEscHandler=onEsc;
+        function onEsc(e){if(e.key==="Escape")window._lhCloseModal()}
+     
+         function goStep(n){
+           step=n;
+          setMsg(1,"");setMsg(2,"");
+           document.getElementById("lhStep1").classList.toggle("on",n===1);
+           document.getElementById("lhStep2").classList.toggle("on",n===2);
+           document.getElementById("lhStep3").classList.toggle("on",n===3);
+          applyProgress();
+          $back.style.display=n===2&&!isSending?"inline-block":"none";
+          $next.textContent=n===1?"Next":n===2?"Send Email":"";
+          $next.disabled=(n===1&&!recipients.length)||isSending;
+          $next.style.display=n===3?"none":"inline-flex";
+           if(n===2){updateRecips();updatePreview()}
+          if(n===3){$back.style.display="none"}
+         }
+     
+        window._lhRemoveRecip=function(i){
+          recipients.splice(i,1);
+          updateRecips();
+          if(step===2&&recipients.length===0)setMsg(2,"Add at least one recipient before sending.");
+        };
+     
+         window._lhBack=function(){if(step===2)goStep(1)};
+     
+         window._lhNext=function(){
+           if(step===1){
+            if(!recipients.length){setMsg(1,"Please add at least one recipient.");return}
+             goStep(2);
+           }else if(step===2){
+            if(!recipients.length){setMsg(2,"Please add at least one recipient before sending.");return}
+            isSending=true;
+            $next.disabled=true;$next.textContent="Sending...";
+            $back.style.display="none";
+             fetch(LISTINGS_API,{
+               method:"POST",
+               headers:{"Content-Type":"application/json"},
+               body:JSON.stringify({
+                 action:"sendListingEmail",
+                 address:item.address,
+                 agent:item.agent,
+                 listingType:item.listingType||"Sale",
+                 photos:item.photos,
+                 matterport:item.matterport,
+                 floorPlan:item.floorPlan,
+                 factSheet:item.factSheet,
+                 openHouse:item.openHouse,
+                 video:item.video,
+                 neighborhood:item.neighborhood,
+                 sentBy:sender.name
+               })
+             })
+            .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})
+             .then(function(result){
+               if(result.success){
+                 item.emailSent=true;
+                 goStep(3);
+                 fireConfetti();
+                 setTimeout(function(){
+                   window._lhCloseModal();
+                   render();
+                 },2500);
+               }else{
+                 throw new Error(result.error||"Unknown error");
+               }
+             })
+             .catch(function(err){
+              isSending=false;
+              setMsg(2,"Failed to send email: "+err.message);
+              $next.disabled=false;$next.textContent="Send Email";
+              $back.style.display="inline-flex";
+             });
+           }
+         };
+
+        updateRecips();
+        applyProgress();
+        if($input1)$input1.focus();
+       };
+     
+       window._lhCloseModal=function(){
+         var m=document.getElementById("lhModal");
+         if(!m)return;
+         m.classList.add("closing");
+         setTimeout(function(){m.remove()},300);
+        if(window._lhEscHandler){
+          document.removeEventListener("keydown",window._lhEscHandler,true);
+          delete window._lhEscHandler;
+        }
+         // Clean up global handlers
+         delete window._lhRemoveRecip;
+         delete window._lhBack;
+         delete window._lhNext;
+       };
+     
+       function fireConfetti(){
+         var colors=["#3b82f6","#22c55e","#eab308","#f97316","#8b5cf6"];
+         for(var i=0;i<40;i++){
+           var c=document.createElement("div");
+           c.className="lh-confetti";
+           c.style.left=Math.random()*100+"vw";
+           c.style.top="-20px";
+           c.style.background=colors[Math.floor(Math.random()*colors.length)];
+           c.style.animationDelay=Math.random()*0.5+"s";
+           document.body.appendChild(c);
+           setTimeout(function(el){el.remove()},3000,c);
+         }
+       }
+     
+       /* ── INIT ──────────────────────────────────────────────────── */
+       loadView("active");
+     
+     })();
+     </script>

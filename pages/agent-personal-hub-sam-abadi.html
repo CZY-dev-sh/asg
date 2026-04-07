@@ -1,0 +1,1280 @@
+<div id="asg-agent-personal-hub-sam"></div>
+
+<style>
+  #asg-agent-personal-hub-sam{
+    --asg-ph-bg:#f7f8fa;
+    --asg-ph-card:#ffffff;
+    --asg-ph-text:#111111;
+    --asg-ph-muted:rgba(17,17,17,.58);
+    --asg-ph-border:rgba(17,17,17,.08);
+    --asg-ph-dark:#111111;
+    --asg-ph-blue:#3b82f6;
+    --asg-ph-green:#22c55e;
+    --asg-ph-orange:#f97316;
+    --asg-ph-purple:#8b5cf6;
+    font-family:'Outfit','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--asg-ph-text);
+  }
+  #asg-agent-personal-hub-sam *{box-sizing:border-box}
+  #asg-agent-personal-hub-sam .asg-ph-shell{
+    max-width:1260px;
+    margin:0 auto;
+    background:var(--asg-ph-bg);
+    border:1px solid var(--asg-ph-border);
+    border-radius:30px;
+    padding:18px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-grid{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:16px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-card{
+    background:var(--asg-ph-card);
+    border:1px solid var(--asg-ph-border);
+    border-radius:24px;
+    padding:18px;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-label{
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--asg-ph-muted);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-label-dot{
+    width:8px;height:8px;border-radius:50%;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-profile{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-stats-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-avatar{
+    width:66px;height:66px;border-radius:20px;object-fit:cover;border:1px solid var(--asg-ph-border);background:#eaeef3;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-name{
+    font-size:26px;
+    line-height:1.05;
+    font-weight:800;
+    margin:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-sub{
+    margin:4px 0 0;
+    font-size:13px;
+    color:var(--asg-ph-muted);
+    font-weight:500;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-kpis{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-kpi{
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:12px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-kpi-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--asg-ph-muted);margin-bottom:6px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-kpi-value{
+    font-size:24px;line-height:1.05;font-weight:800;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-kpi-sub{
+    margin-top:6px;font-size:12px;color:var(--asg-ph-muted);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-team-strip{
+    margin-top:10px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-team-top{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-team-stat{
+    border:1px solid var(--asg-ph-border);
+    border-radius:12px;
+    padding:9px 10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-team-stat-label{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--asg-ph-muted);
+    font-weight:700;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-team-stat-value{
+    margin-top:4px;
+    font-size:18px;
+    font-weight:800;
+    line-height:1.05;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-stats-tabs{
+    display:inline-flex;
+    background:#f3f5f7;
+    border:1px solid var(--asg-ph-border);
+    border-radius:999px;
+    padding:4px;
+    gap:4px;
+    margin-top:2px;
+    flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-stats-tab{
+    border:none;background:transparent;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:700;color:var(--asg-ph-muted);cursor:pointer;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-stats-tab.is-on{background:#fff;color:#111;border:1px solid var(--asg-ph-border)}
+  #asg-agent-personal-hub-sam .asg-ph-actions{
+    display:grid;gap:10px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action{
+    display:flex;align-items:center;gap:10px;
+    padding:12px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:14px;
+    text-decoration:none;
+    color:inherit;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action:hover{border-color:rgba(17,17,17,.2)}
+  #asg-agent-personal-hub-sam .asg-ph-action-main{
+    flex:1;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-icon{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:14px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-title{font-size:14px;font-weight:700;line-height:1.2}
+  #asg-agent-personal-hub-sam .asg-ph-action-sub{font-size:12px;color:var(--asg-ph-muted)}
+  #asg-agent-personal-hub-sam .asg-ph-action-right{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex:0 0 auto;
+    align-self:center;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-copy-spacer{
+    width:24px;
+    height:24px;
+    flex:0 0 24px;
+    visibility:hidden;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-circle{
+    width:24px;
+    height:24px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    border:1px solid #111;
+    display:grid;
+    place-items:center;
+    padding:0;
+    cursor:pointer;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-circle svg{
+    width:12px;
+    height:12px;
+    display:block;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-copy-toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%) translateY(8px);
+    background:#111;
+    color:#fff;
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.01em;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+    z-index:99999;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-copy-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-arrow{
+    width:24px;
+    height:24px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    display:grid;
+    place-items:center;
+    flex:0 0 24px;
+    text-decoration:none;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-action-arrow svg{
+    width:12px;
+    height:12px;
+    display:block;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-downloads{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-row{
+    border:1px solid rgba(17,17,17,.14);
+    border-radius:12px;
+    background:#fff;
+    color:#111;
+    padding:8px 10px;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-main{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-label{line-height:1.2}
+  #asg-agent-personal-hub-sam .asg-ph-download-label-wrap{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-label-stack{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-updated{
+    font-size:10px;
+    font-weight:600;
+    color:var(--asg-ph-muted);
+    line-height:1.2;
+    letter-spacing:.01em;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-drive-logo{
+    width:18px;
+    height:18px;
+    border-radius:0 !important;
+    clip-path:none !important;
+    object-fit:cover;
+    flex:0 0 18px;
+    border:none;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-btn{
+    height:30px;
+    padding:0 12px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    border:1px solid #111;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-download-btn:hover{opacity:.86}
+  #asg-agent-personal-hub-sam .asg-ph-main{
+    margin-top:16px;
+    display:grid !important;
+    grid-template-columns:1.2fr .8fr;
+    gap:16px;
+    align-items:stretch !important;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-bottom-row{
+    margin-top:16px;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+    align-items:stretch !important;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-bottom-row .asg-ph-card{
+    min-width:0;
+  }
+  /* Bottom bentos: enforce same-row height even when host CSS is opinionated */
+  #asg-agent-personal-hub-sam .asg-ph-bento-grow{
+    min-height:min(42vh,380px);
+    display:flex;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-bento-grow .asg-ph-note{flex-shrink:0}
+  #asg-agent-personal-hub-sam .asg-ph-bento-grow .asg-ph-label{flex-shrink:0}
+  #asg-agent-personal-hub-sam .asg-ph-bento-grow #asgPhEventsPanel{
+    flex:1 1 auto;
+    min-height:12rem;
+    overflow:hidden;
+    -webkit-overflow-scrolling:touch;
+    padding-right:0;
+    display:flex;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-bento-grow .asg-ph-ql-scroll{
+    flex:1 1 auto;
+    min-height:12rem;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-right:2px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-list-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-tabs{
+    display:inline-flex;
+    background:#f3f5f7;
+    border:1px solid var(--asg-ph-border);
+    border-radius:999px;
+    padding:4px;
+    gap:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-tab{
+    border:none;background:transparent;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;color:var(--asg-ph-muted);cursor:pointer;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-tab.is-on{background:#fff;color:#111;border:1px solid var(--asg-ph-border)}
+  #asg-agent-personal-hub-sam .asg-ph-list{
+    max-height:560px;overflow:auto;display:grid;gap:10px;padding-right:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-listing{
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:12px;
+    display:grid;
+    gap:10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-listing-top{
+    display:flex;align-items:flex-start;gap:10px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-listing-cover{
+    width:78px;height:58px;border-radius:8px !important;background:#e6ebf1;object-fit:cover;flex:0 0 78px;
+    clip-path: inset(0 round 8px);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-listing-title{font-size:15px;font-weight:700;line-height:1.25;margin:0}
+  #asg-agent-personal-hub-sam .asg-ph-listing-meta{margin-top:3px;font-size:12px;color:var(--asg-ph-muted)}
+  #asg-agent-personal-hub-sam .asg-ph-badge{
+    flex:0 0 auto;
+    margin-left:auto;align-self:flex-start;
+    white-space:nowrap;
+    border-radius:999px;padding:4px 8px;font-size:10px;font-weight:700;border:1px solid transparent;line-height:1.2;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-badge.is-active{background:rgba(34,197,94,.1);color:#0f8a3a;border-color:rgba(34,197,94,.22)}
+  #asg-agent-personal-hub-sam .asg-ph-badge.is-closed{background:rgba(59,130,246,.1);color:#275cc5;border-color:rgba(59,130,246,.22)}
+  #asg-agent-personal-hub-sam .asg-ph-assets{
+    display:flex;flex-wrap:wrap;gap:6px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-asset{
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--asg-ph-border);border-radius:999px;
+    padding:6px 10px;
+    font-size:11px;font-weight:700;color:#111;text-decoration:none;background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-asset.is-off{
+    color:rgba(17,17,17,.35);
+    background:#f7f8fa;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-note{
+    color:var(--asg-ph-muted);
+    font-size:12px;
+    margin-top:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-empty,
+  #asg-agent-personal-hub-sam .asg-ph-error{
+    border:1px dashed var(--asg-ph-border);
+    border-radius:14px;
+    padding:14px;
+    font-size:13px;
+    color:var(--asg-ph-muted);
+    text-align:center;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-error{color:#9f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.04)}
+  #asg-agent-personal-hub-sam #asgPhEventsPanel .asg-ph-ev-feature{
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    overflow:hidden;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-media{
+    aspect-ratio:2.35/1;
+    max-height:132px;
+    background:#e8ecf1;
+    position:relative;
+    border-radius:14px 14px 0 0;
+    overflow:hidden;
+    isolation:isolate;
+    transform:translateZ(0);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-media img.asg-ph-ev-feature-img,
+  #asg-agent-personal-hub-sam img.asg-ph-ev-feature-img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover;
+    object-position:center 34%;
+    display:block;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    max-width:none !important;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-body{
+    padding:12px 14px 14px;
+    display:grid;
+    gap:6px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-eyebrow{
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--asg-ph-muted);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-title{
+    margin:0;
+    font-size:15px;
+    font-weight:800;
+    line-height:1.25;
+    letter-spacing:-.02em;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-feature-meta{
+    font-size:12px;
+    color:var(--asg-ph-muted);
+    line-height:1.45;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-detail-btn{
+    align-self:flex-start;
+    margin-top:8px;
+    height:24px;
+    padding:0 10px;
+    font-size:10px;
+    display:inline-flex !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:max-content !important;
+    line-height:1;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-subhd{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--asg-ph-muted);
+    margin:2px 0 0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-list{
+    display:grid;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-row{
+    padding:10px 12px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:14px;
+    background:#fafbfc;
+    display:grid;
+    gap:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-title{
+    font-size:13px;
+    font-weight:800;
+    line-height:1.25;
+    margin:0;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-pill{
+    flex:0 0 auto;
+    font-size:10px;
+    font-weight:700;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1px solid var(--asg-ph-border);
+    white-space:nowrap;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-pill.is-alert{background:rgba(239,68,68,.08);color:#b91c1c;border-color:rgba(239,68,68,.2)}
+  #asg-agent-personal-hub-sam .asg-ph-up-pill.is-training{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
+  #asg-agent-personal-hub-sam .asg-ph-up-pill.is-reminder{background:rgba(234,179,8,.12);color:#a16207;border-color:rgba(234,179,8,.25)}
+  #asg-agent-personal-hub-sam .asg-ph-up-pill.is-notice{background:rgba(59,130,246,.1);color:#1d4ed8;border-color:rgba(59,130,246,.2)}
+  #asg-agent-personal-hub-sam .asg-ph-up-meta{
+    font-size:11px;
+    color:var(--asg-ph-muted);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-msg{
+    font-size:12px;
+    color:#333;
+    line-height:1.45;
+    margin:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-eu-split{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    width:100%;
+    min-height:0;
+    flex:1 1 auto;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-eu-col{
+    min-width:0;
+    min-height:0;
+    border:1px solid var(--asg-ph-border);
+    border-radius:14px;
+    background:#fff;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-eu-head{
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--asg-ph-muted);
+    margin-bottom:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-eu-list{
+    margin-top:8px;
+    display:grid;
+    gap:8px;
+    min-height:0;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-eu-empty{
+    border:1px dashed var(--asg-ph-border);
+    border-radius:12px;
+    padding:10px;
+    font-size:11px;
+    color:var(--asg-ph-muted);
+    text-align:center;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-mini{
+    border:1px solid var(--asg-ph-border);
+    border-radius:12px;
+    padding:10px;
+    background:#fafbfc;
+    display:grid;
+    gap:4px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-mini-title{
+    margin:0;
+    font-size:12px;
+    font-weight:800;
+    line-height:1.25;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ev-mini-meta{
+    font-size:11px;
+    color:var(--asg-ph-muted);
+    line-height:1.35;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-lead{
+    border:1px solid var(--asg-ph-border);
+    border-radius:12px;
+    padding:10px;
+    background:#fafbfc;
+    display:grid;
+    gap:5px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-up-link{
+    display:inline-flex;
+    align-self:flex-start;
+    margin-top:2px;
+    height:24px;
+    padding:0 10px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    border:1px solid #111;
+    font-size:10px;
+    font-weight:700;
+    text-decoration:none;
+    align-items:center;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+    gap:8px;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-card{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:5px;
+    padding:8px 10px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:14px;
+    background:#fff;
+    text-decoration:none;
+    color:inherit;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    min-height:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-card:hover{
+    border-color:rgba(17,17,17,.16);
+    box-shadow:0 6px 20px rgba(17,17,17,.06);
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-logo{
+    width:28px;
+    height:28px;
+    object-fit:contain;
+    border-radius:6px;
+    background:#fafafa;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-logo-fallback{
+    width:28px;
+    height:28px;
+    border-radius:6px;
+    background:#111;
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+    display:grid;
+    place-items:center;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-title{
+    font-size:12px;
+    font-weight:800;
+    line-height:1.2;
+    margin:0;
+  }
+  #asg-agent-personal-hub-sam .asg-ph-ql-sub{
+    margin:0;
+    font-size:10px;
+    color:var(--asg-ph-muted);
+    line-height:1.35;
+  }
+  @media (max-width:1080px){
+    #asg-agent-personal-hub-sam .asg-ph-grid,
+    #asg-agent-personal-hub-sam .asg-ph-main,
+    #asg-agent-personal-hub-sam .asg-ph-bottom-row{grid-template-columns:1fr}
+  }
+  @media (max-width:760px){
+    #asg-agent-personal-hub-sam .asg-ph-shell{padding:12px;border-radius:22px}
+    #asg-agent-personal-hub-sam .asg-ph-grid,
+    #asg-agent-personal-hub-sam .asg-ph-main,
+    #asg-agent-personal-hub-sam .asg-ph-bottom-row{gap:12px}
+    #asg-agent-personal-hub-sam .asg-ph-card{padding:16px;border-radius:18px}
+    #asg-agent-personal-hub-sam .asg-ph-stats-head{flex-direction:column;gap:12px}
+    #asg-agent-personal-hub-sam .asg-ph-stats-tabs{align-self:flex-start;margin-bottom:6px}
+    #asg-agent-personal-hub-sam .asg-ph-profile{gap:10px;margin-bottom:12px}
+    #asg-agent-personal-hub-sam .asg-ph-avatar{width:56px;height:56px;border-radius:14px}
+    #asg-agent-personal-hub-sam .asg-ph-name{font-size:22px}
+    #asg-agent-personal-hub-sam .asg-ph-sub{font-size:12px;line-height:1.35}
+    #asg-agent-personal-hub-sam .asg-ph-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    #asg-agent-personal-hub-sam .asg-ph-kpi{padding:10px}
+    #asg-agent-personal-hub-sam .asg-ph-kpi-value{font-size:20px}
+    #asg-agent-personal-hub-sam .asg-ph-team-top{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    #asg-agent-personal-hub-sam .asg-ph-team-strip{margin-top:10px;padding:10px}
+    #asg-agent-personal-hub-sam .asg-ph-actions{gap:8px}
+    #asg-agent-personal-hub-sam .asg-ph-action{padding:11px}
+    #asg-agent-personal-hub-sam .asg-ph-list-head{flex-direction:column;align-items:stretch;gap:12px;margin-bottom:14px}
+    #asg-agent-personal-hub-sam .asg-ph-list-head>div:first-child{display:grid;gap:6px}
+    #asg-agent-personal-hub-sam .asg-ph-list-head .asg-ph-note{margin-top:0;line-height:1.45}
+    #asg-agent-personal-hub-sam .asg-ph-tabs{
+      align-self:stretch;
+      display:flex;
+      width:100%;
+      padding:3px;
+      gap:3px;
+    }
+    #asg-agent-personal-hub-sam .asg-ph-tab{padding:5px 10px;font-size:11px;flex:1;text-align:center}
+    #asg-agent-personal-hub-sam .asg-ph-tab.is-on{padding:5px 10px}
+    #asg-agent-personal-hub-sam .asg-ph-list{max-height:min(52vh,520px);gap:10px;padding-right:2px;margin-top:2px}
+    #asg-agent-personal-hub-sam .asg-ph-listing{padding:12px;gap:10px;border-radius:14px}
+    #asg-agent-personal-hub-sam .asg-ph-listing-top{
+      display:grid;
+      grid-template-columns:68px minmax(0,1fr) auto;
+      grid-template-areas:"cover copy badge";
+      align-items:start;
+      column-gap:10px;
+      row-gap:0;
+    }
+    #asg-agent-personal-hub-sam .asg-ph-listing-top .asg-ph-listing-cover{grid-area:cover;width:68px;height:52px;flex:unset}
+    #asg-agent-personal-hub-sam .asg-ph-listing-top>div:not(.asg-ph-listing-cover){grid-area:copy;min-width:0}
+    #asg-agent-personal-hub-sam .asg-ph-listing-top .asg-ph-badge{grid-area:badge;margin-left:0;align-self:start;padding:3px 7px;font-size:9px}
+    #asg-agent-personal-hub-sam .asg-ph-listing-title{font-size:14px;line-height:1.3}
+    #asg-agent-personal-hub-sam .asg-ph-listing-meta{font-size:11px;margin-top:4px}
+    #asg-agent-personal-hub-sam .asg-ph-assets{gap:6px;margin-top:2px}
+    #asg-agent-personal-hub-sam .asg-ph-asset{padding:5px 9px;font-size:10px}
+    #asg-agent-personal-hub-sam .asg-ph-download-row{padding:9px 10px}
+    #asg-agent-personal-hub-sam .asg-ph-bento-grow{min-height:min(34vh,300px)}
+    #asg-agent-personal-hub-sam .asg-ph-bento-grow #asgPhEventsPanel,
+    #asg-agent-personal-hub-sam .asg-ph-bento-grow .asg-ph-ql-scroll{min-height:10rem}
+    #asg-agent-personal-hub-sam .asg-ph-eu-split{grid-template-columns:1fr}
+  }
+</style>
+
+<script>
+window.addEventListener("error",function(ev){
+  var msg=String(ev&&ev.message||"");
+  /* Benign browser/host noise — not from our hub code; would wrongly wipe the UI */
+  if(/ResizeObserver loop/i.test(msg))return;
+  var r=document.getElementById("asg-agent-personal-hub-sam");
+  if(r)r.innerHTML='<div style="color:#b91c1c;padding:20px;font-size:14px;font-weight:600;border:2px solid #b91c1c;border-radius:12px;margin:10px;font-family:monospace"><strong>JS Error:</strong> '+msg+'<br>Line: '+(ev.lineno||"?")+' | Col: '+(ev.colno||"?")+'</div>';
+});
+(function(){
+  /*
+    Duplicate instructions for other senior agents:
+    1) Update AGENT_PROFILE (name, image, book, request, landing, contact).
+    2) Keep API constants unchanged unless endpoint deployments change.
+    3) Optional: update EXTRA_SHORTCUTS for agent-specific pages.
+    4) DOWNLOADABLES: omit `updated` on the folder row only; bump `updated` per file when Drive versions change.
+    5) QUICK_LINKS: keep aligned with admin-dashboard when those change. Events & Updates pull from HUB_DATA_API automatically.
+  */
+  const STATS_API="https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec";
+  const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  const HUB_DATA_API="https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec";
+
+  const AGENT_PROFILE={
+    name:"Sam Abadi",
+    tier:"Senior Agent",
+    email:"sam.abadi@compass.com",
+    phone:"847-334-4778",
+    photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w",
+    landing:"https://www.alexstoykovgroup.com/samabadi",
+    book:"#book",
+    request:"https://form.asana.com/?k=5GNV6fln0YFlMiZrsAJ2Kw&d=7720513273924"
+  };
+  const SAM_MARKETING_FOLDER="https://drive.google.com/drive/folders/1XKM1925Y1Kt_EPEABPm051Eb4VQCAReA?usp=sharing";
+  const GOOGLE_DRIVE_LOGO="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/88e10fea-589d-4251-b448-7b426d185f02/Google-Drive-Logo.jpg?format=1500w";
+
+  /**
+   * Marketing files: set `updated` to the date you uploaded a new Drive version (omit for folder row only).
+   * Example: { ..., updated: "April 2, 2026" }
+   */
+  const DOWNLOADABLES=[
+    {label:"Marketing Drive Folder",href:SAM_MARKETING_FOLDER,logo:GOOGLE_DRIVE_LOGO},
+    {label:"Buyer Guide",href:"https://drive.google.com/file/d/10xCdQG-aYM0sJTOZfgOnYfk7H-yAb9Jf/view?usp=sharing",updated:"April 2, 2026"},
+    {label:"Brag Book",href:"https://drive.google.com/file/d/1Yg331FU0qZYDrtKXLqJg_jTwfg7VhYTW/view?usp=sharing",updated:"April 2, 2026"},
+    {label:"Listing Presentation",href:"https://drive.google.com/file/d/1-85MQTXZAIL8OCb7vvb2eJshCUvI5D_z/view?usp=sharing",updated:"April 2, 2026"},
+    {label:"Business Card",href:"https://drive.google.com/file/d/16s2i1clj2ui4-AWG7uNyA1glB5xG0p_7/view?usp=sharing",updated:"April 2, 2026"}
+  ];
+
+  const BUYERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv";
+  const SELLERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
+
+  /** Mirror Admin Hub (`components/admin-dashboard.html` QUICK_LINKS) — keep in sync when URLs change. */
+  const QUICK_LINKS=[
+    {title:"Zillow",sub:"Agent showcase",href:"https://www.zillow.com/agents/showcase/",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d74e0ab4-5262-477e-9d43-50ab11765fbf/zillow.png?format=1500w",fallback:"ZIL",keywords:[]},
+    {title:"Matterport",sub:"3D tours",href:"https://my.matterport.com/models?organization=vuif7isneoC",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5e673f77-41c4-4f1e-8d63-db31ed6ca649/matterport_logo.jpeg?format=1500w",fallback:"3D",keywords:[]},
+    {title:"Follow Up Boss",sub:"CRM dashboard",href:"https://login.followupboss.com/login?start_url=/2/admin/overview&subdomain=compass219",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/12e8f92a-f49f-47c4-b107-ade6947e4baf/FUB+Logo+Mark+RGB_Fub+Logo+Mark+Main.png?format=1500w",fallback:"FUB",keywords:[]},
+    {title:"MLS",sub:"MRED Log In",href:"https://connectmls-api.mredllc.com/oid/login",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d6559bd8-bdf9-4351-95fe-f6c848022aa3/2025-R-MLS-Cobrand-BLACK-Transparent.png?format=1500w",fallback:"MLS",keywords:[]},
+    {title:"Compass",sub:"Compass app",href:"https://www.compass.com/app/home/",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/a14ff933-25b2-4439-aa1b-580c869f24fb/compass.png?format=1500w",fallback:"CP",keywords:[]},
+    {title:"Blog",sub:"ASG website",href:"https://www.alexstoykovgroup.com/blog",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Team Resources",sub:"ASG website",href:"https://www.alexstoykovgroup.com/resources",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Senior Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/seniorhubhome",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Junior Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/juniorhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Team Updates",sub:"ASG website",href:"https://www.alexstoykovgroup.com/updatecenter",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Senior Meetings",sub:"ASG website",href:"https://www.alexstoykovgroup.com/seniorteammeetings",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]},
+    {title:"Admin Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/adminhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG",keywords:[]}
+  ];
+
+  const root=document.getElementById("asg-agent-personal-hub-sam");
+  if(!root){return;}
+
+  const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const clip=(s,max)=>{const t=String(s||"").trim();if(!max||t.length<=max)return t;return t.slice(0,Math.max(0,max-1)).trim()+"…";};
+  const normalize=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"").trim();
+  const firstName=s=>String(s||"").trim().split(/\s+/)[0]||"";
+  const fmt=n=>{const val=Number(n)||0;if(val>=1e6)return "$"+(val/1e6).toFixed(1)+"M";if(val>=1e3)return "$"+Math.round(val/1e3)+"K";return "$"+val.toLocaleString();};
+  const safeHref=url=>{
+    const raw=String(url||"").trim();
+    if(/^https?:\/\//i.test(raw))return raw;
+    if(/^#[A-Za-z0-9_-]+$/.test(raw))return raw;
+    return "#";
+  };
+  const statusLabel=s=>{const raw=String(s||"").trim();if(!raw)return"Unknown";return raw.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");};
+  const resolveDriveImageUrl=url=>{
+    const raw=String(url||"").trim();
+    if(!raw)return "";
+    if(!/drive\.google\.com|docs\.google\.com/.test(raw))return raw;
+    if(/\/drive\/folders\//.test(raw))return "";
+    const filePathMatch=raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if(filePathMatch&&filePathMatch[1])return "https://drive.google.com/thumbnail?id="+filePathMatch[1]+"&sz=w1200";
+    const idParamMatch=raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if(idParamMatch&&idParamMatch[1])return "https://drive.google.com/thumbnail?id="+idParamMatch[1]+"&sz=w1200";
+    return raw;
+  };
+
+  function renderEventsPanel_ph(panel,eventsData,updatesData){
+    var ev=eventsData||{};
+    var up=updatesData||{};
+    var nextUp=ev.nextUp||null;
+    var moreEvents=(ev.upcoming||[]).filter(function(e){return !nextUp||e._rowNumber!==nextUp._rowNumber;});
+    if(ev.future&&ev.future.length)moreEvents=moreEvents.concat(ev.future);
+    var latestUpdate=up.latest||null;
+    var olderUpdates=(up.ordered||[]).filter(function(u){return !latestUpdate||u._rowNumber!==latestUpdate._rowNumber;});
+    var evCol='<div class="asg-ph-eu-head">Events</div>';
+    evCol+=nextUp?buildEventFeature(nextUp):'<div class="asg-ph-eu-empty">No upcoming events</div>';
+    if(moreEvents.length){
+      evCol+='<div class="asg-ph-ev-subhd">Coming Up</div>';
+      evCol+='<div class="asg-ph-eu-list">'+moreEvents.map(buildEventMini).join("")+"</div>";
+    }
+    var upCol='<div class="asg-ph-eu-head">Updates</div>';
+    upCol+=latestUpdate?buildUpdateLead(latestUpdate):'<div class="asg-ph-eu-empty">No updates yet</div>';
+    if(olderUpdates.length){
+      upCol+='<div class="asg-ph-ev-subhd">Past Updates</div>';
+      upCol+='<div class="asg-ph-eu-list">'+olderUpdates.map(buildUpdateRow).join("")+"</div>";
+    }
+    panel.innerHTML='<div class="asg-ph-eu-split"><div class="asg-ph-eu-col">'+evCol+'</div><div class="asg-ph-eu-col">'+upCol+"</div></div>";
+  }
+  function buildEventFeature(ev){
+    var coverUrl=ev.cover_image_url||"";
+    var coverHtml=coverUrl?'<div class="asg-ph-ev-feature-media"><img class="asg-ph-ev-feature-img" src="'+esc(coverUrl)+'" alt="" loading="lazy"></div>':"";
+    var meta=[ev.start_date_display,ev.start_time_display,ev.location_name].filter(Boolean).join(" \u00b7 ");
+    var detailsBtn=ev.details_url?'<a class="asg-ph-download-btn asg-ph-ev-detail-btn" href="'+esc(safeHref(ev.details_url))+'" target="_blank" rel="noopener">View details</a>':"";
+    return '<div class="asg-ph-ev-feature">'+coverHtml+
+      '<div class="asg-ph-ev-feature-body">'+
+        '<span class="asg-ph-ev-feature-eyebrow">Next Up</span>'+
+        '<h3 class="asg-ph-ev-feature-title">'+esc(ev.title||"")+"</h3>"+
+        '<div class="asg-ph-ev-feature-meta">'+esc(meta)+"</div>"+
+        (ev.attire_display?'<div class="asg-ph-ev-feature-meta">Attire: '+esc(ev.attire_display)+"</div>":"")+
+        detailsBtn+
+      "</div></div>";
+  }
+  function buildEventMini(ev){
+    var meta=[ev.start_date_display,ev.start_time_display].filter(Boolean).join(" \u00b7 ");
+    return '<div class="asg-ph-ev-mini">'+
+      '<h4 class="asg-ph-ev-mini-title">'+esc(ev.title||"")+"</h4>"+
+      '<div class="asg-ph-ev-mini-meta">'+esc(meta)+"</div>"+
+      (ev.location_name?'<div class="asg-ph-ev-mini-meta">'+esc(ev.location_name)+"</div>":"")+
+    "</div>";
+  }
+  function categoryClass(cat){
+    var c=String(cat||"").toLowerCase();
+    if(c==="training")return "is-training";
+    if(c==="alert"||c==="urgent")return "is-alert";
+    if(c==="reminder")return "is-reminder";
+    return "is-notice";
+  }
+  function buildUpdateLead(up){
+    var cat=up.category||"";
+    var pillCls=cat?" "+categoryClass(cat):"";
+    var link=up.post_url?'<a class="asg-ph-up-link" href="'+esc(safeHref(up.post_url))+'" target="_blank" rel="noopener">Read more</a>':"";
+    return '<div class="asg-ph-up-lead">'+
+      '<div class="asg-ph-up-top"><h4 class="asg-ph-up-title">'+esc(up.title||"")+"</h4>"+
+        (cat?'<span class="asg-ph-up-pill'+pillCls+'">'+esc(cat)+"</span>":"")+
+      "</div>"+
+      '<div class="asg-ph-up-meta">'+esc(up.publish_date_display||"")+"</div>"+
+      '<p class="asg-ph-up-msg">'+esc(clip(up.message_short,120))+"</p>"+
+      link+"</div>";
+  }
+  function buildUpdateRow(up){
+    var cat=up.category||"";
+    var pillCls=cat?" "+categoryClass(cat):"";
+    return '<div class="asg-ph-up-row">'+
+      '<div class="asg-ph-up-top"><h4 class="asg-ph-up-title">'+esc(up.title||"")+"</h4>"+
+        (cat?'<span class="asg-ph-up-pill'+pillCls+'">'+esc(cat)+"</span>":"")+
+      "</div>"+
+      '<div class="asg-ph-up-meta">'+esc(up.publish_date_display||"")+"</div>"+
+      '<p class="asg-ph-up-msg">'+esc(clip(up.message_short,80))+"</p>"+
+    "</div>";
+  }
+  function renderQuickLinksGrid_ph(container){
+    container.innerHTML=QUICK_LINKS.map(function(link){
+      const href=safeHref(link.href);
+      const isDead=!/^https?:\/\//i.test(href);
+      const fb=link.fallback?esc(link.fallback):esc(link.title.slice(0,3).toUpperCase());
+      const logo=link.logo
+        ?'<img class="asg-ph-ql-logo" src="'+esc(link.logo)+'" alt="" loading="lazy">'
+        :'<div class="asg-ph-ql-logo-fallback">'+fb+"</div>";
+      return '<a class="asg-ph-ql-card" href="'+esc(href)+'"'+(isDead?' onclick="return false" style="opacity:.68"':' target="_blank" rel="noopener"')+">"+
+        logo+
+        '<span class="asg-ph-ql-title">'+esc(link.title)+"</span>"+
+        '<span class="asg-ph-ql-sub">'+esc(link.sub||"Quick access")+"</span>"+
+      "</a>";
+    }).join("");
+  }
+  function loadEventsAndUpdates(){
+    var panel=root.querySelector("#asgPhEventsPanel");
+    if(!panel)return Promise.resolve();
+    return fetch(HUB_DATA_API+"?view=all",{method:"GET",cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(payload){
+        if(!payload||!payload.success||!payload.data)throw new Error("Bad hub payload");
+        renderEventsPanel_ph(panel,payload.data.events||{},payload.data.updates||{});
+      })
+      .catch(function(){
+        panel.innerHTML='<div class="asg-ph-error">Unable to load events &amp; updates right now.</div>';
+      });
+  }
+
+  const calendarIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="3" stroke="#16a34a" stroke-width="1.6"/><path d="M3 8h14" stroke="#16a34a" stroke-width="1.6"/><path d="M7 2.8v2.8M13 2.8v2.8" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const designIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 14.5L14.2 4.3a1.6 1.6 0 0 1 2.3 0l.2.2a1.6 1.6 0 0 1 0 2.3L6.5 17H4v-2.5Z" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.6 5.9l1.5 1.5" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const landingIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3.2 3.2 8.8v7h4.7v-4.1h4.2v4.1h4.7v-7L10 3.2Z" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  let currentListingView="active";
+  let currentStatsPeriod="allTime";
+  let listings={active:[],closed:[]};
+
+  root.innerHTML=`
+    <div class="asg-ph-shell">
+      <div class="asg-ph-grid">
+        <div class="asg-ph-card" role="region" aria-label="Personal stats">
+          <div class="asg-ph-stats-head">
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Personal Stats</div>
+              <div class="asg-ph-profile">
+                <img class="asg-ph-avatar" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
+                <div>
+                  <h2 class="asg-ph-name">${esc(AGENT_PROFILE.name)}</h2>
+                  <p class="asg-ph-sub">${esc(AGENT_PROFILE.tier)}</p>
+                </div>
+              </div>
+            </div>
+            <div class="asg-ph-stats-tabs">
+              <button class="asg-ph-stats-tab is-on" data-period="allTime">All Time</button>
+              <button class="asg-ph-stats-tab" data-period="ytd2026">2026</button>
+            </div>
+          </div>
+          <div class="asg-ph-kpis" id="asgPhKpis">
+            ${kpiSkeleton()}
+          </div>
+          <div class="asg-ph-team-strip">
+            <div class="asg-ph-team-top" id="asgPhTeamTop">
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asg-ph-card" role="region" aria-label="Marketing actions">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-purple)"></span>Marketing Actions</div>
+          <div class="asg-ph-actions">
+            ${actionLink("Book a Shoot","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
+            ${actionLink("Design Request","Request social or print collateral",AGENT_PROFILE.request,"rgba(139,92,246,.15)",designIcon)}
+            ${actionLink("My Landing Page","Open your public ASG page",AGENT_PROFILE.landing,"rgba(59,130,246,.15)",landingIcon,AGENT_PROFILE.landing)}
+          </div>
+        </div>
+      </div>
+
+      <div class="asg-ph-main">
+        <div class="asg-ph-card" role="region" aria-label="Listing assets">
+          <div class="asg-ph-list-head">
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-dark)"></span>My Listing Assets</div>
+              <p class="asg-ph-note">Filtered to ${esc(AGENT_PROFILE.name)}. Quick access to photos, 3D, floor plans, and collateral.</p>
+            </div>
+            <div class="asg-ph-tabs">
+              <button class="asg-ph-tab is-on" data-view="active">Active</button>
+              <button class="asg-ph-tab" data-view="closed">Closed</button>
+            </div>
+          </div>
+          <div class="asg-ph-list" id="asgPhListings">
+            <div class="asg-ph-empty">Loading listings...</div>
+          </div>
+        </div>
+
+        <div class="asg-ph-card" role="region" aria-label="Marketing materials">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
+          <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+        </div>
+      </div>
+
+      <div class="asg-ph-bottom-row">
+        <div class="asg-ph-card asg-ph-bento-grow" role="region" aria-label="Events and updates">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-green)"></span>Events &amp; Updates</div>
+          <p class="asg-ph-note">Next event and latest team updates from the Hub.</p>
+          <div id="asgPhEventsPanel">
+            <div class="asg-ph-empty">Loading events &amp; updates...</div>
+          </div>
+        </div>
+
+        <div class="asg-ph-card asg-ph-bento-grow" role="region" aria-label="Quick links">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Useful Links</div>
+          <p class="asg-ph-note">Handy shortcuts from the Admin Hub — tools and ASG site pages.</p>
+          <div class="asg-ph-ql-scroll">
+            <div class="asg-ph-ql-grid" id="asgPhQuickLinks"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="asg-ph-copy-toast" id="asgPhCopyToast">Copied URL</div>
+  `;
+
+  const kpiWrap=root.querySelector("#asgPhKpis");
+  const teamTop=root.querySelector("#asgPhTeamTop");
+  const listWrap=root.querySelector("#asgPhListings");
+  const downloadsWrap=root.querySelector("#asgPhDownloads");
+  const tabs=root.querySelectorAll(".asg-ph-tab");
+  const statsTabs=root.querySelectorAll(".asg-ph-stats-tab");
+  const copyToast=root.querySelector("#asgPhCopyToast");
+  let copyToastTimer=null;
+
+  downloadsWrap.innerHTML=DOWNLOADABLES.map(link=>downloadRow(link)).join("");
+  const quickLinksEl=root.querySelector("#asgPhQuickLinks");
+  if(quickLinksEl)renderQuickLinksGrid_ph(quickLinksEl);
+  root.querySelectorAll(".asg-ph-action-circle[data-copy]").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.preventDefault();
+      copyToClipboard(this.getAttribute("data-copy")||"");
+      showCopyToast();
+    });
+  });
+
+  tabs.forEach(btn=>{
+    btn.addEventListener("click",function(){
+      currentListingView=this.getAttribute("data-view")==="closed"?"closed":"active";
+      tabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
+      renderListings();
+    });
+  });
+
+  statsTabs.forEach(btn=>{
+    btn.addEventListener("click",function(){
+      const period=this.getAttribute("data-period")==="ytd2026"?"ytd2026":"allTime";
+      currentStatsPeriod=period;
+      statsTabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
+      loadStats(period);
+    });
+  });
+
+  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings(),loadEventsAndUpdates()]).then(function(){ renderListings(); });
+
+  function loadStats(period){
+    const targetPeriod=period||"ytd2026";
+    const periodLabel=targetPeriod==="allTime"?"All-Time":"2026";
+    kpiWrap.innerHTML=kpiSkeleton(periodLabel);
+    return fetch(STATS_API+"?period="+encodeURIComponent(targetPeriod),{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||!data.success||!Array.isArray(data.agents))throw new Error("Bad stats payload");
+        const agent=findBestAgentMatch(data.agents,AGENT_PROFILE.name);
+        if(!agent){
+          kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to find '+esc(AGENT_PROFILE.name)+' in '+esc(periodLabel)+' stats.</div>';
+          return;
+        }
+        const totalVolume=Number(agent.grandTotal)||0;
+        const totalDeals=Number(agent.totalDeals)||0;
+        const closedVol=Number(agent.closedVolume)||0;
+        const pendingVol=Number(agent.pendingVolume)||0;
+        const pendingDeals=Number(agent.pendingDeals)||0;
+        const closedDeals=Number(agent.closedDeals)||0;
+        const buyPctNum=(agent.buyPct===undefined||agent.buyPct===null)?null:Math.round(Number(agent.buyPct)||0);
+        const buyPct=buyPctNum===null?"-":buyPctNum+"%";
+        const sellPct=buyPctNum===null?"-":Math.max(0,100-buyPctNum)+"%";
+        if(targetPeriod==="allTime"){
+          kpiWrap.innerHTML=[
+            kpiCard("All-Time Volume",fmt(totalVolume),totalDeals+" deals"),
+            kpiCard("# Transactions",String(totalDeals),closedDeals+" closed · "+pendingDeals+" pending"),
+            kpiCard("Seller Side Mix",sellPct,buyPctNum===null?"—":"Buy side "+buyPct),
+            kpiCard("Buy Side Mix",buyPct,String(agent.totalZillow||0)+" Zillow reviews")
+          ].join("");
+        }else{
+          kpiWrap.innerHTML=[
+            kpiCard(periodLabel+" Volume",fmt(totalVolume),totalDeals+" deals"),
+            kpiCard("Closed Volume",fmt(closedVol),closedDeals+" closed"),
+            kpiCard("Pending Volume",fmt(pendingVol),pendingDeals+" pending"),
+            kpiCard("Buy Side Mix",buyPct,String(agent.totalZillow||0)+" Zillow reviews")
+          ].join("");
+        }
+      })
+      .catch(()=>{
+        kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to load '+esc(periodLabel)+' stats right now.</div>';
+      });
+  }
+
+  function loadListings(){
+    const fetchView=view=>fetch(LISTINGS_API+"?view="+encodeURIComponent(view),{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(d=>{
+        if(!d||!Array.isArray(d.listings))throw new Error("Bad listings payload");
+        return d.listings;
+      })
+      .then(items=>items.map(item=>({
+        address:item.address||"",
+        neighborhood:item.neighborhood||"",
+        agent:item.agent||"",
+        status:item.status||"",
+        listingType:item.listingType||"",
+        coverImage:item.coverImage||"",
+        photos:item.photos||"",
+        matterport:item.matterport||"",
+        floorPlan:item.floorPlan||"",
+        factSheet:item.factSheet||"",
+        openHouse:item.openHouse||"",
+        video:item.video||""
+      })).filter(item=>normalize(item.agent)===normalize(AGENT_PROFILE.name)));
+
+    return Promise.all([fetchView("active"),fetchView("closed")])
+      .then(results=>{
+        listings.active=results[0];
+        listings.closed=results[1];
+      })
+      .catch(()=>{
+        listings.active=[];
+        listings.closed=[];
+        listWrap.innerHTML='<div class="asg-ph-error">Unable to load listings. Check Listings API deployment.</div>';
+      });
+  }
+
+  function loadTeamYtd(){
+    return fetch(STATS_API+"?period=ytd2026",{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||!data.success||!data.summary)throw new Error("Bad team summary");
+        const s=data.summary;
+        const totalVolume=Number(s.totalVolume!==undefined?s.totalVolume:((s.closedVolume||0)+(s.pendingVolume||0)))||0;
+        const totalTransactions=Number(s.totalTransactions!==undefined?s.totalTransactions:((s.closedDeals||0)+(s.pendingDeals||0)))||0;
+        teamTop.innerHTML=[
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">${esc(fmt(totalVolume))}</div></div>`,
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">${esc(String(totalTransactions))}</div></div>`
+        ].join("");
+      })
+      .catch(()=>{
+        teamTop.innerHTML=[
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>`,
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>`
+        ].join("");
+      });
+  }
+
+  function renderListings(){
+    const items=listings[currentListingView]||[];
+    if(!items.length){
+      listWrap.innerHTML='<div class="asg-ph-empty">No '+esc(currentListingView)+' listings found for '+esc(AGENT_PROFILE.name)+'.</div>';
+      return;
+    }
+    listWrap.innerHTML=items.map(item=>{
+      const cover=resolveDriveImageUrl(item.coverImage);
+      const status=(currentListingView==="closed")?"Closed":"Active";
+      const meta=[item.neighborhood,item.listingType].filter(Boolean).join(" - ");
+      return `
+        <article class="asg-ph-listing">
+          <div class="asg-ph-listing-top">
+            ${cover?`<img class="asg-ph-listing-cover" src="${esc(cover)}" alt="${esc(item.address||'Listing')}" loading="lazy" onerror="this.style.opacity=.2">`:'<div class="asg-ph-listing-cover"></div>'}
+            <div style="min-width:0">
+              <h3 class="asg-ph-listing-title">${esc(item.address||"Untitled Listing")}</h3>
+              <div class="asg-ph-listing-meta">${esc(meta||statusLabel(item.status||status))}</div>
+            </div>
+            <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
+          </div>
+          <div class="asg-ph-assets">
+            ${assetLink("Photos",item.photos)}
+            ${assetLink("Matterport",item.matterport)}
+            ${assetLink("Floor Plan",item.floorPlan)}
+            ${assetLink("Fact Sheet",item.factSheet)}
+            ${assetLink("Open House",item.openHouse)}
+            ${assetLink("Video",item.video)}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function kpiSkeleton(periodLabel){
+    const safeLabel=periodLabel||"All-Time";
+    return [
+      kpiCard(safeLabel+" Volume","-","Loading..."),
+      kpiCard("Closed Volume","-","Loading..."),
+      kpiCard("Pending Volume","-","Loading..."),
+      kpiCard("Buy Side Mix","-","Loading...")
+    ].join("");
+  }
+  function kpiCard(label,value,sub){
+    return `<div class="asg-ph-kpi"><div class="asg-ph-kpi-label">${esc(label)}</div><div class="asg-ph-kpi-value">${esc(value)}</div><div class="asg-ph-kpi-sub">${esc(sub)}</div></div>`;
+  }
+  function assetLink(label,url){
+    const href=safeHref(url);
+    if(href==="#")return `<span class="asg-ph-asset is-off">${esc(label)}</span>`;
+    return `<a class="asg-ph-asset" href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+  }
+  function downloadRow(item){
+    const label=item.label;
+    const url=item.href;
+    const logo=item.logo;
+    const updated=item.updated;
+    var logoHtml=logo?`<img class="asg-ph-drive-logo" src="${esc(logo)}" alt="Google Drive" loading="lazy">`:"";
+    var updatedHtml=updated?`<span class="asg-ph-download-updated">Last updated ${esc(updated)}</span>`:"";
+    return `<div class="asg-ph-download-row"><div class="asg-ph-download-main"><div class="asg-ph-download-label-wrap">${logoHtml}<span class="asg-ph-download-label-stack"><span class="asg-ph-download-label">${esc(label)}</span>${updatedHtml}</span></div></div><a class="asg-ph-download-btn" href="${esc(safeHref(url))}" target="_blank" rel="noopener" aria-label="Open ${esc(label)}">Open</a></div>`;
+  }
+  function actionLink(title,sub,href,bg,short,copyValue){
+    const safe=safeHref(href);
+    const isMailOrTel=/^(mailto:|tel:)/i.test(String(href||""));
+    const isAnchor=/^#/.test(safe);
+    const target=(isMailOrTel||isAnchor)?"":" target=\"_blank\" rel=\"noopener\"";
+    if(safe==="#"&&!isMailOrTel&&!isAnchor){
+      return `<span class="asg-ph-action" style="opacity:.45;pointer-events:none"><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><span class="asg-ph-action-copy-spacer"></span><span class="asg-ph-action-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></span>`;
+    }
+    if(copyValue){
+      return `<div class="asg-ph-action"><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><button type="button" class="asg-ph-action-circle" data-copy="${esc(copyValue)}" aria-label="Copy link"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.1" y="4.9" width="7.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.6"/><rect x="2.7" y="2.7" width="7.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.6"/></svg></button><a class="asg-ph-action-arrow" href="${esc(isMailOrTel?href:safe)}"${target}><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></span></div>`;
+    }
+    return `<a class="asg-ph-action" href="${esc(isMailOrTel?href:safe)}"${target}><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><span class="asg-ph-action-copy-spacer"></span><span class="asg-ph-action-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></a>`;
+  }
+  function copyToClipboard(text){
+    const value=String(text||"").trim();
+    if(!value)return;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(value).catch(function(){fallbackCopy(value);});
+      return;
+    }
+    fallbackCopy(value);
+  }
+  function fallbackCopy(value){
+    const ta=document.createElement("textarea");
+    ta.value=value;
+    ta.setAttribute("readonly","");
+    ta.style.position="absolute";
+    ta.style.left="-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+  function showCopyToast(){
+    if(!copyToast)return;
+    copyToast.classList.add("show");
+    if(copyToastTimer)clearTimeout(copyToastTimer);
+    copyToastTimer=setTimeout(function(){
+      copyToast.classList.remove("show");
+    },1200);
+  }
+  function findBestAgentMatch(agents,targetName){
+    const targetNorm=normalize(targetName);
+    const targetFirst=normalize(firstName(targetName));
+    let found=agents.find(a=>normalize(a&&a.name)===targetNorm);
+    if(found)return found;
+    found=agents.find(a=>{
+      const n=normalize(a&&a.name);
+      return n.startsWith(targetNorm)||targetNorm.startsWith(n);
+    });
+    if(found)return found;
+    found=agents.find(a=>normalize(a&&a.name).includes(targetNorm));
+    if(found)return found;
+    const firstMatches=agents.filter(a=>normalize(firstName(a&&a.name))===targetFirst);
+    if(firstMatches.length===1)return firstMatches[0];
+    return null;
+  }
+})();
+</script>

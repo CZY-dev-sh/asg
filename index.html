@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4f5f7" id="metaTheme">
+<title>ASG Remote</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#f4f5f7;--surface:#ffffff;--btn:#ffffff;--btn-active:#edeef1;
+    --navy:#1b2a4a;--navy-lit:#263b63;
+    --text:#0f172a;--text-dim:#8492a6;--radius:20px;--bento-radius:24px;--thumb-radius:14px;
+    --blue:#2563eb;--blue-soft:rgba(37,99,235,0.14);--blue-border:rgba(37,99,235,0.55);
+    --green:#34c759;--red:#ef4444;--gray-track:#d1d5db;--line:rgba(15,23,42,0.07);
+    --shadow-sm:0 1px 3px rgba(15,23,42,0.06),0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md:0 4px 14px rgba(15,23,42,0.08),0 1px 3px rgba(15,23,42,0.06);
+    --shadow-lg:0 10px 32px rgba(15,23,42,0.10),0 2px 6px rgba(15,23,42,0.05);
+    --shadow-xl:0 20px 50px rgba(15,23,42,0.12),0 4px 12px rgba(15,23,42,0.06);
+    --shadow-btn:0 2px 8px rgba(15,23,42,0.07),0 6px 20px rgba(15,23,42,0.05);
+    --shadow-btn-press:0 1px 3px rgba(15,23,42,0.08);
+    --shadow-navy:0 4px 18px rgba(27,42,74,0.28),0 8px 32px rgba(27,42,74,0.14);
+    --remote-max:min(1040px,calc(100vw - 24px));
+    --pad-size:clamp(72px,min(28vmin,30vw),132px);
+    --pad-gap:clamp(6px,min(1.8vmin,2.2vw),12px);
+    --bento-gap:clamp(10px,min(2vmin,2.5vw),18px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  html,body{height:100%;width:100%;background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);overflow:hidden;touch-action:manipulation;transition:background .2s,color .2s}
+  body{
+    display:flex;flex-direction:column;
+    height:100vh;height:100dvh;
+    padding:env(safe-area-inset-top,0) 0 0;
+  }
+  .remote-shell{
+    --fit-scale:1;
+    width:100%;max-width:var(--remote-max);min-width:0;
+    margin:0 auto;padding:0 max(12px,env(safe-area-inset-left,0)) calc(14px + var(--safe-b)) max(12px,env(safe-area-inset-right,0));
+    flex:1 1 auto;min-height:0;
+    display:flex;flex-direction:column;
+    gap:6px;
+    overflow:hidden;
+    transform:scale(var(--fit-scale));
+    transform-origin:top center;
+  }
+
+  body.dark-remote{
+    --bg:#0c1222;--surface:#151d2e;--btn:#1a2438;--btn-active:#243047;
+    --text:#f1f5f9;--text-dim:#94a3b8;--line:rgba(148,163,184,0.14);
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.35);--shadow-md:0 4px 18px rgba(0,0,0,0.35);
+    --shadow-lg:0 10px 32px rgba(0,0,0,0.4);--shadow-xl:0 16px 44px rgba(0,0,0,0.45);
+    --shadow-btn:0 2px 10px rgba(0,0,0,0.3);--shadow-btn-press:0 1px 4px rgba(0,0,0,0.4);
+    --gray-track:#475569;
+    --blue-soft:rgba(37,99,235,0.22);--blue-border:#60a5fa;
+  }
+
+  /* Header */
+  .header{
+    flex:0 0 auto;display:flex;align-items:center;gap:12px;
+    padding:8px 6px 2px
+  }
+  .header-logo{width:38px;height:38px;border-radius:10px;object-fit:contain;background:var(--surface);padding:3px;box-shadow:var(--shadow-md)}
+  .header-text{flex:1;min-width:0}
+  .header-title{font-size:18px;font-weight:800;letter-spacing:-0.03em;line-height:1.08;margin:0}
+  .header-sub{font-size:11px;color:var(--text-dim);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;line-height:1.2;margin:2px 0 0}
+
+  /* Status pills (screen + view + theme + display) */
+  .status-strip{
+    flex:0 0 auto;display:flex;flex-direction:column;gap:6px;
+    padding:4px 4px 8px;width:100%
+  }
+  .status-strip-row{
+    display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;width:100%
+  }
+  .status-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:9px 16px;border-radius:999px;
+    background:var(--surface);border:1px solid var(--line);
+    box-shadow:var(--shadow-sm);
+  }
+  .status-pill--screen,.status-pill--view{flex:1;min-width:0}
+  .status-pill--view{flex:1.12}
+  .status-strip-row--secondary{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    align-items:stretch;
+  }
+  .status-strip-row--secondary .status-pill{
+    flex:none;width:100%;min-width:0;box-sizing:border-box
+  }
+  .status-pill-inner{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+  .status-pill-label{
+    font-size:9px;font-weight:700;color:var(--text-dim);
+    letter-spacing:0.08em;text-transform:uppercase
+  }
+  .status-pill-value{
+    font-size:14px;font-weight:800;color:var(--text);letter-spacing:-0.02em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%
+  }
+  .status-pill-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 25%,transparent)}
+  .status-pill--screen.status-pill--off .status-pill-dot{background:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 25%,transparent)}
+  .status-pill--screen.status-pill--off .status-pill-value{color:#f87171}
+  .status-pill--view .status-pill-value{color:var(--blue)}
+  body.dark-remote .status-pill--view .status-pill-value{color:#93c5fd}
+  .status-pill--theme .status-pill-value{color:#0f172a}
+  body.dark-remote .status-pill--theme .status-pill-value{color:#f1f5f9}
+  .status-pill--display .status-pill-value{color:var(--text)}
+  .status-pill--display.status-pill--dark-on .status-pill-value{color:#4338ca}
+  body.dark-remote .status-pill--display.status-pill--dark-on .status-pill-value{color:#a5b4fc}
+
+  /* Desktop: small flexible gap before bentos. Mobile: collapsed so bentos sit under header. */
+  .main-spacer{
+    flex:0 0 0;min-height:0;width:100%;max-height:6px;overflow:hidden;
+  }
+  @media (min-width:640px){
+    .main-spacer{
+      flex:1 1 0;min-height:8px;max-height:clamp(0px,min(8vh,64px),120px);
+    }
+  }
+  @media (min-width:640px) and (max-height:700px){
+    .main-spacer{max-height:clamp(0px,4vh,32px)}
+  }
+
+  /* Power button */
+  .power-btn{
+    width:42px;height:42px;border-radius:50%;border:1px solid var(--line);
+    background:var(--surface);box-shadow:var(--shadow-md);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;-webkit-user-select:none;user-select:none;
+    transition:all .15s;flex-shrink:0;margin-left:4px;
+  }
+  .power-btn svg{width:20px;height:20px;stroke:var(--text-dim);stroke-width:2.2;fill:none;stroke-linecap:round;transition:stroke .15s}
+  .power-btn:active{transform:scale(0.92);box-shadow:var(--shadow-sm)}
+  .power-btn.on svg{stroke:var(--green)}
+  .power-btn.off svg{stroke:var(--red)}
+
+  /* View bento grid — row height follows content so titles are never clipped (1fr + max-height was cutting copy on wide desktop) */
+  .view-bento-grid{
+    flex:0 0 auto;display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:var(--bento-gap);
+    padding:4px 2px clamp(10px,min(2.5vmin,3vh),18px);
+    width:100%;min-width:0;
+    align-items:stretch;
+  }
+  .view-bento{
+    appearance:none;-webkit-appearance:none;
+    margin:0;border:1px solid var(--line);border-radius:var(--bento-radius);
+    background:var(--surface);box-shadow:var(--shadow-md);
+    padding:18px 16px;
+    text-align:left;cursor:pointer;
+    display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:4px;
+    min-height:108px;min-width:0;width:100%;
+    overflow:visible;
+    font-family:'Outfit',sans-serif;color:var(--text);
+    -webkit-user-select:none;user-select:none;
+    transition:transform .1s,box-shadow .15s,border-color .15s,background .15s,color .15s
+  }
+  .view-bento:active{transform:scale(0.97);box-shadow:var(--shadow-btn-press)}
+  .view-bento.active{
+    border-color:var(--blue-border);
+    background:linear-gradient(165deg,var(--blue-soft),color-mix(in srgb,var(--surface) 88%,var(--blue) 12%));
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--blue) 35%,transparent),0 8px 28px rgba(37,99,235,0.22),var(--shadow-md);
+  }
+  .view-bento.active .view-bento-title{color:var(--blue)}
+  .view-bento.active .view-bento-sub{color:color-mix(in srgb,var(--blue) 55%,var(--text-dim))}
+  body.dark-remote .view-bento.active .view-bento-title{color:#93c5fd}
+  body.dark-remote .view-bento.active .view-bento-sub{color:#a5b4fc}
+  .view-bento-copy{
+    display:flex;flex-direction:column;gap:2px;min-width:0;width:100%;margin-top:0;
+    flex-shrink:0;flex-grow:1;justify-content:center;
+  }
+  .view-bento-title{font-size:clamp(16px,min(3.8vw,3.2vmin),22px);font-weight:800;letter-spacing:-0.03em;line-height:1.12}
+  .view-bento-sub{font-size:clamp(11px,min(2.7vw,2.2vmin),13px);color:var(--text-dim);font-weight:600;line-height:1.3}
+
+  /* Mobile: tight header → bentos, calmer cards */
+  @media (max-width:639px){
+    :root{--bento-radius:20px;--thumb-radius:12px;--radius:18px}
+    .header{padding:6px 2px 0;gap:10px}
+    .header-sub{margin-top:1px;letter-spacing:0.04em}
+    .status-strip{padding:2px 0 6px;gap:6px}
+    .status-strip-row{gap:6px}
+    .status-strip-row--secondary{grid-template-columns:1fr}
+    .status-pill{padding:7px 12px;gap:6px;box-shadow:none;border-color:var(--line)}
+    .status-pill-value{font-size:13px}
+    .view-bento-grid{
+      gap:8px;padding:0 0 6px;
+      --bento-gap:8px;
+      max-height:none;
+      overflow:visible;
+    }
+    .view-bento{
+      padding:12px 10px;gap:5px;
+      min-height:96px;
+      box-shadow:0 1px 2px rgba(15,23,42,0.05),0 1px 0 rgba(15,23,42,0.04);
+      border-color:rgba(15,23,42,0.09);
+    }
+    body.dark-remote .view-bento{
+      box-shadow:0 1px 2px rgba(0,0,0,0.25);
+      border-color:rgba(148,163,184,0.12);
+    }
+    .view-bento.active{
+      box-shadow:0 0 0 1px color-mix(in srgb,var(--blue) 40%,transparent),0 4px 14px rgba(37,99,235,0.14);
+    }
+    body.dark-remote .view-bento.active{
+      box-shadow:0 0 0 1px rgba(96,165,250,0.45),0 4px 18px rgba(0,0,0,0.35);
+    }
+    .view-bento-copy{gap:1px}
+    .view-bento-title{line-height:1.12}
+    .view-bento-sub{line-height:1.25}
+  }
+
+  /* D-PAD center */
+  .dpad-zone{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    padding-top:2px;
+    min-height:clamp(100px,min(30vmin,28vh),220px);
+  }
+  @media (max-width:639px){
+    .dpad-zone{
+      flex:0 0 auto;
+      min-height:clamp(84px,min(24vmin,20vh),150px);
+      padding-top:2px;
+    }
+    .dpad{--pad-size:clamp(60px,20vw,86px);--pad-gap:8px}
+  }
+  .dpad{
+    display:grid;
+    grid-template-columns:repeat(3,var(--pad-size));
+    grid-template-rows:repeat(3,var(--pad-size));
+    gap:var(--pad-gap);
+  }
+  .dpad button{
+    background:var(--btn);border:1px solid var(--line);border-radius:var(--radius);
+    color:var(--text);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;-webkit-user-select:none;user-select:none;
+    width:100%;height:100%;
+    box-shadow:var(--shadow-btn);
+    transition:box-shadow .12s,transform .1s,background .1s;
+  }
+  .dpad button:active{background:var(--btn-active);transform:scale(0.92);box-shadow:var(--shadow-btn-press)}
+  .dpad .center{
+    background:var(--navy);border-color:transparent;color:#fff;
+    font-family:'Outfit',sans-serif;font-size:clamp(16px,min(4.5vw,3.5vmin),22px);font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    box-shadow:var(--shadow-navy);
+  }
+  .dpad .center:active{background:var(--navy-lit);box-shadow:0 2px 8px rgba(27,42,74,0.2)}
+  .dpad .empty{visibility:hidden}
+  .arrow{width:clamp(28px,min(8vw,7vmin),40px);height:clamp(28px,min(8vw,7vmin),40px);stroke:currentColor;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .center .arrow{stroke:#fff}
+
+  .zoom-row{
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    width:100%;
+    margin-top:2px;
+  }
+  .zoom-btn{
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--text);
+    border-radius:14px;
+    padding:10px 8px;
+    font-family:'Outfit',sans-serif;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:var(--shadow-sm);
+  }
+  .zoom-btn:active{background:var(--btn-active);transform:scale(0.98)}
+
+  /* Bottom nav pill */
+  .bottom-pill{
+    flex:0 0 auto;
+    margin:6px 0 0;width:100%;max-width:100%;
+    display:flex;align-items:center;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;box-shadow:var(--shadow-xl);padding:6px;
+  }
+  .pill-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:16px 10px;border-radius:999px;border:none;background:transparent;
+    font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--text);
+    cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .15s;
+  }
+  .pill-btn:active{background:rgba(15,23,42,0.06)}
+  body.dark-remote .pill-btn:active{background:rgba(255,255,255,0.06)}
+  .pill-btn svg{width:22px;height:22px;flex-shrink:0}
+  .pill-divider{width:1px;height:32px;background:var(--line);flex-shrink:0}
+  .pill-toggle{
+    width:48px;height:28px;background:var(--gray-track);border-radius:14px;
+    position:relative;transition:background .25s;flex-shrink:0;cursor:pointer
+  }
+  .pill-toggle.on{background:var(--green)}
+  .pill-toggle-knob{
+    width:22px;height:22px;background:#fff;border-radius:50%;
+    position:absolute;top:3px;left:3px;
+    transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 1px 3px rgba(0,0,0,.18)
+  }
+  .pill-toggle.on .pill-toggle-knob{transform:translateX(20px)}
+
+  /* Power menu overlay */
+  .power-overlay{
+    position:fixed;inset:0;background:rgba(15,23,42,0.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    display:flex;align-items:center;justify-content:center;z-index:200;
+    opacity:0;pointer-events:none;transition:opacity .2s
+  }
+  .power-overlay.open{opacity:1;pointer-events:auto}
+  .power-menu{
+    background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:28px 24px;width:min(320px,88vw);
+    box-shadow:0 24px 60px rgba(15,23,42,0.18);
+    display:flex;flex-direction:column;gap:12px;
+    transform:scale(0.95);transition:transform .2s cubic-bezier(.4,0,.2,1)
+  }
+  .power-overlay.open .power-menu{transform:scale(1)}
+  .power-menu-title{font-size:20px;font-weight:800;text-align:center;letter-spacing:-0.02em}
+  .power-menu-sub{font-size:12px;color:var(--text-dim);text-align:center;font-weight:600;margin-bottom:4px}
+  .power-action{
+    display:flex;align-items:center;gap:14px;
+    padding:16px 18px;border-radius:16px;border:1px solid var(--line);
+    background:var(--surface);cursor:pointer;transition:all .15s;
+    box-shadow:var(--shadow-sm);-webkit-user-select:none;user-select:none
+  }
+  .power-action:active{background:var(--btn-active);transform:scale(0.97);box-shadow:var(--shadow-btn-press)}
+  .power-action-icon{
+    width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0
+  }
+  .power-action-icon svg{width:22px;height:22px;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .power-action-icon.shutdown-icon{background:rgba(239,68,68,0.1)}
+  .power-action-icon.shutdown-icon svg{stroke:var(--red)}
+  .power-action-icon.reboot-icon{background:rgba(59,130,246,0.1)}
+  .power-action-icon.reboot-icon svg{stroke:#3b82f6}
+  .power-action-text{flex:1}
+  .power-action-label{font-size:15px;font-weight:800}
+  .power-action-desc{font-size:11px;color:var(--text-dim);font-weight:600;margin-top:2px}
+  .power-cancel{
+    margin-top:2px;background:var(--bg);border:1px solid var(--line);border-radius:14px;
+    padding:14px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+    color:var(--text-dim);cursor:pointer;text-align:center;transition:background .15s;
+    box-shadow:var(--shadow-sm)
+  }
+  .power-cancel:active{background:var(--btn-active)}
+
+  /* Confirm dialog */
+  .confirm-bar{display:none;gap:8px;margin-top:4px}
+  .confirm-bar.show{display:flex}
+  .confirm-yes,.confirm-no{
+    flex:1;padding:14px;border-radius:14px;border:none;
+    font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;
+    cursor:pointer;transition:all .15s;text-align:center
+  }
+  .confirm-yes{background:var(--red);color:#fff;box-shadow:0 4px 14px rgba(239,68,68,0.25)}
+  .confirm-yes:active{background:#dc2626;transform:scale(0.97)}
+  .confirm-yes.reboot-confirm{background:#3b82f6;box-shadow:0 4px 14px rgba(59,130,246,0.25)}
+  .confirm-yes.reboot-confirm:active{background:#2563eb}
+  .confirm-no{background:var(--bg);color:var(--text-dim);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .confirm-no:active{background:var(--btn-active)}
+
+  /* Theme overlay */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,23,42,0.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    display:flex;align-items:flex-end;justify-content:center;z-index:100;
+    opacity:0;pointer-events:none;transition:opacity .25s
+  }
+  .overlay.open{opacity:1;pointer-events:auto}
+  .sheet{
+    background:var(--surface);border-top:1px solid var(--line);border-radius:24px 24px 0 0;width:100%;max-width:420px;
+    padding:20px 22px calc(22px + var(--safe-b));transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;gap:14px;
+    box-shadow:0 -8px 40px rgba(15,23,42,0.12)
+  }
+  .overlay.open .sheet{transform:translateY(0)}
+  .sheet-handle{width:36px;height:4px;background:var(--line);border-radius:2px;align-self:center}
+  .sheet-title{font-size:18px;font-weight:800;text-align:center;letter-spacing:-0.02em}
+  .sheet-hint{font-size:12px;color:var(--text-dim);text-align:center;line-height:1.5;font-weight:600}
+  .theme-preview{
+    text-align:center;padding:12px;border:1px solid var(--line);border-radius:14px;
+    background:var(--bg);font-size:14px;font-weight:700;color:var(--text);
+    min-height:44px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)
+  }
+  .sheet-arrows{display:flex;justify-content:center;gap:12px;align-items:center}
+  .sheet-arrows button{
+    width:66px;height:66px;background:var(--btn);border:1px solid var(--line);border-radius:18px;
+    color:var(--text);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:var(--shadow-md);
+    transition:background .1s,transform .08s,box-shadow .12s;-webkit-user-select:none;user-select:none
+  }
+  .sheet-arrows button:active{background:var(--btn-active);transform:scale(0.92);box-shadow:var(--shadow-sm)}
+  .sheet-arrows .apply-btn{
+    width:82px;background:var(--navy);border-color:transparent;color:#fff;
+    font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    box-shadow:var(--shadow-navy)
+  }
+  .sheet-arrows .apply-btn:active{background:var(--navy-lit)}
+  .sheet-arrows .arrow{stroke:var(--text)}
+  .sheet-close{
+    background:var(--bg);border:1px solid var(--line);border-radius:14px;
+    color:var(--text-dim);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;
+    padding:14px;cursor:pointer;transition:background .15s;box-shadow:var(--shadow-sm)
+  }
+  .sheet-close:active{background:var(--btn-active)}
+
+  .toast{
+    position:fixed;bottom:calc(90px + var(--safe-b));left:50%;transform:translateX(-50%);
+    padding:8px 20px;background:var(--navy);color:#fff;border-radius:999px;
+    font-size:13px;font-weight:600;opacity:0;transition:opacity .15s;
+    pointer-events:none;z-index:300;white-space:nowrap;box-shadow:var(--shadow-lg)
+  }
+  .toast.show{opacity:1}
+  body.dark-remote .toast{background:#1d4ed8;box-shadow:0 8px 28px rgba(0,0,0,0.45)}
+</style>
+</head>
+<body>
+
+<div class="remote-shell" id="remoteShell">
+<div class="header">
+  <img class="header-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="ASG">
+  <div class="header-text">
+    <div class="header-title">ASG Dashboard Remote</div>
+    <div class="header-sub">Live Team Performance</div>
+  </div>
+  <div class="power-btn on" id="powerBtn" onclick="openPowerMenu()" title="Power menu">
+    <svg viewBox="0 0 24 24"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+  </div>
+</div>
+
+<div class="status-strip">
+  <div class="status-strip-row">
+    <div class="status-pill status-pill--screen" id="pillScreenStrip">
+      <span class="status-pill-dot" aria-hidden="true"></span>
+      <div class="status-pill-inner">
+        <span class="status-pill-label">Screen</span>
+        <span class="status-pill-value" id="pillScreenValue">On</span>
+      </div>
+    </div>
+    <div class="status-pill status-pill--view">
+      <div class="status-pill-inner">
+        <span class="status-pill-label">Current view</span>
+        <span class="status-pill-value" id="pillViewValue">Overview</span>
+      </div>
+    </div>
+  </div>
+  <div class="status-strip-row status-strip-row--secondary">
+    <div class="status-pill status-pill--theme">
+      <div class="status-pill-inner">
+        <span class="status-pill-label">Current theme</span>
+        <span class="status-pill-value" id="pillThemeValue">Default (Neutral)</span>
+      </div>
+    </div>
+    <div class="status-pill status-pill--display" id="pillDisplayStrip">
+      <div class="status-pill-inner">
+        <span class="status-pill-label">Display</span>
+        <span class="status-pill-value" id="pillDisplayValue">Light</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-spacer" aria-hidden="true"></div>
+
+<div class="view-bento-grid" id="viewBentoGrid">
+  <button type="button" class="view-bento active" data-idx="0" aria-label="Overview" onclick="selectView(0)">
+    <div class="view-bento-copy">
+      <span class="view-bento-title">Overview</span>
+      <span class="view-bento-sub">KPIs, leaderboard, current deals tape</span>
+    </div>
+  </button>
+  <button type="button" class="view-bento" data-idx="1" aria-label="Current deals" onclick="selectView(1)">
+    <div class="view-bento-copy">
+      <span class="view-bento-title">Current deals</span>
+      <span class="view-bento-sub">YTD pending pipeline</span>
+    </div>
+  </button>
+  <button type="button" class="view-bento" data-idx="2" aria-label="Team directory" onclick="selectView(2)">
+    <div class="view-bento-copy">
+      <span class="view-bento-title">Team</span>
+      <span class="view-bento-sub">Directory &amp; agent focus</span>
+    </div>
+  </button>
+  <button type="button" class="view-bento" data-idx="3" aria-label="Privacy mode" onclick="selectView(3)">
+    <div class="view-bento-copy">
+      <span class="view-bento-title">Privacy</span>
+      <span class="view-bento-sub">Screen privacy view</span>
+    </div>
+  </button>
+</div>
+
+<div class="dpad-zone">
+  <div class="dpad">
+    <div class="empty"></div>
+    <button onclick="send('up')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7-7 7 7"/></svg></button>
+    <div class="empty"></div>
+    <button onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <button class="center" onclick="send('enter')">OK</button>
+    <button onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <div class="empty"></div>
+    <button onclick="send('down')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7 7 7-7"/></svg></button>
+    <div class="empty"></div>
+  </div>
+</div>
+
+<div class="zoom-row" aria-label="Zoom controls">
+  <button class="zoom-btn" onclick="send('zoom_out')">Zoom -</button>
+  <button class="zoom-btn" onclick="send('zoom_reset')">Reset</button>
+  <button class="zoom-btn" onclick="send('zoom_in')">Zoom +</button>
+</div>
+
+<div class="bottom-pill">
+  <div class="pill-btn" onclick="toggleDark()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+    <span>Dark</span>
+    <div class="pill-toggle" id="toggleTrack"><div class="pill-toggle-knob"></div></div>
+  </div>
+  <div class="pill-divider"></div>
+  <div class="pill-btn" onclick="openThemeSheet()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <span>Themes</span>
+  </div>
+</div>
+</div>
+
+<!-- Power menu -->
+<div class="power-overlay" id="powerOverlay" onclick="closePowerIfBg(event)">
+  <div class="power-menu">
+    <div class="power-menu-title">Power</div>
+    <div class="power-menu-sub">Raspberry Pi controls</div>
+
+    <div class="power-action" id="shutdownAction" onclick="confirmAction('shutdown')">
+      <div class="power-action-icon shutdown-icon">
+        <svg viewBox="0 0 24 24"><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+      </div>
+      <div class="power-action-text">
+        <div class="power-action-label">Shut Down</div>
+        <div class="power-action-desc">Power off the Pi completely</div>
+      </div>
+    </div>
+
+    <div class="confirm-bar" id="shutdownConfirm">
+      <button class="confirm-no" onclick="cancelConfirm(event)">Cancel</button>
+      <button class="confirm-yes" onclick="executePower(event,'shutdown')">Shut Down</button>
+    </div>
+
+    <div class="power-action" id="rebootAction" onclick="confirmAction('reboot')">
+      <div class="power-action-icon reboot-icon">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </div>
+      <div class="power-action-text">
+        <div class="power-action-label">Restart</div>
+        <div class="power-action-desc">Restart and come back online</div>
+      </div>
+    </div>
+
+    <div class="confirm-bar" id="rebootConfirm">
+      <button class="confirm-no" onclick="cancelConfirm(event)">Cancel</button>
+      <button class="confirm-yes reboot-confirm" onclick="executePower(event,'reboot')">Restart</button>
+    </div>
+
+    <button class="power-cancel" onclick="closePowerMenu()">Cancel</button>
+  </div>
+</div>
+
+<!-- Theme overlay -->
+<div class="overlay" id="themeOverlay" onclick="closeIfBg(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Seasonal Themes</div>
+    <div class="sheet-hint">◀ ▶ to browse · Apply to confirm</div>
+    <div class="theme-preview" id="themePreview">Use arrows to browse</div>
+    <div class="sheet-arrows">
+      <button onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <button class="apply-btn" onclick="send('enter')">Apply</button>
+      <button onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+    <button class="sheet-close" onclick="closeThemeSheet()">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const VIEWS=['Overview','Current Deals','Team Directory','Privacy'];
+const VIEW_KEYS=['3','5','4','6'];
+const THEMES=['Default (Neutral)','Auto (US Monthly)','January – New Year','February – Presidents Day','March/April – Spring','May – Memorial Day','June/July – Independence','Aug/Sep – Labor/Fall','October – Halloween','Nov/Dec – Christmas'];
+let appliedThemeIdx=0;
+try{
+  var _ts=localStorage.getItem('asg-remote-theme');
+  if(_ts!=null){
+    var _tn=parseInt(_ts,10);
+    if(!isNaN(_tn)) appliedThemeIdx=Math.max(0,Math.min(THEMES.length-1,_tn));
+  }
+}catch(_){}
+const toast=document.getElementById('toast'),overlay=document.getElementById('themeOverlay'),track=document.getElementById('toggleTrack'),pillViewValue=document.getElementById('pillViewValue'),pillScreenValue=document.getElementById('pillScreenValue'),pillScreenStrip=document.getElementById('pillScreenStrip'),pillThemeValue=document.getElementById('pillThemeValue'),pillDisplayValue=document.getElementById('pillDisplayValue'),pillDisplayStrip=document.getElementById('pillDisplayStrip'),themePreview=document.getElementById('themePreview'),powerOverlay=document.getElementById('powerOverlay'),powerBtn=document.getElementById('powerBtn'),metaTheme=document.getElementById('metaTheme');
+let darkOn=false,toastTimer,viewIdx=0,themeIdx=appliedThemeIdx,themeOpen=false,piOn=true;
+let darkToggleBusy=false;
+const remoteToken = new URLSearchParams(location.search).get('token') || '';
+function apiPath(p){
+  if(!remoteToken) return p;
+  return p + (p.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(remoteToken);
+}
+
+function flash(m){toast.textContent=m;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),700)}
+
+async function selectView(idx){
+  if(idx<0||idx>=VIEW_KEYS.length)return;
+  viewIdx=idx;
+  updateViewBentos();
+  if(navigator.vibrate)navigator.vibrate(28);
+  const key=VIEW_KEYS[idx];
+  try{
+    const r=await fetch(apiPath('/key'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    if(!r.ok)flash('Error');else flash(VIEWS[idx])
+  }catch{flash('No connection')}
+}
+
+async function send(key){
+  if(navigator.vibrate)navigator.vibrate(20);
+  try{const r=await fetch(apiPath('/key'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});if(!r.ok)flash('Error')}catch{flash('No connection')}
+  if(!themeOpen){
+    if(key==='right'){viewIdx=(viewIdx+1)%VIEWS.length;updateViewBentos();flash(VIEWS[viewIdx])}
+    if(key==='left'){viewIdx=(viewIdx-1+VIEWS.length)%VIEWS.length;updateViewBentos();flash(VIEWS[viewIdx])}
+    if(key==='up')flash('▲');if(key==='down')flash('▼');if(key==='enter')flash('OK')
+    if(key==='zoom_in')flash('Zoom +');
+    if(key==='zoom_out')flash('Zoom -');
+    if(key==='zoom_reset')flash('Zoom Reset');
+  }else{
+    if(key==='right'){themeIdx=(themeIdx+1)%THEMES.length;themePreview.textContent=THEMES[themeIdx];flash(THEMES[themeIdx])}
+    if(key==='left'){themeIdx=(themeIdx-1+THEMES.length)%THEMES.length;themePreview.textContent=THEMES[themeIdx];flash(THEMES[themeIdx])}
+    if(key==='enter'){
+      appliedThemeIdx=themeIdx;
+      try{localStorage.setItem('asg-remote-theme',String(appliedThemeIdx))}catch(_){}
+      updateThemeDisplayPills();
+      flash('Applied: '+THEMES[appliedThemeIdx]);
+      closeThemeSheet(true);
+    }
+  }
+}
+function updateScreenPill(){
+  pillScreenValue.textContent=piOn?'On':'Off';
+  pillScreenStrip.classList.toggle('status-pill--off',!piOn);
+}
+function updateViewBentos(){
+  pillViewValue.textContent=VIEWS[viewIdx];
+  document.querySelectorAll('.view-bento').forEach((el,i)=>el.classList.toggle('active',i===viewIdx));
+  updateScreenPill();
+}
+function updateThemeDisplayPills(){
+  if(pillThemeValue) pillThemeValue.textContent=THEMES[appliedThemeIdx]||THEMES[0];
+  if(pillDisplayValue) pillDisplayValue.textContent=darkOn?'Dark':'Light';
+  if(pillDisplayStrip) pillDisplayStrip.classList.toggle('status-pill--dark-on',darkOn);
+}
+function setRemoteTheme(){
+  document.body.classList.toggle('dark-remote',darkOn);
+  if(metaTheme)metaTheme.setAttribute('content',darkOn?'#0c1222':'#f4f5f7');
+  try{localStorage.setItem('asg-remote-dark',darkOn?'1':'0')}catch(_){}
+  updateThemeDisplayPills();
+}
+async function sendDarkToggleKey(){
+  const r = await fetch(apiPath('/key'),{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({key:'1'})
+  });
+  if(!r.ok) throw new Error('toggle failed');
+}
+async function toggleDark(){
+  if(darkToggleBusy) return;
+  darkToggleBusy=true;
+  darkOn=!darkOn;
+  track.classList.toggle('on',darkOn);
+  setRemoteTheme();
+  try{
+    await sendDarkToggleKey(); // Explicitly bound to dashboard key 1.
+    flash(darkOn?'Dark On':'Dark Off');
+  }catch{
+    flash('Dark toggled locally (remote offline)');
+  }finally{
+    darkToggleBusy=false;
+  }
+}
+function openThemeSheet(){
+  send('2');
+  themeOpen=true;
+  themeIdx=appliedThemeIdx;
+  overlay.classList.add('open');
+  themePreview.textContent=THEMES[themeIdx];
+}
+function closeThemeSheet(fromApply){
+  themeOpen=false;
+  overlay.classList.remove('open');
+  if(!fromApply) themeIdx=appliedThemeIdx;
+  themePreview.textContent=THEMES[appliedThemeIdx];
+}
+function closeIfBg(e){if(e.target===overlay)closeThemeSheet()}
+
+// Power
+function openPowerMenu(){powerOverlay.classList.add('open');document.querySelectorAll('.confirm-bar').forEach(c=>c.classList.remove('show'))}
+function closePowerMenu(){powerOverlay.classList.remove('open')}
+function closePowerIfBg(e){if(e.target===powerOverlay)closePowerMenu()}
+function confirmAction(type){
+  document.querySelectorAll('.confirm-bar').forEach(c=>c.classList.remove('show'));
+  document.getElementById(type+'Confirm').classList.add('show');
+}
+function cancelConfirm(e){e.stopPropagation();document.querySelectorAll('.confirm-bar').forEach(c=>c.classList.remove('show'))}
+async function executePower(e,action){
+  e.stopPropagation();
+  if(navigator.vibrate)navigator.vibrate([50,30,50]);
+  flash(action==='shutdown'?'Shutting down…':'Restarting…');
+  try{
+    await fetch(apiPath('/power'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
+    if(action==='shutdown'){
+      piOn=false;
+      powerBtn.classList.remove('on');
+      powerBtn.classList.add('off');
+    }
+    if(action==='reboot'){
+      piOn=true;
+      powerBtn.classList.add('on');
+      powerBtn.classList.remove('off');
+    }
+    updateScreenPill();
+  }catch{flash('Failed — no connection')}
+  closePowerMenu();
+}
+
+try{
+  if(localStorage.getItem('asg-remote-dark')==='1'){
+    darkOn=true;
+    track.classList.add('on');
+    setRemoteTheme();
+  }
+}catch(_){}
+updateViewBentos();
+updateThemeDisplayPills();
+
+const remoteShell=document.getElementById('remoteShell');
+function fitRemoteToViewport(){
+  if(!remoteShell) return;
+  remoteShell.style.setProperty('--fit-scale','1');
+  const bodyTopPad=parseFloat(getComputedStyle(document.body).paddingTop||'0')||0;
+  const viewportH=(window.visualViewport&&window.visualViewport.height?window.visualViewport.height:window.innerHeight)-bodyTopPad;
+  const contentH=remoteShell.scrollHeight;
+  if(!contentH||!viewportH) return;
+  const scale=Math.min(1,viewportH/contentH);
+  remoteShell.style.setProperty('--fit-scale',String(Math.max(0.7,scale)));
+}
+window.addEventListener('resize',fitRemoteToViewport,{passive:true});
+window.addEventListener('orientationchange',fitRemoteToViewport,{passive:true});
+if(window.visualViewport) window.visualViewport.addEventListener('resize',fitRemoteToViewport,{passive:true});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fitRemoteToViewport);}else{setTimeout(fitRemoteToViewport,0);}
+setTimeout(fitRemoteToViewport,120);
+
+document.addEventListener('dblclick',e=>e.preventDefault());
+</script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<div id="asg-agent-personal-hub-layne-zagorin"></div>
+
+<style>
+  #asg-agent-personal-hub-layne-zagorin{
+    --asg-ph-bg:#f7f8fa;
+    --asg-ph-card:#ffffff;
+    --asg-ph-text:#111111;
+    --asg-ph-muted:rgba(17,17,17,.58);
+    --asg-ph-border:rgba(17,17,17,.08);
+    --asg-ph-dark:#111111;
+    --asg-ph-blue:#3b82f6;
+    --asg-ph-green:#22c55e;
+    --asg-ph-orange:#f97316;
+    --asg-ph-purple:#8b5cf6;
+    font-family:'Outfit','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--asg-ph-text);
+  }
+  #asg-agent-personal-hub-layne-zagorin *{box-sizing:border-box}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-shell{
+    max-width:1260px;
+    margin:0 auto;
+    background:var(--asg-ph-bg);
+    border:1px solid var(--asg-ph-border);
+    border-radius:30px;
+    padding:18px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-grid{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:16px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-card{
+    background:var(--asg-ph-card);
+    border:1px solid var(--asg-ph-border);
+    border-radius:24px;
+    padding:18px;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-label{
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--asg-ph-muted);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-label-dot{
+    width:8px;height:8px;border-radius:50%;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-profile{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-avatar{
+    width:66px;height:66px;border-radius:20px;object-fit:cover;border:1px solid var(--asg-ph-border);background:#eaeef3;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-name{
+    font-size:26px;
+    line-height:1.05;
+    font-weight:800;
+    margin:0;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-sub{
+    margin:4px 0 0;
+    font-size:13px;
+    color:var(--asg-ph-muted);
+    font-weight:500;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-kpis{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi{
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:12px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--asg-ph-muted);margin-bottom:6px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi-value{
+    font-size:24px;line-height:1.05;font-weight:800;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi-sub{
+    margin-top:6px;font-size:12px;color:var(--asg-ph-muted);
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-team-strip{
+    margin-top:10px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-team-top{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-team-stat{
+    border:1px solid var(--asg-ph-border);
+    border-radius:12px;
+    padding:9px 10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-team-stat-label{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--asg-ph-muted);
+    font-weight:700;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-team-stat-value{
+    margin-top:4px;
+    font-size:18px;
+    font-weight:800;
+    line-height:1.05;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-tabs{
+    display:inline-flex;
+    background:#f3f5f7;
+    border:1px solid var(--asg-ph-border);
+    border-radius:999px;
+    padding:4px;
+    gap:4px;
+    margin-top:2px;
+    flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-tab{
+    border:none;background:transparent;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:700;color:var(--asg-ph-muted);cursor:pointer;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-tab.is-on{background:#fff;color:#111;border:1px solid var(--asg-ph-border)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-actions{
+    display:grid;gap:10px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action{
+    display:flex;align-items:center;gap:10px;
+    padding:12px;
+    border:1px solid var(--asg-ph-border);
+    border-radius:14px;
+    text-decoration:none;
+    color:inherit;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action:hover{border-color:rgba(17,17,17,.2)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-main{
+    flex:1;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-icon{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:14px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-title{font-size:14px;font-weight:700;line-height:1.2}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-sub{font-size:12px;color:var(--asg-ph-muted)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-right{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex:0 0 auto;
+    align-self:center;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-copy-spacer{
+    width:24px;
+    height:24px;
+    flex:0 0 24px;
+    visibility:hidden;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-circle{
+    width:24px;
+    height:24px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    border:1px solid #111;
+    display:grid;
+    place-items:center;
+    padding:0;
+    cursor:pointer;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-circle svg{
+    width:12px;
+    height:12px;
+    display:block;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-copy-toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%) translateY(8px);
+    background:#111;
+    color:#fff;
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.01em;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+    z-index:99999;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-copy-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-arrow{
+    width:24px;
+    height:24px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    display:grid;
+    place-items:center;
+    flex:0 0 24px;
+    text-decoration:none;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-action-arrow svg{
+    width:12px;
+    height:12px;
+    display:block;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-downloads{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-download-row{
+    border:1px solid rgba(17,17,17,.14);
+    border-radius:12px;
+    background:#fff;
+    color:#111;
+    padding:8px 10px;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-download-label{line-height:1.2}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-download-label-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-drive-logo{
+    width:18px;
+    height:18px;
+    border-radius:0 !important;
+    clip-path:none !important;
+    object-fit:cover;
+    flex:0 0 18px;
+    border:none;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-download-btn{
+    height:30px;
+    padding:0 12px;
+    border-radius:999px;
+    background:#111;
+    color:#fff;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    border:1px solid #111;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-download-btn:hover{opacity:.86}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-main{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:16px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-list-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-tabs{
+    display:inline-flex;
+    background:#f3f5f7;
+    border:1px solid var(--asg-ph-border);
+    border-radius:999px;
+    padding:4px;
+    gap:4px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-tab{
+    border:none;background:transparent;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;color:var(--asg-ph-muted);cursor:pointer;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-tab.is-on{background:#fff;color:#111;border:1px solid var(--asg-ph-border)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-list{
+    max-height:560px;overflow:auto;display:grid;gap:10px;padding-right:4px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-listing{
+    border:1px solid var(--asg-ph-border);
+    border-radius:16px;
+    padding:12px;
+    display:grid;
+    gap:10px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-listing-top{
+    display:flex;align-items:flex-start;gap:10px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-listing-cover{
+    width:78px;height:58px;border-radius:8px !important;background:#e6ebf1;object-fit:cover;flex:0 0 78px;
+    clip-path: inset(0 round 8px);
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-listing-title{font-size:15px;font-weight:700;line-height:1.25;margin:0}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-listing-meta{margin-top:3px;font-size:12px;color:var(--asg-ph-muted)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-badge{
+    margin-left:auto;white-space:nowrap;
+    border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;border:1px solid transparent;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-badge.is-active{background:rgba(34,197,94,.1);color:#0f8a3a;border-color:rgba(34,197,94,.22)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-badge.is-closed{background:rgba(59,130,246,.1);color:#275cc5;border-color:rgba(59,130,246,.22)}
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-assets{
+    display:flex;flex-wrap:wrap;gap:6px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-asset{
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--asg-ph-border);border-radius:999px;
+    padding:6px 10px;
+    font-size:11px;font-weight:700;color:#111;text-decoration:none;background:#fff;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-asset.is-off{
+    color:rgba(17,17,17,.35);
+    background:#f7f8fa;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-note{
+    color:var(--asg-ph-muted);
+    font-size:12px;
+    margin-top:4px;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-empty,
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-error{
+    border:1px dashed var(--asg-ph-border);
+    border-radius:14px;
+    padding:14px;
+    font-size:13px;
+    color:var(--asg-ph-muted);
+    text-align:center;
+  }
+  #asg-agent-personal-hub-layne-zagorin .asg-ph-error{color:#9f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.04)}
+  @media (max-width:1080px){
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-grid,
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-main{grid-template-columns:1fr}
+  }
+  @media (max-width:760px){
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-shell{padding:12px;border-radius:22px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-grid,
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-main{gap:12px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-card{padding:16px;border-radius:18px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-head{flex-direction:column;gap:12px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-stats-tabs{align-self:flex-start;margin-bottom:6px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-profile{gap:10px;margin-bottom:12px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-avatar{width:56px;height:56px;border-radius:14px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-name{font-size:22px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-sub{font-size:12px;line-height:1.35}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi{padding:10px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-kpi-value{font-size:20px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-team-top{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-team-strip{margin-top:10px;padding:10px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-actions{gap:8px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-action{padding:11px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-list-head{flex-direction:column;align-items:flex-start;gap:10px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-tabs{align-self:flex-start}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-list{max-height:440px;gap:8px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-listing{padding:10px;gap:8px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-listing-top{display:grid;grid-template-columns:78px 1fr;align-items:start}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-assets{gap:8px}
+    #asg-agent-personal-hub-layne-zagorin .asg-ph-download-row{padding:9px 10px}
+  }
+</style>
+
+<script>
+(function(){
+  /*
+    Duplicate instructions for other senior agents:
+    1) Update AGENT_PROFILE (name, image, book, request, landing, contact).
+    2) Keep API constants unchanged unless endpoint deployments change.
+    3) Optional: update EXTRA_SHORTCUTS for agent-specific pages.
+  */
+  const STATS_API="https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec";
+  const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+
+  const AGENT_PROFILE={
+    name:"Layne Zagorin",
+    tier:"Senior Agent",
+    email:"layne.zagorin@compass.com",
+    phone:"773-425-0039",
+    photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5016d411-0889-4558-a8d9-146070d08181/Photo-18+%284%29.jpg?format=500w",
+    landing:"https://www.alexstoykovgroup.com/laynezagorin",
+    book:"https://asgmarketing.as.me/?firstName=Layne&lastName=Zagorin&email=layne.zagorin%40compass.com&phone=7734250039&field:18245579=Layne%20Zagorin&field:18245580=Admin%20Hub",
+    request:"https://form.asana.com/?k=kZ8ielvYc-6DkzJ0Cej_qQ&d=7720513273924"
+  };
+  const SAM_MARKETING_FOLDER="https://drive.google.com/drive/search?q=%22Layne%20Zagorin%22%20and%20%221zIfDqSpA94cRFajB3TsA3ryJibKSinIK%22%20in%20parents";
+  const GOOGLE_DRIVE_LOGO="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/88e10fea-589d-4251-b448-7b426d185f02/Google-Drive-Logo.jpg?format=1500w";
+
+  const DOWNLOADABLES=[
+    {label:"Marketing Drive Folder",href:SAM_MARKETING_FOLDER,logo:GOOGLE_DRIVE_LOGO},
+    {label:"Buyer Guide",href:'https://drive.google.com/drive/search?q=%22Buyer%20Guide%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'},
+    {label:"Seller Guide",href:'https://drive.google.com/drive/search?q=%22Seller%20Guide%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'},
+    {label:"Listing Presentation",href:'https://drive.google.com/drive/search?q=%22Listing%20Presentation%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'},
+    {label:"Business Card",href:'https://drive.google.com/drive/search?q=%22Business%20Card%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'}
+  ];
+
+  const root=document.getElementById("asg-agent-personal-hub-layne-zagorin");
+  if(!root){return;}
+
+  const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const normalize=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"").trim();
+  const firstName=s=>String(s||"").trim().split(/\s+/)[0]||"";
+  const fmt=n=>{const val=Number(n)||0;if(val>=1e6)return "$"+(val/1e6).toFixed(1)+"M";if(val>=1e3)return "$"+Math.round(val/1e3)+"K";return "$"+val.toLocaleString();};
+  const safeHref=url=>{
+    const raw=String(url||"").trim();
+    if(/^https?:\/\//i.test(raw))return raw;
+    if(/^#[A-Za-z0-9_-]+$/.test(raw))return raw;
+    return "#";
+  };
+  const statusLabel=s=>{const raw=String(s||"").trim();if(!raw)return"Unknown";return raw.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");};
+  const resolveDriveImageUrl=url=>{
+    const raw=String(url||"").trim();
+    if(!raw)return "";
+    if(!/drive\.google\.com|docs\.google\.com/.test(raw))return raw;
+    if(/\/drive\/folders\//.test(raw))return "";
+    const filePathMatch=raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if(filePathMatch&&filePathMatch[1])return "https://drive.google.com/thumbnail?id="+filePathMatch[1]+"&sz=w1200";
+    const idParamMatch=raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if(idParamMatch&&idParamMatch[1])return "https://drive.google.com/thumbnail?id="+idParamMatch[1]+"&sz=w1200";
+    return raw;
+  };
+
+  const calendarIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="3" stroke="#16a34a" stroke-width="1.6"/><path d="M3 8h14" stroke="#16a34a" stroke-width="1.6"/><path d="M7 2.8v2.8M13 2.8v2.8" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const designIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 14.5L14.2 4.3a1.6 1.6 0 0 1 2.3 0l.2.2a1.6 1.6 0 0 1 0 2.3L6.5 17H4v-2.5Z" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.6 5.9l1.5 1.5" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const landingIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3.2 3.2 8.8v7h4.7v-4.1h4.2v4.1h4.7v-7L10 3.2Z" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  let currentListingView="active";
+  let currentStatsPeriod="allTime";
+  let listings={active:[],closed:[]};
+
+  root.innerHTML=`
+    <div class="asg-ph-shell">
+      <div class="asg-ph-grid">
+        <section class="asg-ph-card">
+          <div class="asg-ph-stats-head">
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Personal Stats</div>
+              <div class="asg-ph-profile">
+                <img class="asg-ph-avatar" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
+                <div>
+                  <h2 class="asg-ph-name">${esc(AGENT_PROFILE.name)}</h2>
+                  <p class="asg-ph-sub">${esc(AGENT_PROFILE.tier)}</p>
+                </div>
+              </div>
+            </div>
+            <div class="asg-ph-stats-tabs">
+              <button class="asg-ph-stats-tab is-on" data-period="allTime">All Time</button>
+              <button class="asg-ph-stats-tab" data-period="ytd2026">2026</button>
+            </div>
+          </div>
+          <div class="asg-ph-kpis" id="asgPhKpis">
+            ${kpiSkeleton()}
+          </div>
+          <div class="asg-ph-team-strip">
+            <div class="asg-ph-team-top" id="asgPhTeamTop">
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="asg-ph-card">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-purple)"></span>Marketing Actions</div>
+          <div class="asg-ph-actions">
+            ${actionLink("Book a Shoot","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
+            ${actionLink("Design Request","Request social or print collateral",AGENT_PROFILE.request,"rgba(139,92,246,.15)",designIcon)}
+            ${actionLink("My Landing Page","Open your public ASG page",AGENT_PROFILE.landing,"rgba(59,130,246,.15)",landingIcon,AGENT_PROFILE.landing)}
+          </div>
+        </section>
+      </div>
+
+      <div class="asg-ph-main">
+        <section class="asg-ph-card">
+          <div class="asg-ph-list-head">
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-dark)"></span>My Listing Assets</div>
+              <p class="asg-ph-note">Filtered to ${esc(AGENT_PROFILE.name)}. Quick access to photos, 3D, floor plans, and collateral.</p>
+            </div>
+            <div class="asg-ph-tabs">
+              <button class="asg-ph-tab is-on" data-view="active">Active</button>
+              <button class="asg-ph-tab" data-view="closed">Closed</button>
+            </div>
+          </div>
+          <div class="asg-ph-list" id="asgPhListings">
+            <div class="asg-ph-empty">Loading listings...</div>
+          </div>
+        </section>
+
+        <section class="asg-ph-card">
+          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
+          <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+        </section>
+      </div>
+    </div>
+    <div class="asg-ph-copy-toast" id="asgPhCopyToast">Copied URL</div>
+  `;
+
+  const kpiWrap=root.querySelector("#asgPhKpis");
+  const teamTop=root.querySelector("#asgPhTeamTop");
+  const listWrap=root.querySelector("#asgPhListings");
+  const downloadsWrap=root.querySelector("#asgPhDownloads");
+  const tabs=root.querySelectorAll(".asg-ph-tab");
+  const statsTabs=root.querySelectorAll(".asg-ph-stats-tab");
+  const copyToast=root.querySelector("#asgPhCopyToast");
+  let copyToastTimer=null;
+
+  downloadsWrap.innerHTML=DOWNLOADABLES.map(link=>downloadRow(link.label,link.href,link.logo)).join("");
+  root.querySelectorAll(".asg-ph-action-circle[data-copy]").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.preventDefault();
+      copyToClipboard(this.getAttribute("data-copy")||"");
+      showCopyToast();
+    });
+  });
+
+  tabs.forEach(btn=>{
+    btn.addEventListener("click",function(){
+      currentListingView=this.getAttribute("data-view")==="closed"?"closed":"active";
+      tabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
+      renderListings();
+    });
+  });
+
+  statsTabs.forEach(btn=>{
+    btn.addEventListener("click",function(){
+      const period=this.getAttribute("data-period")==="ytd2026"?"ytd2026":"allTime";
+      currentStatsPeriod=period;
+      statsTabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
+      loadStats(period);
+    });
+  });
+
+  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings()]).then(function(){ renderListings(); });
+
+  function loadStats(period){
+    const targetPeriod=period||"ytd2026";
+    const periodLabel=targetPeriod==="allTime"?"All-Time":"2026";
+    kpiWrap.innerHTML=kpiSkeleton(periodLabel);
+    return fetch(STATS_API+"?period="+encodeURIComponent(targetPeriod),{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||!data.success||!Array.isArray(data.agents))throw new Error("Bad stats payload");
+        const agent=findBestAgentMatch(data.agents,AGENT_PROFILE.name);
+        if(!agent){
+          kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to find '+esc(AGENT_PROFILE.name)+' in '+esc(periodLabel)+' stats.</div>';
+          return;
+        }
+        const totalVolume=Number(agent.grandTotal)||0;
+        const totalDeals=Number(agent.totalDeals)||0;
+        const closedVol=Number(agent.closedVolume)||0;
+        const pendingVol=Number(agent.pendingVolume)||0;
+        const pendingDeals=Number(agent.pendingDeals)||0;
+        const closedDeals=Number(agent.closedDeals)||0;
+        const buyPctNum=(agent.buyPct===undefined||agent.buyPct===null)?null:Math.round(Number(agent.buyPct)||0);
+        const buyPct=buyPctNum===null?"-":buyPctNum+"%";
+        const sellPct=buyPctNum===null?"-":Math.max(0,100-buyPctNum)+"%";
+        if(targetPeriod==="allTime"){
+          kpiWrap.innerHTML=[
+            kpiCard("All-Time Volume",fmt(totalVolume),totalDeals+" deals"),
+            kpiCard("# Transactions",String(totalDeals),closedDeals+" closed · "+pendingDeals+" pending"),
+            kpiCard("Seller Side Mix",sellPct,buyPctNum===null?"—":"Buy side "+buyPct),
+            kpiCard("Buy Side Mix",buyPct,String(agent.totalZillow||0)+" Zillow reviews")
+          ].join("");
+        }else{
+          kpiWrap.innerHTML=[
+            kpiCard(periodLabel+" Volume",fmt(totalVolume),totalDeals+" deals"),
+            kpiCard("Closed Volume",fmt(closedVol),closedDeals+" closed"),
+            kpiCard("Pending Volume",fmt(pendingVol),pendingDeals+" pending"),
+            kpiCard("Buy Side Mix",buyPct,String(agent.totalZillow||0)+" Zillow reviews")
+          ].join("");
+        }
+      })
+      .catch(()=>{
+        kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to load '+esc(periodLabel)+' stats right now.</div>';
+      });
+  }
+
+  function loadListings(){
+    const fetchView=view=>fetch(LISTINGS_API+"?view="+encodeURIComponent(view),{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(d=>{
+        if(!d||!Array.isArray(d.listings))throw new Error("Bad listings payload");
+        return d.listings;
+      })
+      .then(items=>items.map(item=>({
+        address:item.address||"",
+        neighborhood:item.neighborhood||"",
+        agent:item.agent||"",
+        status:item.status||"",
+        listingType:item.listingType||"",
+        coverImage:item.coverImage||"",
+        photos:item.photos||"",
+        matterport:item.matterport||"",
+        floorPlan:item.floorPlan||"",
+        factSheet:item.factSheet||"",
+        openHouse:item.openHouse||"",
+        video:item.video||""
+      })).filter(item=>normalize(item.agent)===normalize(AGENT_PROFILE.name)));
+
+    return Promise.all([fetchView("active"),fetchView("closed")])
+      .then(results=>{
+        listings.active=results[0];
+        listings.closed=results[1];
+      })
+      .catch(()=>{
+        listings.active=[];
+        listings.closed=[];
+        listWrap.innerHTML='<div class="asg-ph-error">Unable to load listings. Check Listings API deployment.</div>';
+      });
+  }
+
+  function loadTeamYtd(){
+    return fetch(STATS_API+"?period=ytd2026",{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||!data.success||!data.summary)throw new Error("Bad team summary");
+        const s=data.summary;
+        const totalVolume=Number(s.totalVolume!==undefined?s.totalVolume:((s.closedVolume||0)+(s.pendingVolume||0)))||0;
+        const totalTransactions=Number(s.totalTransactions!==undefined?s.totalTransactions:((s.closedDeals||0)+(s.pendingDeals||0)))||0;
+        teamTop.innerHTML=[
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">${esc(fmt(totalVolume))}</div></div>`,
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">${esc(String(totalTransactions))}</div></div>`
+        ].join("");
+      })
+      .catch(()=>{
+        teamTop.innerHTML=[
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>`,
+          `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>`
+        ].join("");
+      });
+  }
+
+  function renderListings(){
+    const items=listings[currentListingView]||[];
+    if(!items.length){
+      listWrap.innerHTML='<div class="asg-ph-empty">No '+esc(currentListingView)+' listings found for '+esc(AGENT_PROFILE.name)+'.</div>';
+      return;
+    }
+    listWrap.innerHTML=items.map(item=>{
+      const cover=resolveDriveImageUrl(item.coverImage);
+      const status=(currentListingView==="closed")?"Closed":"Active";
+      const meta=[item.neighborhood,item.listingType].filter(Boolean).join(" - ");
+      return `
+        <article class="asg-ph-listing">
+          <div class="asg-ph-listing-top">
+            ${cover?`<img class="asg-ph-listing-cover" src="${esc(cover)}" alt="${esc(item.address||'Listing')}" loading="lazy" onerror="this.style.opacity=.2">`:'<div class="asg-ph-listing-cover"></div>'}
+            <div style="min-width:0">
+              <h3 class="asg-ph-listing-title">${esc(item.address||"Untitled Listing")}</h3>
+              <div class="asg-ph-listing-meta">${esc(meta||statusLabel(item.status||status))}</div>
+            </div>
+            <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
+          </div>
+          <div class="asg-ph-assets">
+            ${assetLink("Photos",item.photos)}
+            ${assetLink("Matterport",item.matterport)}
+            ${assetLink("Floor Plan",item.floorPlan)}
+            ${assetLink("Fact Sheet",item.factSheet)}
+            ${assetLink("Open House",item.openHouse)}
+            ${assetLink("Video",item.video)}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function kpiSkeleton(periodLabel){
+    const safeLabel=periodLabel||"All-Time";
+    return [
+      kpiCard(safeLabel+" Volume","-","Loading..."),
+      kpiCard("Closed Volume","-","Loading..."),
+      kpiCard("Pending Volume","-","Loading..."),
+      kpiCard("Buy Side Mix","-","Loading...")
+    ].join("");
+  }
+  function kpiCard(label,value,sub){
+    return `<div class="asg-ph-kpi"><div class="asg-ph-kpi-label">${esc(label)}</div><div class="asg-ph-kpi-value">${esc(value)}</div><div class="asg-ph-kpi-sub">${esc(sub)}</div></div>`;
+  }
+  function assetLink(label,url){
+    const href=safeHref(url);
+    if(href==="#")return `<span class="asg-ph-asset is-off">${esc(label)}</span>`;
+    return `<a class="asg-ph-asset" href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+  }
+  function downloadRow(label,url,logo){
+    var logoHtml=logo?`<img class="asg-ph-drive-logo" src="${esc(logo)}" alt="Google Drive" loading="lazy">`:"";
+    return `<div class="asg-ph-download-row"><span class="asg-ph-download-label-wrap">${logoHtml}<span class="asg-ph-download-label">${esc(label)}</span></span><a class="asg-ph-download-btn" href="${esc(safeHref(url))}" target="_blank" rel="noopener" aria-label="Access ${esc(label)}">Access</a></div>`;
+  }
+  function actionLink(title,sub,href,bg,short,copyValue){
+    const safe=safeHref(href);
+    const isMailOrTel=/^(mailto:|tel:)/i.test(String(href||""));
+    const isAnchor=/^#/.test(safe);
+    const target=(isMailOrTel||isAnchor)?"":" target=\"_blank\" rel=\"noopener\"";
+    if(safe==="#"&&!isMailOrTel&&!isAnchor){
+      return `<span class="asg-ph-action" style="opacity:.45;pointer-events:none"><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><span class="asg-ph-action-copy-spacer"></span><span class="asg-ph-action-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></span>`;
+    }
+    if(copyValue){
+      return `<div class="asg-ph-action"><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><button type="button" class="asg-ph-action-circle" data-copy="${esc(copyValue)}" aria-label="Copy link"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.1" y="4.9" width="7.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.6"/><rect x="2.7" y="2.7" width="7.2" height="8.4" rx="1.6" stroke="currentColor" stroke-width="1.6"/></svg></button><a class="asg-ph-action-arrow" href="${esc(isMailOrTel?href:safe)}"${target}><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></span></div>`;
+    }
+    return `<a class="asg-ph-action" href="${esc(isMailOrTel?href:safe)}"${target}><span class="asg-ph-action-icon" style="background:${bg}">${short}</span><span class="asg-ph-action-main"><span class="asg-ph-action-title">${esc(title)}</span><br><span class="asg-ph-action-sub">${esc(sub)}</span></span><span class="asg-ph-action-right"><span class="asg-ph-action-copy-spacer"></span><span class="asg-ph-action-arrow"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></a>`;
+  }
+  function copyToClipboard(text){
+    const value=String(text||"").trim();
+    if(!value)return;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(value).catch(function(){fallbackCopy(value);});
+      return;
+    }
+    fallbackCopy(value);
+  }
+  function fallbackCopy(value){
+    const ta=document.createElement("textarea");
+    ta.value=value;
+    ta.setAttribute("readonly","");
+    ta.style.position="absolute";
+    ta.style.left="-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+  function showCopyToast(){
+    if(!copyToast)return;
+    copyToast.classList.add("show");
+    if(copyToastTimer)clearTimeout(copyToastTimer);
+    copyToastTimer=setTimeout(function(){
+      copyToast.classList.remove("show");
+    },1200);
+  }
+  function findBestAgentMatch(agents,targetName){
+    const targetNorm=normalize(targetName);
+    const targetFirst=normalize(firstName(targetName));
+    let found=agents.find(a=>normalize(a&&a.name)===targetNorm);
+    if(found)return found;
+    found=agents.find(a=>{
+      const n=normalize(a&&a.name);
+      return n.startsWith(targetNorm)||targetNorm.startsWith(n);
+    });
+    if(found)return found;
+    found=agents.find(a=>normalize(a&&a.name).includes(targetNorm));
+    if(found)return found;
+    const firstMatches=agents.filter(a=>normalize(firstName(a&&a.name))===targetFirst);
+    if(firstMatches.length===1)return firstMatches[0];
+    return null;
+  }
+})();
+</script>

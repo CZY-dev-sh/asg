@@ -1,0 +1,59 @@
+# ASG Admin Hub — Cursor Rules
+
+## Project Context
+This is a collection of self-contained HTML/CSS/JS code blocks for the Alex Stoykov Group (ASG) Admin Hub, a real estate team dashboard hosted on Squarespace. Each component file in `components/` is a standalone code block that gets pasted directly into a Squarespace Code Block injection point.
+
+## Tech Stack
+- **Hosting**: Squarespace (Code Block injections)
+- **Frontend**: Vanilla HTML + CSS + JavaScript (no build step, no frameworks)
+- **Fonts**: Google Fonts — prefer **Outfit** for new UI per brand brief; **Poppins** (400–800) remains in existing components until migrated
+- **Data Sources**: Google Apps Script web apps (JSON APIs), Google Sheets (published CSV)
+- **External Services**: Google Drive, Asana forms, Acuity Scheduling (as.me)
+
+## Architecture Rules
+- Every component is a **single self-contained file** (HTML + `<style>` + `<script>`)
+- No external JS/CSS files — everything is inline within the code block
+- All CSS is scoped via unique prefixes to avoid Squarespace collisions:
+  - Dashboard: `asg-h-` prefix
+  - Team Directory: `asg-dir-` prefix
+  - Listing Hub standalone: `lh-` prefix
+  - Marketing Assets: `asg-admin-assets__` prefix
+  - Agent Cards: `admin-` prefix
+- IIFEs `(function(){ ... })()` wrap all JS to avoid global scope pollution
+- `window._asg*` and `window._lh*` functions are the only intentional globals (for onclick handlers in generated HTML)
+
+## Data & API Endpoints
+- **Stats API**: `https://script.google.com/macros/s/AKfycbzC8TWq.../exec` — returns pipeline stats (volume, deals, agents)
+- **Folders API**: `https://script.google.com/macros/s/AKfycbwrDNg.../exec` — returns recent Google Drive listing photo folders
+- **Listings API (v1)**: `https://script.google.com/macros/s/AKfycbyt2jh.../exec` — listing hub data (active/archive)
+- **Listings API (v2)**: `https://script.google.com/macros/s/AKfycbzCDWt.../exec` — listing hub with email/share support
+- **Buyers CSV**: Google Sheets published CSV (gid=1143085145)
+- **Sellers CSV**: Google Sheets published CSV (gid=1110212825)
+
+## Team Roster
+The team roster (TEAM array) is duplicated across components. The canonical list is in `shared/team-data.js` for reference. When updating team members, sync changes across:
+1. `admin-dashboard.html` (and v2)
+2. `team-directory.html`
+3. `agent-cards.html`
+4. `listing-hub-standalone.html` (agent email map)
+
+## Coding Conventions
+- Use `var` in standalone listing hub (broader browser compat); `const/let` in dashboard components
+- HTML escaping via `esc()` helper for all user-facing data
+- Phone numbers cleaned via `telClean()` — strips non-digit chars
+- Currency formatting via `fmt()` — $1.2M / $450K / $1,200
+- Mobile detection via `isMobile()` for adaptive click actions (copy vs mailto/tel)
+- All images have `onerror` fallbacks to initials placeholders
+
+## Design System
+**Authoritative visual spec:** `docs/ASG-DESIGN-SYSTEM-BRIEF.md` — modern luxury minimal, bento layouts, monochrome-first, generous spacing, pill controls, subtle borders over heavy shadows, restrained accents. Follow the brief for all new or redesigned UI; match existing component prefixes and escape patterns.
+
+**Legacy implementation snapshot** (existing components; align refactors to the brief):
+- Border radius: ~24–32px major containers / ~28px cards, 999px pills, 14–18px compact actions
+- Shadows: faint only; prefer thin borders where possible
+- Colors: #111 primary, muted grays; use accents sparingly (e.g. #3b82f6, #22c55e, #eab308, #f97316, #8b5cf6) for status/emphasis
+- Font weights: 400 body, 600 labels, 700 buttons/names, 800 headings/values
+- Animations: subtle only — fadeIn, barGrow, popIn/popOut, shimmer (loading), pulse (live)
+
+## Deployment
+Changes are deployed by copying the full file contents and pasting into the corresponding Squarespace Code Block. There is no build step. See `docs/DEPLOYMENT.md` for the mapping.
