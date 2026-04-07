@@ -39,7 +39,7 @@
   .remote-shell{
     --fit-scale:1;
     width:100%;max-width:var(--remote-max);min-width:0;
-    margin:0 auto;padding:0 max(12px,env(safe-area-inset-left,0)) calc(14px + var(--safe-b)) max(12px,env(safe-area-inset-right,0));
+    margin:0 auto;padding:0 max(12px,env(safe-area-inset-left,0)) calc(8px + var(--safe-b)) max(12px,env(safe-area-inset-right,0));
     flex:1 1 auto;min-height:0;
     display:flex;flex-direction:column;
     gap:6px;
@@ -86,14 +86,52 @@
   .status-pill--view{flex:1.12}
   .status-strip-row--secondary{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr 1fr 1fr;
     gap:8px;
     align-items:stretch;
   }
   .status-strip-row--secondary .status-pill{
-    flex:none;width:100%;min-width:0;box-sizing:border-box
+    flex:none;width:100%;min-width:0;box-sizing:border-box;min-height:58px
   }
   .status-pill-inner{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+  .status-pill--display .status-pill-inner,
+  .status-pill--zoom .status-pill-inner{height:100%;justify-content:space-between}
+  .status-pill--zoom .status-pill-inner{width:100%}
+  .zoom-pill-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:1px;
+    width:100%;
+  }
+  .zoom-pill-btn{
+    min-width:34px;
+    height:30px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--btn);
+    color:var(--text);
+    font-family:'Outfit',sans-serif;
+    font-size:20px;
+    font-weight:800;
+    line-height:1;
+    padding:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:var(--shadow-sm);
+  }
+  .zoom-pill-btn:active{background:var(--btn-active);transform:scale(0.95)}
+  .zoom-pill-value{
+    min-width:46px;
+    text-align:center;
+    font-size:13px;
+    font-weight:800;
+    color:var(--text);
+    letter-spacing:-0.01em;
+  }
   .status-pill-label{
     font-size:9px;font-weight:700;color:var(--text-dim);
     letter-spacing:0.08em;text-transform:uppercase
@@ -186,9 +224,12 @@
     .header-sub{margin-top:1px;letter-spacing:0.04em}
     .status-strip{padding:2px 0 6px;gap:6px}
     .status-strip-row{gap:6px}
-    .status-strip-row--secondary{grid-template-columns:1fr}
+    .status-strip-row--secondary{grid-template-columns:1fr 1fr}
+    .status-pill--theme{grid-column:1 / -1}
     .status-pill{padding:7px 12px;gap:6px;box-shadow:none;border-color:var(--line)}
     .status-pill-value{font-size:13px}
+    .zoom-pill-btn{min-width:30px;height:28px;font-size:16px}
+    .zoom-pill-value{min-width:40px;font-size:12px}
     .view-bento-grid{
       gap:8px;padding:0 0 6px;
       --bento-gap:8px;
@@ -225,10 +266,12 @@
   @media (max-width:639px){
     .dpad-zone{
       flex:0 0 auto;
-      min-height:clamp(84px,min(24vmin,20vh),150px);
-      padding-top:2px;
+      min-height:clamp(70px,min(20vmin,15vh),118px);
+      padding-top:0;
     }
-    .dpad{--pad-size:clamp(60px,20vw,86px);--pad-gap:8px}
+    .dpad{--pad-size:clamp(52px,17vw,72px);--pad-gap:7px}
+    .bottom-pill{margin:2px 0 0}
+    .pill-btn{padding:10px 8px;font-size:13px}
   }
   .dpad{
     display:grid;
@@ -255,39 +298,17 @@
   .arrow{width:clamp(28px,min(8vw,7vmin),40px);height:clamp(28px,min(8vw,7vmin),40px);stroke:currentColor;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .center .arrow{stroke:#fff}
 
-  .zoom-row{
-    flex:0 0 auto;
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:8px;
-    width:100%;
-    margin-top:2px;
-  }
-  .zoom-btn{
-    border:1px solid var(--line);
-    background:var(--surface);
-    color:var(--text);
-    border-radius:14px;
-    padding:10px 8px;
-    font-family:'Outfit',sans-serif;
-    font-size:13px;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:var(--shadow-sm);
-  }
-  .zoom-btn:active{background:var(--btn-active);transform:scale(0.98)}
-
   /* Bottom nav pill */
   .bottom-pill{
     flex:0 0 auto;
-    margin:6px 0 0;width:100%;max-width:100%;
+    margin:4px 0 0;width:100%;max-width:100%;
     display:flex;align-items:center;
     background:var(--surface);border:1px solid var(--line);
-    border-radius:999px;box-shadow:var(--shadow-xl);padding:6px;
+    border-radius:999px;box-shadow:var(--shadow-xl);padding:4px;
   }
   .pill-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:10px;
-    padding:16px 10px;border-radius:999px;border:none;background:transparent;
+    padding:12px 10px;border-radius:999px;border:none;background:transparent;
     font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--text);
     cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .15s;
   }
@@ -462,6 +483,16 @@
         <span class="status-pill-value" id="pillDisplayValue">Light</span>
       </div>
     </div>
+    <div class="status-pill status-pill--zoom">
+      <div class="status-pill-inner">
+        <span class="status-pill-label">Zoom</span>
+        <div class="zoom-pill-controls">
+          <button class="zoom-pill-btn" onclick="send('zoom_out')" aria-label="Zoom out">-</button>
+          <span class="zoom-pill-value" id="zoomPercentValue">100%</span>
+          <button class="zoom-pill-btn" onclick="send('zoom_in')" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -506,12 +537,6 @@
     <button onclick="send('down')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7 7 7-7"/></svg></button>
     <div class="empty"></div>
   </div>
-</div>
-
-<div class="zoom-row" aria-label="Zoom controls">
-  <button class="zoom-btn" onclick="send('zoom_out')">Zoom -</button>
-  <button class="zoom-btn" onclick="send('zoom_reset')">Reset</button>
-  <button class="zoom-btn" onclick="send('zoom_in')">Zoom +</button>
 </div>
 
 <div class="bottom-pill">
@@ -598,13 +623,26 @@ try{
     if(!isNaN(_tn)) appliedThemeIdx=Math.max(0,Math.min(THEMES.length-1,_tn));
   }
 }catch(_){}
-const toast=document.getElementById('toast'),overlay=document.getElementById('themeOverlay'),track=document.getElementById('toggleTrack'),pillViewValue=document.getElementById('pillViewValue'),pillScreenValue=document.getElementById('pillScreenValue'),pillScreenStrip=document.getElementById('pillScreenStrip'),pillThemeValue=document.getElementById('pillThemeValue'),pillDisplayValue=document.getElementById('pillDisplayValue'),pillDisplayStrip=document.getElementById('pillDisplayStrip'),themePreview=document.getElementById('themePreview'),powerOverlay=document.getElementById('powerOverlay'),powerBtn=document.getElementById('powerBtn'),metaTheme=document.getElementById('metaTheme');
+const toast=document.getElementById('toast'),overlay=document.getElementById('themeOverlay'),track=document.getElementById('toggleTrack'),pillViewValue=document.getElementById('pillViewValue'),pillScreenValue=document.getElementById('pillScreenValue'),pillScreenStrip=document.getElementById('pillScreenStrip'),pillThemeValue=document.getElementById('pillThemeValue'),pillDisplayValue=document.getElementById('pillDisplayValue'),pillDisplayStrip=document.getElementById('pillDisplayStrip'),zoomPercentValue=document.getElementById('zoomPercentValue'),themePreview=document.getElementById('themePreview'),powerOverlay=document.getElementById('powerOverlay'),powerBtn=document.getElementById('powerBtn'),metaTheme=document.getElementById('metaTheme');
 let darkOn=false,toastTimer,viewIdx=0,themeIdx=appliedThemeIdx,themeOpen=false,piOn=true;
 let darkToggleBusy=false;
 const remoteToken = new URLSearchParams(location.search).get('token') || '';
 function apiPath(p){
   if(!remoteToken) return p;
   return p + (p.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(remoteToken);
+}
+function setZoomPercentText(n){
+  if(!zoomPercentValue) return;
+  const v=Number(n);
+  zoomPercentValue.textContent=Number.isFinite(v)?`${Math.round(v)}%`:'--%';
+}
+async function refreshZoomPercent(){
+  try{
+    const r=await fetch(apiPath('/api/dashboard-state'),{cache:'no-store'});
+    if(!r.ok) return;
+    const j=await r.json();
+    if(j&&typeof j.scalePercent!=='undefined') setZoomPercentText(j.scalePercent);
+  }catch(_){}
 }
 
 function flash(m){toast.textContent=m;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),700)}
@@ -631,6 +669,10 @@ async function send(key){
     if(key==='zoom_in')flash('Zoom +');
     if(key==='zoom_out')flash('Zoom -');
     if(key==='zoom_reset')flash('Zoom Reset');
+    if(key==='zoom_in'||key==='zoom_out'||key==='zoom_reset'){
+      setTimeout(refreshZoomPercent,180);
+      setTimeout(refreshZoomPercent,520);
+    }
   }else{
     if(key==='right'){themeIdx=(themeIdx+1)%THEMES.length;themePreview.textContent=THEMES[themeIdx];flash(THEMES[themeIdx])}
     if(key==='left'){themeIdx=(themeIdx-1+THEMES.length)%THEMES.length;themePreview.textContent=THEMES[themeIdx];flash(THEMES[themeIdx])}
@@ -740,6 +782,8 @@ try{
 }catch(_){}
 updateViewBentos();
 updateThemeDisplayPills();
+refreshZoomPercent();
+setInterval(refreshZoomPercent,4000);
 
 const remoteShell=document.getElementById('remoteShell');
 function fitRemoteToViewport(){
@@ -749,14 +793,19 @@ function fitRemoteToViewport(){
   const viewportH=(window.visualViewport&&window.visualViewport.height?window.visualViewport.height:window.innerHeight)-bodyTopPad;
   const contentH=remoteShell.scrollHeight;
   if(!contentH||!viewportH) return;
-  const scale=Math.min(1,viewportH/contentH);
-  remoteShell.style.setProperty('--fit-scale',String(Math.max(0.7,scale)));
+  const safety=18;
+  const avail=Math.max(1,viewportH-safety);
+  let scale=Math.min(1,avail/contentH);
+  if(contentH*scale>avail){scale=avail/contentH;}
+  remoteShell.style.setProperty('--fit-scale',String(Math.max(0.56,scale)));
 }
 window.addEventListener('resize',fitRemoteToViewport,{passive:true});
 window.addEventListener('orientationchange',fitRemoteToViewport,{passive:true});
 if(window.visualViewport) window.visualViewport.addEventListener('resize',fitRemoteToViewport,{passive:true});
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fitRemoteToViewport);}else{setTimeout(fitRemoteToViewport,0);}
 setTimeout(fitRemoteToViewport,120);
+setTimeout(fitRemoteToViewport,500);
+setTimeout(fitRemoteToViewport,1200);
 
 document.addEventListener('dblclick',e=>e.preventDefault());
 </script>

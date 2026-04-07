@@ -15,6 +15,10 @@ const commandQueue = [];
 let nextCommandId = 1;
 let lastCommand = null;
 const MAX_COMMANDS = 300;
+const dashboardState = {
+  scalePercent: 100,
+  updatedAt: Date.now()
+};
 
 const KEY_MAP = {
   "1": "1",
@@ -244,6 +248,32 @@ const server = http.createServer((req, res) => {
       queueSize: commandQueue.length,
       latestId: commandQueue.length ? commandQueue[commandQueue.length - 1].id : 0,
       lastCommand
+    });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/dashboard-state") {
+    sendJson(res, 200, dashboardState);
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/dashboard-state") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body || "{}");
+        const n = Number(payload.scalePercent);
+        if (!Number.isFinite(n)) {
+          sendJson(res, 400, { error: "scalePercent must be a number" });
+          return;
+        }
+        dashboardState.scalePercent = Math.max(50, Math.min(200, Math.round(n)));
+        dashboardState.updatedAt = Date.now();
+        sendJson(res, 200, { ok: true, dashboardState });
+      } catch (e) {
+        sendJson(res, 400, { error: e.message });
+      }
     });
     return;
   }

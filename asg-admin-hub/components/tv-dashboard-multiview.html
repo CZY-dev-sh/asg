@@ -817,7 +817,7 @@
     }
 
     .agent-name {
-      font-size: calc(14px * var(--lb-scale, 1));
+      font-size: calc(17px * var(--lb-scale, 1));
       letter-spacing: -0.02em;
       font-weight: 600;
       white-space: nowrap;
@@ -1044,7 +1044,7 @@
       border-radius: 14px;
       padding: 9px 10px;
       display: grid;
-      grid-template-columns: 0.95fr 1.2fr auto;
+      grid-template-columns: 0.9fr 1.15fr auto auto;
       gap: 8px;
       align-items: center;
       background: var(--panel-soft);
@@ -1070,6 +1070,56 @@
     .tx-price {
       font-size: 13px;
       font-weight: 800;
+      text-align: right;
+    }
+
+    .tx-tags {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .tx-pill {
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      text-transform: capitalize;
+    }
+
+    .tx-pill-type-listing {
+      color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 10%, var(--panel));
+      border-color: color-mix(in srgb, var(--blue) 24%, transparent);
+    }
+
+    .tx-pill-type-buy {
+      color: var(--green);
+      background: color-mix(in srgb, var(--green) 11%, var(--panel));
+      border-color: color-mix(in srgb, var(--green) 24%, transparent);
+    }
+
+    .tx-pill-source-zillow {
+      color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 10%, var(--panel));
+      border-color: color-mix(in srgb, var(--blue) 24%, transparent);
+    }
+
+    .tx-pill-source-personal {
+      color: #4b5563;
+      background: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    .tx-pill-source-referral {
+      color: var(--green);
+      background: color-mix(in srgb, var(--green) 11%, var(--panel));
+      border-color: color-mix(in srgb, var(--green) 24%, transparent);
     }
 
     .overview-event-wrap {
@@ -1083,8 +1133,7 @@
       border-radius: 14px;
       overflow: hidden;
       background: var(--panel-soft);
-      display: grid;
-      grid-template-rows: 138px 1fr;
+      display: block;
       min-height: 0;
     }
 
@@ -1092,6 +1141,8 @@
       position: relative;
       background-size: cover;
       background-position: center;
+      height: 136px;
+      background-color: color-mix(in srgb, var(--blue) 12%, #0f172a);
     }
 
     .event-spotlight-cover::after {
@@ -1103,13 +1154,12 @@
 
     .event-spotlight-title {
       color: var(--text);
-      font-size: 30px;
+      font-size: clamp(34px, 3.2vh, 48px);
       font-weight: 800;
       letter-spacing: -0.02em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 4px;
+      white-space: normal;
+      line-height: 1.05;
+      margin-bottom: 8px;
     }
 
     .event-date-badge {
@@ -1130,12 +1180,32 @@
       letter-spacing: 0.02em;
       backdrop-filter: blur(2px);
     }
+    .event-date-icon {
+      width: 13px;
+      height: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563eb;
+      flex-shrink: 0;
+    }
+    .event-date-icon svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: block;
+    }
 
     .event-spotlight-body {
-      padding: 10px 12px;
+      height: 100%;
+      padding: 18px 20px;
       display: grid;
-      grid-template-columns: 1fr 156px;
-      gap: 12px;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 16px;
       min-height: 0;
       align-items: center;
     }
@@ -1148,12 +1218,11 @@
     }
 
     .event-detail-line {
-      font-size: 17px;
+      font-size: clamp(21px, 2.2vh, 30px);
       color: var(--muted);
       font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      line-height: 1.2;
     }
 
     .event-detail-line strong {
@@ -1163,14 +1232,29 @@
     }
 
     .event-qr {
-      width: 104px;
-      height: 104px;
+      width: 188px;
+      height: 188px;
       justify-self: center;
-      border-radius: 10px;
+      border-radius: 14px;
       border: 1px solid var(--line);
       background: #fff;
       object-fit: cover;
-      padding: 8px;
+      padding: 10px;
+    }
+
+    .event-qr-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+    }
+
+    .event-qr-help {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.25;
+      max-width: 210px;
     }
 
     .deals-layout,
@@ -2621,7 +2705,7 @@
       };
       const ROTATION_INTERVAL_MS = 180000;
       const ROTATION_RESUME_IDLE_MS = 90000;
-      const LIVE_REFRESH_MS = 5 * 60 * 1000;
+      const LIVE_REFRESH_MS = 30 * 1000;
       const THEME_OPTIONS = [
         { id: "default", label: "Default (Neutral)", note: "Classic ASG look with no seasonal accents" },
         { id: "auto", label: "Auto (US Monthly)", note: "Follows month-based US holiday themes" },
@@ -2641,9 +2725,9 @@
 
       const dataAdapters = {
         kpis: [
-          { id: "total", label: "Total Volume", value: "$42.8M", sub: "Closed + Pending across all agents", css: "total" },
-          { id: "closed", label: "Closed Volume", value: "$29.6M", sub: "18 closed deals", css: "closed" },
-          { id: "pending", label: "Pending Volume", value: "$13.2M", sub: "7 pending deals", css: "pending" },
+          { id: "total", label: "Total Volume", value: "$42,800,000", sub: "Closed + Pending across all agents", css: "total" },
+          { id: "closed", label: "Closed Volume", value: "$29,600,000", sub: "18 closed deals", css: "closed" },
+          { id: "pending", label: "Pending Volume", value: "$13,200,000", sub: "7 pending deals", css: "pending" },
           { id: "transactions", label: "Total Transactions", value: "25", sub: "18 closed · 7 pending", css: "transactions" }
         ],
         agents: [
@@ -2878,6 +2962,11 @@
         return "$" + n.toLocaleString("en-US");
       }
 
+      function fmtMoneyFull(rawNumber) {
+        const n = Number(rawNumber) || 0;
+        return "$" + Math.round(n).toLocaleString("en-US");
+      }
+
       function safeNum(v) {
         if (typeof v === "number") return v;
         return Number(String(v || "").replace(/[^0-9.-]/g, "")) || 0;
@@ -2995,14 +3084,19 @@
         return "Active";
       }
 
+      function withFreshParam(url) {
+        const separator = String(url).includes("?") ? "&" : "?";
+        return url + separator + "_ts=" + Date.now();
+      }
+
       async function fetchJSON(url) {
-        const res = await fetch(url, { cache: "no-store" });
+        const res = await fetch(withFreshParam(url), { cache: "no-store" });
         if (!res.ok) throw new Error("Request failed: " + url);
         return res.json();
       }
 
       async function fetchText(url) {
-        const res = await fetch(url, { cache: "no-store" });
+        const res = await fetch(withFreshParam(url), { cache: "no-store" });
         if (!res.ok) throw new Error("Request failed: " + url);
         return res.text();
       }
@@ -3071,9 +3165,9 @@
           totalTransactions
         };
         dataAdapters.kpis = [
-          { id: "total", label: "Total Volume", value: fmtMoney(totalVolume), sub: "Closed + Pending across all agents", css: "total" },
-          { id: "closed", label: "Closed Volume", value: fmtMoney(closedVolume), sub: closedDeals + " closed deals", css: "closed" },
-          { id: "pending", label: "Pending Volume", value: fmtMoney(pendingVolume), sub: pendingDeals + " pending deals", css: "pending" },
+          { id: "total", label: "Total Volume", value: fmtMoneyFull(totalVolume), sub: "Closed + Pending across all agents", css: "total" },
+          { id: "closed", label: "Closed Volume", value: fmtMoneyFull(closedVolume), sub: closedDeals + " closed deals", css: "closed" },
+          { id: "pending", label: "Pending Volume", value: fmtMoneyFull(pendingVolume), sub: pendingDeals + " pending deals", css: "pending" },
           { id: "transactions", label: "Total Transactions", value: String(totalTransactions), sub: closedDeals + " closed · " + pendingDeals + " pending", css: "transactions" }
         ];
       }
@@ -3211,7 +3305,9 @@
         dataAdapters.transactions = source.slice(0, 48).map((deal) => ({
           agent: deal.agent,
           address: deal.address,
-          price: deal.volume
+          price: deal.volume,
+          dealType: deal.dealType,
+          dealSource: deal.dealSource
         }));
       }
 
@@ -3632,15 +3728,18 @@
           if (els.txList) {
             els.txList.style.removeProperty("--tx-scroll-sec");
             els.txList.innerHTML =
-              '<div class="tx-row"><div class="tx-name">No pending deals</div><div class="tx-address">YTD Pending is empty or the feed is unavailable</div><div class="tx-price">—</div></div>';
+              '<div class="tx-row"><div class="tx-name">No pending deals</div><div class="tx-address">YTD Pending is empty or the feed is unavailable</div><div class="tx-tags"></div><div class="tx-price">—</div></div>';
           }
           return;
         }
         const rows = dataAdapters.transactions.map((tx) => {
+          const typeLabel = txTypeLabel(tx);
+          const sourceLabel = txSourceLabel(tx);
           return (
             '<div class="tx-row">' +
               '<div class="tx-name">' + esc(tx.agent) + "</div>" +
               '<div class="tx-address">' + esc(tx.address) + "</div>" +
+              '<div class="tx-tags">' + txTypePill(typeLabel) + txSourcePill(sourceLabel) + "</div>" +
               '<div class="tx-price">' + esc(tx.price) + "</div>" +
             "</div>"
           );
@@ -3661,11 +3760,13 @@
         const index = Math.max(0, Math.min(appState.overviewHighlightIndex, items.length - 1));
         const item = items[index];
         const qrUrl = "https://quickchart.io/qr?size=180&text=" + encodeURIComponent(item.detailsUrl || "");
+        const dateBadge = item.date ? esc(item.date) : "Date TBD";
+        const calendarIcon = '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
 
         els.overviewEventCard.innerHTML =
           '<article class="event-spotlight">' +
             '<div class="event-spotlight-cover" style="background-image:url(\'' + esc(item.cover || "") + '\')">' +
-              '<div class="event-date-badge">📅 Apr 10</div>' +
+              '<div class="event-date-badge">' + calendarIcon + dateBadge + "</div>" +
             "</div>" +
             '<div class="event-spotlight-body">' +
               '<div class="event-detail-list">' +
@@ -3675,7 +3776,7 @@
                 '<div class="event-detail-line"><strong>Date:</strong>' + esc(item.date || "--") + "</div>" +
                 '<div class="event-detail-line"><strong>Attire:</strong>' + esc(item.attire || "--") + "</div>" +
               "</div>" +
-              '<img class="event-qr" src="' + esc(qrUrl) + '" alt="Event details QR code">' +
+              '<div class="event-qr-wrap"><img class="event-qr" src="' + esc(qrUrl) + '" alt="Event details QR code"><div class="event-qr-help">Scan for full event details, address map, and updates.</div></div>' +
             "</div>" +
           "</article>";
       }
@@ -3814,16 +3915,28 @@
       }
 
       function pendingYtdStatsParts() {
+        const all = filterDealsWithNamedAgent(dataAdapters.deals || []);
+        const pendingRows = all.filter((d) => String(d.status).toLowerCase() === "pending");
+        const list = pendingRows.length ? pendingRows : all;
+        const sourceCounts = list.reduce(function (acc, deal) {
+          const raw = deal && deal.dealSource != null ? String(deal.dealSource).trim().toLowerCase() : "";
+          if (raw === "zillow") acc.zillow += 1;
+          else if (raw === "referral" || raw === "referal") acc.referral += 1;
+          else acc.personal += 1;
+          return acc;
+        }, { zillow: 0, personal: 0, referral: 0 });
+        const sourceBreakdown =
+          " · Zillow " + sourceCounts.zillow +
+          " · Personal " + sourceCounts.personal +
+          " · Referral " + sourceCounts.referral;
+
         const s = dataAdapters.summaryYtd;
         if (s && typeof s.pendingVolume === "number") {
           return {
             amount: fmtMoney(s.pendingVolume),
-            count: String(Math.round(safeNum(s.pendingDeals))) + " deals"
+            count: String(Math.round(safeNum(s.pendingDeals))) + " deals" + sourceBreakdown
           };
         }
-        const all = filterDealsWithNamedAgent(dataAdapters.deals || []);
-        const pendingRows = all.filter((d) => String(d.status).toLowerCase() === "pending");
-        const list = pendingRows.length ? pendingRows : all;
         if (!list.length) {
           return { amount: "—", count: "—" };
         }
@@ -3831,7 +3944,7 @@
           const n = typeof d.priceNum === "number" ? d.priceNum : 0;
           return acc + n;
         }, 0);
-        return { amount: fmtMoney(sum), count: String(list.length) + " deals" };
+        return { amount: fmtMoney(sum), count: String(list.length) + " deals" + sourceBreakdown };
       }
 
       function dealTypeLabel(deal) {
@@ -3847,6 +3960,41 @@
       function dealFieldTag(value) {
         const v = value == null || String(value).trim() === "" ? "—" : String(value).trim();
         return '<span class="deal-field-tag">' + esc(v) + "</span>";
+      }
+
+      function txTypeLabel(tx) {
+        const raw = tx && tx.dealType != null ? String(tx.dealType).trim() : "";
+        const low = raw.toLowerCase();
+        if (low === "buyer" || low === "buy") return "Buy";
+        if (low === "seller" || low === "listing" || low === "list") return "Listing";
+        if (raw === "") return "Listing";
+        return raw;
+      }
+
+      function txSourceLabel(tx) {
+        const raw = tx && tx.dealSource != null ? String(tx.dealSource).trim() : "";
+        if (!raw || raw === "—") return "Personal";
+        const low = raw.toLowerCase();
+        if (low === "zillow") return "Zillow";
+        if (low === "personal") return "Personal";
+        if (low === "referral" || low === "referal") return "Referral";
+        return raw;
+      }
+
+      function txTypePill(label) {
+        const low = String(label || "").toLowerCase();
+        const cls = low === "buy" || low === "buyer"
+          ? "tx-pill tx-pill-type-buy"
+          : "tx-pill tx-pill-type-listing";
+        return '<span class="' + cls + '">' + esc(label) + "</span>";
+      }
+
+      function txSourcePill(label) {
+        const low = String(label || "").toLowerCase();
+        let cls = "tx-pill tx-pill-source-personal";
+        if (low === "zillow") cls = "tx-pill tx-pill-source-zillow";
+        else if (low === "referral" || low === "referal") cls = "tx-pill tx-pill-source-referral";
+        return '<span class="' + cls + '">' + esc(label) + "</span>";
       }
 
       function applyCurrentDealsRowFit() {
@@ -4360,7 +4508,10 @@
       }
 
       function initLiveDataLoop() {
+        let liveDataRefreshInFlight = false;
         const run = async () => {
+          if (liveDataRefreshInFlight) return;
+          liveDataRefreshInFlight = true;
           try {
             await fetchAndApplyLiveData();
             const now = nowDateParts();
@@ -4371,10 +4522,15 @@
               ...dataAdapters.updates.filter((u) => u.owner !== "System")
             ].slice(0, 6);
             renderUpdates();
+          } finally {
+            liveDataRefreshInFlight = false;
           }
         };
         run();
         setInterval(run, LIVE_REFRESH_MS);
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) run();
+        });
       }
 
       function boot() {
