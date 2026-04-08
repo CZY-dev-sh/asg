@@ -6,7 +6,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "sync:canonical": "node scripts/sync-canonical.js",
+    "deploy:pi:remote": "bash scripts/deploy-pi.sh remote",
+    "deploy:pi:dashboard": "bash scripts/deploy-pi.sh dashboard",
+    "deploy:pi:all": "bash scripts/deploy-pi.sh all"
   },
   "engines": {
     "node": ">=18"

@@ -231,6 +231,16 @@
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;
   font-size:11px;font-weight:800;letter-spacing:.08em;color:rgba(0,0,0,.56);
 }
+.asg-h-ql-logo-fallback--icon{
+  width:30px;height:30px;border-radius:9px;
+  background:rgba(59,130,246,.1);
+  border:1px solid rgba(59,130,246,.24);
+  color:#3b82f6;
+}
+.asg-h-ql-logo-fallback--icon svg{
+  width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;
+}
 .asg-h-ql-text{min-width:0;display:flex;flex-direction:column}
 .asg-h-ql-title{font-size:13px;font-weight:700;color:#111;line-height:1.15}
 .asg-h-ql-sub{font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -763,12 +773,11 @@
 
 <script>
 (function(){
-  const STATS_API="https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec";
+  const STATS_API="https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
   const BUYERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv";
   const SELLERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
   const FOLDERS_API="https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
-
   const TEAM=[
     {name:"Alex Stoykov",tier:"Senior",role:"Senior Agent",email:"alex.stoykov@compass.com",phone:"312-593-3110",fubPhone:"312-477-2199",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/alexstoykov",book:"https://asgmarketing.as.me/?firstName=Alex&lastName=Stoykov&email=alex.stoykov%40compass.com&phone=3125933110&field:18245579=Alex%20Stoykov&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=pt7tbwwT4JUDdxLj2fbm5Q&d=7720513273924"},
     {name:"Sam Abadi",tier:"Senior",role:"Senior Agent",email:"sam.abadi@compass.com",phone:"847-334-4778",fubPhone:"847-595-5617",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/samabadi",book:"https://asgmarketing.as.me/?firstName=Sam&lastName=Abadi&email=sam.abadi%40compass.com&phone=8473344778&field:18245579=Sam%20Abadi&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=5GNV6fln0YFlMiZrsAJ2Kw&d=7720513273924"},
@@ -818,7 +827,8 @@
     {title:"Junior Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/juniorhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",keywords:["junior hub","junior","hub","agents","dashboard"]},
     {title:"Team Updates",sub:"ASG website",href:"https://www.alexstoykovgroup.com/updatecenter",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",keywords:["team updates","updates","announcements","news","update center"]},
     {title:"Senior Meetings",sub:"ASG website",href:"https://www.alexstoykovgroup.com/seniorteammeetings",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",keywords:["senior meetings","meetings","recaps","notes","leadership"]},
-    {title:"Admin Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/adminhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",keywords:["admin hub","admin","operations","dashboard","home"]}
+    {title:"Admin Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/adminhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",keywords:["admin hub","admin","operations","dashboard","home"]},
+    {title:"TV Remote",sub:"Dashboard remote",href:"http://10.52.20.121:8080/",icon:"tv",fallback:"TV",keywords:["tv","remote","dashboard","qr","kiosk"]}
   ];
 
   const SC={"Offer Submitted":{bg:"rgba(59,130,246,.08)",t:"#2563eb",d:"#3b82f6"},"Under Contract":{bg:"rgba(234,179,8,.08)",t:"#b45309",d:"#eab308"},"A/I or Pending":{bg:"rgba(249,115,22,.08)",t:"#c2410c",d:"#f97316"},Closed:{bg:"rgba(34,197,94,.08)",t:"#15803d",d:"#22c55e"}};
@@ -1302,9 +1312,11 @@
       return;
     }
     quickLinksEl.innerHTML=filtered.map(link=>{
-      const logoHTML=link.logo
-        ?`<img class="asg-h-ql-logo" src="${esc(link.logo)}" alt="${esc(link.title)} logo" onerror="this.parentNode.innerHTML='<div class=\\'asg-h-ql-logo-fallback\\'>${esc(link.fallback||link.title.slice(0,3).toUpperCase())}</div>'">`
-        :`<div class="asg-h-ql-logo-fallback">${esc(link.fallback||link.title.slice(0,3).toUpperCase())}</div>`;
+      const logoHTML=link.icon==="tv"
+        ?`<div class="asg-h-ql-logo-fallback asg-h-ql-logo-fallback--icon" aria-hidden="true"><svg viewBox="0 0 20 20"><rect x="2.5" y="4" width="15" height="10.5" rx="2"></rect><path d="M8 16.5h4"></path><path d="M10 14.5v2"></path></svg></div>`
+        :link.logo
+          ?`<img class="asg-h-ql-logo" src="${esc(link.logo)}" alt="${esc(link.title)} logo" onerror="this.parentNode.innerHTML='<div class=\\'asg-h-ql-logo-fallback\\'>${esc(link.fallback||link.title.slice(0,3).toUpperCase())}</div>'">`
+          :`<div class="asg-h-ql-logo-fallback">${esc(link.fallback||link.title.slice(0,3).toUpperCase())}</div>`;
       return`<a class="asg-h-ql-btn" href="${esc(link.href)}" ${link.href&&link.href!=="#"?'target="_blank" rel="noopener"':'onclick="return false"'} ${link.href==="#"?'style="opacity:.72"':''}>
         <span class="asg-h-ql-logo-wrap">${logoHTML}</span>
         <span class="asg-h-ql-text">

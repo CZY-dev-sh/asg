@@ -494,7 +494,7 @@
 
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 9px;
       position: relative;
       z-index: 1;
@@ -528,6 +528,7 @@
     .kpi.closed { --accent: var(--green); }
     .kpi.pending { --accent: var(--amber); }
     .kpi.transactions { --accent: #111827; }
+    .kpi.next-closing { --accent: #2563eb; }
     body.dark .kpi.transactions { --accent: #e5e7eb; }
 
     .kpi-label {
@@ -551,6 +552,76 @@
       font-size: 12px;
       color: var(--muted);
       font-weight: 600;
+    }
+
+    .kpi.next-closing .kpi-value {
+      font-size: 30px;
+    }
+
+    .kpi-next-wrap {
+      margin-top: 4px;
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .kpi-next-price {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .kpi-next-photo {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      background: linear-gradient(180deg, #f8fafc, #e5e7eb);
+      flex: 0 0 auto;
+    }
+
+    .kpi-next-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .kpi-next-agent {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-next-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .kpi-next-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 84%, #dbeafe);
+      background: color-mix(in srgb, var(--panel-soft) 86%, #eff6ff);
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.05;
+      color: color-mix(in srgb, var(--text) 82%, #1d4ed8);
     }
 
     .overview-main {
@@ -785,7 +856,7 @@
     .leader-head,
     .leader-row {
       display: grid;
-      grid-template-columns: 1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr;
+      grid-template-columns: 1.6fr 1.05fr 0.8fr 0.8fr 0.6fr 0.52fr 0.52fr 1.25fr;
       gap: 8px;
       align-items: center;
     }
@@ -912,6 +983,57 @@
     .subnum {
       font-size: calc(13px * var(--lb-scale, 1));
       font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .leader-next {
+      min-width: 0;
+    }
+
+    .leader-next-card {
+      border: 1px solid color-mix(in srgb, var(--line) 88%, #dbeafe);
+      background: color-mix(in srgb, var(--panel-soft) 90%, #eff6ff);
+      border-radius: calc(10px * var(--lb-scale, 1));
+      padding: calc(5px * var(--lb-scale, 1)) calc(7px * var(--lb-scale, 1));
+      display: grid;
+      gap: calc(4px * var(--lb-scale, 1));
+      min-width: 0;
+    }
+
+    .leader-next-address {
+      font-size: calc(11px * var(--lb-scale, 1));
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+    }
+
+    .leader-next-price {
+      font-size: calc(12px * var(--lb-scale, 1));
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leader-next-meta {
+      display: flex;
+      align-items: center;
+      gap: calc(4px * var(--lb-scale, 1));
+      flex-wrap: wrap;
+    }
+
+    .leader-next-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 86%, #c7d2fe);
+      background: color-mix(in srgb, var(--panel) 80%, #eef2ff);
+      padding: calc(2px * var(--lb-scale, 1)) calc(6px * var(--lb-scale, 1));
+      font-size: calc(10px * var(--lb-scale, 1));
+      font-weight: 700;
+      line-height: 1.05;
       white-space: nowrap;
     }
 
@@ -2534,6 +2656,7 @@
                   <div>Total Deals</div>
                   <div>Closed</div>
                   <div>Pending</div>
+                  <div>Next Closing</div>
                 </div>
                 <div class="leader-list" id="leaderList"></div>
               </div>
@@ -2718,7 +2841,7 @@
         { id: "halloween", label: "October - Halloween", note: "Muted orange with purple undertone" },
         { id: "christmas", label: "November-December - Christmas", note: "Holiday green/red, kept subtle" }
       ];
-      const STATS_API = "https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec";
+      const STATS_API = "https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
       const LISTINGS_API = "https://script.google.com/macros/s/AKfycbzCDWtLVq-QFeKUx1h1jbE_Yd1JBEOXB55xqzkLF_79to-ttuCmqTMNlaB2r5zIznnJ/exec";
       const BUYERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv";
       const SELLERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
@@ -2728,7 +2851,8 @@
           { id: "total", label: "Total Volume", value: "$42,800,000", sub: "Closed + Pending across all agents", css: "total" },
           { id: "closed", label: "Closed Volume", value: "$29,600,000", sub: "18 closed deals", css: "closed" },
           { id: "pending", label: "Pending Volume", value: "$13,200,000", sub: "7 pending deals", css: "pending" },
-          { id: "transactions", label: "Total Transactions", value: "25", sub: "18 closed · 7 pending", css: "transactions" }
+          { id: "transactions", label: "Total Transactions", value: "25", sub: "18 closed · 7 pending", css: "transactions" },
+          { id: "next-closing", label: "Next Closing", value: "$1,050,000", sub: "1720 N Damen Ave", css: "next-closing", agent: "Julian Levit", agentPhoto: "", dateLabel: "Apr 6, 2026", side: "Buyer", address: "1720 N Damen Ave" }
         ],
         agents: [
           { name: "Alex Stoykov", role: "Senior Agent", totalVolume: 18.4, closedVolume: 13.1, pendingVolume: 5.3, totalDeals: 9, closedDeals: 6, pendingDeals: 3, recent: ["1954 N Orchard St - $2.45M", "1250 W Fullerton Ave - $2.05M"] },
@@ -2791,7 +2915,9 @@
           }
         ],
         closedDealsYtd: [],
-        summaryYtd: null
+        summaryYtd: null,
+        nextClosing: null,
+        nextClosingsByAgent: {}
       };
       dataAdapters.directoryAgents = dataAdapters.agents.map((agent) => ({ ...agent }));
 
@@ -3077,6 +3203,71 @@
         return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
       }
 
+      function normalizeDealSide(raw) {
+        const side = String(raw || "").trim().toLowerCase();
+        if (!side) return "—";
+        if (side.includes("buy")) return "Buyer";
+        if (side.includes("sell")) return "Seller";
+        if (side === "b") return "Buyer";
+        if (side === "s") return "Seller";
+        return raw;
+      }
+
+      function dealDateRaw(deal) {
+        if (!deal) return null;
+        if (deal.dateRaw instanceof Date && !Number.isNaN(deal.dateRaw.getTime())) return deal.dateRaw;
+        if (deal.dateRaw) {
+          const cast = new Date(deal.dateRaw);
+          if (!Number.isNaN(cast.getTime())) return cast;
+        }
+        return parseDateLoose(deal.date || deal.closeDate || "");
+      }
+
+      function updateNextClosingData(deals) {
+        const pending = (Array.isArray(deals) ? deals : [])
+          .filter((deal) => String(deal.status || "").toLowerCase() === "pending")
+          .filter((deal) => dealHasNamedAgent(deal))
+          .map((deal) => {
+            const canonicalAgent = resolveCanonicalAgentName(deal.agent);
+            return {
+              ...deal,
+              agent: canonicalAgent,
+              dealType: normalizeDealSide(deal.dealType),
+              dateRaw: dealDateRaw(deal)
+            };
+          })
+          .filter((deal) => deal.dateRaw)
+          .sort((a, b) => a.dateRaw - b.dateRaw || (b.priceNum || 0) - (a.priceNum || 0));
+
+        dataAdapters.nextClosing = pending.length ? pending[0] : null;
+        const byAgent = {};
+        pending.forEach((deal) => {
+          const key = normalizeAgentName(deal.agent);
+          if (!key || byAgent[key]) return;
+          byAgent[key] = deal;
+        });
+        dataAdapters.nextClosingsByAgent = byAgent;
+
+        const next = dataAdapters.nextClosing;
+        const nextAgent = next ? resolveCanonicalAgentName(next.agent) : "Unassigned";
+        const nextMeta = next ? TEAM_META_MAP[normalizeAgentName(nextAgent)] : null;
+        const nextKpi = {
+          id: "next-closing",
+          label: "Next Closing",
+          value: next && next.priceNum ? fmtMoneyFull(next.priceNum) : "—",
+          sub: next ? (next.address || "Address unavailable") : "No pending close date",
+          css: "next-closing",
+          agent: nextAgent,
+          agentPhoto: nextMeta && nextMeta.photo ? nextMeta.photo : "",
+          dateLabel: next ? fmtDateMedium(next.dateRaw) : "TBD",
+          side: next ? normalizeDealSide(next.dealType) : "—",
+          address: next ? (next.address || "Address unavailable") : "No pending close date"
+        };
+        const nextIndex = dataAdapters.kpis.findIndex((kpi) => kpi.id === "next-closing");
+        if (nextIndex === -1) dataAdapters.kpis.push(nextKpi);
+        else dataAdapters.kpis[nextIndex] = nextKpi;
+      }
+
       function stageToStatus(stage) {
         const s = String(stage || "").toLowerCase();
         if (s.includes("closed")) return "Closed";
@@ -3164,11 +3355,26 @@
           totalVolume,
           totalTransactions
         };
+        const next = dataAdapters.nextClosing;
+        const nextAgent = next ? resolveCanonicalAgentName(next.agent) : "";
+        const nextMeta = next ? TEAM_META_MAP[normalizeAgentName(nextAgent)] : null;
         dataAdapters.kpis = [
           { id: "total", label: "Total Volume", value: fmtMoneyFull(totalVolume), sub: "Closed + Pending across all agents", css: "total" },
           { id: "closed", label: "Closed Volume", value: fmtMoneyFull(closedVolume), sub: closedDeals + " closed deals", css: "closed" },
           { id: "pending", label: "Pending Volume", value: fmtMoneyFull(pendingVolume), sub: pendingDeals + " pending deals", css: "pending" },
-          { id: "transactions", label: "Total Transactions", value: String(totalTransactions), sub: closedDeals + " closed · " + pendingDeals + " pending", css: "transactions" }
+          { id: "transactions", label: "Total Transactions", value: String(totalTransactions), sub: closedDeals + " closed · " + pendingDeals + " pending", css: "transactions" },
+          {
+            id: "next-closing",
+            label: "Next Closing",
+            value: next && next.priceNum ? fmtMoneyFull(next.priceNum) : "—",
+            sub: next ? (next.address || "Address unavailable") : "No pending close date",
+            css: "next-closing",
+            agent: nextAgent || "Unassigned",
+            agentPhoto: nextMeta && nextMeta.photo ? nextMeta.photo : "",
+            dateLabel: next ? fmtDateMedium(next.dateRaw) : "TBD",
+            side: next ? normalizeDealSide(next.dealType) : "—",
+            address: next ? (next.address || "Address unavailable") : "No pending close date"
+          }
         ];
       }
 
@@ -3408,6 +3614,8 @@
           }
         }
 
+        updateNextClosingData(dataAdapters.deals);
+
         if (statsJSON && statsJSON.summary) {
           updateKpisFromStats(statsJSON.summary);
           const recentPool = pipelineOk ? dataAdapters.deals.concat(dataAdapters.closedDealsYtd || []) : dataAdapters.deals;
@@ -3640,6 +3848,26 @@
 
       function renderKpis() {
         els.overviewKpis.innerHTML = dataAdapters.kpis.map((kpi) => {
+          if (kpi.id === "next-closing") {
+            const name = kpi.agent || "Unassigned";
+            const photo = kpi.agentPhoto
+              ? '<div class="kpi-next-photo"><img src="' + esc(kpi.agentPhoto) + '" alt="' + esc(name) + '"></div>'
+              : '<div class="kpi-next-photo">' + esc(initials(name)) + "</div>";
+            return (
+              '<article class="card kpi ' + esc(kpi.css) + '">' +
+                '<div class="kpi-label">' + esc(kpi.label) + "</div>" +
+                '<div class="kpi-next-wrap">' +
+                  '<div class="kpi-next-price">' + photo + '<div class="kpi-value">' + esc(kpi.value) + "</div></div>" +
+                  '<div class="kpi-next-agent">' + esc(name) + "</div>" +
+                  '<div class="kpi-next-meta">' +
+                    '<span class="kpi-next-chip">' + esc(kpi.dateLabel || "TBD") + "</span>" +
+                    '<span class="kpi-next-chip">' + esc(kpi.side || "—") + "</span>" +
+                  "</div>" +
+                  '<div class="kpi-sub">' + esc(kpi.address || kpi.sub || "No pending close date") + "</div>" +
+                "</div>" +
+              "</article>"
+            );
+          }
           return (
             '<article class="card kpi ' + esc(kpi.css) + '">' +
               '<div class="kpi-label">' + esc(kpi.label) + "</div>" +
@@ -3670,7 +3898,7 @@
           els.leaderList.innerHTML =
             '<div class="leader-row"><div class="agent-name">' +
             esc(emptyLabel) +
-            '</div><div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div><div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div></div>';
+            '</div><div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div><div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div><div class="leader-next"></div></div>';
           return;
         }
 
@@ -3686,9 +3914,17 @@
           const rank = idx + 1;
           const rankClass = rank <= 3 ? "leader-rank top" : "leader-rank";
           const leaderMeta = TEAM_META_MAP[normalizeAgentName(agent.name)];
+          const next = dataAdapters.nextClosingsByAgent[normalizeAgentName(resolveCanonicalAgentName(agent.name))];
           const photoCell = leaderMeta && leaderMeta.photo
             ? '<div class="leader-photo"><img src="' + esc(leaderMeta.photo) + '" alt="' + esc(agent.name) + '"></div>'
             : '<div class="leader-photo">' + esc(initials(agent.name)) + "</div>";
+          const nextCell = next
+            ? '<div class="leader-next"><div class="leader-next-card">' +
+                '<div class="leader-next-address">' + esc(next.address || "Address unavailable") + "</div>" +
+                '<div class="leader-next-price">' + esc(next.volume || "—") + "</div>" +
+                '<div class="leader-next-meta"><span class="leader-next-chip">' + esc(fmtDateMedium(next.dateRaw)) + '</span><span class="leader-next-chip">' + esc(normalizeDealSide(next.dealType)) + "</span></div>" +
+              "</div></div>"
+            : '<div class="leader-next"></div>';
           return (
             '<div class="leader-row">' +
               '<div class="leader-agent"><div class="' + rankClass + '">#' + rank + "</div>" + photoCell + '<div class="agent-name">' + esc(agent.name) + "</div></div>" +
@@ -3701,6 +3937,7 @@
               '<div class="num">' + esc(agent.totalDeals) + "</div>" +
               '<div class="subnum">' + esc(agent.closedDeals) + "</div>" +
               '<div class="subnum">' + esc(agent.pendingDeals) + "</div>" +
+              nextCell +
             "</div>"
           );
         }).join("");

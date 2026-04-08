@@ -35,9 +35,6 @@
       --theme-accent-a: rgba(0, 0, 0, 0);
       --theme-accent-b: rgba(0, 0, 0, 0);
       --privacy-bg-image: url("https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=2500w");
-      --auto-ui-scale: 1;
-      --manual-ui-scale: 1;
-      --ui-scale: calc(var(--auto-ui-scale) * var(--manual-ui-scale));
     }
 
     body.dark {
@@ -163,8 +160,9 @@
     .tv-root {
       width: 100vw;
       height: 100vh;
-      padding: calc(18px * var(--ui-scale));
-      transition: padding 0.18s ease;
+      padding: 18px;
+      transform-origin: center center;
+      transition: transform 0.18s ease;
     }
 
     .app-shell {
@@ -175,8 +173,8 @@
       display: grid;
       grid-template-columns: 1fr;
       /* Two rows only — footer + overlay must not create implicit rows or 1fr collapses */
-      grid-template-rows: calc(92px * var(--ui-scale)) minmax(0, 1fr);
-      gap: calc(11px * var(--ui-scale));
+      grid-template-rows: 92px minmax(0, 1fr);
+      gap: 11px;
     }
 
     .app-shell > .topbar {
@@ -209,7 +207,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      border-radius: calc(26px * var(--ui-scale));
+      border-radius: 26px;
       border: 1px solid color-mix(in srgb, transparent 65%, var(--theme-border-tint));
       box-shadow: inset 0 0 0 1px color-mix(in srgb, transparent 78%, var(--theme-border-tint));
       z-index: 1;
@@ -226,20 +224,20 @@
     .topbar {
       background: var(--topbar);
       border: 1px solid var(--topbar-line);
-      border-radius: calc(22px * var(--ui-scale));
+      border-radius: 22px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
-      padding: 0 calc(16px * var(--ui-scale));
+      padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: calc(18px * var(--ui-scale));
+      gap: 18px;
     }
 
     .brand-wrap {
       display: flex;
       align-items: center;
-      gap: calc(16px * var(--ui-scale));
+      gap: 16px;
       min-width: 0;
       flex: 1;
     }
@@ -249,15 +247,15 @@
     }
 
     .asg-logo {
-      width: calc(54px * var(--ui-scale));
-      height: calc(54px * var(--ui-scale));
+      width: 54px;
+      height: 54px;
       object-fit: contain;
       flex-shrink: 0;
     }
 
     .brand-copy h1 {
       margin: 0;
-      font-size: calc(33px * var(--ui-scale));
+      font-size: 33px;
       line-height: 1;
       letter-spacing: -0.05em;
       font-weight: 800;
@@ -265,8 +263,8 @@
     }
 
     .brand-copy p {
-      margin: calc(6px * var(--ui-scale)) 0 0;
-      font-size: calc(14px * var(--ui-scale));
+      margin: 6px 0 0;
+      font-size: 14px;
       color: var(--muted);
       font-weight: 700;
       white-space: nowrap;
@@ -275,7 +273,7 @@
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: calc(12px * var(--ui-scale));
+      gap: 12px;
       margin-left: auto;
       flex-shrink: 0;
     }
@@ -283,20 +281,20 @@
     .live-pill {
       display: inline-flex;
       align-items: center;
-      gap: calc(8px * var(--ui-scale));
-      padding: calc(11px * var(--ui-scale)) calc(14px * var(--ui-scale));
+      gap: 8px;
+      padding: 11px 14px;
       border-radius: 999px;
       border: 1px solid color-mix(in srgb, var(--green) 20%, transparent);
       background: color-mix(in srgb, var(--green) 11%, var(--panel));
       color: var(--green);
-      font-size: calc(13px * var(--ui-scale));
+      font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.02em;
     }
 
     .live-dot {
-      width: calc(9px * var(--ui-scale));
-      height: calc(9px * var(--ui-scale));
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: currentColor;
       box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.45);
@@ -319,18 +317,18 @@
       display: grid;
       justify-items: end;
       line-height: 1.05;
-      min-width: calc(184px * var(--ui-scale));
+      min-width: 184px;
     }
 
     .datetime-day {
-      font-size: calc(13px * var(--ui-scale));
+      font-size: 13px;
       color: var(--muted);
       font-weight: 700;
     }
 
     .datetime-time {
-      margin-top: calc(2px * var(--ui-scale));
-      font-size: calc(28px * var(--ui-scale));
+      margin-top: 2px;
+      font-size: 28px;
       letter-spacing: -0.04em;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
@@ -340,42 +338,34 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: calc(5px * var(--ui-scale));
-      min-height: calc(50px * var(--ui-scale));
-      padding: calc(8px * var(--ui-scale)) calc(10px * var(--ui-scale));
+      gap: 5px;
+      min-height: 50px;
+      padding: 8px 10px;
       border-radius: 999px;
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text);
-      font-size: calc(12px * var(--ui-scale));
+      font-size: 12px;
       font-weight: 700;
       white-space: nowrap;
-      width: calc(196px * var(--ui-scale));
-      max-width: calc(196px * var(--ui-scale));
+      width: 196px;
+      max-width: 196px;
       flex-shrink: 0;
       overflow: hidden;
       position: relative;
     }
 
     .weather-inline-icon {
-      width: calc(24px * var(--ui-scale));
-      height: calc(24px * var(--ui-scale));
+      font-size: 22px;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       transform-origin: center;
       animation: wxPulseIcon 1.8s ease-in-out infinite;
-    }
-    .weather-inline-icon svg {
-      width: calc(22px * var(--ui-scale));
-      height: calc(22px * var(--ui-scale));
-      display: block;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.9;
-      stroke-linecap: round;
-      stroke-linejoin: round;
     }
 
     .weather-inline-text {
@@ -386,7 +376,7 @@
     }
 
     .weather-inline-main {
-      font-size: calc(12.5px * var(--ui-scale));
+      font-size: 12.5px;
       font-weight: 800;
       letter-spacing: -0.01em;
       line-height: 1;
@@ -399,7 +389,7 @@
 
     .weather-inline-location {
       color: var(--muted);
-      font-size: calc(8.5px * var(--ui-scale));
+      font-size: 8.5px;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.01em;
@@ -2504,9 +2494,7 @@
         </div>
         <div class="topbar-right">
           <div class="weather-inline" id="weatherInline">
-            <div class="weather-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
-            </div>
+            <div class="weather-inline-icon">🌤</div>
             <div class="weather-inline-text">
               <div class="weather-inline-main">--°F · H --° / L --°</div>
               <div class="weather-inline-location">Chicago, IL</div>
@@ -2730,7 +2718,7 @@
         { id: "halloween", label: "October - Halloween", note: "Muted orange with purple undertone" },
         { id: "christmas", label: "November-December - Christmas", note: "Holiday green/red, kept subtle" }
       ];
-      const STATS_API = "https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec";
+      const STATS_API = "https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
       const LISTINGS_API = "https://script.google.com/macros/s/AKfycbzCDWtLVq-QFeKUx1h1jbE_Yd1JBEOXB55xqzkLF_79to-ttuCmqTMNlaB2r5zIznnJ/exec";
       const BUYERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv";
       const SELLERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
@@ -2833,7 +2821,6 @@
         overviewHighlightIndex: 0
       };
       let controlsHideTimeout = null;
-      let scaleReportTimer = null;
 
       const TEAM_META = [
         { name: "Alex Stoykov", role: "Team Lead", phone: "312-593-3110", landing: "https://www.alexstoykovgroup.com/alexstoykov", photo: "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w" },
@@ -3465,62 +3452,12 @@
       }
 
       function setScale(level) {
-        const clamped = Math.max(0.8, Math.min(1.35, Number(level.toFixed(2))));
+        const clamped = Math.max(0.5, Math.min(2, Number(level.toFixed(2))));
         appState.scaleLevel = clamped;
-        document.documentElement.style.setProperty("--manual-ui-scale", clamped.toFixed(3));
-        updateScaleState();
-        scheduleCurrentDealsRowFit();
-        requestAnimationFrame(() => {
-          renderLeaderboard();
-          renderServices();
-          applyCurrentDealsRowFit();
-        });
+        els.tvRoot.style.transform = "scale(" + clamped + ")";
+        els.scaleState.textContent = Math.round(clamped * 100) + "%";
         showControlsTemporarily(1800);
         markInteraction();
-      }
-
-      function getAdaptiveScale() {
-        const vw = window.innerWidth || document.documentElement.clientWidth || 1920;
-        const vh = window.innerHeight || document.documentElement.clientHeight || 1080;
-        const baseW = 1920;
-        const baseH = 1080;
-        const byScreen = Math.min(vw / baseW, vh / baseH);
-        return Math.max(0.76, Math.min(1.34, byScreen));
-      }
-
-      function updateScaleState() {
-        if (!els.scaleState) return;
-        const auto = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--auto-ui-scale")) || 1;
-        const manual = appState.scaleLevel || 1;
-        const effective = auto * manual;
-        const percent = Math.round(effective * 100);
-        els.scaleState.textContent = percent + "%";
-        scheduleScaleStateReport(percent);
-      }
-
-      function scheduleScaleStateReport(percent) {
-        if (scaleReportTimer) clearTimeout(scaleReportTimer);
-        scaleReportTimer = setTimeout(async () => {
-          try {
-            await fetch("/api/dashboard-state", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ scalePercent: percent })
-            });
-          } catch (_) {}
-        }, 120);
-      }
-
-      function applyAdaptiveSizing() {
-        const auto = getAdaptiveScale();
-        document.documentElement.style.setProperty("--auto-ui-scale", auto.toFixed(3));
-        updateScaleState();
-        scheduleCurrentDealsRowFit();
-        requestAnimationFrame(() => {
-          renderLeaderboard();
-          renderServices();
-          applyCurrentDealsRowFit();
-        });
       }
 
       function toggleDarkMode() {
@@ -3825,6 +3762,7 @@
         const qrUrl = "https://quickchart.io/qr?size=180&text=" + encodeURIComponent(item.detailsUrl || "");
         const dateBadge = item.date ? esc(item.date) : "Date TBD";
         const calendarIcon = '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
+
         els.overviewEventCard.innerHTML =
           '<article class="event-spotlight">' +
             '<div class="event-spotlight-cover" style="background-image:url(\'' + esc(item.cover || "") + '\')">' +
@@ -4357,28 +4295,11 @@
         else if (conditionLower.includes("rain") || conditionLower.includes("drizzle") || conditionLower.includes("showers")) weatherClass = "cond-rain";
         else if (conditionLower.includes("snow")) weatherClass = "cond-snow";
         else if (conditionLower.includes("thunder")) weatherClass = "cond-storm";
-        const weatherIcon = weatherIconMarkup(weatherClass);
         els.weatherInline.classList.remove("cond-clear", "cond-cloudy", "cond-rain", "cond-snow", "cond-storm");
         els.weatherInline.classList.add(weatherClass);
         els.weatherInline.innerHTML =
-          '<div class="weather-inline-icon" aria-hidden="true">' + weatherIcon + "</div>" +
+          '<div class="weather-inline-icon">' + esc(w.icon) + "</div>" +
           '<div class="weather-inline-text"><div class="weather-inline-main">' + esc(w.temp) + '°F · <span class="weather-inline-muted">H' + esc(w.high) + '° L' + esc(w.low) + '</span></div><div class="weather-inline-location">Chicago, IL</div></div>';
-      }
-
-      function weatherIconMarkup(weatherClass) {
-        if (weatherClass === "cond-rain") {
-          return '<svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .6-7.95A5 5 0 0 1 17 8.5a3.5 3.5 0 0 1 .5 7H7z"></path><path d="M9 20l-1 2M13 20l-1 2M17 20l-1 2"></path></svg>';
-        }
-        if (weatherClass === "cond-snow") {
-          return '<svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 1 1 .6-7.95A5 5 0 0 1 17 8.5a3.5 3.5 0 0 1 .5 7H7z"></path><path d="M10 20h.01M14 20h.01M18 20h.01"></path></svg>';
-        }
-        if (weatherClass === "cond-storm") {
-          return '<svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 1 1 .6-7.95A5 5 0 0 1 17 8.5a3.5 3.5 0 0 1 .5 7H7z"></path><path d="M13 17l-2.5 4h2l-1 3 3.5-5h-2z"></path></svg>';
-        }
-        if (weatherClass === "cond-clear") {
-          return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>';
-        }
-        return '<svg viewBox="0 0 24 24"><path d="M6 18a4 4 0 1 1 .6-7.95A5 5 0 0 1 16 8.5a3.5 3.5 0 0 1 .5 7H6z"></path></svg>';
       }
 
       function weatherCodeToCondition(code) {
@@ -4473,13 +4394,13 @@
 
           if ((event.metaKey || event.ctrlKey) && (key === "+" || key === "=")) {
             event.preventDefault();
-            setScale(appState.scaleLevel + 0.08);
+            setScale(appState.scaleLevel + 0.25);
             return;
           }
 
           if ((event.metaKey || event.ctrlKey) && (key === "-" || key === "_")) {
             event.preventDefault();
-            setScale(appState.scaleLevel - 0.08);
+            setScale(appState.scaleLevel - 0.25);
             return;
           }
 
@@ -4519,11 +4440,11 @@
           }
 
           if (key === "]" || key === "=" || key === "+") {
-            setScale(appState.scaleLevel + 0.03);
+            setScale(appState.scaleLevel + 0.02);
             return;
           }
           if (key === "[" || key === "-" || key === "_") {
-            setScale(appState.scaleLevel - 0.03);
+            setScale(appState.scaleLevel - 0.02);
             return;
           }
           if (key === "0" || key === "Enter") {
@@ -4567,7 +4488,6 @@
 
       function initResizeSync() {
         window.addEventListener("resize", () => {
-          applyAdaptiveSizing();
           renderLeaderboard();
           renderServices();
           applyCurrentDealsRowFit();
@@ -4614,11 +4534,6 @@
       }
 
       function boot() {
-        if (els.tvRoot) {
-          els.tvRoot.style.transform = "none";
-        }
-        document.documentElement.style.setProperty("--manual-ui-scale", String(appState.scaleLevel));
-        applyAdaptiveSizing();
         applyTheme("auto", { markInteraction: false });
         renderAll();
         document.body.classList.remove("controls-visible");
@@ -4634,58 +4549,6 @@
       }
 
       boot();
-    })();
-  </script>
-  <script>
-    // Robust remote control path:
-    // 1) live stream via SSE
-    // 2) polling fallback via /api/commands
-    (function initRemoteControlBridge() {
-      let lastSeenId = 0;
-
-      function dispatchRemoteKey(key) {
-        if (!key) return;
-        const evt = new KeyboardEvent("keydown", { key: key, bubbles: true, cancelable: true });
-        document.dispatchEvent(evt);
-      }
-
-      function applyCommand(cmd) {
-        if (!cmd || typeof cmd.id !== "number") return;
-        if (cmd.id <= lastSeenId) return;
-        lastSeenId = cmd.id;
-        if (cmd.type === "key") dispatchRemoteKey(cmd.key);
-      }
-
-      function startEventStream() {
-        try {
-          const src = new EventSource("/events");
-          src.onmessage = function (event) {
-            try {
-              applyCommand(JSON.parse(event.data || "{}"));
-            } catch (_) {}
-          };
-        } catch (_) {}
-      }
-
-      async function pollCommands() {
-        try {
-          const res = await fetch("/api/commands?after=" + encodeURIComponent(lastSeenId), { cache: "no-store" });
-          if (!res.ok) return;
-          const payload = await res.json();
-          const list = Array.isArray(payload.commands) ? payload.commands : [];
-          for (const cmd of list) applyCommand(cmd);
-          if (typeof payload.latestId === "number" && payload.latestId > lastSeenId && list.length === 0) {
-            lastSeenId = payload.latestId;
-          }
-        } catch (_) {}
-      }
-
-      startEventStream();
-      pollCommands();
-      setInterval(pollCommands, 600);
-      document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible") pollCommands();
-      });
     })();
   </script>
 </body>

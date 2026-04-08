@@ -55,18 +55,18 @@
 
   /* Header */
   .header{
-    flex:0 0 auto;display:flex;align-items:center;gap:12px;
-    padding:8px 6px 2px
+    flex:0 0 auto;display:flex;align-items:center;gap:14px;
+    padding:14px 8px 8px
   }
-  .header-logo{width:38px;height:38px;border-radius:10px;object-fit:contain;background:var(--surface);padding:3px;box-shadow:var(--shadow-md)}
+  .header-logo{width:46px;height:46px;border-radius:12px;object-fit:contain;background:var(--surface);padding:4px;box-shadow:var(--shadow-md)}
   .header-text{flex:1;min-width:0}
-  .header-title{font-size:18px;font-weight:800;letter-spacing:-0.03em;line-height:1.08;margin:0}
-  .header-sub{font-size:11px;color:var(--text-dim);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;line-height:1.2;margin:2px 0 0}
+  .header-title{font-size:22px;font-weight:800;letter-spacing:-0.03em;line-height:1.08;margin:0}
+  .header-sub{font-size:12px;color:var(--text-dim);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;line-height:1.2;margin:4px 0 0}
 
   /* Status pills (screen + view + theme + display) */
   .status-strip{
-    flex:0 0 auto;display:flex;flex-direction:column;gap:6px;
-    padding:4px 4px 8px;width:100%
+    flex:0 0 auto;display:flex;flex-direction:column;gap:8px;
+    padding:8px 6px 14px;width:100%
   }
   .status-strip-row{
     display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;width:100%
@@ -140,7 +140,7 @@
     grid-template-columns:1fr 1fr;
     grid-template-rows:auto auto;
     gap:var(--bento-gap);
-    padding:4px 2px clamp(10px,min(2.5vmin,3vh),18px);
+    padding:10px 4px clamp(16px,min(3vmin,4vh),24px);
     width:100%;min-width:0;
     align-items:stretch;
   }
@@ -264,7 +264,7 @@
   /* D-PAD center */
   .dpad-zone{
     flex:0.75 1 auto;display:flex;align-items:center;justify-content:center;
-    padding-top:2px;
+    padding-top:10px;
     min-height:clamp(120px,min(36vmin,32vh),280px);
   }
   @media (max-width:639px){
@@ -302,10 +302,20 @@
   /* Bottom nav pill */
   .bottom-pill{
     flex:0 0 auto;
-    margin:8px 0 calc(10px + var(--safe-b));width:100%;max-width:100%;
+    margin:14px 0 calc(14px + var(--safe-b));width:100%;max-width:100%;
     display:flex;align-items:center;
     background:var(--surface);border:1px solid var(--line);
     border-radius:999px;box-shadow:var(--shadow-xl);padding:6px;
+  }
+  @media (min-width:1024px){
+    .header{padding-top:20px;padding-bottom:12px;gap:16px}
+    .header-logo{width:52px;height:52px}
+    .header-title{font-size:24px}
+    .header-sub{font-size:12px;margin-top:5px}
+    .status-strip{padding-top:10px;padding-bottom:18px}
+    .view-bento-grid{padding-top:14px}
+    .dpad-zone{padding-top:14px}
+    .bottom-pill{margin-top:18px}
   }
   .pill-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -531,13 +541,13 @@
 <div class="dpad-zone">
   <div class="dpad">
     <div class="empty"></div>
-    <button ontouchstart="send('up')" onclick="send('up')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7-7 7 7"/></svg></button>
+    <button onclick="send('up')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7-7 7 7"/></svg></button>
     <div class="empty"></div>
-    <button ontouchstart="send('left')" onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-    <button class="center" ontouchstart="send('enter')" onclick="send('enter')">OK</button>
-    <button ontouchstart="send('right')" onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <button onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <button class="center" onclick="send('enter')">OK</button>
+    <button onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     <div class="empty"></div>
-    <button ontouchstart="send('down')" onclick="send('down')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7 7 7-7"/></svg></button>
+    <button onclick="send('down')"><svg class="arrow" viewBox="0 0 24 24"><path d="M12 5l0 14M5 12l7 7 7-7"/></svg></button>
     <div class="empty"></div>
   </div>
 </div>
@@ -604,9 +614,9 @@
     <div class="sheet-hint">◀ ▶ to browse · Apply to confirm</div>
     <div class="theme-preview" id="themePreview">Use arrows to browse</div>
     <div class="sheet-arrows">
-      <button ontouchstart="send('left')" onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-      <button class="apply-btn" ontouchstart="send('enter')" onclick="send('enter')">Apply</button>
-      <button ontouchstart="send('right')" onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <button onclick="send('left')"><svg class="arrow" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <button class="apply-btn" onclick="send('enter')">Apply</button>
+      <button onclick="send('right')"><svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
     <button class="sheet-close" onclick="closeThemeSheet()">Close</button>
   </div>

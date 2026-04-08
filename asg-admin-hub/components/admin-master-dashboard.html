@@ -1,0 +1,3549 @@
+<div id="asg-admin-master-dashboard"></div>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
+  #asg-admin-master-dashboard {
+    --bg: #f6f6f6;
+    --card: #ffffff;
+    --ink: #111111;
+    --muted: #666666;
+    --line: rgba(17, 17, 17, 0.12);
+    --blue: #111111;
+    --green: #111111;
+    --amber: #111111;
+    --purple: #111111;
+    --radius: 20px;
+    font-family: "Outfit", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #f8f8f8 0%, #f1f1f1 100%);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 22px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #asg-admin-master-dashboard * {
+    box-sizing: border-box;
+  }
+  #asg-admin-master-dashboard .amd-shell {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  #asg-admin-master-dashboard .amd-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  #asg-admin-master-dashboard .amd-title {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 34px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    font-weight: 800;
+  }
+  #asg-admin-master-dashboard .amd-subtitle {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  #asg-admin-master-dashboard .amd-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #asg-admin-master-dashboard .amd-btn {
+    appearance: none;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  #asg-admin-master-dashboard .amd-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  }
+  #asg-admin-master-dashboard .amd-updated {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  #asg-admin-master-dashboard .amd-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  #asg-admin-master-dashboard .amd-kpi {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    min-height: 96px;
+  }
+  #asg-admin-master-dashboard .amd-kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  #asg-admin-master-dashboard .amd-kpi-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .amd-kpi-chip.pipeline {
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
+  }
+  #asg-admin-master-dashboard .amd-kpi-chip.pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+  }
+  #asg-admin-master-dashboard .amd-kpi-chip.closed {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+  #asg-admin-master-dashboard .amd-kpi-chip.next {
+    background: #dbeafe;
+    color: #1e3a8a;
+    border-color: #93c5fd;
+  }
+  #asg-admin-master-dashboard .amd-kpi.next-close {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+    border-color: rgba(37, 99, 235, 0.25);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+    overflow: hidden;
+  }
+  #asg-admin-master-dashboard .amd-kpi.next-close .amd-keys-icon {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-left: 6px;
+    opacity: 0.95;
+    animation: amd-keys-float 2s ease-in-out infinite;
+    transform-origin: 60% 40%;
+    pointer-events: none;
+  }
+  #asg-admin-master-dashboard .amd-kpi.next-close .amd-kpi-label.next-close-label {
+    display: inline-flex;
+    align-items: center;
+  }
+  @keyframes amd-keys-float {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-3px) rotate(6deg); }
+  }
+  #asg-admin-master-dashboard .amd-kpi-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  #asg-admin-master-dashboard .amd-kpi-value {
+    font-size: clamp(21px, 2.8vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .amd-kpi-meta {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-kpi.pending .amd-kpi-value,
+  #asg-admin-master-dashboard .amd-kpi.closed .amd-kpi-value,
+  #asg-admin-master-dashboard .amd-kpi.forecast .amd-kpi-value {
+    color: var(--ink);
+  }
+
+  #asg-admin-master-dashboard .amd-tabs {
+    display: inline-flex;
+    gap: 4px;
+    background: #ececec;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 14px;
+    max-width: 100%;
+    overflow: auto;
+  }
+  #asg-admin-master-dashboard .amd-tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #444;
+    padding: 8px 13px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #asg-admin-master-dashboard .amd-tab.is-active {
+    background: #111;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  }
+  #asg-admin-master-dashboard .amd-subtabs {
+    display: inline-flex;
+    gap: 4px;
+    background: #f0f0f0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 12px;
+  }
+  #asg-admin-master-dashboard .amd-subtab {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #444;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  #asg-admin-master-dashboard .amd-subtab.is-active {
+    background: #111;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+  }
+
+  #asg-admin-master-dashboard .amd-panel {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 16px;
+  }
+  #asg-admin-master-dashboard .amd-panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  #asg-admin-master-dashboard .amd-panel-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  #asg-admin-master-dashboard .amd-panel-sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  #asg-admin-master-dashboard .amd-table-wrap {
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  #asg-admin-master-dashboard .amd-table-tools {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 8px;
+  }
+  #asg-admin-master-dashboard .amd-table-search {
+    width: min(360px, 100%);
+    border: 1px solid #d0d7de;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 12px;
+    color: #111;
+    background: #fff;
+    outline: none;
+  }
+  #asg-admin-master-dashboard .amd-table-search:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08);
+  }
+  #asg-admin-master-dashboard table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+  }
+  #asg-admin-master-dashboard thead th {
+    background: #f4f4f4;
+    color: #333;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 800;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  #asg-admin-master-dashboard .amd-sort-btn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  #asg-admin-master-dashboard .amd-sort-arrow {
+    font-size: 10px;
+    line-height: 1;
+    opacity: 0.8;
+    transform: translateY(-1px);
+    transition: transform 0.16s ease, opacity 0.16s ease;
+  }
+  #asg-admin-master-dashboard .amd-sort-btn.is-active .amd-sort-arrow {
+    opacity: 1;
+  }
+  #asg-admin-master-dashboard tbody td {
+    padding: 11px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  #asg-admin-master-dashboard tbody tr:last-child td {
+    border-bottom: none;
+  }
+  #asg-admin-master-dashboard .amd-money {
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 6px;
+    padding: 8px;
+    min-height: 0;
+  }
+  #asg-admin-master-dashboard .leader-head,
+  #asg-admin-master-dashboard .leader-row {
+    display: grid;
+    grid-template-columns: 1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr;
+    gap: 8px;
+    align-items: center;
+  }
+  #asg-admin-master-dashboard .leader-head {
+    color: #667085;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    padding: 5px 8px;
+  }
+  #asg-admin-master-dashboard .leader-list {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    min-height: 0;
+    --lb-scale: 1;
+  }
+  #asg-admin-master-dashboard .leader-row {
+    background: #fafafa;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 14px;
+    padding: calc(8px * var(--lb-scale, 1)) calc(9px * var(--lb-scale, 1));
+  }
+  #asg-admin-master-dashboard .leader-agent {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leader-rank {
+    min-width: calc(30px * var(--lb-scale, 1));
+    height: calc(30px * var(--lb-scale, 1));
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(12px * var(--lb-scale, 1));
+    font-weight: 700;
+    color: #667085;
+    letter-spacing: -0.01em;
+  }
+  #asg-admin-master-dashboard .leader-rank.top {
+    color: #0f172a;
+    border-color: rgba(59, 130, 246, 0.28);
+    background: rgba(59, 130, 246, 0.12);
+  }
+  #asg-admin-master-dashboard .leader-photo {
+    width: calc(36px * var(--lb-scale, 1));
+    height: calc(36px * var(--lb-scale, 1));
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+    background: linear-gradient(180deg, #f8fafc, #e5e7eb);
+    display: grid;
+    place-items: center;
+    font-size: calc(11px * var(--lb-scale, 1));
+    font-weight: 700;
+    color: #334155;
+  }
+  #asg-admin-master-dashboard .leader-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #asg-admin-master-dashboard .agent-name {
+    font-size: calc(17px * var(--lb-scale, 1));
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #asg-admin-master-dashboard .volume-cell {
+    display: grid;
+    gap: 6px;
+  }
+  #asg-admin-master-dashboard .volume-main {
+    font-size: calc(14px * var(--lb-scale, 1));
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .mini-bar {
+    height: 7px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    position: relative;
+    overflow: hidden;
+  }
+  #asg-admin-master-dashboard .mini-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--w, 0%);
+    border-radius: 999px;
+    background: #7aa2ff;
+  }
+  #asg-admin-master-dashboard .money {
+    font-size: calc(13px * var(--lb-scale, 1));
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  #asg-admin-master-dashboard .num {
+    font-size: calc(13px * var(--lb-scale, 1));
+    font-weight: 700;
+    text-align: right;
+  }
+  #asg-admin-master-dashboard .subnum {
+    font-size: calc(12px * var(--lb-scale, 1));
+    font-weight: 600;
+    color: #64748b;
+    text-align: right;
+  }
+  #asg-admin-master-dashboard .leader-next-box {
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #fff;
+    border-radius: 10px;
+    padding: 6px 8px;
+    display: grid;
+    gap: 2px;
+  }
+  #asg-admin-master-dashboard .leader-next-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  #asg-admin-master-dashboard .leader-next-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leader-next-left {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leader-next-right {
+    display: grid;
+    justify-items: end;
+    gap: 4px;
+  }
+  #asg-admin-master-dashboard .leader-next-address {
+    font-size: calc(11px * var(--lb-scale, 1));
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #asg-admin-master-dashboard .leader-next-chip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #asg-admin-master-dashboard .leader-next-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #1e3a8a;
+    font-size: calc(9px * var(--lb-scale, 1));
+    font-weight: 700;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .leader-next-cal {
+    font-size: 11px;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .leader-next-price {
+    font-size: calc(10px * var(--lb-scale, 1));
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+  #asg-admin-master-dashboard .leader-next-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: calc(8px * var(--lb-scale, 1));
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .leader-next-chip.buy {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+  #asg-admin-master-dashboard .leader-next-chip.sell {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+  }
+  #asg-admin-master-dashboard .leader-next-chip.other {
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
+  }
+  #asg-admin-master-dashboard .leader-next-main {
+    font-size: calc(11px * var(--lb-scale, 1));
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #asg-admin-master-dashboard .amd-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  #asg-admin-master-dashboard .amd-badge.pending {
+    color: #92400e;
+    background: rgba(217, 119, 6, 0.12);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+  }
+  #asg-admin-master-dashboard .amd-badge.closed {
+    color: #166534;
+    background: rgba(22, 163, 74, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.24);
+  }
+
+  #asg-admin-master-dashboard .amd-forecast {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  #asg-admin-master-dashboard .amd-f-card {
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px;
+  }
+  #asg-admin-master-dashboard .amd-f-label {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  #asg-admin-master-dashboard .amd-f-value {
+    margin-top: 7px;
+    font-size: clamp(20px, 3vw, 30px);
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+  #asg-admin-master-dashboard .amd-f-meta {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-model {
+    border: 1px dashed var(--line);
+    border-radius: 16px;
+    padding: 12px;
+    background: #fafcff;
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  #asg-admin-master-dashboard .amd-trend {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fcfdff;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  #asg-admin-master-dashboard .amd-trend-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-trend-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  #asg-admin-master-dashboard .amd-trend-sub {
+    margin: 0;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-trend-svg {
+    width: 100%;
+    height: 210px;
+    display: block;
+  }
+  #asg-admin-master-dashboard .amd-viz-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  #asg-admin-master-dashboard .amd-viz-card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+    padding: 20px 18px 14px;
+  }
+  #asg-admin-master-dashboard .amd-viz-card h4 {
+    margin: 0 0 2px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+  }
+  #asg-admin-master-dashboard .amd-viz-card p {
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+  }
+  #asg-admin-master-dashboard .amd-viz-svg {
+    width: 100%;
+    display: block;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip {
+    position: absolute;
+    pointer-events: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    font-family: "Outfit", system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #222;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    white-space: nowrap;
+    max-width: 260px;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip .tip-title {
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip .tip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip .tip-label {
+    color: #888;
+    font-weight: 500;
+  }
+  #asg-admin-master-dashboard .amd-chart-tip .tip-value {
+    font-weight: 700;
+  }
+  #asg-admin-master-dashboard .amd-hit-dot {
+    cursor: pointer;
+    transition: r 0.18s ease, opacity 0.18s ease;
+  }
+  #asg-admin-master-dashboard .amd-vis-dot {
+    transition: r 0.18s ease;
+    pointer-events: none;
+  }
+  @keyframes amd-glow-pulse {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #00c853); }
+    50% { opacity: 0.55; filter: drop-shadow(0 0 10px #00c853); }
+  }
+  @keyframes amd-red-blink {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 0px #c0392b); }
+    50% { opacity: 0.45; filter: drop-shadow(0 0 8px #c0392b); }
+  }
+  @keyframes amd-green-blink {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px #00c853); }
+    50% { opacity: 0.45; filter: drop-shadow(0 0 10px #00c853); }
+  }
+  #asg-admin-master-dashboard .amd-glow-line {
+    animation: amd-glow-pulse 2.4s ease-in-out infinite;
+  }
+  #asg-admin-master-dashboard .amd-blink-red {
+    animation: amd-red-blink 1.4s ease-in-out infinite;
+  }
+  #asg-admin-master-dashboard .amd-blink-green {
+    animation: amd-green-blink 1.3s ease-in-out infinite;
+  }
+  #asg-admin-master-dashboard .amd-qt-legend {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding: 0 4px;
+  }
+  #asg-admin-master-dashboard .amd-qt-legend-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: "Outfit", system-ui, sans-serif;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    background: #fff;
+    color: #888;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  #asg-admin-master-dashboard .amd-qt-legend-btn:hover {
+    background: #f5f5f5;
+    border-color: #bbb;
+  }
+  #asg-admin-master-dashboard .amd-qt-legend-btn.is-active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+    font-weight: 700;
+  }
+  #asg-admin-master-dashboard .amd-empty,
+  #asg-admin-master-dashboard .amd-error,
+  #asg-admin-master-dashboard .amd-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 1180px) {
+    #asg-admin-master-dashboard .amd-kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    #asg-admin-master-dashboard {
+      border-radius: 20px;
+      padding: 14px;
+    }
+    #asg-admin-master-dashboard .amd-head {
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    #asg-admin-master-dashboard .amd-title {
+      font-size: 28px;
+    }
+    #asg-admin-master-dashboard .amd-subtitle {
+      font-size: 12px;
+    }
+    #asg-admin-master-dashboard .amd-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    #asg-admin-master-dashboard .amd-updated {
+      font-size: 11px;
+    }
+    #asg-admin-master-dashboard .amd-kpis,
+    #asg-admin-master-dashboard .amd-forecast {
+      grid-template-columns: 1fr;
+    }
+    #asg-admin-master-dashboard .amd-kpi {
+      min-height: 84px;
+      padding: 12px;
+    }
+    #asg-admin-master-dashboard .amd-kpi-label {
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+    #asg-admin-master-dashboard .amd-kpi-value {
+      font-size: 34px;
+    }
+    #asg-admin-master-dashboard .amd-kpi-meta {
+      font-size: 11px;
+    }
+    #asg-admin-master-dashboard .amd-tabs,
+    #asg-admin-master-dashboard .amd-subtabs {
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    #asg-admin-master-dashboard .amd-panel {
+      padding: 12px;
+      border-radius: 16px;
+    }
+    #asg-admin-master-dashboard .amd-table-tools {
+      justify-content: stretch;
+    }
+    #asg-admin-master-dashboard .amd-table-search {
+      width: 100%;
+    }
+    #asg-admin-master-dashboard .leaderboard-wrap {
+      padding: 4px;
+      overflow-x: auto;
+    }
+    #asg-admin-master-dashboard .leader-head,
+    #asg-admin-master-dashboard .leader-row {
+      min-width: 860px;
+    }
+    #asg-admin-master-dashboard .leader-next-box {
+      min-width: 190px;
+    }
+    #asg-admin-master-dashboard .leader-next-address {
+      max-width: 130px;
+    }
+    #asg-admin-master-dashboard .amd-viz-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var root = document.getElementById("asg-admin-master-dashboard");
+    if (!root) return;
+
+    var STATS_API = "https://script.google.com/macros/s/AKfycbxwagjmBkLzuHyEmymm1MwtbwiqMAZjKcMLPb_RVD6Lo0hNfMEoXh-76MzJ3dk5NBPv9A/exec";
+    var HUB_DATA_API = String(window.ASG_HUB_DATA_API || "https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
+    var ALL_TIME_CLOSED_API = String(window.ASG_ALL_TIME_CLOSED_API || STATS_API).trim();
+    var REQUEST_TIMEOUT_MS = 12000;
+    var ALL_TIME_ROWS_TIMEOUT_MS = 45000;
+    var CHART_MIN_YEAR = 2018;
+    var CHART_MAX_YEAR = 2026;
+    var CHART_FONT_FAMILY = "Outfit, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+
+    var STAGE_WEIGHTS = {
+      "offer submitted": 0.35,
+      "under contract": 0.7,
+      "a/i or pending": 0.9,
+      "pending": 0.9
+    };
+
+    var state = {
+      deals: [],
+      ytdPendingDeals: [],
+      ytdClosedDeals: [],
+      allTimeClosedDeals: [],
+      directoryRows: [],
+      statsAgentsYtd: [],
+      statsAgentsAllTime: [],
+      ytdSummary: null,
+      allTimeSummary: null,
+      tab: "leaderboard",
+      dealsView: "active",
+      closedView: "ytd",
+      leaderboardView: "ytd",
+      forecastView: "team",
+      vizView: "team",
+      loadedAt: null,
+      qtFilter: "all",
+      agentMatrixView: "ytd",
+      agentMatrixTier: "all"
+    };
+
+    function esc(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function fmtMoney(n) {
+      var num = Number(n) || 0;
+      if (Math.abs(num) >= 1000000) return "$" + (num / 1000000).toFixed(2).replace(/\.00$/, "") + "M";
+      if (Math.abs(num) >= 1000) return "$" + Math.round(num / 1000) + "K";
+      return "$" + Math.round(num).toLocaleString();
+    }
+    function fmtMoneyFull(n) {
+      var num = Number(n) || 0;
+      return "$" + Math.round(num).toLocaleString();
+    }
+
+    function fmtMoneyRounded(n) {
+      var num = Number(n) || 0;
+      if (Math.abs(num) >= 1000000) return "$" + Math.round(num / 1000000).toLocaleString() + "M";
+      if (Math.abs(num) >= 1000) return "$" + Math.round(num / 1000).toLocaleString() + "K";
+      return "$" + Math.round(num).toLocaleString();
+    }
+
+    function fmtNum(n) {
+      return (Number(n) || 0).toLocaleString();
+    }
+    function formatTenureShort(monthsRaw) {
+      var monthsTotal = Math.max(0, Math.floor(Number(monthsRaw) || 0));
+      var yrs = Math.floor(monthsTotal / 12);
+      var mos = monthsTotal % 12;
+      var parts = [];
+      if (yrs > 0) parts.push(yrs + "yr");
+      if (mos > 0 || yrs === 0) parts.push(mos + "mo");
+      return parts.join(" and ");
+    }
+
+    function parseDate(raw) {
+      if (raw == null) return null;
+      if (typeof raw === "number" && isFinite(raw)) {
+        // Support both epoch timestamps and spreadsheet date serials.
+        if (raw > 1000000000000) {
+          var epochMsDate = new Date(raw);
+          if (!isNaN(epochMsDate.getTime())) return epochMsDate;
+        }
+        if (raw > 1000000000 && raw < 1000000000000) {
+          var epochSecDate = new Date(raw * 1000);
+          if (!isNaN(epochSecDate.getTime())) return epochSecDate;
+        }
+        if (raw > 25000 && raw < 80000) {
+          var serialDate = new Date(Math.round((raw - 25569) * 86400 * 1000));
+          if (!isNaN(serialDate.getTime())) return serialDate;
+        }
+      }
+      var txt = String(raw).trim();
+      if (!txt) return null;
+      if (/^\d+(\.\d+)?$/.test(txt)) {
+        var numVal = Number(txt);
+        if (isFinite(numVal)) {
+          if (numVal > 1000000000000) {
+            var txtEpochMsDate = new Date(numVal);
+            if (!isNaN(txtEpochMsDate.getTime())) return txtEpochMsDate;
+          }
+          if (numVal > 1000000000 && numVal < 1000000000000) {
+            var txtEpochSecDate = new Date(numVal * 1000);
+            if (!isNaN(txtEpochSecDate.getTime())) return txtEpochSecDate;
+          }
+          if (numVal > 25000 && numVal < 80000) {
+            var txtSerialDate = new Date(Math.round((numVal - 25569) * 86400 * 1000));
+            if (!isNaN(txtSerialDate.getTime())) return txtSerialDate;
+          }
+        }
+      }
+      var d = new Date(txt);
+      if (!isNaN(d.getTime())) return d;
+      var m = txt.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+      if (m) {
+        var yr = Number(m[3]);
+        if (yr < 100) yr += 2000;
+        d = new Date(yr, Number(m[1]) - 1, Number(m[2]));
+        if (!isNaN(d.getTime())) return d;
+      }
+      return null;
+    }
+
+    function formatShortDate(d) {
+      if (!d || isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function parseCSV(text, side) {
+      if (!text || !text.trim()) return [];
+      var rows = [];
+      var cur = "";
+      var row = [];
+      var q = false;
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        var next = text[i + 1];
+        if (ch === '"') {
+          if (q && next === '"') {
+            cur += '"';
+            i++;
+          } else {
+            q = !q;
+          }
+        } else if (ch === "," && !q) {
+          row.push(cur);
+          cur = "";
+        } else if ((ch === "\n" || ch === "\r") && !q) {
+          if (ch === "\r" && next === "\n") i++;
+          row.push(cur);
+          rows.push(row);
+          row = [];
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      if (cur.length || row.length) {
+        row.push(cur);
+        rows.push(row);
+      }
+      if (rows.length < 2) return [];
+
+      var headers = rows[0].map(function (h) {
+        return String(h || "").trim().toLowerCase().replace(/[^a-z0-9 ]/g, "");
+      });
+      function idx(names) {
+        for (var n = 0; n < names.length; n++) {
+          var wanted = names[n];
+          for (var j = 0; j < headers.length; j++) {
+            if (headers[j] === wanted) return j;
+          }
+        }
+        return -1;
+      }
+
+      var idxAgent = idx(["agent", "agent name"]);
+      var idxAddress = idx(["address", "property address"]);
+      var idxPrice = idx(["price", "volume", "amount", "deal value"]);
+      var idxStage = idx(["stage", "status", "deal stage"]);
+      var idxCloseDate = idx(["close date", "closedate", "close", "closing date"]);
+
+      return rows
+        .slice(1)
+        .map(function (r) {
+          var priceRaw = idxPrice >= 0 ? String(r[idxPrice] || "") : "";
+          var price = Number(priceRaw.replace(/[^0-9.]/g, "")) || 0;
+          var stage = idxStage >= 0 ? String(r[idxStage] || "").trim() : "";
+          var dateRaw = idxCloseDate >= 0 ? String(r[idxCloseDate] || "").trim() : "";
+          return {
+            side: side,
+            agent: idxAgent >= 0 ? String(r[idxAgent] || "").trim() : "",
+            address: idxAddress >= 0 ? String(r[idxAddress] || "").trim() : "",
+            price: price,
+            stage: stage,
+            closeDate: parseDate(dateRaw),
+            closeDateRaw: dateRaw
+          };
+        })
+        .filter(function (d) {
+          return d.agent && d.address && d.price > 0;
+        });
+    }
+
+    function normalizeStage(stage) {
+      var s = String(stage || "").toLowerCase().trim();
+      if (!s) return "Unknown";
+      if (s.indexOf("closed") > -1) return "Closed";
+      if (s.indexOf("under contract") > -1) return "Under Contract";
+      if (s.indexOf("offer submitted") > -1) return "Offer Submitted";
+      if (s.indexOf("pending") > -1 || s.indexOf("a/i") > -1) return "A/I or Pending";
+      return stage;
+    }
+    function normalizeAgentName(name) {
+      return String(name || "").toLowerCase().replace(/\s+/g, " ").trim();
+    }
+    function normalizeAgentKey(name) {
+      var full = String(name || "").toLowerCase().replace(/\s+/g, " ").trim();
+      var aliases = {
+        "nico": "nicolas gamboa wills",
+        "nicolas": "nicolas gamboa wills",
+        "matt": "matthew clevenger",
+        "gabe": "gabriel rendon",
+        "angie": "angela engelbrecht",
+        "angela engelbrech": "angela engelbrecht",
+        "angele engelbrecht": "angela engelbrecht",
+        "anglea engelbrecht": "angela engelbrecht",
+        "andrea k": "andrea koedjikova",
+        "andrea m": "andrea mirchef",
+        "myriam": "myriam el-khoury",
+        "myriam elkhoury": "myriam el-khoury",
+        "myriam el khoury": "myriam el-khoury",
+        "alex 2.0": "alex valladares",
+        "alex v": "alex valladares",
+        "alex val": "alex valladares",
+        "david": "david drzal"
+      };
+      full = aliases[full] || full;
+      if (full.indexOf("andrea koed") === 0) return "andrea koedjikova";
+      if (full.indexOf("andrea mir") === 0) return "andrea mirchef";
+      if (full.indexOf("myriam elkhoury") === 0 || full.indexOf("myriam el-khoury") === 0) return "myriam el-khoury";
+      return full;
+    }
+    function prettyAgentName(key) {
+      var special = {
+        "andrea koedjikova": "Andrea Koedjikova",
+        "andrea mirchef": "Andrea Mirchef",
+        "myriam el-khoury": "Myriam El-Khoury"
+      };
+      if (special[key]) return special[key];
+      return String(key || "").split(" ").map(function (p) {
+        return p ? p.charAt(0).toUpperCase() + p.slice(1) : "";
+      }).join(" ").trim();
+    }
+    function resolveAgentPhotoName(name) {
+      var full = normalizeAgentKey(name);
+      var aliases = {
+        "nico": "nicolas gamboa wills",
+        "matt": "matthew clevenger",
+        "gabe": "gabriel rendon",
+        "angie": "angela engelbrecht",
+        "alex 2.0": "alex valladares",
+        "alex v": "alex valladares"
+      };
+      if (aliases[full]) full = aliases[full];
+      if (AGENT_PHOTOS[full]) return AGENT_PHOTOS[full];
+      var first = full.split(" ")[0] || "";
+      if (!first) return "";
+      var keys = Object.keys(AGENT_PHOTOS);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].split(" ")[0] === first) return AGENT_PHOTOS[keys[i]];
+      }
+      return "";
+    }
+    function isRemovedAgent(name) {
+      var n = normalizeAgentName(name);
+      return n === "david drzal" || n === "david";
+    }
+
+    function dealBucket(d) {
+      var stage = normalizeStage(d.stage).toLowerCase();
+      if (stage.indexOf("closed") > -1) return "closed";
+      if (stage.indexOf("offer") > -1 || stage.indexOf("contract") > -1 || stage.indexOf("pending") > -1 || stage.indexOf("a/i") > -1) return "pending";
+      return "pending";
+    }
+
+    function mapPipelineRow(row, statusFallback) {
+      var priceNum = Number(row && row.price) || 0;
+      var dateRaw = null;
+      if (row && row.closeDateMs) {
+        var d = new Date(row.closeDateMs);
+        if (!isNaN(d.getTime())) dateRaw = d;
+      }
+      if (!dateRaw && row && row.closeDate) {
+        dateRaw = parseDate(row.closeDate);
+      }
+      var agent = row && row.agent ? String(row.agent).trim() : "—";
+      return {
+        side: row && row.type ? String(row.type).trim() : "—",
+        agent: agent,
+        address: row && row.address ? String(row.address).trim() : "—",
+        price: priceNum,
+        stage: statusFallback || (row && row.status ? String(row.status).trim() : "Pending"),
+        closeDate: dateRaw,
+        closeDateRaw: row && row.closeDate ? String(row.closeDate).trim() : ""
+      };
+    }
+
+    function pickFirstArray(container, keys) {
+      if (!container || typeof container !== "object") return [];
+      for (var i = 0; i < keys.length; i++) {
+        var v = container[keys[i]];
+        if (Array.isArray(v)) return v;
+      }
+      return [];
+    }
+
+    function mapAllTimeClosedRow(row) {
+      if (!row || typeof row !== "object") return null;
+      var rawPrice = row.price != null ? row.price : (row.volume != null ? row.volume : row.amount);
+      var price = Number(String(rawPrice == null ? "" : rawPrice).replace(/[^0-9.]/g, "")) || 0;
+      var closeRaw = row.closeDate != null ? row.closeDate : (row.closingDate != null ? row.closingDate : row.date);
+      var closeDateMs = row.closeDateMs != null ? Number(row.closeDateMs) : NaN;
+      var closeDate = !isNaN(closeDateMs) && closeDateMs > 0 ? parseDate(closeDateMs) : parseDate(closeRaw);
+      var address = row.address != null ? row.address : (row.propertyAddress != null ? row.propertyAddress : "—");
+      var agent = row.agent != null ? row.agent : (row.name != null ? row.name : "—");
+      if (isRemovedAgent(agent)) return null;
+      var side = row.type != null ? row.type : (row.side != null ? row.side : "—");
+      return {
+        side: String(side || "—").trim(),
+        agent: String(agent || "—").trim(),
+        address: String(address || "—").trim(),
+        price: price,
+        stage: "Closed",
+        closeDate: closeDate,
+        closeDateRaw: closeRaw != null ? String(closeRaw).trim() : ""
+      };
+    }
+
+    function extractAllTimeClosedDeals(payload) {
+      var direct = pickFirstArray(payload, [
+        "allTimeClosed",
+        "allTimeClosedDeals",
+        "closedDeals",
+        "deals",
+        "transactions",
+        "rows"
+      ]);
+      var nested = pickFirstArray(payload && payload.data, [
+        "allTimeClosed",
+        "allTimeClosedDeals",
+        "closedDeals",
+        "deals",
+        "transactions",
+        "rows"
+      ]);
+      var sourceRows = direct.length ? direct : nested;
+      return (sourceRows || [])
+        .map(mapAllTimeClosedRow)
+        .filter(function (d) {
+          return d && d.address && d.address !== "—" && d.price > 0 && d.closeDate;
+        })
+        .sort(function (a, b) {
+          return (b.closeDate ? b.closeDate.getTime() : 0) - (a.closeDate ? a.closeDate.getTime() : 0);
+        });
+    }
+
+    function appendQuery(url, query) {
+      return url + (String(url).indexOf("?") > -1 ? "&" : "?") + query;
+    }
+
+    async function fetchAllTimeClosedRowsFromScript() {
+      var base = ALL_TIME_CLOSED_API || STATS_API;
+      var candidates = [
+        appendQuery(base, "view=allTimeClosedRows"),
+        appendQuery(base, "view=allTimeClosedDeals"),
+        appendQuery(base, "view=allTimeTransactions"),
+        appendQuery(base, "view=allTimeClosed"),
+        appendQuery(base, "period=allTime&rows=1"),
+        appendQuery(base, "period=allTime&includeRows=1"),
+        appendQuery(base, "period=allTime&details=1")
+      ];
+      var seen = {};
+      for (var i = 0; i < candidates.length; i++) {
+        var url = candidates[i];
+        if (seen[url]) continue;
+        seen[url] = true;
+        try {
+          var payload = await fetchJSON(url);
+          var rows = extractAllTimeClosedDeals(payload);
+          if (rows.length) return rows;
+        } catch (e) {
+          // Keep trying alternate query modes until script exposes row-level all-time payload.
+        }
+      }
+      return [];
+    }
+
+    function sortByMoneyDesc(a, b) {
+      return (b.price || 0) - (a.price || 0);
+    }
+
+    function computeModel() {
+      var deals = state.deals.slice().filter(function (d) { return !isRemovedAgent(d.agent); });
+      var pendingDeals = (state.ytdPendingDeals || []).slice().filter(function (d) { return d && !isRemovedAgent(d.agent); });
+      var closedDeals = (state.ytdClosedDeals || []).slice().filter(function (d) { return d && !isRemovedAgent(d.agent); });
+
+      var pendingVolume = pendingDeals.reduce(function (sum, d) { return sum + (d.price || 0); }, 0);
+      var closedVolume = closedDeals.reduce(function (sum, d) { return sum + (d.price || 0); }, 0);
+
+      function mapAgentsToLeaderboard(agents) {
+        return (agents || [])
+          .filter(function (a) { return a && a.name && !isRemovedAgent(a.name); })
+          .map(function (a) {
+            return {
+              agent: String(a.name),
+              totalVolume: Number(a.grandTotal || a.totalVolume) || 0,
+              totalDeals: Number(a.totalDeals || a.totalTransactions) || 0,
+              closedVolume: Number(a.closedVolume) || 0,
+              pendingVolume: Number(a.pendingVolume) || 0,
+              closedDeals: Number(a.closedDeals) || 0,
+              pendingDeals: Number(a.pendingDeals) || 0
+            };
+          })
+          .sort(function (a, b) { return b.totalVolume - a.totalVolume; });
+      }
+
+      var ytdLeaderboard = mapAgentsToLeaderboard(state.statsAgentsYtd);
+      var allTimeLeaderboard = mapAgentsToLeaderboard(state.statsAgentsAllTime);
+      var leaderboard = allTimeLeaderboard.length ? allTimeLeaderboard : ytdLeaderboard;
+      if (!leaderboard.length) {
+        var byAgent = {};
+        deals.forEach(function (d) {
+          var key = d.agent || "Unknown";
+          if (!byAgent[key]) {
+            byAgent[key] = { agent: key, totalVolume: 0, totalDeals: 0, pendingVolume: 0, pendingDeals: 0, closedVolume: 0, closedDeals: 0 };
+          }
+          byAgent[key].totalVolume += d.price || 0;
+          byAgent[key].totalDeals += 1;
+          if (dealBucket(d) === "closed") {
+            byAgent[key].closedVolume += d.price || 0;
+            byAgent[key].closedDeals += 1;
+          } else {
+            byAgent[key].pendingVolume += d.price || 0;
+            byAgent[key].pendingDeals += 1;
+          }
+        });
+        leaderboard = Object.keys(byAgent)
+          .map(function (k) { return byAgent[k]; })
+          .sort(function (a, b) { return b.totalVolume - a.totalVolume; });
+      }
+
+      var now = new Date();
+      var year = now.getFullYear();
+      var closedYtdDeals = closedDeals.filter(function (d) {
+        return d.closeDate && d.closeDate.getFullYear() === year;
+      });
+      var closedYtdVolume = state.ytdSummary && Number(state.ytdSummary.closedVolume) > 0
+        ? Number(state.ytdSummary.closedVolume)
+        : closedYtdDeals.reduce(function (sum, d) { return sum + (d.price || 0); }, 0);
+      var monthsElapsed = Math.max(1, now.getMonth() + 1);
+      var monthlyRunRate = closedYtdVolume / monthsElapsed;
+      var projectedClosedAtRunRate = monthlyRunRate * 12;
+
+      var weightedPendingVolume = pendingDeals.reduce(function (sum, d) {
+        var stageKey = normalizeStage(d.stage).toLowerCase();
+        var w = STAGE_WEIGHTS[stageKey] != null ? STAGE_WEIGHTS[stageKey] : 0.5;
+        return sum + (d.price || 0) * w;
+      }, 0);
+      var weightedPendingDeals = pendingDeals.reduce(function (sum, d) {
+        var stageKey = normalizeStage(d.stage).toLowerCase();
+        var w = STAGE_WEIGHTS[stageKey] != null ? STAGE_WEIGHTS[stageKey] : 0.5;
+        return sum + w;
+      }, 0);
+
+      var forecastVolume = projectedClosedAtRunRate + weightedPendingVolume;
+      var forecastDeals = (closedYtdDeals.length * 12 / monthsElapsed) + weightedPendingDeals;
+      var confidence = Math.max(5, Math.min(95, Math.round((weightedPendingVolume / Math.max(1, pendingVolume)) * 100)));
+      var allTimeVolume = state.allTimeSummary ? Number(state.allTimeSummary.grandTotal || state.allTimeSummary.totalVolume || 0) : 0;
+      var allTimeDeals = state.allTimeSummary ? Number(state.allTimeSummary.totalDeals || state.allTimeSummary.totalTransactions || 0) : 0;
+
+      return {
+        pendingDeals: pendingDeals.sort(sortByMoneyDesc),
+        closedDeals: closedDeals.sort(sortByMoneyDesc),
+        ytdLeaderboard: ytdLeaderboard,
+        allTimeLeaderboard: allTimeLeaderboard,
+        leaderboard: leaderboard,
+        pendingVolume: pendingVolume,
+        closedVolume: closedVolume,
+        totalDeals: deals.length,
+        forecast: {
+          closedYtdVolume: closedYtdVolume,
+          projectedClosedAtRunRate: projectedClosedAtRunRate,
+          weightedPendingVolume: weightedPendingVolume,
+          forecastVolume: forecastVolume,
+          forecastDeals: forecastDeals,
+          confidence: confidence,
+          monthlyRunRate: monthlyRunRate,
+          monthsElapsed: monthsElapsed,
+          year: year,
+          allTimeVolume: allTimeVolume,
+          allTimeDeals: allTimeDeals
+        }
+      };
+    }
+
+    function extractDirectoryRows(payload) {
+      if (!payload || payload.success !== true || !payload.data || !payload.data.directory) return [];
+      var dir = payload.data.directory;
+      if (!dir || dir.success !== true || !Array.isArray(dir.rows)) return [];
+      return dir.rows.slice();
+    }
+
+    function buildAgentScoreRows(model) {
+      function canonicalScoreKey(raw) {
+        var key = normalizeAgentKey(raw);
+        if (!key) return "";
+        if (key === "alex 2.0" || key === "alex v" || key === "alex valladares" || key === "alex val") return "alex valladares";
+        if (key.indexOf("alex stoyk") === 0) return "alex stoykov";
+        // Ambiguous "alex" is intentionally excluded to avoid cross-attribution.
+        if (key === "alex") return "";
+        return key;
+      }
+      function firstNameKey(raw) {
+        var k = canonicalScoreKey(raw);
+        if (!k) return "";
+        if (k === "alex valladares") return "alex_v";
+        if (k === "alex stoykov") return "alex_s";
+        return (k.split(" ")[0] || "").trim();
+      }
+      function fullNameKey(raw) {
+        var k = canonicalScoreKey(raw);
+        if (!k) return "";
+        return k;
+      }
+
+      var byAgent = {};
+      (state.directoryRows || []).forEach(function (row) {
+        var rawName = row && (row.name || row.display_name);
+        var key = canonicalScoreKey(rawName);
+        var tier = String(row && (row.computed_tier || row.tier) || "").toLowerCase();
+        if (!key || isRemovedAgent(key)) return;
+        if (key === "alex stoykov") return;
+        if (tier === "admin") return; // Agents only: skip admin rows.
+        var tenureMonths = Number(row.computed_tenure_months);
+        var tenureLabel = String(row.computed_tenure_label || "").trim();
+        // Fallback: compute tenure from Start Date field if computed values are missing.
+        if (!isFinite(tenureMonths) || tenureMonths < 0 || !tenureLabel) {
+          var startRaw = row && (
+            row.start_date != null ? row.start_date :
+            (row.start_date_display != null ? row.start_date_display :
+            (row.startdate != null ? row.startdate : row.start))
+          );
+          var startDate = parseDate(startRaw);
+          if (startDate && !isNaN(startDate.getTime())) {
+            var now = new Date();
+            var days = Math.max(0, Math.floor((now.getTime() - startDate.getTime()) / 86400000));
+            tenureMonths = Math.max(0, Math.floor(days / 30.4375));
+            var yrs = Math.floor(tenureMonths / 12);
+            var mos = tenureMonths % 12;
+            tenureLabel = yrs > 0 ? (yrs + "y " + mos + "m") : (mos + "m");
+          }
+        }
+        byAgent[key] = {
+          key: key,
+          firstNameKey: firstNameKey(key),
+          agent: prettyAgentName(key),
+          totalVolume: 0,
+          currentVolume: 0,
+          totalDeals: 0,
+          tenureMonths: isFinite(tenureMonths) ? Math.max(0, tenureMonths) : 0,
+          tenureLabel: formatTenureShort(tenureMonths),
+          seniorityRank: Number(row.computed_seniority_rank_overall) || null,
+          photo: String((row && (row.image_url || row.photo || row.headshot_url || row.headshot)) || resolveAgentPhotoName(key) || ""),
+          months: []
+        };
+      });
+
+      // Volume source: All Time Closed rows.
+      // Prefer exact canonical full-name match; use first-name fallback only when unique.
+      var firstNameCounts = {};
+      Object.keys(byAgent).forEach(function (k) {
+        var fn = byAgent[k].firstNameKey;
+        if (!fn) return;
+        firstNameCounts[fn] = (firstNameCounts[fn] || 0) + 1;
+      });
+      var byFirst = {};
+      var byExact = {};
+      function addExactVolume(fullKey, volume, deals) {
+        if (!fullKey) return;
+        if (!byExact[fullKey]) byExact[fullKey] = { volume: 0, deals: 0 };
+        byExact[fullKey].volume += Number(volume) || 0;
+        byExact[fullKey].deals += Number(deals) || 0;
+      }
+      function addFirstNameVolume(firstKey, volume, deals) {
+        if (!firstKey) return;
+        if (!byFirst[firstKey]) byFirst[firstKey] = { volume: 0, deals: 0 };
+        byFirst[firstKey].volume += Number(volume) || 0;
+        byFirst[firstKey].deals += Number(deals) || 0;
+      }
+      (state.allTimeClosedDeals || []).forEach(function (d) {
+        if (!d) return;
+        var full = fullNameKey(d.agent);
+        var firstKey = firstNameKey(d.agent);
+        if (!full && !firstKey) return;
+        // Prevent Stoykov from leaking into Alex Valladares.
+        if (firstKey === "alex_s") return;
+        addExactVolume(full, Number(d.price) || 0, 1);
+        addFirstNameVolume(firstKey, Number(d.price) || 0, 1);
+      });
+      // Fallback when row-level feed is unavailable.
+      (state.statsAgentsAllTime || []).forEach(function (a) {
+        if (!a || !a.name) return;
+        var full = fullNameKey(a.name);
+        var firstKey = firstNameKey(a.name);
+        if (!full && !firstKey) return;
+        if (firstKey === "alex_s") return;
+        if (full && byExact[full] && byExact[full].volume > 0) return;
+        if (firstKey && byFirst[firstKey] && byFirst[firstKey].volume > 0) return;
+        addExactVolume(full, Number(a.grandTotal || a.totalVolume || 0) || 0, Number(a.totalDeals || a.totalTransactions || 0) || 0);
+        addFirstNameVolume(firstKey, Number(a.grandTotal || a.totalVolume || 0) || 0, Number(a.totalDeals || a.totalTransactions || 0) || 0);
+      });
+      Object.keys(byAgent).forEach(function (k) {
+        var f = byAgent[k].firstNameKey;
+        var exactAgg = byExact[k];
+        var agg = (firstNameCounts[f] > 1) ? (exactAgg || { volume: 0, deals: 0 }) : ((exactAgg && exactAgg.volume > 0) ? exactAgg : byFirst[f]);
+        byAgent[k].totalVolume = agg ? (Number(agg.volume) || 0) : 0;
+        byAgent[k].totalDeals = agg ? (Number(agg.deals) || 0) : 0;
+      });
+
+      // Add known prior-brokerage production totals supplied by leadership.
+      var priorVolumeOverrides = {
+        "matthew clevenger": 20000000,
+        "gabriel rendon": 24000000,
+        "barbara laken": 15000000
+      };
+      Object.keys(priorVolumeOverrides).forEach(function (k) {
+        if (!byAgent[k]) return;
+        byAgent[k].totalVolume += Number(priorVolumeOverrides[k]) || 0;
+      });
+
+      // Current volume (YTD/current feed) for all directory agents.
+      var ytdByFirst = {};
+      var ytdByExact = {};
+      function addYtdExact(fullKey, volume) {
+        if (!fullKey) return;
+        ytdByExact[fullKey] = (ytdByExact[fullKey] || 0) + (Number(volume) || 0);
+      }
+      function addYtdFirst(firstKey, volume) {
+        if (!firstKey) return;
+        ytdByFirst[firstKey] = (ytdByFirst[firstKey] || 0) + (Number(volume) || 0);
+      }
+      (state.statsAgentsYtd || []).forEach(function (a) {
+        if (!a || !a.name) return;
+        var full = fullNameKey(a.name);
+        var first = firstNameKey(a.name);
+        if (!full && !first) return;
+        if (first === "alex_s") return;
+        var vol = Number(a.grandTotal || a.totalVolume || 0) || 0;
+        addYtdExact(full, vol);
+        addYtdFirst(first, vol);
+      });
+      Object.keys(byAgent).forEach(function (k) {
+        var f = byAgent[k].firstNameKey;
+        var exactVol = Number(ytdByExact[k]) || 0;
+        var firstVol = Number(ytdByFirst[f]) || 0;
+        byAgent[k].currentVolume = (firstNameCounts[f] > 1) ? exactVol : (exactVol > 0 ? exactVol : firstVol);
+      });
+
+      var monthlyByAgent = {};
+      var allMonthKeys = {};
+      (state.allTimeClosedDeals || []).forEach(function (d) {
+        if (!d || !d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var key = canonicalScoreKey(d.agent);
+        if (!key || !byAgent[key]) return; // Restrict to directory agents only.
+        if (key === "alex stoykov") return;
+        var monthKey = d.closeDate.getFullYear() + "-" + String(d.closeDate.getMonth() + 1).padStart(2, "0");
+        allMonthKeys[monthKey] = true;
+        if (!monthlyByAgent[key]) monthlyByAgent[key] = {};
+        if (!monthlyByAgent[key][monthKey]) monthlyByAgent[key][monthKey] = { volume: 0, deals: 0 };
+        monthlyByAgent[key][monthKey].volume += Number(d.price) || 0;
+        monthlyByAgent[key][monthKey].deals += 1;
+      });
+
+      // Fallback if all-time summary feed is missing but transaction rows exist.
+      var haveSummaryVolume = Object.keys(byAgent).some(function (k) { return (byAgent[k].totalVolume || 0) > 0; });
+      if (!haveSummaryVolume) {
+        Object.keys(monthlyByAgent).forEach(function (k) {
+          if (!byAgent[k]) return;
+          var monthsObj = monthlyByAgent[k];
+          var vol = 0;
+          var deals = 0;
+          Object.keys(monthsObj).forEach(function (mk) {
+            vol += Number(monthsObj[mk].volume) || 0;
+            deals += Number(monthsObj[mk].deals) || 0;
+          });
+          byAgent[k].totalVolume = vol;
+          byAgent[k].totalDeals = deals;
+        });
+      }
+
+      var monthKeys = Object.keys(allMonthKeys).sort().slice(-18);
+      var rows = Object.keys(byAgent).map(function (k) {
+        var row = byAgent[k];
+        row.months = monthKeys.map(function (mk) {
+          var stat = (monthlyByAgent[k] && monthlyByAgent[k][mk]) ? monthlyByAgent[k][mk] : { volume: 0, deals: 0 };
+          return { monthKey: mk, volume: stat.volume, deals: stat.deals };
+        });
+        var peak = row.months.reduce(function (best, m) {
+          if (!best || m.volume > best.volume) return m;
+          return best;
+        }, null) || { monthKey: "", volume: 0, deals: 0 };
+        row.peakMonthKey = peak.monthKey;
+        row.peakVolume = peak.volume || 0;
+        row.peakDeals = peak.deals || 0;
+        return row;
+      });
+      if (!rows.length) return [];
+
+      var maxVolume = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.totalVolume || 0); }, 0));
+      var maxTenure = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.tenureMonths || 0); }, 0));
+
+      rows.forEach(function (r) {
+        var volumeScore = (r.totalVolume / maxVolume) * 100;
+        var tenureScore = (r.tenureMonths / maxTenure) * 100;
+        var tenureYears = r.tenureMonths > 0 ? (r.tenureMonths / 12) : 0;
+        var annualizedVolume = tenureYears > 0 ? (r.totalVolume / tenureYears) : (r.totalVolume > 0 ? r.totalVolume : 0);
+        r.volumeScore = volumeScore;
+        r.tenureScore = tenureScore;
+        r.annualizedVolume = annualizedVolume;
+        // Agents without all-time closes rank below producers, ordered by tenure.
+        r.agentScore = r.totalDeals > 0
+          ? (volumeScore * 0.7) + (tenureScore * 0.3)
+          : (tenureScore * 0.1);
+
+        var status = { tone: "green", label: "On Pace" };
+        if (r.totalVolume <= 0 && r.key !== "matthew clevenger") {
+          status = { tone: "red", label: "No Volume" };
+        } else if (r.tenureMonths > 12 && r.totalVolume < 3000000) {
+          status = { tone: "red", label: "Under 3M (12m+)" };
+        } else if (r.tenureMonths > 6 && r.totalVolume <= 0) {
+          status = { tone: "yellow", label: "No Volume (6m+)" };
+        } else if (r.totalVolume > 0 && annualizedVolume < 5000000) {
+          status = { tone: "yellow", label: "Below 5M/yr Pace" };
+        } else if (r.totalVolume > 0) {
+          status = { tone: "green", label: "Consistent Producer" };
+        } else {
+          status = { tone: "yellow", label: "Ramping" };
+        }
+
+        // Manual overrides per leadership context.
+        var forceGreenLabels = {
+          "justin curran": "Prospect",
+          "matthew clevenger": "Experienced Producer",
+          "gabriel rendon": "Experienced Producer",
+          "barbara laken": "Experienced Producer"
+        };
+        if (forceGreenLabels[r.key]) {
+          status = { tone: "green", label: forceGreenLabels[r.key] };
+        }
+
+        r.statusTone = status.tone;
+        r.statusLabel = status.label;
+      });
+
+      var toneRank = { green: 0, yellow: 1, red: 2 };
+      rows.sort(function (a, b) {
+        var ta = toneRank.hasOwnProperty(a.statusTone) ? toneRank[a.statusTone] : 99;
+        var tb = toneRank.hasOwnProperty(b.statusTone) ? toneRank[b.statusTone] : 99;
+        if (ta !== tb) return ta - tb;
+        return (b.agentScore || 0) - (a.agentScore || 0);
+      });
+      return rows;
+    }
+
+    function renderTableRows(items, kind, opts) {
+      var options = opts || {};
+      var includeRawDate = options.includeRawDate !== false;
+      if (!items.length) {
+        return '<tr><td colspan="' + (includeRawDate ? 7 : 6) + '" style="text-align:center;color:#64748b">No deals found.</td></tr>';
+      }
+      return items
+        .slice(0, 50)
+        .map(function (d) {
+          var badge = kind === "closed"
+            ? '<span class="amd-badge closed">Closed</span>'
+            : '<span class="amd-badge pending">' + esc(kind === "activePending" ? "Pending" : normalizeStage(d.stage)) + "</span>";
+          return (
+            "<tr>" +
+              "<td data-sort-key='agent' data-sort-value='" + esc(normalizeAgentName(d.agent)) + "'>" + esc(d.agent) + "</td>" +
+              "<td>" + esc(d.address) + "</td>" +
+              "<td>" + badge + "</td>" +
+              '<td class="amd-money" data-sort-key="volume" data-sort-value="' + (Number(d.price) || 0) + '">' + fmtMoneyFull(d.price) + "</td>" +
+              "<td data-sort-key='side' data-sort-value='" + esc(String(d.side || "").toLowerCase()) + "'>" + esc(d.side || "—") + "</td>" +
+              (includeRawDate ? ("<td>" + esc(d.closeDateRaw || "—") + "</td>") : "") +
+              "<td data-sort-key='closeDate' data-sort-value='" + (d.closeDate && !isNaN(d.closeDate.getTime()) ? d.closeDate.getTime() : 0) + "'>" + formatShortDate(d.closeDate) + "</td>" +
+            "</tr>"
+          );
+        })
+        .join("");
+    }
+
+    function renderDealsTableHead(opts) {
+      var options = opts || {};
+      var includeRawDate = options.includeRawDate !== false;
+      var statusLabel = options.statusLabel || "Status";
+      return '<thead><tr>' +
+        '<th><button class="amd-sort-btn" type="button" data-sort-key="agent" data-sort-type="text">Agent <span class="amd-sort-arrow">↑</span></button></th>' +
+        '<th>Address</th>' +
+        '<th>' + esc(statusLabel) + '</th>' +
+        '<th><button class="amd-sort-btn" type="button" data-sort-key="volume" data-sort-type="number">Volume <span class="amd-sort-arrow">↑</span></button></th>' +
+        '<th><button class="amd-sort-btn" type="button" data-sort-key="side" data-sort-type="text">Side <span class="amd-sort-arrow">↑</span></button></th>' +
+        (includeRawDate ? "<th>Close Date (Raw)</th>" : "") +
+        '<th><button class="amd-sort-btn" type="button" data-sort-key="closeDate" data-sort-type="number">Close Date <span class="amd-sort-arrow">↑</span></button></th>' +
+      '</tr></thead>';
+    }
+
+    function renderLeaderboardRows(items) {
+      if (!items.length) {
+        return '<tr><td colspan="7" style="text-align:center;color:#64748b">No leaderboard data.</td></tr>';
+      }
+      return items.slice(0, 40).map(function (a, idx) {
+        return (
+          "<tr>" +
+            "<td>#" + (idx + 1) + "</td>" +
+            "<td><strong>" + esc(a.agent) + "</strong></td>" +
+            '<td class="amd-money">' + fmtMoney(a.totalVolume) + "</td>" +
+            "<td>" + fmtNum(a.totalDeals) + "</td>" +
+            '<td class="amd-money">' + fmtMoney(a.closedVolume) + "</td>" +
+            '<td class="amd-money">' + fmtMoney(a.pendingVolume) + "</td>" +
+            "<td>" + fmtNum(a.closedDeals) + " / " + fmtNum(a.pendingDeals) + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function normalizedLeaderboardBarWidth(value, min, max) {
+      if (max <= min) return 40;
+      var normalized = (value - min) / (max - min);
+      var eased = Math.pow(Math.max(0, normalized), 0.62);
+      return Math.round(26 + eased * 72);
+    }
+
+    function renderLeaderboardTvStyle(items, view) {
+      function displayNameForLeaderboard(name, leaderboardView) {
+        var key = normalizeAgentKey(name);
+        if (leaderboardView === "allTime" && (key === "alex 2.0" || key === "alex valladares" || key === "alex v")) {
+          return "Alex V";
+        }
+        var fromDirectoryByFirst = {};
+        (state.directoryRows || []).forEach(function (row) {
+          var raw = row && (row.name || row.display_name);
+          var k = normalizeAgentKey(raw);
+          if (!k) return;
+          var first = (k.split(" ")[0] || "").trim();
+          if (!first) return;
+          if (!fromDirectoryByFirst[first]) fromDirectoryByFirst[first] = k;
+        });
+        if (key.indexOf(" ") === -1) {
+          var expanded = fromDirectoryByFirst[key];
+          if (expanded) key = expanded;
+        }
+        return prettyAgentName(key || name);
+      }
+      function shouldHideLeaderboardAgent(name, leaderboardView) {
+        var k = normalizeAgentKey(name);
+        var first = (k.split(" ")[0] || "").trim();
+        if (first === "mariya" || first === "moe" || first === "ian") return true; // hidden only from UI
+        if (leaderboardView === "allTime") {
+          if (k === "ashle s" || first === "kaitlyn" || first === "paula" || first === "jaime") return true;
+        }
+        return false;
+      }
+
+      var agents = (items || [])
+        .filter(function (a) { return !shouldHideLeaderboardAgent(a && a.agent, view); })
+        .filter(function (a) { return (Number(a.totalDeals) || 0) > 0; })
+        .sort(function (a, b) { return (Number(b.totalVolume) || 0) - (Number(a.totalVolume) || 0); });
+
+      var nextByExact = {};
+      var nextByFirst = {};
+      function saveSoonest(map, key, deal) {
+        if (!key || !deal || !deal.closeDate || isNaN(deal.closeDate.getTime())) return;
+        if (!map[key] || deal.closeDate.getTime() < map[key].closeDate.getTime()) map[key] = deal;
+      }
+      (state.ytdPendingDeals || []).forEach(function (d) {
+        if (!d || !d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var k = normalizeAgentKey(d.agent);
+        var first = (k.split(" ")[0] || "").trim();
+        saveSoonest(nextByExact, k, d);
+        saveSoonest(nextByFirst, first, d);
+      });
+
+      if (!agents.length) {
+        var emptyGrid = view === "ytd"
+          ? "1.7fr 1.1fr 0.85fr 0.85fr 0.55fr 1.25fr"
+          : "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
+        var emptyHead = view === "ytd"
+          ? '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:center">Deals</div><div>Next Closing</div>'
+          : '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
+        return '<div class="leaderboard-wrap">' +
+          '<div class="leader-head" style="grid-template-columns:' + emptyGrid + ';">' + emptyHead + "</div>" +
+          '<div class="leader-list">' +
+            '<div class="leader-row" style="grid-template-columns:' + emptyGrid + ';"><div class="agent-name">No leaderboard data available</div><div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div><div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div></div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      var gridTemplate = view === "ytd"
+        ? "1.7fr 1.1fr 0.85fr 0.85fr 0.55fr 1.25fr"
+        : "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
+      var minV = Number(agents[agents.length - 1].totalVolume) || 0;
+      var maxV = Number(agents[0].totalVolume) || 0;
+      var list = agents.map(function (agent, idx) {
+        var width = normalizedLeaderboardBarWidth(Number(agent.totalVolume) || 0, minV, maxV);
+        var rank = idx + 1;
+        var rankClass = rank <= 3 ? "leader-rank top" : "leader-rank";
+        var displayName = displayNameForLeaderboard(agent.agent, view);
+        var photo = resolveAgentPhotoName(displayName);
+        var initialsTxt = (displayName || "").split(" ").slice(0, 2).map(function (p) { return p ? p.charAt(0).toUpperCase() : ""; }).join("");
+        var photoCell = photo
+          ? '<div class="leader-photo"><img src="' + esc(photo) + '" alt="' + esc(displayName) + '"></div>'
+          : '<div class="leader-photo">' + esc(initialsTxt || "A") + "</div>";
+        var agentKey = normalizeAgentKey(agent.agent);
+        var agentFirst = (agentKey.split(" ")[0] || "").trim();
+        var next = nextByExact[agentKey] || (agentKey.indexOf(" ") === -1 ? nextByFirst[agentFirst] : null) || null;
+        var nextSide = next && next.side ? String(next.side).trim() : "";
+        var nextSideLower = nextSide.toLowerCase();
+        var sideClass = nextSideLower.indexOf("buy") > -1 ? "buy" : (nextSideLower.indexOf("sell") > -1 ? "sell" : "other");
+        var sideLabel = nextSide || "Pending";
+        var metrics = view === "ytd"
+          ? ('<div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div>" +
+             '<div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div>" +
+             '<div class="num" style="text-align:center;">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
+             (next
+               ? ('<div class="leader-next-box"><div class="leader-next-layout"><div class="leader-next-left"><div class="leader-next-address">' + esc(next.address || "—") + '</div><div class="leader-next-chip-row"><span class="leader-next-date"><span class="leader-next-cal">📅</span>' + esc(formatShortDate(next.closeDate)) + '</span></div></div>' +
+                  '<div class="leader-next-right"><span class="leader-next-price">' + esc(fmtMoney(next.price)) + '</span><span class="leader-next-chip ' + sideClass + '">' + esc(sideLabel) + '</span></div></div></div>')
+               : ''))
+          : ('<div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div>" +
+             '<div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div>" +
+             '<div class="num">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
+             '<div class="subnum">' + esc(fmtNum(agent.closedDeals)) + "</div>" +
+             '<div class="subnum">' + esc(fmtNum(agent.pendingDeals)) + "</div>");
+        return (
+          '<div class="leader-row" style="grid-template-columns:' + gridTemplate + ';">' +
+            '<div class="leader-agent"><div class="' + rankClass + '">#' + rank + "</div>" + photoCell + '<div class="agent-name">' + esc(displayName) + "</div></div>" +
+            '<div class="volume-cell"><div class="volume-main">' + esc(fmtMoney(agent.totalVolume)) + '</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:' + width + '%"></div></div></div>' +
+            metrics +
+          "</div>"
+        );
+      }).join("");
+
+      var headCols = view === "ytd"
+        ? '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:center">Deals</div><div>Next Closing</div>'
+        : '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
+      return '<div class="leaderboard-wrap">' +
+        '<div class="leader-head" style="grid-template-columns:' + gridTemplate + ';">' + headCols + "</div>" +
+        '<div class="leader-list">' + list + "</div>" +
+      "</div>";
+    }
+
+    function renderClosedAllTimeRows(items) {
+      if (!items.length) {
+        return '<tr><td colspan="5" style="text-align:center;color:#64748b">No all-time closed data.</td></tr>';
+      }
+      return items.slice(0, 40).map(function (a, idx) {
+        return (
+          "<tr>" +
+            "<td>#" + (idx + 1) + "</td>" +
+            "<td><strong>" + esc(a.agent) + "</strong></td>" +
+            '<td class="amd-money">' + fmtMoney(a.closedVolume) + "</td>" +
+            "<td>" + fmtNum(a.closedDeals) + "</td>" +
+            '<td class="amd-money">' + fmtMoney(a.totalVolume) + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function renderClosedAllTimeDealRows(items) {
+      if (!items.length) {
+        return '<tr><td colspan="7" style="text-align:center;color:#64748b">No all-time closed transactions available.</td></tr>';
+      }
+      return items.slice(0, 120).map(function (d) {
+        return (
+          "<tr>" +
+            "<td data-sort-key='agent' data-sort-value='" + esc(normalizeAgentName(d.agent)) + "'>" + esc(d.agent) + "</td>" +
+            "<td>" + esc(d.address) + "</td>" +
+            '<td><span class="amd-badge closed">Closed</span></td>' +
+            '<td class="amd-money" data-sort-key="volume" data-sort-value="' + (Number(d.price) || 0) + '">' + fmtMoneyFull(d.price) + "</td>" +
+            "<td data-sort-key='side' data-sort-value='" + esc(String(d.side || "").toLowerCase()) + "'>" + esc(d.side || "—") + "</td>" +
+            "<td>" + esc(d.closeDateRaw || "—") + "</td>" +
+            "<td data-sort-key='closeDate' data-sort-value='" + (d.closeDate && !isNaN(d.closeDate.getTime()) ? d.closeDate.getTime() : 0) + "'>" + formatShortDate(d.closeDate) + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function initDealsTables() {
+      var wraps = root.querySelectorAll('.amd-table-wrap[data-deals-table="1"]');
+      for (var wi = 0; wi < wraps.length; wi++) {
+        (function (wrap) {
+          var table = wrap.querySelector("table");
+          var tbody = table ? table.querySelector("tbody") : null;
+          if (!table || !tbody) return;
+          var search = (wrap.previousElementSibling && wrap.previousElementSibling.matches(".amd-table-tools"))
+            ? wrap.previousElementSibling.querySelector("[data-deals-search]")
+            : null;
+          var buttons = table.querySelectorAll(".amd-sort-btn");
+          var state = { q: "", key: "", type: "text", dir: "asc" };
+
+          function parseValue(val, type) {
+            if (type === "number") return Number(val) || 0;
+            return String(val || "").toLowerCase();
+          }
+
+          function updateSortUI() {
+            for (var bi = 0; bi < buttons.length; bi++) {
+              var b = buttons[bi];
+              var arrow = b.querySelector(".amd-sort-arrow");
+              var active = b.getAttribute("data-sort-key") === state.key;
+              b.classList.toggle("is-active", active);
+              if (arrow) arrow.textContent = active ? (state.dir === "desc" ? "↓" : "↑") : "↑";
+            }
+          }
+
+          function applyTableState() {
+            var rows = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+            var dataRows = rows.filter(function (r) {
+              var td = r.querySelector("td");
+              return !(td && td.hasAttribute("colspan"));
+            });
+
+            var q = String(state.q || "").trim().toLowerCase();
+            dataRows.forEach(function (row) {
+              var txt = row.textContent.toLowerCase();
+              row.style.display = (!q || txt.indexOf(q) > -1) ? "" : "none";
+            });
+
+            var visible = dataRows.filter(function (r) { return r.style.display !== "none"; });
+            if (state.key && visible.length > 1) {
+              visible.sort(function (a, b) {
+                var ca = a.querySelector("td[data-sort-key='" + state.key + "']");
+                var cb = b.querySelector("td[data-sort-key='" + state.key + "']");
+                var va = parseValue(ca ? ca.getAttribute("data-sort-value") : "", state.type);
+                var vb = parseValue(cb ? cb.getAttribute("data-sort-value") : "", state.type);
+                if (va < vb) return state.dir === "desc" ? 1 : -1;
+                if (va > vb) return state.dir === "desc" ? -1 : 1;
+                return 0;
+              });
+              visible.forEach(function (r) { tbody.appendChild(r); });
+            }
+
+            var existingEmpty = tbody.querySelector("tr[data-filter-empty='1']");
+            if (visible.length === 0) {
+              if (!existingEmpty) {
+                var tr = document.createElement("tr");
+                tr.setAttribute("data-filter-empty", "1");
+                var td = document.createElement("td");
+                td.colSpan = table.querySelectorAll("thead th").length || 1;
+                td.style.textAlign = "center";
+                td.style.color = "#64748b";
+                td.textContent = "No matching deals.";
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+              }
+            } else if (existingEmpty) {
+              existingEmpty.remove();
+            }
+          }
+
+          if (search) {
+            search.addEventListener("input", function () {
+              state.q = this.value || "";
+              applyTableState();
+            });
+          }
+
+          for (var bi = 0; bi < buttons.length; bi++) {
+            buttons[bi].addEventListener("click", function () {
+              var key = this.getAttribute("data-sort-key") || "";
+              var type = this.getAttribute("data-sort-type") || "text";
+              if (state.key !== key) {
+                state.key = key;
+                state.type = type;
+                var preferredFirstDir = {
+                  agent: "asc",      // alphabetical: Alex first
+                  side: "asc",
+                  closeDate: "asc",  // soonest upcoming first
+                  volume: "desc"
+                };
+                state.dir = preferredFirstDir[key] || "asc";
+              } else {
+                state.dir = state.dir === "desc" ? "asc" : "desc";
+              }
+              updateSortUI();
+              applyTableState();
+            });
+          }
+
+          updateSortUI();
+        })(wraps[wi]);
+      }
+    }
+
+    function buildAgentForecastRows(model) {
+      var byAgentPendingWeighted = {};
+      (state.ytdPendingDeals || []).forEach(function (d) {
+        var stageKey = normalizeStage(d.stage).toLowerCase();
+        var w = STAGE_WEIGHTS[stageKey] != null ? STAGE_WEIGHTS[stageKey] : 0.5;
+        var k = d.agent || "Unknown";
+        if (!byAgentPendingWeighted[k]) byAgentPendingWeighted[k] = 0;
+        byAgentPendingWeighted[k] += (Number(d.price) || 0) * w;
+      });
+
+      var source = (model.ytdLeaderboard || []).length ? model.ytdLeaderboard : model.leaderboard;
+      return source.map(function (a) {
+        var weightedPending = byAgentPendingWeighted[a.agent] || 0;
+        var expected = (Number(a.closedVolume) || 0) + weightedPending;
+        return {
+          agent: a.agent,
+          closedVolume: Number(a.closedVolume) || 0,
+          pendingWeighted: weightedPending,
+          expectedVolume: expected,
+          closedDeals: Number(a.closedDeals) || 0,
+          pendingDeals: Number(a.pendingDeals) || 0
+        };
+      }).sort(function (x, y) {
+        return y.expectedVolume - x.expectedVolume;
+      });
+    }
+
+    function renderForecastTrendChart(model) {
+      var yearRows = {};
+      (state.allTimeClosedDeals || []).forEach(function (d) {
+        if (!d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var y = d.closeDate.getFullYear();
+        if (!yearRows[y]) yearRows[y] = 0;
+        yearRows[y] += Number(d.price) || 0;
+      });
+      var years = Object.keys(yearRows).map(function (v) { return Number(v); }).sort(function (a, b) { return a - b; });
+      var hasYoY = years.length >= 2;
+      var currentYear = model.forecast.year;
+      if (hasYoY) {
+        var tailYears = years.slice(-6);
+        var points = tailYears.map(function (y) {
+          return { label: String(y), value: Number(yearRows[y]) || 0, year: y };
+        });
+        if (!tailYears.some(function (y) { return y === currentYear; })) {
+          points.push({ label: String(currentYear), value: Number(model.forecast.closedYtdVolume) || 0, year: currentYear, isCurrentYtd: true });
+        } else {
+          points = points.map(function (p) {
+            if (p.year === currentYear) {
+              return { label: p.label + " YTD", value: Number(model.forecast.closedYtdVolume) || 0, year: p.year, isCurrentYtd: true };
+            }
+            return p;
+          });
+        }
+      } else {
+        points = [
+          { label: "All-Time Closed", value: Number(state.allTimeSummary && state.allTimeSummary.closedVolume) || 0 },
+          { label: "Current YTD Closed", value: Number(state.ytdSummary && state.ytdSummary.closedVolume) || 0 },
+          { label: "Projected " + model.forecast.year, value: Number(model.forecast.projectedClosedAtRunRate) || 0 }
+        ];
+      }
+      var maxVal = Math.max(1, points.reduce(function (m, p) { return Math.max(m, p.value); }, 0));
+      var w = 780;
+      var h = 210;
+      var padTop = 18;
+      var padBottom = 42;
+      var padLeft = 10;
+      var padRight = 10;
+      var plotW = w - padLeft - padRight;
+      var plotH = h - padTop - padBottom;
+      var yTicks = [0, 0.25, 0.5, 0.75, 1];
+
+      var grid = yTicks.map(function (t) {
+        var y = Math.round(padTop + (1 - t) * plotH);
+        var val = fmtMoney(maxVal * t);
+        return (
+          '<line x1="' + padLeft + '" y1="' + y + '" x2="' + (w - padRight) + '" y2="' + y + '" stroke="rgba(15,23,42,0.08)" stroke-width="1"></line>' +
+          '<text x="4" y="' + (y - 4) + '" fill="#64748b" font-size="10" font-weight="600">' + esc(val) + "</text>"
+        );
+      }).join("");
+
+      var pointData = points.map(function (p, i) {
+        var x = points.length === 1
+          ? padLeft + plotW / 2
+          : padLeft + (i * (plotW / (points.length - 1)));
+        var ratio = Math.max(0, Math.min(1, p.value / maxVal));
+        var y = padTop + (plotH - ratio * plotH);
+        return {
+          x: x,
+          y: y,
+          label: p.label,
+          value: p.value,
+          isCurrentYtd: !!p.isCurrentYtd
+        };
+      });
+
+      var linePath = pointData.map(function (pt, idx) {
+        return (idx === 0 ? "M " : " L ") + pt.x.toFixed(2) + " " + pt.y.toFixed(2);
+      }).join("");
+
+      var line =
+        '<path d="' + linePath + '" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>';
+
+      var area =
+        '<path d="' + linePath + " L " + pointData[pointData.length - 1].x.toFixed(2) + " " + (padTop + plotH) + " L " + pointData[0].x.toFixed(2) + " " + (padTop + plotH) + ' Z" fill="rgba(148,163,184,0.12)"></path>';
+
+      var pointsSvg = pointData.map(function (pt) {
+        var dotFill = pt.isCurrentYtd ? "#0f172a" : "#64748b";
+        return (
+          '<circle cx="' + pt.x.toFixed(2) + '" cy="' + pt.y.toFixed(2) + '" r="5" fill="' + dotFill + '" stroke="#ffffff" stroke-width="2"></circle>' +
+          '<text x="' + pt.x.toFixed(2) + '" y="' + (pt.y - 10).toFixed(2) + '" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="700">' + esc(fmtMoney(pt.value)) + "</text>" +
+          '<text x="' + pt.x.toFixed(2) + '" y="' + (h - 18) + '" text-anchor="middle" fill="#334155" font-size="11" font-weight="700">' + esc(pt.label) + "</text>"
+        );
+      }).join("");
+
+      return (
+        '<div class="amd-trend">' +
+          '<div class="amd-trend-head">' +
+            '<h4 class="amd-trend-title">Year-to-Year Performance Position</h4>' +
+            '<p class="amd-trend-sub">' + (hasYoY ? "Closed volume by year from all-time transactions; current year highlighted." : "Current close pace vs all-time closed benchmark") + "</p>" +
+          "</div>" +
+          '<svg class="amd-trend-svg" viewBox="0 0 ' + w + " " + h + '" preserveAspectRatio="none">' +
+            grid +
+            area +
+            line +
+            pointsSvg +
+          "</svg>" +
+        "</div>"
+      );
+    }
+
+    function buildYearlyClosedSeries() {
+      var totals = {};
+      (state.allTimeClosedDeals || []).forEach(function (d) {
+        if (!d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var y = d.closeDate.getFullYear();
+        if (y < CHART_MIN_YEAR) return;
+        if (!totals[y]) totals[y] = { year: y, volume: 0, deals: 0 };
+        totals[y].volume += Number(d.price) || 0;
+        totals[y].deals += 1;
+      });
+      return Object.keys(totals)
+        .map(function (k) { return totals[k]; })
+        .sort(function (a, b) { return a.year - b.year; });
+    }
+
+    function renderYearVsClosingsLineChart() {
+      var yearly = buildYearlyClosedSeries();
+      var goalYear = 2026;
+      var goalVolume = 200000000;
+      var current2026 = Number(state.ytdSummary && (state.ytdSummary.grandTotal || state.ytdSummary.totalVolume)) ||
+        (Number(state.ytdSummary && state.ytdSummary.closedVolume) || 0) + (Number(state.ytdSummary && state.ytdSummary.pendingVolume) || 0);
+      var current2026Deals = Number(state.ytdSummary && (state.ytdSummary.totalDeals || state.ytdSummary.totalTransactions)) || 0;
+
+      var series = (yearly || []).filter(function (r) { return r.year < goalYear; });
+      if (!series.length) {
+        return '<div class="amd-empty">No all-time closed transaction rows with close dates found yet.</div>';
+      }
+
+      var w = 760;
+      var h = 360;
+      var padTop = 46;
+      var padBottom = 44;
+      var padLeft = 72;
+      var padRight = 56;
+      var plotW = w - padLeft - padRight;
+      var plotH = h - padTop - padBottom;
+      var maxV = Math.max(1, goalVolume, series.reduce(function (m, p) { return Math.max(m, p.volume); }, 0));
+      var ts = ' font-family="' + CHART_FONT_FAMILY + '"';
+
+      var ticks = [0, 0.25, 0.5, 0.75, 1];
+      var grid = ticks.map(function (t) {
+        var y = padTop + (1 - t) * plotH;
+        return '<line x1="' + padLeft + '" y1="' + y.toFixed(1) + '" x2="' + (w - padRight) + '" y2="' + y.toFixed(1) + '" stroke="#e5e5e5" stroke-width="1"/>' +
+          '<text x="' + (padLeft - 10) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" fill="#999" font-size="11" font-weight="500"' + ts + '>' + esc(fmtMoneyRounded(maxV * t)) + '</text>';
+      }).join('');
+
+      var chartYears = series.map(function (r) { return r.year; });
+      if (chartYears.indexOf(goalYear) === -1) chartYears.push(goalYear);
+      chartYears.sort(function (a, b) { return a - b; });
+      var colGap = chartYears.length <= 1 ? 0 : plotW / (chartYears.length - 1);
+      var xByYear = {};
+      chartYears.forEach(function (yr, idx) { xByYear[yr] = padLeft + idx * colGap; });
+
+      var pts = series.map(function (r) {
+        var x = xByYear[r.year];
+        var y = padTop + plotH - (Math.min(1, r.volume / maxV) * plotH);
+        return { x: x, y: y, year: r.year, volume: r.volume, deals: r.deals || 0 };
+      });
+      var lastPt = pts[pts.length - 1];
+      var x2026 = xByYear[goalYear];
+      var yGoal = padTop + plotH - (Math.min(1, goalVolume / maxV) * plotH);
+      var progressRatio = goalVolume > 0 ? Math.max(0, Math.min(1, current2026 / goalVolume)) : 0;
+      var progressPt = {
+        x: lastPt.x + (x2026 - lastPt.x) * progressRatio,
+        y: lastPt.y + (yGoal - lastPt.y) * progressRatio
+      };
+
+      var linePath = pts.map(function (p, i) {
+        return (i === 0 ? 'M ' : ' L ') + p.x.toFixed(1) + ' ' + p.y.toFixed(1);
+      }).join('');
+      var yearLabels = chartYears.map(function (yr) {
+        return '<text x="' + xByYear[yr].toFixed(1) + '" y="' + (h - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + '>' + yr + '</text>';
+      }).join('');
+
+      var goalSvg =
+        '<line x1="' + lastPt.x.toFixed(1) + '" y1="' + lastPt.y.toFixed(1) + '" x2="' + x2026.toFixed(1) + '" y2="' + yGoal.toFixed(1) + '" stroke="#f1a4a4" stroke-width="2" stroke-dasharray="5 5"/>' +
+        '<line x1="' + lastPt.x.toFixed(1) + '" y1="' + lastPt.y.toFixed(1) + '" x2="' + progressPt.x.toFixed(1) + '" y2="' + progressPt.y.toFixed(1) + '" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>' +
+        '<circle cx="' + x2026.toFixed(1) + '" cy="' + yGoal.toFixed(1) + '" r="4.5" fill="#fff" stroke="#f1a4a4" stroke-width="2"/>' +
+        '<text x="' + (x2026 + 8).toFixed(1) + '" y="' + (yGoal - 8).toFixed(1) + '" text-anchor="start" fill="#d78d8d" font-size="11" font-weight="700"' + ts + '>Goal ' + esc(fmtMoneyRounded(goalVolume)) + '</text>' +
+        '<circle class="amd-vis-dot amd-blink-red" id="yd-2026-progress" cx="' + progressPt.x.toFixed(1) + '" cy="' + progressPt.y.toFixed(1) + '" r="4.8" fill="#c0392b" stroke="#fff" stroke-width="2"/>' +
+        '<circle class="amd-hit-dot" cx="' + progressPt.x.toFixed(1) + '" cy="' + progressPt.y.toFixed(1) + '" r="16" fill="transparent" data-vis-dot="yd-2026-progress" data-tip-type="yearly" data-tip-year="2026" data-tip-volume="' + current2026 + '" data-tip-deals="' + current2026Deals + '" data-tip-color="#c0392b"/>' +
+        '<text x="' + (progressPt.x + 12).toFixed(1) + '" y="' + (progressPt.y + 16).toFixed(1) + '" text-anchor="start" fill="#222" font-size="11" font-weight="700"' + ts + '>' + esc(fmtMoneyRounded(current2026)) + '</text>';
+
+      var dotLabels = pts.map(function (p, i) {
+        var ly = p.y - 14;
+        var anchor = 'middle';
+        var lx = p.x;
+        if (i === 0) { anchor = 'start'; lx = p.x + 8; }
+        else if (i === pts.length - 1) { anchor = 'end'; lx = p.x - 8; }
+        var dotId = 'yd-' + p.year;
+        var dotFill = "#c0392b";
+        return '<circle class="amd-vis-dot" id="' + dotId + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4.5" fill="' + dotFill + '" stroke="#fff" stroke-width="2"/>' +
+          '<circle class="amd-hit-dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="16" fill="transparent" data-vis-dot="' + dotId + '" data-tip-type="yearly" data-tip-year="' + p.year + '" data-tip-volume="' + p.volume + '" data-tip-deals="' + p.deals + '" data-tip-color="#c0392b"/>' +
+          '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '" fill="#222" font-size="11" font-weight="600"' + ts + ' pointer-events="none">' + esc(fmtMoneyRounded(p.volume)) + '</text>';
+      }).join('');
+
+      return '<svg class="amd-viz-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" style="height:' + h + 'px;overflow:visible">' +
+        grid +
+        '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (w - padRight) + '" y2="' + (padTop + plotH) + '" stroke="#ccc" stroke-width="1"/>' +
+        yearLabels +
+        '<path d="' + linePath + '" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        goalSvg +
+        dotLabels +
+      '</svg>';
+    }
+
+    var QT_YEARS = [2021, 2022, 2023, 2024, 2025, 2026];
+    var QT_COLORS = {
+      2021: '#1a6b3c',
+      2022: '#1565c0',
+      2023: '#b8860b',
+      2024: '#222',
+      2025: '#c0392b',
+      2026: '#00c853'
+    };
+    var QT_WIDTHS = {
+      2021: 1.8,
+      2022: 1.8,
+      2023: 2,
+      2024: 2.2,
+      2025: 2.5,
+      2026: 2.5
+    };
+    var QT_DIM = '#ccc';
+    var AGENT_PHOTOS = {
+      "alex stoykov": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=2500w",
+      "sam abadi": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=2500w",
+      "shelly channey": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ec680d50-9548-4fcc-b29f-6780ec1a3e86/Shelly.jpg?format=2500w",
+      "nicolas gamboa wills": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=2500w",
+      "julian levit": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21a6ba8a-39f9-4a98-acf7-4047f7a0f8cd/Julian+5mb.jpeg?format=2500w",
+      "mino conenna": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/20b29b84-587a-4b96-8ec9-f5184687e29d/Black+Jacket.jpeg?format=2500w",
+      "angela engelbrecht": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/197eb36b-0a4c-40de-b5de-4a9c93a33879/DSC09944.jpg?format=2500w",
+      "layne zagorin": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5016d411-0889-4558-a8d9-146070d08181/Photo-18+%284%29.jpg?format=2500w",
+      "barbara laken": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/61c6aac4-a530-4807-a26a-8d511db76a58/AndrewMiller-Barbara2020%281%29.jpg?format=2500w",
+      "gabriel rendon": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/10a058a9-3ef3-4b5b-8466-e47388e23843/Headshot-10.jpg?format=2500w",
+      "matthew clevenger": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5c117b07-d067-453d-86fb-d0b4e22f7998/image0.jpeg?format=2500w",
+      "justin curran": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/e8dcd0fc-419f-4703-8383-423fd5a7b876/Justn+Headshots-6.jpg?format=2500w",
+      "cheryl cohn": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f672ca49-4e2e-480c-aeea-ecae358de45b/Cheryl+Studio+Sitting.jpg?format=2500w",
+      "david drzal": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/76651ee8-3053-49ed-ad12-b571a941d9ed/DSC00121-2.jpg?format=2500w",
+      "jason stone": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/8ffe22d9-28a8-4b2f-bf0c-85521b6acf7a/Photo+1-3.jpg?format=2500w",
+      "andrea mirchef": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/9e105fd4-ad39-47ea-a9ac-7a1e47544932/DSC00258-Enhanced-NR.jpg?format=2500w",
+      "andrea koedjikova": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f7012c34-b9ea-46fb-8ba0-1a0a3eb39af5/Photo-16.jpg?format=2500w",
+      "alisa bok": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/74803728-00d5-4a6c-9721-e9a51c3cb3c6/Photo-11.jpg?format=2500w",
+      "josie ontiveros": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/0af6d754-dcdc-420b-9aec-1094679f55db/Headshot+Josie-12.jpg?format=2500w",
+      "nasir rizvi": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/e65951ee-3818-43d3-ac33-918e12bd6a74/Nasir+2025.jpg?format=2500w",
+      "preety sidhu": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/05403a68-30a0-4243-b71d-769723d4e0b6/Photo+1-10ps.jpg?format=2500w",
+      "chloe dittmer": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/8bcd76b2-ff69-4b5b-acee-eacee36ef8bb/Photo-6.jpg?format=2500w",
+      "natali tzvetkova": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/2dcf199e-c306-4ab7-b047-8f6cfde3508a/Headshot+Natali%27.png?format=2500w",
+      "myriam el-khoury": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/81744e1e-ecac-4f2f-93e9-bb5bdfa950a2/image0+%282%29.jpeg?format=2500w",
+      "serge golota": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/bf028454-0622-41e5-a262-2083b8313dfa/Headshot-5.jpg?format=2500w",
+      "cameron sine": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/a6451779-569f-4057-8af4-b1bcdcfbd243/Favorite.jpg?format=2500w",
+      "kelsey glascott": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3533d5c5-4a28-4d2a-8506-9956abe833cd/Kelsey+G-2.jpg?format=2500w"
+    };
+    var AGENT_TIERS = {
+      "alex stoykov": "senior",
+      "sam abadi": "senior",
+      "shelly channey": "senior",
+      "nicolas gamboa wills": "senior",
+      "julian levit": "senior",
+      "mino conenna": "senior",
+      "angela engelbrecht": "senior",
+      "layne zagorin": "senior",
+      "barbara laken": "senior",
+      "gabriel rendon": "senior",
+      "matthew clevenger": "senior",
+      "alex valladares": "senior",
+
+      "justin curran": "junior",
+      "cheryl cohn": "junior",
+      "david drzal": "junior",
+      "jason stone": "junior",
+      "andrea mirchef": "junior",
+      "breanna raspopovich": "junior",
+      "andrea koedjikova": "junior",
+      "james basile": "junior",
+      "danica thomas": "junior",
+      "alisa bok": "junior",
+      "josie ontiveros": "junior",
+      "nasir rizvi": "junior",
+      "preety sidhu": "junior",
+      "chloe dittmer": "junior",
+      "natali tzvetkova": "junior",
+      "myriam el-khoury": "junior",
+      "serge golota": "junior",
+      "cameron sine": "junior",
+      "kelsey glascott": "junior",
+      "deannine weber ronan": "junior"
+    };
+
+    function buildQuarterlyTrendSeries() {
+      var byYear = {};
+      QT_YEARS.forEach(function (y) { byYear[y] = { vol: [0,0,0,0], deals: [0,0,0,0] }; });
+      var seen = {};
+      function ingest(d) {
+        if (!d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var year = d.closeDate.getFullYear();
+        if (!byYear[year]) return;
+        var key = year + '-' + d.closeDate.getMonth() + '-' + (d.address || '') + '-' + (d.price || 0);
+        if (seen[key]) return;
+        seen[key] = true;
+        var q = Math.floor(d.closeDate.getMonth() / 3);
+        byYear[year].vol[q] += Number(d.price) || 0;
+        byYear[year].deals[q] += 1;
+      }
+      (state.allTimeClosedDeals || []).forEach(ingest);
+      (state.ytdClosedDeals || []).forEach(ingest);
+
+      var rows = QT_YEARS.map(function (year) {
+        var b = byYear[year];
+        return {
+          year: year,
+          quarters: b.vol.slice(),
+          deals: b.deals.slice(),
+          projected: [false, false, false, false],
+          total: b.vol[0] + b.vol[1] + b.vol[2] + b.vol[3]
+        };
+      });
+
+      var r2026 = null;
+      for (var ri = 0; ri < rows.length; ri++) {
+        if (rows[ri].year === 2026) { r2026 = rows[ri]; break; }
+      }
+      if (r2026 && r2026.quarters[0] > 0) {
+        var byYr = {};
+        rows.forEach(function (r) { byYr[r.year] = r; });
+        var trendYears = [2023, 2024, 2025];
+        r2026.partialActual = [0, 0, 0, 0];
+        for (var pq = 0; pq < 4; pq++) {
+          var jumps = [];
+          var jumpDeals = [];
+          for (var ti = 1; ti < trendYears.length; ti++) {
+            var prev = byYr[trendYears[ti - 1]];
+            var curr = byYr[trendYears[ti]];
+            if (prev && curr && prev.quarters[pq] > 0 && curr.quarters[pq] > 0) {
+              jumps.push(curr.quarters[pq] - prev.quarters[pq]);
+              jumpDeals.push(curr.deals[pq] - prev.deals[pq]);
+            }
+          }
+          var avgJump = jumps.length > 0 ? jumps.reduce(function (s, v) { return s + v; }, 0) / jumps.length : 0;
+          var avgDealJump = jumpDeals.length > 0 ? jumpDeals.reduce(function (s, v) { return s + v; }, 0) / jumpDeals.length : 0;
+          var base2025 = byYr[2025] ? byYr[2025].quarters[pq] : 0;
+          var baseDeals2025 = byYr[2025] ? byYr[2025].deals[pq] : 0;
+          var projVal = Math.max(0, Math.round(base2025 + avgJump));
+          var projDeals = Math.max(0, Math.round(baseDeals2025 + avgDealJump));
+
+          if (pq === 0) continue;
+          r2026.partialActual[pq] = r2026.quarters[pq];
+          if (projVal > r2026.quarters[pq]) {
+            r2026.quarters[pq] = projVal;
+            r2026.deals[pq] = projDeals;
+          }
+          r2026.projected[pq] = true;
+        }
+        r2026.total = r2026.quarters[0] + r2026.quarters[1] + r2026.quarters[2] + r2026.quarters[3];
+      }
+
+      return rows;
+    }
+
+    function renderQuarterlyTrendChart() {
+      var rows = buildQuarterlyTrendSeries();
+      var hasData = rows.some(function (r) { return r.total > 0; });
+      if (!hasData) {
+        return '<div class="amd-empty">No quarterly data yet.</div>';
+      }
+
+      var sel = state.qtFilter || 'all';
+      var w = 760;
+      var h = 560;
+      var padTop = 40;
+      var padBottom = 46;
+      var padLeft = 54;
+      var padRight = 34;
+      var plotW = w - padLeft - padRight;
+      var plotH = h - padTop - padBottom;
+      var ts = ' font-family="' + CHART_FONT_FAMILY + '"';
+
+      var maxV = 1;
+      rows.forEach(function (r) {
+        r.quarters.forEach(function (v) { if (v > maxV) maxV = v; });
+      });
+
+      var qAvgs = [0, 0, 0, 0];
+      var qCounts = [0, 0, 0, 0];
+      rows.forEach(function (r) {
+        r.quarters.forEach(function (v, qi) {
+          qAvgs[qi] += v;
+          if (v > 0) qCounts[qi]++;
+        });
+      });
+      for (var qa = 0; qa < 4; qa++) {
+        qAvgs[qa] = qCounts[qa] > 0 ? qAvgs[qa] / qCounts[qa] : 0;
+      }
+
+      var xSlots = 5;
+      var xStep = plotW / (xSlots - 1);
+      var xPos = [];
+      for (var s = 0; s < xSlots; s++) xPos.push(padLeft + s * xStep);
+
+      var gridSvg = '';
+      for (var gi = 1; gi < xSlots; gi++) {
+        gridSvg += '<line x1="' + xPos[gi].toFixed(1) + '" y1="' + padTop + '" x2="' + xPos[gi].toFixed(1) + '" y2="' + (padTop + plotH) + '" stroke="#f0f0f0" stroke-width="1"/>';
+      }
+      gridSvg += '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (w - padRight) + '" y2="' + (padTop + plotH) + '" stroke="#ddd" stroke-width="1"/>';
+
+      var xAxisLabels = '';
+      var qNames = ['Jan 1', 'Q1', 'Q2', 'Q3', 'Q4'];
+      xAxisLabels += '<text x="' + xPos[0].toFixed(1) + '" y="' + (h - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + '>' + qNames[0] + '</text>';
+      for (var xi = 1; xi < xSlots; xi++) {
+        var avgStr = qAvgs[xi - 1] > 0 ? '  AVG ' + fmtMoneyRounded(qAvgs[xi - 1]) : '';
+        xAxisLabels += '<text x="' + xPos[xi].toFixed(1) + '" y="' + (h - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + '>' + qNames[xi] + '</text>';
+        if (avgStr) {
+          xAxisLabels += '<text x="' + xPos[xi].toFixed(1) + '" y="' + (h - 1) + '" text-anchor="middle" fill="#aaa" font-size="9" font-weight="600"' + ts + '>' + esc(avgStr.trim()) + '</text>';
+        }
+      }
+
+      var yearSpacing = plotH / QT_YEARS.length;
+      var yearAnchors = {};
+      QT_YEARS.forEach(function (yr, idx) {
+        yearAnchors[yr] = padTop + plotH - yearSpacing * 0.5 - idx * yearSpacing;
+      });
+
+      var allPts = {};
+      rows.forEach(function (r) {
+        allPts[r.year] = r.quarters.map(function (v, qi) {
+          var x = xPos[qi + 1];
+          var ratio = maxV > 0 ? v / maxV : 0;
+          var y = padTop + plotH - ratio * plotH;
+          return { x: x, y: y, v: v, qi: qi, deals: r.deals[qi], projected: r.projected[qi], year: r.year };
+        });
+      });
+
+      function spreadCol(colIdx) {
+        var items = [];
+        rows.forEach(function (r) {
+          var p = allPts[r.year][colIdx];
+          items.push({ year: r.year, pt: p, origY: p.y });
+        });
+        items.sort(function (a, b) { return a.origY - b.origY; });
+        var dotGap = 20;
+        for (var pass = 0; pass < 4; pass++) {
+          for (var i = 1; i < items.length; i++) {
+            var gap = items[i].pt.y - items[i - 1].pt.y;
+            if (gap < dotGap) {
+              var push = (dotGap - gap) / 2;
+              items[i - 1].pt.y -= push;
+              items[i].pt.y += push;
+            }
+          }
+        }
+        var y2026 = null;
+        var b2022 = null;
+        items.forEach(function (it) {
+          if (it.year === 2026) y2026 = it.pt;
+          if (it.year === 2022) b2022 = it.pt;
+        });
+        if (y2026 && b2022 && b2022.y <= y2026.y + 1) {
+          b2022.y = y2026.y + 10;
+        }
+      }
+      spreadCol(0);
+      spreadCol(3);
+
+      var linesSvg = '';
+      var pendingLabels = { 0: [], 1: [], 2: [], 3: [] };
+
+      rows.forEach(function (r) {
+        var isHighlighted = (sel === 'all' || String(r.year) === String(sel));
+        var is2026 = r.year === 2026;
+        var color = isHighlighted ? (QT_COLORS[r.year] || '#999') : QT_DIM;
+        var sw = isHighlighted ? (QT_WIDTHS[r.year] || 1.8) : 1.2;
+        var yAnchor = yearAnchors[r.year];
+        var startY = padTop + plotH;
+        var lineOpacity = isHighlighted ? 1 : 0.35;
+        var glowClass = (is2026 && isHighlighted) ? ' class="amd-glow-line"' : '';
+        var pts = allPts[r.year];
+
+        var q0Solid2026 = is2026;
+        var q0Muted = !q0Solid2026;
+        var q0Dash = q0Muted ? ' stroke-dasharray="4 4"' : '';
+        var q0Opacity = q0Muted ? (lineOpacity * 0.45) : (lineOpacity * 0.95);
+        var q0Stroke = is2026 && isHighlighted ? (sw + 0.4) : sw;
+        if (is2026 && isHighlighted) {
+          linesSvg += '<g' + glowClass + '><line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + pts[0].x.toFixed(1) + '" y2="' + pts[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/></g>';
+        } else {
+          linesSvg += '<line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + pts[0].x.toFixed(1) + '" y2="' + pts[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/>';
+        }
+
+        if (is2026 && isHighlighted) {
+          var fullDashPath = pts.map(function (p, i) {
+            return (i === 0 ? 'M ' : ' L ') + p.x.toFixed(1) + ' ' + p.y.toFixed(1);
+          }).join('');
+          linesSvg += '<g' + glowClass + '><path d="' + fullDashPath + '" fill="none" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" opacity="' + (lineOpacity * 0.55) + '"/></g>';
+
+          var solidEnd = { x: pts[0].x, y: pts[0].y };
+          var partials = r.partialActual || [0,0,0,0];
+          for (var pi = 1; pi < 4; pi++) {
+            if (partials[pi] > 0 && pts[pi].v > 0) {
+              var frac = Math.min(1, partials[pi] / pts[pi].v);
+              solidEnd = {
+                x: pts[pi - 1].x + frac * (pts[pi].x - pts[pi - 1].x),
+                y: pts[pi - 1].y + frac * (pts[pi].y - pts[pi - 1].y)
+              };
+              break;
+            }
+          }
+          var solidGlowPath = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1) + ' L ' + solidEnd.x.toFixed(1) + ' ' + solidEnd.y.toFixed(1);
+          linesSvg += '<g' + glowClass + '><path d="' + solidGlowPath + '" fill="none" stroke="' + color + '" stroke-width="' + (sw + 0.5) + '" stroke-linecap="round" opacity="' + lineOpacity + '"/></g>';
+
+          if (solidEnd.x !== pts[0].x || solidEnd.y !== pts[0].y) {
+            var progId = 'qd-2026-prog';
+            linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot amd-blink-green" id="' + progId + '" cx="' + solidEnd.x.toFixed(1) + '" cy="' + solidEnd.y.toFixed(1) + '" r="4" fill="' + color + '" stroke="#fff" stroke-width="2"/></g>';
+            var partialVol = 0; var partialDeals = 0; var partialQi = 1;
+            for (var pk = 1; pk < 4; pk++) {
+              if (partials[pk] > 0) { partialVol = partials[pk]; partialDeals = r.deals[pk]; partialQi = pk; break; }
+            }
+            linesSvg += '<circle class="amd-hit-dot" cx="' + solidEnd.x.toFixed(1) + '" cy="' + solidEnd.y.toFixed(1) + '" r="16" fill="transparent" data-vis-dot="' + progId + '" data-tip-type="quarterly" data-tip-year="2026" data-tip-quarter="Q' + (partialQi + 1) + ' actual so far" data-tip-volume="' + partialVol + '" data-tip-deals="' + partialDeals + '" data-tip-color="' + color + '"/>';
+          }
+        } else {
+          var solidPath = pts.map(function (p, i) {
+            return (i === 0 ? 'M ' : ' L ') + p.x.toFixed(1) + ' ' + p.y.toFixed(1);
+          }).join('');
+          linesSvg += '<path d="' + solidPath + '" fill="none" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + lineOpacity + '"/>';
+        }
+
+        var yearLabelColor = isHighlighted ? color : QT_DIM;
+        linesSvg += '<circle cx="' + xPos[0].toFixed(1) + '" cy="' + yAnchor.toFixed(1) + '" r="3" fill="' + yearLabelColor + '" opacity="' + (lineOpacity * 0.5) + '"/>';
+        linesSvg += '<text x="' + (xPos[0] - 10).toFixed(1) + '" y="' + (yAnchor + 4).toFixed(1) + '" text-anchor="end" fill="' + yearLabelColor + '" font-size="12" font-weight="700"' + ts + ' opacity="' + (isHighlighted ? 1 : 0.4) + '">' + r.year + '</text>';
+
+        pts.forEach(function (p) {
+          var qdId = 'qd-' + r.year + '-' + p.qi;
+          var dotColor = isHighlighted ? (QT_COLORS[r.year] || '#999') : QT_DIM;
+          var dotOpacity = isHighlighted ? 1 : 0.35;
+          var projTag = p.projected ? ' (projected)' : '';
+          if (is2026 && isHighlighted) {
+            linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot" id="' + qdId + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/></g>';
+          } else {
+            linesSvg += '<circle class="amd-vis-dot" id="' + qdId + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/>';
+          }
+          linesSvg += '<circle class="amd-hit-dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="16" fill="transparent" data-vis-dot="' + qdId + '" data-tip-type="quarterly" data-tip-year="' + r.year + '" data-tip-quarter="Q' + (p.qi + 1) + projTag + '" data-tip-volume="' + p.v + '" data-tip-deals="' + p.deals + '" data-tip-color="' + (QT_COLORS[r.year] || '#999') + '"/>';
+          if (isHighlighted) {
+            pendingLabels[p.qi].push({ x: p.x, y: p.y, v: p.v, color: dotColor });
+          }
+        });
+      });
+
+      var minGap = 16;
+      [0, 1, 2, 3].forEach(function (qi) {
+        var labels = pendingLabels[qi];
+        labels.sort(function (a, b) { return a.y - b.y; });
+
+        var slots = [];
+        labels.forEach(function (item) {
+          var above = item.y - 16;
+          var below = item.y + 18;
+          var best = above;
+
+          function fits(pos) {
+            for (var si = 0; si < slots.length; si++) {
+              if (Math.abs(slots[si] - pos) < minGap) return false;
+            }
+            return true;
+          }
+
+          if (!fits(above)) {
+            if (fits(below)) {
+              best = below;
+            } else {
+              best = above;
+              for (var step = 1; step <= 60; step++) {
+                var up = above - step * 3;
+                var dn = below + step * 3;
+                if (fits(up)) { best = up; break; }
+                if (fits(dn)) { best = dn; break; }
+              }
+            }
+          }
+          slots.push(best);
+
+          var anchor = 'middle';
+          var lx = item.x;
+          if (qi === 3) { anchor = 'start'; lx = item.x + 14; }
+          if (qi === 0) { anchor = 'end'; lx = item.x - 14; }
+
+          linesSvg += '<text x="' + lx.toFixed(1) + '" y="' + best.toFixed(1) + '" text-anchor="' + anchor + '" fill="' + item.color + '" font-size="10" font-weight="600"' + ts + ' pointer-events="none">' + esc(fmtMoneyRounded(item.v)) + '</text>';
+        });
+      });
+
+      return '<svg class="amd-viz-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" style="height:' + h + 'px;overflow:visible">' +
+        gridSvg +
+        xAxisLabels +
+        linesSvg +
+      '</svg>';
+    }
+
+    function renderQuarterlyTrendLegend() {
+      var sel = state.qtFilter || 'all';
+      var legend = '<div class="amd-qt-legend" style="margin:8px 0 10px 0;">';
+      legend += '<button class="amd-qt-legend-btn' + (sel === 'all' ? ' is-active' : '') + '" data-qtf="all" type="button">All</button>';
+      QT_YEARS.forEach(function (yr) {
+        var c = QT_COLORS[yr] || '#999';
+        var active = String(yr) === String(sel);
+        legend += '<button class="amd-qt-legend-btn' + (active ? ' is-active' : '') + '" data-qtf="' + yr + '" type="button">' +
+          '<span style="width:14px;height:3px;background:' + c + ';border-radius:2px;display:inline-block"></span>' +
+          yr + (yr === 2026 ? ' <span style="font-size:9px;opacity:0.7">LIVE</span>' : '') +
+          '</button>';
+      });
+      legend += '</div>';
+      return legend;
+    }
+
+    function renderAgentPerformanceMatrix(model) {
+      var matrixView = state.agentMatrixView || "ytd";
+      var matrixTier = state.agentMatrixTier || "all";
+      var source = matrixView === "allTime"
+        ? (model.allTimeLeaderboard && model.allTimeLeaderboard.length ? model.allTimeLeaderboard : model.leaderboard || [])
+        : (model.ytdLeaderboard && model.ytdLeaderboard.length ? model.ytdLeaderboard : model.leaderboard || []);
+      var rows = (source || [])
+        .filter(function (r) { return (r.totalDeals || 0) > 0 || (r.totalVolume || 0) > 0; });
+
+      function resolveTier(name) {
+        var key = normalizeAgentKey(name);
+        if (AGENT_TIERS[key]) return AGENT_TIERS[key];
+        var first = key.split(' ')[0] || '';
+        if (!first) return "senior";
+        var keys = Object.keys(AGENT_TIERS);
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i].split(' ')[0] === first) return AGENT_TIERS[keys[i]];
+        }
+        return "senior";
+      }
+      // Canonicalize + merge duplicate agents (e.g. Myriam name variants).
+      var byAgent = {};
+      rows.forEach(function (r) {
+        var k = normalizeAgentKey(r.agent);
+        if (!k || isRemovedAgent(k)) return;
+        if (!byAgent[k]) {
+          byAgent[k] = {
+            agent: prettyAgentName(k),
+            totalVolume: 0,
+            totalDeals: 0,
+            closedVolume: 0,
+            pendingVolume: 0,
+            closedDeals: 0,
+            pendingDeals: 0
+          };
+        }
+        byAgent[k].totalVolume += Number(r.totalVolume) || 0;
+        byAgent[k].totalDeals += Number(r.totalDeals) || 0;
+        byAgent[k].closedVolume += Number(r.closedVolume) || 0;
+        byAgent[k].pendingVolume += Number(r.pendingVolume) || 0;
+        byAgent[k].closedDeals += Number(r.closedDeals) || 0;
+        byAgent[k].pendingDeals += Number(r.pendingDeals) || 0;
+      });
+      rows = Object.keys(byAgent).map(function (k) { return byAgent[k]; });
+
+      if (matrixTier !== "all") {
+        rows = rows.filter(function (r) { return resolveTier(r.agent) === matrixTier; });
+      }
+      rows = rows.filter(function (r) {
+        var key = normalizeAgentKey(r.agent);
+        if (isRemovedAgent(key)) return false;
+        if (key === "breanna raspopovich" || key === "james basile") return true;
+        return !!resolveAgentPhoto(r.agent);
+      });
+      if (!rows.length) return '<div class="amd-empty">No agent performance data yet.</div>';
+
+      var w = 760;
+      var h = 430;
+      var padTop = 34;
+      var padBottom = 62;
+      var padLeft = 78;
+      var padRight = 26;
+      var plotW = w - padLeft - padRight;
+      var plotH = h - padTop - padBottom;
+      var ts = ' font-family="' + CHART_FONT_FAMILY + '"';
+      var maxDeals = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, Number(r.totalDeals) || 0); }, 0));
+      var maxVol = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, Number(r.totalVolume) || 0); }, 0));
+      var yMax;
+      if (matrixView === "ytd") {
+        if (maxVol <= 10000000) yMax = 10000000;
+        else if (maxVol <= 15000000) yMax = 15000000;
+        else yMax = 20000000;
+      } else {
+        yMax = Math.max(100000000, maxVol);
+      }
+      var logDeals = Math.log1p(maxDeals);
+      var logVol = Math.log1p(yMax);
+      var allTimeBands = [0, 5000000, 10000000, 15000000, 50000000, 100000000];
+
+      function xScale(v) {
+        return padLeft + (Math.log1p(Math.max(0, v)) / Math.max(1e-9, logDeals)) * plotW;
+      }
+      function yScale(v) {
+        if (matrixView === "ytd") {
+          return padTop + plotH - (Math.max(0, v) / yMax) * plotH;
+        }
+        // Segmented all-time scale to keep custom bands readable.
+        var clamped = Math.max(0, Math.min(allTimeBands[allTimeBands.length - 1], v));
+        var segCount = allTimeBands.length - 1;
+        var seg = 0;
+        for (var i = 0; i < segCount; i++) {
+          if (clamped <= allTimeBands[i + 1]) { seg = i; break; }
+          seg = i;
+        }
+        var lo = allTimeBands[seg];
+        var hi = allTimeBands[seg + 1];
+        var frac = hi > lo ? (clamped - lo) / (hi - lo) : 0;
+        var p = (seg + frac) / segCount;
+        return padTop + plotH - p * plotH;
+      }
+      function resolveAgentPhoto(name) {
+        var full = normalizeAgentKey(name);
+        var aliases = {
+          "nico": "nicolas gamboa wills",
+          "matt": "matthew clevenger",
+          "gabe": "gabriel rendon",
+          "angie": "angela engelbrecht"
+        };
+        if (aliases[full]) full = aliases[full];
+        if (AGENT_PHOTOS[full]) return AGENT_PHOTOS[full];
+        var first = full.split(' ')[0] || '';
+        if (!first) return '';
+        var keys = Object.keys(AGENT_PHOTOS);
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i].split(' ')[0] === first) return AGENT_PHOTOS[keys[i]];
+        }
+        return '';
+      }
+
+      var yTickVals = matrixView === "ytd"
+        ? (yMax === 10000000 ? [0, 2500000, 5000000, 7500000, 10000000]
+          : (yMax === 15000000 ? [0, 5000000, 10000000, 15000000]
+            : [0, 5000000, 10000000, 15000000, 20000000]))
+        : allTimeBands;
+      var grid = yTickVals.map(function (val) {
+        var y = yScale(val);
+        var lbl = (matrixView === "allTime" && val === 100000000) ? "100M+" : fmtMoneyRounded(val);
+        return '<line x1="' + padLeft + '" y1="' + y.toFixed(1) + '" x2="' + (w - padRight) + '" y2="' + y.toFixed(1) + '" stroke="#ececec" stroke-width="1"/>' +
+          '<text x="' + (padLeft - 10) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" fill="#888" font-size="10" font-weight="600"' + ts + '>' + esc(lbl) + '</text>';
+      }).join('');
+
+      var xTicks = [0, 0.25, 0.5, 0.75, 1];
+      var xGrid = xTicks.map(function (t) {
+        var x = padLeft + t * plotW;
+        var val = Math.expm1(logDeals * t);
+        return '<line x1="' + x.toFixed(1) + '" y1="' + padTop + '" x2="' + x.toFixed(1) + '" y2="' + (padTop + plotH) + '" stroke="#f3f3f3" stroke-width="1"/>' +
+          '<text x="' + x.toFixed(1) + '" y="' + (h - 22) + '" text-anchor="middle" fill="#888" font-size="10" font-weight="600"' + ts + '>' + Math.round(val) + '</text>';
+      }).join('');
+
+      var points = rows.map(function (r, idx) {
+        var deals = Number(r.totalDeals) || 0;
+        var volume = Number(r.totalVolume) || 0;
+        var closedDeals = Number(r.closedDeals) || 0;
+        var closeRate = deals > 0 ? (closedDeals / deals) : 0;
+        var avgDeal = deals > 0 ? (volume / deals) : 0;
+        var x = xScale(deals);
+        var y = yScale(volume);
+        var radius = 14;
+        var shade = Math.max(30, Math.min(85, Math.round(30 + closeRate * 55)));
+        var fill = 'hsl(0, 60%, ' + shade + '%)';
+        var id = 'apm-dot-' + idx;
+        var agentName = String(r.agent || '');
+        var photo = resolveAgentPhoto(agentName);
+        var label = (normalizeAgentKey(agentName) === "andrea koedjikova" || normalizeAgentKey(agentName) === "andrea mirchef")
+          ? agentName
+          : (agentName.split(' ')[0] || 'Agent');
+        var initials = agentName.split(' ').slice(0, 2).map(function (p) { return p ? p.charAt(0).toUpperCase() : ''; }).join('');
+        return {
+          id: id, x: x, y: y, r: radius, fill: fill, label: label, initials: initials, photo: photo,
+          deals: deals, volume: volume, closeRate: closeRate, avgDeal: avgDeal, agentName: agentName
+        };
+      });
+
+      // Collision pass to keep circles readable with outliers.
+      for (var iter = 0; iter < 60; iter++) {
+        for (var a = 0; a < points.length; a++) {
+          for (var b = a + 1; b < points.length; b++) {
+            var p1 = points[a], p2 = points[b];
+            var dx = p2.x - p1.x;
+            var dy = p2.y - p1.y;
+            var dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+            var minDist = p1.r + p2.r + 4;
+            if (dist < minDist) {
+              var push = (minDist - dist) * 0.18;
+              var ux = dx / dist, uy = dy / dist;
+              p1.x -= ux * push; p1.y -= uy * push;
+              p2.x += ux * push; p2.y += uy * push;
+            }
+          }
+        }
+        for (var c = 0; c < points.length; c++) {
+          points[c].x = Math.max(padLeft + points[c].r, Math.min(w - padRight - points[c].r, points[c].x));
+          points[c].y = Math.max(padTop + points[c].r, Math.min(padTop + plotH - points[c].r, points[c].y));
+        }
+      }
+
+      var volSorted = points.slice().sort(function (a, b) { return b.volume - a.volume; });
+      var dealSorted = points.slice().sort(function (a, b) { return b.deals - a.deals; });
+      var labelSet = {};
+      for (var lv = 0; lv < Math.min(6, volSorted.length); lv++) labelSet[volSorted[lv].id] = true;
+      for (var ld = 0; ld < Math.min(6, dealSorted.length); ld++) labelSet[dealSorted[ld].id] = true;
+      if (points.length <= 12) points.forEach(function (p) { labelSet[p.id] = true; });
+
+      var dots = points.map(function (p) {
+        var visual = p.photo
+          ? (
+            '<defs><clipPath id="clip-' + p.id + '"><circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + p.r.toFixed(1) + '"/></clipPath></defs>' +
+            '<image x="' + (p.x - p.r).toFixed(1) + '" y="' + (p.y - p.r).toFixed(1) + '" width="' + (p.r * 2).toFixed(1) + '" height="' + (p.r * 2).toFixed(1) + '" href="' + esc(p.photo) + '" xlink:href="' + esc(p.photo) + '" clip-path="url(#clip-' + p.id + ')" preserveAspectRatio="xMidYMid slice"/>' +
+            '<circle class="amd-vis-dot" id="' + p.id + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + p.r.toFixed(1) + '" fill="none" stroke="#fff" stroke-width="2"/>' +
+            '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + p.r.toFixed(1) + '" fill="none" stroke="' + p.fill + '" stroke-width="1.2" opacity="0.85"/>'
+          )
+          : (
+            '<circle class="amd-vis-dot" id="' + p.id + '" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + p.r.toFixed(1) + '" fill="' + p.fill + '" stroke="#fff" stroke-width="2"/>' +
+            '<text x="' + p.x.toFixed(1) + '" y="' + (p.y + 4).toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="9" font-weight="700"' + ts + ' pointer-events="none">' + esc(p.initials || "A") + '</text>'
+          );
+        var label = labelSet[p.id]
+          ? '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - p.r - 6).toFixed(1) + '" text-anchor="middle" fill="#333" font-size="9" font-weight="700"' + ts + ' pointer-events="none">' + esc(p.label) + '</text>'
+          : '';
+        return (
+          visual +
+          '<circle class="amd-hit-dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + (p.r + 10).toFixed(1) + '" fill="transparent" data-vis-dot="' + p.id + '" data-tip-type="agent" data-tip-agent="' + esc(p.agentName) + '" data-tip-volume="' + p.volume + '" data-tip-deals="' + p.deals + '" data-tip-color="' + p.fill + '" data-tip-rate="' + Math.round(p.closeRate * 100) + '" data-tip-avg="' + p.avgDeal + '"/>' +
+          label
+        );
+      }).join('');
+
+      var toggles = '<div style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin:0 0 10px 2px;">' +
+        '<button class="amd-qt-legend-btn amd-matrix-toggle' + (matrixView === "ytd" ? ' is-active' : '') + '" data-matrix-view="ytd" type="button">YTD</button>' +
+        '<button class="amd-qt-legend-btn amd-matrix-toggle' + (matrixView === "allTime" ? ' is-active' : '') + '" data-matrix-view="allTime" type="button">All Time</button>' +
+        '<button class="amd-qt-legend-btn amd-matrix-tier' + (matrixTier === "all" ? ' is-active' : '') + '" data-matrix-tier="all" type="button">All</button>' +
+        '<button class="amd-qt-legend-btn amd-matrix-tier' + (matrixTier === "senior" ? ' is-active' : '') + '" data-matrix-tier="senior" type="button">Seniors</button>' +
+        '<button class="amd-qt-legend-btn amd-matrix-tier' + (matrixTier === "junior" ? ' is-active' : '') + '" data-matrix-tier="junior" type="button">Juniors</button>' +
+      '</div>';
+
+      return toggles + '<svg class="amd-viz-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" style="height:' + h + 'px;overflow:visible">' +
+        grid +
+        xGrid +
+        '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (w - padRight) + '" y2="' + (padTop + plotH) + '" stroke="#d4d4d4" stroke-width="1"/>' +
+        '<line x1="' + padLeft + '" y1="' + padTop + '" x2="' + padLeft + '" y2="' + (padTop + plotH) + '" stroke="#d4d4d4" stroke-width="1"/>' +
+        '<text x="' + (padLeft + plotW / 2).toFixed(1) + '" y="' + (h - 6) + '" text-anchor="middle" fill="#666" font-size="11" font-weight="600"' + ts + '>Total Deals</text>' +
+        '<text x="' + 16 + '" y="' + (padTop + plotH / 2).toFixed(1) + '" transform="rotate(-90 16 ' + (padTop + plotH / 2).toFixed(1) + ')" text-anchor="middle" fill="#666" font-size="11" font-weight="600"' + ts + '>Total Volume</text>' +
+        dots +
+      '</svg>';
+    }
+
+    function renderAgentContributionChart(model) {
+      var rows = (model.allTimeLeaderboard.length ? model.allTimeLeaderboard : model.leaderboard).slice(0, 8);
+      if (!rows.length) return '<div class="amd-empty">No agent leaderboard data.</div>';
+      var maxV = Math.max(1, rows[0].totalVolume || 0);
+      return rows.map(function (r) {
+        var pct = Math.max(4, Math.round((r.totalVolume / maxV) * 100));
+        return '<div style="display:grid;grid-template-columns:132px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">' +
+          '<div style="font-size:11px;font-weight:700;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(r.agent) + "</div>" +
+          '<div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:#475569;border-radius:999px;"></div></div>' +
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;">' + esc(fmtMoney(r.totalVolume)) + "</div>" +
+          "</div>";
+      }).join("");
+    }
+
+    function renderAgentScoreChart(model) {
+      var rows = buildAgentScoreRows(model);
+      if (!rows.length) return '<div class="amd-empty">No score data yet (requires Directory + All Time feed).</div>';
+      function toneStyles(tone) {
+        if (tone === "red") {
+          return {
+            border: "#fecaca",
+            bg: "#fff1f2",
+            badgeBg: "#fee2e2",
+            badgeText: "#991b1b",
+            dot: "#b91c1c"
+          };
+        }
+        if (tone === "yellow") {
+          return {
+            border: "#fde68a",
+            bg: "#fffbeb",
+            badgeBg: "#fef3c7",
+            badgeText: "#92400e",
+            dot: "#d97706"
+          };
+        }
+        return {
+          border: "#86efac",
+          bg: "#f0fdf4",
+          badgeBg: "#dcfce7",
+          badgeText: "#166534",
+          dot: "#15803d"
+        };
+      }
+      return '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">' +
+        rows.map(function (r, idx) {
+          var photo = String(r.photo || "");
+          var backupPhoto = String(resolveAgentPhotoName(r.key || r.agent) || "");
+          var imgSrc = photo || backupPhoto;
+          var initials = (r.agent || "A").split(" ").slice(0, 2).map(function (p) { return p ? p.charAt(0) : ""; }).join("");
+          var tone = toneStyles(r.statusTone);
+          return '<article style="border:1px solid rgba(15,23,42,0.1);border-radius:10px;padding:8px;background:#fff;min-width:0;">' +
+            '<div style="border:1px solid ' + tone.border + ';background:' + tone.bg + ';border-radius:10px;padding:7px;">' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">' +
+              '<div style="display:grid;grid-template-columns:48px 1fr;gap:9px;align-items:center;min-width:0;">' +
+                (imgSrc
+                  ? '<div style="position:relative;width:48px;height:48px;border-radius:50%;overflow:hidden;border:1.5px solid #e2e8f0;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;">' +
+                      esc(initials) +
+                      '<img src="' + esc(imgSrc) + '" data-fb="' + esc(backupPhoto) + '" alt="' + esc(r.agent) + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="if(this.dataset.fb && this.src!==this.dataset.fb){this.src=this.dataset.fb;return;}this.style.display=\'none\';" />' +
+                    '</div>'
+                  : '<div style="width:48px;height:48px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;">' + esc(initials) + '</div>') +
+                '<div style="min-width:0;">' +
+                  '<div style="font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">#' + (idx + 1) + ' ' + esc(r.agent) + '</div>' +
+                  '<div style="font-size:10px;color:#64748b;">Time with ASG: ' + esc(r.tenureLabel || "—") + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="display:grid;grid-template-columns:auto auto;column-gap:8px;row-gap:4px;align-items:center;font-size:11px;color:#475569;text-align:right;">' +
+                '<div style="font-weight:700;">All-time</div><div style="font-weight:800;color:#0f172a;">' + esc(fmtMoney(r.totalVolume)) + '</div>' +
+                '<div style="font-weight:700;">Current</div><div style="font-weight:800;color:#0f172a;">' + esc(fmtMoney(r.currentVolume || 0)) + '</div>' +
+                '<div style="font-weight:700;">Deals</div><div style="font-weight:800;color:#0f172a;">' + fmtNum(r.totalDeals) + '</div>' +
+                '<div style="font-weight:700;">Pace</div><div style="font-weight:800;color:#0f172a;">' + esc(fmtMoney(r.annualizedVolume)) + '/yr</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="margin-top:7px;display:flex;justify-content:space-between;align-items:center;">' +
+              '<span style="display:inline-block;padding:2px 7px;border-radius:999px;background:' + tone.badgeBg + ';color:' + tone.badgeText + ';font-size:8px;font-weight:800;letter-spacing:.02em;">' + esc(r.statusLabel) + '</span>' +
+              '<div style="width:10px;height:10px;border-radius:50%;background:' + tone.dot + ';"></div>' +
+            '</div>' +
+            '</div>' +
+          '</article>';
+        }).join("") +
+      '</div>';
+    }
+
+    function buildAgentClosingTrendRows(model) {
+      var monthlyByAgent = {};
+      var allMonthKeys = {};
+      var sourceDeals = (state.allTimeClosedDeals || []).concat(state.ytdClosedDeals || []);
+
+      sourceDeals.forEach(function (d) {
+        if (!d || !d.closeDate || isNaN(d.closeDate.getTime())) return;
+        var key = normalizeAgentKey(d.agent);
+        if (!key || isRemovedAgent(key)) return;
+        var monthKey = d.closeDate.getFullYear() + "-" + String(d.closeDate.getMonth() + 1).padStart(2, "0");
+        allMonthKeys[monthKey] = true;
+        if (!monthlyByAgent[key]) monthlyByAgent[key] = {};
+        if (!monthlyByAgent[key][monthKey]) monthlyByAgent[key][monthKey] = { volume: 0, deals: 0 };
+        monthlyByAgent[key][monthKey].volume += Number(d.price) || 0;
+        monthlyByAgent[key][monthKey].deals += 1;
+      });
+
+      var monthKeys = Object.keys(allMonthKeys).sort();
+      if (!monthKeys.length) return [];
+      monthKeys = monthKeys.slice(-18);
+
+      var scores = buildAgentScoreRows(model);
+      var topAgents = scores.slice(0, 8);
+      if (!topAgents.length) return [];
+
+      return topAgents.map(function (r) {
+        var key = normalizeAgentKey(r.agent);
+        var months = monthKeys.map(function (mk) {
+          var stat = (monthlyByAgent[key] && monthlyByAgent[key][mk]) ? monthlyByAgent[key][mk] : { volume: 0, deals: 0 };
+          return { monthKey: mk, volume: stat.volume, deals: stat.deals };
+        });
+        var peak = months.reduce(function (best, m) {
+          if (!best || m.volume > best.volume) return m;
+          return best;
+        }, null) || { monthKey: "", volume: 0, deals: 0 };
+        return {
+          agent: r.agent,
+          score: r.agentScore || 0,
+          months: months,
+          peakMonthKey: peak.monthKey,
+          peakVolume: peak.volume || 0,
+          peakDeals: peak.deals || 0
+        };
+      });
+    }
+
+    function renderAgentClosingTrendsChart(model) {
+      var rows = buildAgentClosingTrendRows(model);
+      if (!rows.length) return '<div class="amd-empty">No agent closing-trend data yet (needs closed deals with dates).</div>';
+
+      function fmtMonthKey(monthKey) {
+        var m = String(monthKey || "").match(/^(\d{4})-(\d{2})$/);
+        if (!m) return "—";
+        var d = new Date(Number(m[1]), Number(m[2]) - 1, 1);
+        return d.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+      }
+
+      return rows.map(function (r) {
+        var vals = r.months.map(function (m) { return Number(m.volume) || 0; });
+        var maxV = Math.max(1, vals.reduce(function (mx, v) { return Math.max(mx, v); }, 0));
+        var w = 300, h = 44, padX = 4, padY = 4;
+        var step = vals.length > 1 ? ((w - padX * 2) / (vals.length - 1)) : 0;
+        var pts = vals.map(function (v, i) {
+          var x = padX + i * step;
+          var y = h - padY - ((v / maxV) * (h - padY * 2));
+          return { x: x, y: y, v: v };
+        });
+        var path = pts.map(function (p, i) {
+          return (i ? " L " : "M ") + p.x.toFixed(1) + " " + p.y.toFixed(1);
+        }).join("");
+        var last = pts.length ? pts[pts.length - 1] : { x: padX, y: h - padY };
+
+        return '<div style="display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(15,23,42,0.08);">' +
+          '<div>' +
+            '<div style="font-size:12px;font-weight:800;color:#0f172a;">' + esc(r.agent) + '</div>' +
+            '<div style="font-size:10px;color:#64748b;">Best month: ' + esc(fmtMonthKey(r.peakMonthKey)) + ' · ' + esc(fmtMoney(r.peakVolume)) + ' · ' + fmtNum(r.peakDeals) + ' deals</div>' +
+          '</div>' +
+          '<div>' +
+            '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="width:100%;height:44px;display:block;">' +
+              '<path d="' + path + '" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+              '<circle cx="' + last.x.toFixed(1) + '" cy="' + last.y.toFixed(1) + '" r="2.8" fill="#111"/>' +
+            '</svg>' +
+            '<div style="display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px;"><span>Last 18 months</span><span>Peak ' + esc(fmtMoneyRounded(maxV)) + '</span></div>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    function renderStageMixChart() {
+      var buckets = {};
+      (state.ytdPendingDeals || []).forEach(function (d) {
+        var s = normalizeStage(d.stage);
+        if (!buckets[s]) buckets[s] = { stage: s, deals: 0, volume: 0 };
+        buckets[s].deals += 1;
+        buckets[s].volume += Number(d.price) || 0;
+      });
+      var rows = Object.keys(buckets).map(function (k) { return buckets[k]; }).sort(function (a, b) { return b.volume - a.volume; });
+      if (!rows.length) return '<div class="amd-empty">No active stage data.</div>';
+      var total = rows.reduce(function (s, r) { return s + r.volume; }, 0) || 1;
+      return rows.map(function (r) {
+        var pct = Math.round((r.volume / total) * 100);
+        return '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">' +
+          '<div style="font-size:11px;font-weight:700;color:#334155;">' + esc(r.stage) + "</div>" +
+          '<div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + Math.max(4, pct) + '%;background:#64748b;border-radius:999px;"></div></div>' +
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;">' + pct + '%</div>' +
+          "</div>";
+      }).join("");
+    }
+
+    function render() {
+      var model = computeModel();
+      var updated = state.loadedAt
+        ? state.loadedAt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+        : "—";
+      var nextClosing = model.pendingDeals
+        .filter(function (d) { return d && d.closeDate && !isNaN(d.closeDate.getTime()); })
+        .sort(function (a, b) { return a.closeDate - b.closeDate; })[0] || null;
+      var nextCloseDateLabel = nextClosing ? formatShortDate(nextClosing.closeDate) : "No Date";
+
+      var panelHTML = "";
+      if (state.tab === "deals") {
+        var dealsSubtabs =
+          '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.dealsView === "active" ? "is-active" : "") + '" data-subtab="deals-active" type="button">Active</button>' +
+            '<button class="amd-subtab ' + (state.dealsView === "closed" ? "is-active" : "") + '" data-subtab="deals-closed" type="button">Closed</button>' +
+          "</div>";
+        if (state.dealsView === "active") {
+          var activeRows = model.pendingDeals
+            .filter(function (d) {
+              var hasName = !!String(d && d.agent || "").trim();
+              var hasCloseDate = !!(d && d.closeDate && !isNaN(d.closeDate.getTime()));
+              return hasName && hasCloseDate;
+            })
+            .slice()
+            .sort(function (a, b) {
+            var at = a && a.closeDate && !isNaN(a.closeDate.getTime()) ? a.closeDate.getTime() : Number.POSITIVE_INFINITY;
+            var bt = b && b.closeDate && !isNaN(b.closeDate.getTime()) ? b.closeDate.getTime() : Number.POSITIVE_INFINITY;
+            if (at !== bt) return at - bt;
+            return (Number(b.price) || 0) - (Number(a.price) || 0);
+          });
+          panelHTML =
+          dealsSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Active Deals (YTD Pending)</h3>' +
+            '<p class="amd-panel-sub">' + fmtNum(model.pendingDeals.length) + " deals · " + fmtMoney(model.pendingVolume) + "</p>" +
+          "</div>" +
+          '<div class="amd-table-tools"><input class="amd-table-search" type="search" placeholder="Search agent, address, side..." data-deals-search="1"></div>' +
+          '<div class="amd-table-wrap" data-deals-table="1"><table class="amd-deals-table">' + renderDealsTableHead({ includeRawDate: false, statusLabel: "Stage" }) + '<tbody>' +
+          renderTableRows(activeRows, "activePending", { includeRawDate: false }) +
+          "</tbody></table></div>";
+        } else {
+          var closedSubtabs =
+          '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.closedView === "ytd" ? "is-active" : "") + '" data-subtab="closed-ytd" type="button">YTD Closed</button>' +
+            '<button class="amd-subtab ' + (state.closedView === "allTime" ? "is-active" : "") + '" data-subtab="closed-allTime" type="button">All Time Closed</button>' +
+          "</div>";
+          if (state.closedView === "ytd") {
+            panelHTML =
+          dealsSubtabs +
+          closedSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Closed Deals (YTD)</h3>' +
+            '<p class="amd-panel-sub">' + fmtNum(model.closedDeals.length) + " deals · " + fmtMoney(model.closedVolume) + "</p>" +
+          "</div>" +
+          '<div class="amd-table-tools"><input class="amd-table-search" type="search" placeholder="Search agent, address, side..." data-deals-search="1"></div>' +
+          '<div class="amd-table-wrap" data-deals-table="1"><table class="amd-deals-table">' + renderDealsTableHead({ includeRawDate: true, statusLabel: "Status" }) + '<tbody>' +
+          renderTableRows(model.closedDeals, "closed") +
+          "</tbody></table></div>";
+          } else {
+            var hasAllTimeTransactionRows = (state.allTimeClosedDeals || []).length > 0;
+            panelHTML =
+          dealsSubtabs +
+          closedSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Closed Deals (All Time)</h3>' +
+            '<p class="amd-panel-sub">' + (hasAllTimeTransactionRows ? "Transaction-level all-time closed feed" : "Agent closed production from all-time summary feed") + "</p>" +
+          "</div>" +
+          (hasAllTimeTransactionRows
+            ? '<div class="amd-table-tools"><input class="amd-table-search" type="search" placeholder="Search agent, address, side..." data-deals-search="1"></div>' +
+              '<div class="amd-table-wrap" data-deals-table="1"><table class="amd-deals-table">' + renderDealsTableHead({ includeRawDate: true, statusLabel: "Status" }) + '<tbody>' +
+              renderClosedAllTimeDealRows(state.allTimeClosedDeals) +
+              "</tbody></table></div>"
+            : '<div class="amd-table-wrap"><table><thead><tr><th>Rank</th><th>Agent</th><th>Closed Volume</th><th>Closed Deals</th><th>Total Volume</th></tr></thead><tbody>' +
+              renderClosedAllTimeRows(model.allTimeLeaderboard.length ? model.allTimeLeaderboard : model.leaderboard) +
+              "</tbody></table></div>");
+          }
+        }
+      } else if (state.tab === "summary") {
+        var ytdClosedVol = Number(state.ytdSummary && state.ytdSummary.closedVolume) || 0;
+        var ytdPendingVol = Number(state.ytdSummary && state.ytdSummary.pendingVolume) || 0;
+        var ytdGrand = Number(state.ytdSummary && (state.ytdSummary.grandTotal || state.ytdSummary.totalVolume)) || (ytdClosedVol + ytdPendingVol);
+        var ytdDeals = Number(state.ytdSummary && (state.ytdSummary.totalDeals || state.ytdSummary.totalTransactions)) || 0;
+        var atClosedVol = Number(state.allTimeSummary && state.allTimeSummary.closedVolume) || 0;
+        var atPendingVol = Number(state.allTimeSummary && state.allTimeSummary.pendingVolume) || 0;
+        var atGrand = Number(state.allTimeSummary && (state.allTimeSummary.grandTotal || state.allTimeSummary.totalVolume)) || (atClosedVol + atPendingVol);
+        var atDeals = Number(state.allTimeSummary && (state.allTimeSummary.totalDeals || state.allTimeSummary.totalTransactions)) || 0;
+        panelHTML =
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Summary Tabs</h3>' +
+            '<p class="amd-panel-sub">YTD Summary and All Time Summary</p>' +
+          "</div>" +
+          '<div class="amd-forecast">' +
+            '<div class="amd-f-card"><div class="amd-f-label">YTD Summary Total</div><div class="amd-f-value">' + fmtMoney(ytdGrand) + '</div><div class="amd-f-meta">' + fmtNum(ytdDeals) + " deals · Closed " + fmtMoney(ytdClosedVol) + " · Active " + fmtMoney(ytdPendingVol) + "</div></div>" +
+            '<div class="amd-f-card"><div class="amd-f-label">All Time Summary Total</div><div class="amd-f-value">' + fmtMoney(atGrand) + '</div><div class="amd-f-meta">' + fmtNum(atDeals) + " deals · Closed " + fmtMoney(atClosedVol) + " · Active " + fmtMoney(atPendingVol) + "</div></div>" +
+          "</div>" +
+          '<div class="amd-model"><strong>Sheet mapping:</strong> YTD Summary from <code>?period=ytd2026</code>, All Time Summary from <code>?period=allTime</code>.</div>';
+      } else if (state.tab === "leaderboard") {
+        var lbSubtabs =
+          '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.leaderboardView === "ytd" ? "is-active" : "") + '" data-subtab="leaderboard-ytd" type="button">YTD</button>' +
+            '<button class="amd-subtab ' + (state.leaderboardView === "allTime" ? "is-active" : "") + '" data-subtab="leaderboard-allTime" type="button">All Time</button>' +
+          "</div>";
+        var lbRows = state.leaderboardView === "ytd"
+          ? (model.ytdLeaderboard.length ? model.ytdLeaderboard : model.leaderboard)
+          : (model.allTimeLeaderboard.length ? model.allTimeLeaderboard : model.leaderboard);
+        panelHTML =
+          lbSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Team Leaderboard</h3>' +
+            '<p class="amd-panel-sub">Ranked by ' + (state.leaderboardView === "ytd" ? "YTD" : "All Time") + " production</p>" +
+          "</div>" +
+          renderLeaderboardTvStyle(lbRows, state.leaderboardView);
+      } else if (state.tab === "forecast") {
+        var fSubtabs =
+          '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.forecastView === "team" ? "is-active" : "") + '" data-subtab="forecast-team" type="button">Team Performance</button>' +
+            '<button class="amd-subtab ' + (state.forecastView === "agent" ? "is-active" : "") + '" data-subtab="forecast-agent" type="button">Per Agent Performance</button>' +
+          "</div>";
+        if (state.forecastView === "team") {
+          panelHTML =
+          fSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Forecast Model</h3>' +
+            '<p class="amd-panel-sub">Run-rate + weighted pipeline probability model</p>' +
+          "</div>" +
+          renderForecastTrendChart(model) +
+          '<div class="amd-forecast">' +
+            '<div class="amd-f-card"><div class="amd-f-label">Forecasted ' + model.forecast.year + " Volume</div><div class='amd-f-value'>" + fmtMoney(model.forecast.forecastVolume) + "</div><div class='amd-f-meta'>Projected deals: " + fmtNum(Math.round(model.forecast.forecastDeals)) + "</div></div>" +
+            '<div class="amd-f-card"><div class="amd-f-label">Monthly Run-Rate</div><div class="amd-f-value">' + fmtMoney(model.forecast.monthlyRunRate) + '</div><div class="amd-f-meta">Based on ' + fmtNum(model.forecast.monthsElapsed) + " months elapsed</div></div>" +
+            '<div class="amd-f-card"><div class="amd-f-label">Closed YTD</div><div class="amd-f-value">' + fmtMoney(model.forecast.closedYtdVolume) + '</div><div class="amd-f-meta">Run-rate extrapolation: ' + fmtMoney(model.forecast.projectedClosedAtRunRate) + "</div></div>" +
+            '<div class="amd-f-card"><div class="amd-f-label">Weighted Pending Contribution</div><div class="amd-f-value">' + fmtMoney(model.forecast.weightedPendingVolume) + '</div><div class="amd-f-meta">Model confidence: ' + fmtNum(model.forecast.confidence) + "%</div></div>" +
+          "</div>" +
+          '<div class="amd-model"><strong>Model formula:</strong> <code>Forecast = (Closed YTD / Months Elapsed * 12) + Weighted Pending</code><br><strong>Pending weights:</strong> Offer Submitted 35%, Under Contract 70%, A/I or Pending 90%, fallback 50%.<br><strong>Feed tabs:</strong> YTD Closed, YTD Pending, YTD Summary, All Time Summary, All Time Closed.<br><strong>Note:</strong> True per-year bars require date-level all-time closed rows in the API; current chart uses available all-time benchmark + current year pace.</div>';
+        } else {
+          var agentForecastRows = buildAgentForecastRows(model);
+          panelHTML =
+          fSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Per Agent Forecast Performance</h3>' +
+            '<p class="amd-panel-sub">Expected volume = Closed YTD + weighted active pipeline</p>' +
+          "</div>" +
+          '<div class="amd-table-wrap"><table><thead><tr><th>Rank</th><th>Agent</th><th>Closed YTD</th><th>Weighted Active</th><th>Expected Volume</th><th>Closed / Active Deals</th></tr></thead><tbody>' +
+          (agentForecastRows.length ? agentForecastRows.map(function (r, idx) {
+            return "<tr><td>#" + (idx + 1) + "</td><td><strong>" + esc(r.agent) + "</strong></td><td class='amd-money'>" + fmtMoney(r.closedVolume) + "</td><td class='amd-money'>" + fmtMoney(r.pendingWeighted) + "</td><td class='amd-money'>" + fmtMoney(r.expectedVolume) + "</td><td>" + fmtNum(r.closedDeals) + " / " + fmtNum(r.pendingDeals) + "</td></tr>";
+          }).join("") : '<tr><td colspan="6" style="text-align:center;color:#64748b">No per-agent forecast data.</td></tr>') +
+          "</tbody></table></div>";
+        }
+      } else if (state.tab === "viz") {
+        var vSubtabs =
+          '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.vizView === "team" ? "is-active" : "") + '" data-subtab="viz-team" type="button">Team Performance</button>' +
+            '<button class="amd-subtab ' + (state.vizView === "agent" ? "is-active" : "") + '" data-subtab="viz-agent" type="button">Agent Performance</button>' +
+          "</div>";
+        panelHTML =
+          vSubtabs +
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Data Visualization</h3>' +
+            '<p class="amd-panel-sub">' + (state.vizView === "team" ? "Team performance trends and pacing visuals" : "Agent-level performance and score visuals") + '</p>' +
+          "</div>" +
+          '<div class="amd-viz-grid">' +
+            (state.vizView === "team"
+              ? (
+                '<div class="amd-viz-card" style="grid-column:1 / span 2;">' +
+                  "<h4>Total Closed</h4>" +
+                  "<p>X-axis: year, Y-axis: total closed volume</p>" +
+                  renderYearVsClosingsLineChart() +
+                "</div>" +
+                '<div class="amd-viz-card" style="grid-column:1 / span 2;">' +
+                  "<h4>Quarterly Trends</h4>" +
+                  "<p>Closed volume per quarter — seasonal comparison across years</p>" +
+                  renderQuarterlyTrendLegend() +
+                  renderQuarterlyTrendChart() +
+                "</div>"
+              )
+              : (
+                '<div class="amd-viz-card" style="grid-column:1 / span 2;">' +
+                  "<h4>Agent Performance Matrix</h4>" +
+                  "<p>X-axis: total deals, Y-axis: total volume, bubble size: average deal size</p>" +
+                  renderAgentPerformanceMatrix(model) +
+                "</div>" +
+                '<div class="amd-viz-card" style="grid-column:1 / span 2;">' +
+                  "<h4>Agent Scores (All Time + Seniority)</h4>" +
+                  renderAgentScoreChart(model) +
+                "</div>"
+              )) +
+          "</div>";
+      } else {
+        state.tab = "viz";
+        return render();
+      }
+
+      root.innerHTML =
+        '<div class="amd-shell">' +
+          '<div class="amd-head">' +
+            "<div>" +
+              '<h2 class="amd-title">Team Performance</h2>' +
+              '<p class="amd-subtitle">Deals, leaderboard, and visualization views.</p>' +
+            "</div>" +
+            '<div class="amd-actions">' +
+              '<div class="amd-updated">Last refresh: ' + esc(updated) + "</div>" +
+              '<button class="amd-btn" id="amdRefreshBtn" type="button">Refresh Data</button>' +
+            "</div>" +
+          "</div>" +
+          '<div class="amd-kpis">' +
+            '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Total Pipeline (YTD)</div><span class="amd-kpi-chip pipeline">YTD</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume + model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.totalDeals) + " deals</div></article>" +
+            '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active</div><span class="amd-kpi-chip pending">Pending</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.pendingDeals.length) + " deals</div></article>" +
+            '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed</div><span class="amd-kpi-chip closed">YTD Closed</span></div><div class="amd-kpi-value">' + fmtMoney(model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.closedDeals.length) + " deals</div></article>" +
+            '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label next-close-label">Next Closing <span class="amd-keys-icon" aria-hidden="true">🔑</span></div><span class="amd-kpi-chip next">' + esc(nextCloseDateLabel) + '</span></div><div class="amd-kpi-value">' + (nextClosing ? fmtMoneyFull(nextClosing.price) : "—") + '</div><div class="amd-kpi-meta">' + (nextClosing ? (esc(nextClosing.agent || "—") + " · " + esc(nextClosing.side || "—") + " · " + esc(nextClosing.address || "—")) : "No upcoming close date available") + "</div></article>" +
+          "</div>" +
+          '<div class="amd-tabs">' +
+            '<button class="amd-tab ' + (state.tab === "leaderboard" ? "is-active" : "") + '" data-tab="leaderboard" type="button">Leaderboard</button>' +
+            '<button class="amd-tab ' + (state.tab === "deals" ? "is-active" : "") + '" data-tab="deals" type="button">Deals</button>' +
+            '<button class="amd-tab ' + (state.tab === "viz" ? "is-active" : "") + '" data-tab="viz" type="button">Data Visualization</button>' +
+          "</div>" +
+          '<section class="amd-panel">' + panelHTML + "</section>" +
+        "</div>";
+
+      var tabs = root.querySelectorAll(".amd-tab");
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener("click", function () {
+          state.tab = this.getAttribute("data-tab");
+          render();
+        });
+      }
+      var subtabs = root.querySelectorAll(".amd-subtab");
+      for (var j = 0; j < subtabs.length; j++) {
+        subtabs[j].addEventListener("click", function () {
+          var key = this.getAttribute("data-subtab");
+          if (key === "deals-active") state.dealsView = "active";
+          if (key === "deals-closed") state.dealsView = "closed";
+          if (key === "closed-ytd") state.closedView = "ytd";
+          if (key === "closed-allTime") state.closedView = "allTime";
+          if (key === "leaderboard-ytd") state.leaderboardView = "ytd";
+          if (key === "leaderboard-allTime") state.leaderboardView = "allTime";
+          if (key === "viz-team") state.vizView = "team";
+          if (key === "viz-agent") state.vizView = "agent";
+          if (key === "forecast-team") state.forecastView = "team";
+          if (key === "forecast-agent") state.forecastView = "agent";
+          render();
+        });
+      }
+      var refreshBtn = root.querySelector("#amdRefreshBtn");
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", function () {
+          load();
+        });
+      }
+      var qtBtns = root.querySelectorAll('.amd-qt-legend-btn[data-qtf]');
+      for (var qb = 0; qb < qtBtns.length; qb++) {
+        qtBtns[qb].addEventListener('click', function () {
+          state.qtFilter = this.getAttribute('data-qtf');
+          render();
+        });
+      }
+      var matrixBtns = root.querySelectorAll('.amd-matrix-toggle');
+      for (var mb = 0; mb < matrixBtns.length; mb++) {
+        matrixBtns[mb].addEventListener('click', function () {
+          state.agentMatrixView = this.getAttribute('data-matrix-view') || 'ytd';
+          render();
+        });
+      }
+      var tierBtns = root.querySelectorAll('.amd-matrix-tier');
+      for (var tb = 0; tb < tierBtns.length; tb++) {
+        tierBtns[tb].addEventListener('click', function () {
+          state.agentMatrixTier = this.getAttribute('data-matrix-tier') || 'all';
+          render();
+        });
+      }
+      try { initDealsTables(); } catch (e) { console.error("deals-table:", e); }
+      try { initChartTooltips(); } catch (e) { console.error("tooltips:", e); }
+    }
+
+    var _tipState = { dot: null, origR: null };
+
+    function initChartTooltips() {
+      var existing = root.querySelector('.amd-chart-tip');
+      if (existing) existing.remove();
+
+      var tip = document.createElement('div');
+      tip.className = 'amd-chart-tip';
+      root.style.position = 'relative';
+      root.appendChild(tip);
+      root._tip = tip;
+
+      if (root._tipBound) return;
+      root._tipBound = true;
+
+      root.addEventListener('mouseover', function (evt) {
+        var t = evt.target;
+        if (!(t.classList && t.classList.contains('amd-hit-dot'))) return;
+        dismissTip();
+        var visId = t.getAttribute('data-vis-dot');
+        var visDot = visId ? root.querySelector('#' + visId) : null;
+        if (visDot) {
+          _tipState.origR = visDot.getAttribute('r') || '4.5';
+          visDot.setAttribute('r', String(parseFloat(_tipState.origR) * 1.8));
+          _tipState.dot = visDot;
+        }
+        showChartTip(t, evt);
+      });
+
+      root.addEventListener('mouseout', function (evt) {
+        var t = evt.target;
+        if (!(t.classList && t.classList.contains('amd-hit-dot'))) return;
+        dismissTip();
+      });
+    }
+
+    function showChartTip(circle, evt) {
+      var tip = root._tip;
+      if (!tip) return;
+      var type = circle.getAttribute('data-tip-type');
+      var year = circle.getAttribute('data-tip-year');
+      var volume = Number(circle.getAttribute('data-tip-volume')) || 0;
+      var deals = Number(circle.getAttribute('data-tip-deals')) || 0;
+      var color = circle.getAttribute('data-tip-color') || '#222';
+      var quarter = circle.getAttribute('data-tip-quarter') || '';
+      var title;
+      var rows;
+      if (type === 'yearly') {
+        title = year + ' Total';
+        rows =
+          '<div class="tip-row"><span class="tip-label">Volume</span><span class="tip-value">' + fmtMoney(volume) + '</span></div>' +
+          '<div class="tip-row"><span class="tip-label">Deals</span><span class="tip-value">' + deals + '</span></div>';
+      } else if (type === 'agent') {
+        var agent = circle.getAttribute('data-tip-agent') || 'Agent';
+        var rate = Number(circle.getAttribute('data-tip-rate')) || 0;
+        var avg = Number(circle.getAttribute('data-tip-avg')) || 0;
+        title = agent;
+        rows =
+          '<div class="tip-row"><span class="tip-label">Volume</span><span class="tip-value">' + fmtMoney(volume) + '</span></div>' +
+          '<div class="tip-row"><span class="tip-label">Deals</span><span class="tip-value">' + deals + '</span></div>' +
+          '<div class="tip-row"><span class="tip-label">Avg Deal</span><span class="tip-value">' + fmtMoney(avg) + '</span></div>' +
+          '<div class="tip-row"><span class="tip-label">Close Rate</span><span class="tip-value">' + rate + '%</span></div>';
+      } else {
+        title = quarter + ' ' + year;
+        rows =
+          '<div class="tip-row"><span class="tip-label">Volume</span><span class="tip-value">' + fmtMoney(volume) + '</span></div>' +
+          '<div class="tip-row"><span class="tip-label">Deals</span><span class="tip-value">' + deals + '</span></div>';
+      }
+
+      tip.innerHTML =
+        '<div class="tip-title" style="color:#111">' + esc(title) + '</div>' + rows;
+
+      var rootRect = root.getBoundingClientRect();
+      var cx = evt.clientX - rootRect.left;
+      var cy = evt.clientY - rootRect.top;
+      var tipW = tip.offsetWidth || 180;
+      var tipH = tip.offsetHeight || 60;
+      var left = cx - tipW / 2;
+      var top = cy - tipH - 14;
+      if (left < 4) left = 4;
+      if (left + tipW > rootRect.width - 4) left = rootRect.width - tipW - 4;
+      if (top < 4) top = cy + 18;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+      tip.classList.add('is-visible');
+    }
+
+    function dismissTip() {
+      var tip = root._tip;
+      if (tip) tip.classList.remove('is-visible');
+      if (_tipState.dot) {
+        try { _tipState.dot.setAttribute('r', _tipState.origR || '4.5'); } catch (e) {}
+        _tipState.dot = null;
+        _tipState.origR = null;
+      }
+    }
+
+    function setLoading() {
+      root.innerHTML = '<div class="amd-loading">Loading live deals from sheets...</div>';
+    }
+
+    function setError(err) {
+      root.innerHTML = '<div class="amd-error">Unable to load dashboard data. Please confirm your published sheet links are accessible.<br><small>' + esc(err && err.message ? err.message : "Unknown error") + "</small></div>";
+    }
+
+    function fetchJSON(url) {
+      return fetch(url, { cache: "no-store" }).then(function (r) {
+        if (!r.ok) throw new Error("Request failed (" + r.status + ")");
+        return r.json();
+      });
+    }
+
+    function withTimeout(promise, ms, label) {
+      var timeoutMs = Number(ms) > 0 ? Number(ms) : REQUEST_TIMEOUT_MS;
+      var tag = label || "Request";
+      return new Promise(function (resolve, reject) {
+        var settled = false;
+        var timer = setTimeout(function () {
+          if (settled) return;
+          settled = true;
+          reject(new Error(tag + " timed out after " + timeoutMs + "ms"));
+        }, timeoutMs);
+        promise.then(
+          function (value) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve(value);
+          },
+          function (err) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(err);
+          }
+        );
+      });
+    }
+
+    function load() {
+      setLoading();
+      var allTimeRowsPromise = withTimeout(
+        fetchAllTimeClosedRowsFromScript(),
+        ALL_TIME_ROWS_TIMEOUT_MS,
+        "All-time closed rows feed"
+      ).catch(function () {
+        return [];
+      });
+
+      Promise.allSettled([
+        withTimeout(fetchJSON(STATS_API + "?view=pipeline"), REQUEST_TIMEOUT_MS, "Pipeline feed"),
+        withTimeout(fetchJSON(STATS_API + "?period=ytd2026"), REQUEST_TIMEOUT_MS, "YTD summary feed"),
+        withTimeout(fetchJSON(STATS_API + "?period=allTime"), REQUEST_TIMEOUT_MS, "All-time summary feed"),
+        withTimeout(fetchJSON(HUB_DATA_API + "?view=directory"), REQUEST_TIMEOUT_MS, "Directory feed")
+      ])
+        .then(function (results) {
+          var pipelineJSON = results[0].status === "fulfilled" ? results[0].value : null;
+          var ytdJSON = results[1].status === "fulfilled" ? results[1].value : null;
+          var allTimeJSON = results[2].status === "fulfilled" ? results[2].value : null;
+          var directoryJSON = results[3].status === "fulfilled" ? results[3].value : null;
+
+          if (
+            pipelineJSON &&
+            pipelineJSON.success &&
+            Array.isArray(pipelineJSON.ytdPending) &&
+            Array.isArray(pipelineJSON.ytdClosed)
+          ) {
+            state.ytdPendingDeals = pipelineJSON.ytdPending.map(function (r) {
+              return mapPipelineRow(r, "Pending");
+            });
+            state.ytdClosedDeals = pipelineJSON.ytdClosed.map(function (r) {
+              return mapPipelineRow(r, "Closed");
+            });
+            state.deals = state.ytdPendingDeals.concat(state.ytdClosedDeals).filter(function (d) {
+              return d.agent && d.agent !== "—" && d.address && d.address !== "—";
+            });
+          } else {
+            throw new Error("Pipeline feed unavailable (YTD Pending / YTD Closed).");
+          }
+
+          state.statsAgentsYtd = ytdJSON && Array.isArray(ytdJSON.agents) ? ytdJSON.agents : [];
+          state.statsAgentsAllTime = allTimeJSON && Array.isArray(allTimeJSON.agents) ? allTimeJSON.agents : [];
+          state.allTimeClosedDeals = extractAllTimeClosedDeals(allTimeJSON);
+          state.directoryRows = extractDirectoryRows(directoryJSON);
+          state.ytdSummary = ytdJSON && ytdJSON.summary ? ytdJSON.summary : null;
+          state.allTimeSummary = allTimeJSON && allTimeJSON.summary ? allTimeJSON.summary : null;
+          state.loadedAt = new Date();
+          try { render(); } catch (e) { console.error("render:", e); }
+
+          allTimeRowsPromise.then(function (allTimeRowsFromScript) {
+            if (!Array.isArray(allTimeRowsFromScript) || !allTimeRowsFromScript.length) return;
+            state.allTimeClosedDeals = allTimeRowsFromScript;
+            state.loadedAt = new Date();
+            try { render(); } catch (e) { console.error("render:", e); }
+          });
+        })
+        .catch(setError);
+    }
+
+    load();
+  })();
+</script>

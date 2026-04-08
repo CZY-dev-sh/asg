@@ -6,7 +6,7 @@ All backend logic runs on **Google Apps Script** web apps deployed as public end
 
 ## Pipeline Stats API
 
-**URL**: `https://script.google.com/macros/s/AKfycbzC8TWqGm6XaCchMrRW-gkDHFzsgU8NOBgFZEdGmmYj29uQkExLRqg-xFeL6R8xFlbBuQ/exec`
+**URL**: `https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec`
 
 **Method**: `GET`
 

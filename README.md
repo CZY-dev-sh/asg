@@ -79,6 +79,46 @@ When Pi boots:
 - Chromium opens `http://127.0.0.1:8080/dashboard` in fullscreen
 - Remote URL can control dashboard immediately
 
+## Deploy From Mac Studio
+
+Edit locally on your Mac, then deploy to Pi with one command.
+
+Default assumptions used by deploy script:
+- Pi host: `10.52.20.121`
+- SSH user: `asgtech`
+- Project path on Pi: `/home/asgtech/Desktop/Cursor`
+
+Override if needed:
+
+```bash
+PI_HOST=10.52.20.121 PI_USER=asgtech PI_PROJECT_DIR=/home/asgtech/Desktop/Cursor bash scripts/deploy-pi.sh remote
+```
+
+Common deploy commands:
+
+```bash
+# Remote UI + server + previews
+npm run deploy:pi:remote
+
+# Dashboard pages
+npm run deploy:pi:dashboard
+
+# Entire workspace (excluding .git/node_modules)
+npm run deploy:pi:all
+```
+
+Skip restart if you only want to sync files:
+
+```bash
+bash scripts/deploy-pi.sh remote --no-restart
+```
+
+If SSH is not set up yet:
+
+```bash
+ssh-copy-id asgtech@10.52.20.121
+```
+
 ## Power On/Off Notes
 
 - **Power off** is supported from remote (`shutdown`).

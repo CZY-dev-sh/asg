@@ -26,6 +26,14 @@ function doGet(e) {
     if (view === "pipeline") {
       return _jsonResponse(_readPipeline_(ss));
     }
+    if (
+      view === "alltimeclosedrows" ||
+      view === "alltimecloseddeals" ||
+      view === "alltimetransactions" ||
+      view === "alltimeclosed"
+    ) {
+      return _jsonResponse(_readAllTimeClosedRows_(ss));
+    }
 
     var period = _resolvePeriod_(e && e.parameter ? e.parameter.period : "");
     var sheetName = PERIOD_SHEETS[period];
@@ -80,15 +88,35 @@ function doGet(e) {
 
     agents.sort(function(a, b) { return b.grandTotal - a.grandTotal; });
 
+    var includeRows = _wantsRows_(e && e.parameter ? e.parameter : null);
+    var allTimeRows = [];
+    if (includeRows && period === "allTime") {
+      allTimeRows = _readDealRows_(sheet).map(function(r) {
+        return {
+          rowNumber: r.rowNumber,
+          address: r.address,
+          type: r.type,
+          closeDate: r.closeDate,
+          closeDateMs: r.closeDateMs,
+          price: r.price,
+          agent: r.agent,
+          status: r.status || "Closed",
+          source: r.source
+        };
+      });
+    }
+
     return _jsonResponse({
       success: true,
       meta: {
         period: period,
         sheetName: sheet.getName(),
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
+        rowsIncluded: includeRows && period === "allTime"
       },
       summary: summary,
-      agents: agents
+      agents: agents,
+      allTimeClosed: allTimeRows
     });
 
   } catch (err) {
@@ -97,6 +125,13 @@ function doGet(e) {
       error: err && err.message ? err.message : String(err)
     });
   }
+}
+
+function _wantsRows_(params) {
+  if (!params) return false;
+  var raw = params.rows || params.includeRows || params.details || "";
+  var v = String(raw).trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "y";
 }
 
 function _resolvePeriod_(raw) {
@@ -545,6 +580,24 @@ function _readPipeline_(ss) {
   };
 }
 
+function _readAllTimeClosedRows_(ss) {
+  var sheet = ss.getSheetByName(PERIOD_SHEETS.allTime);
+  var rows = sheet ? _readDealRows_(sheet) : [];
+  rows.sort(function(a, b) {
+    return (b.closeDateMs || 0) - (a.closeDateMs || 0);
+  });
+  return {
+    success: true,
+    meta: {
+      view: "allTimeClosedRows",
+      sheetName: PERIOD_SHEETS.allTime,
+      generatedAt: new Date().toISOString(),
+      count: rows.length
+    },
+    allTimeClosed: rows
+  };
+}
+
 function _readDealRows_(sheet) {
   var lastRow = sheet.getLastRow();
   var lastCol = sheet.getLastColumn();
@@ -558,9 +611,11 @@ function _readDealRows_(sheet) {
 
   var rows = [];
   var tz = Session.getScriptTimeZone();
+  var dataRows = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
 
-  for (var r = 2; r <= lastRow; r++) {
-    var row = sheet.getRange(r, 1, r, lastCol).getValues()[0];
+  for (var i = 0; i < dataRows.length; i++) {
+    var row = dataRows[i];
+    var r = i + 2;
     var address = col.address !== undefined ? _cleanString(row[col.address]) : "";
     if (!address) continue;
 
