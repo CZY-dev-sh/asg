@@ -203,7 +203,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && pathname === "/dashboard") {
-    const dashboardPath = path.join(__dirname, "pages", "tv-dashboard-multiview.html");
+    const dashboardPath = path.join(__dirname, "asg-admin-hub", "components", "tv-dashboard-multiview.html");
     try {
       res.writeHead(200, {
         "Content-Type": "text/html; charset=utf-8",

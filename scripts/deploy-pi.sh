@@ -55,7 +55,7 @@ case "${MODE}" in
     sync_paths \
       "pages/admin-dashboard.html" \
       "pages/tv-dashboard.html" \
-      "pages/tv-dashboard-multiview.html"
+      "asg-admin-hub/components/tv-dashboard-multiview.html"
     if [[ "${NO_RESTART}" != "--no-restart" ]]; then
       echo "Restarting tv-remote and kiosk services..."
       ssh "${SSH_TARGET}" "sudo systemctl restart tv-remote tv-dashboard-kiosk && sudo systemctl status tv-dashboard-kiosk --no-pager -n 12"

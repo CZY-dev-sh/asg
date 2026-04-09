@@ -6,12 +6,12 @@ Organized project workspace for ASG TV remote, dashboard pages, data files, and 
 
 - `index.html` - remote control UI for phone/tablet
 - `server.js` - Node server and remote control API
-- `pages/` - dashboard and standalone HTML pages
+- `pages/` - selected dashboard/standalone HTML pages
 - `docs/` - project documentation and endpoint/design references
 - `data/` - shared data files
 - `scripts/start-dashboard.sh` - kiosk launcher for fullscreen dashboard
 - `systemd/` - ready-to-use service files for boot automation
-- `asg-admin-hub/`, `drive-folders/`, `hub-data/`, `listing-hub/`, `team-stats/` - existing app/script modules
+- `asg-admin-hub/` - dashboard components and consolidated Apps Script modules
 
 ## Quick Start
 

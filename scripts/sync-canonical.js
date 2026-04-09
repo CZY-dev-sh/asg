@@ -58,22 +58,23 @@ async function syncComponentsToPages() {
   return changed;
 }
 
-async function syncAppsScriptToRootModules() {
-  const canonicalBase = path.join(ROOT, "asg-admin-hub", "apps-script");
-  if (!(await pathExists(canonicalBase))) return 0;
-  const moduleDirs = await fs.readdir(canonicalBase, { withFileTypes: true });
+async function syncPagesToComponents() {
+  const componentsDir = path.join(ROOT, "asg-admin-hub", "components");
+  const pagesDir = path.join(ROOT, "pages");
+  const pageFiles = await listFilesByExt(pagesDir, ".html");
   let changed = 0;
 
-  for (const entry of moduleDirs) {
-    if (!entry.isDirectory()) continue;
-    const moduleDir = path.join(canonicalBase, entry.name);
-    const gsFiles = await listFilesByExt(moduleDir, ".gs");
-    for (const src of gsFiles) {
-      const dst = path.join(ROOT, entry.name, path.basename(src));
-      if (await copyIfDifferent(src, dst)) changed++;
-    }
+  for (const src of pageFiles) {
+    const name = path.basename(src);
+    const dst = path.join(componentsDir, name);
+    if (await copyIfDifferent(src, dst)) changed++;
   }
   return changed;
+}
+
+async function syncAppsScriptToRootModules() {
+  // Mirror sync is intentionally disabled to prevent recreating deduped root/apps-script duplicates.
+  return 0;
 }
 
 async function syncDocsBidirectionalNewestWins() {
@@ -105,14 +106,16 @@ async function syncDocsBidirectionalNewestWins() {
 }
 
 async function main() {
-  const [htmlChanged, appsScriptChanged, docsChanged] = await Promise.all([
+  const [htmlChanged, pageToComponentChanged, appsScriptChanged, docsChanged] = await Promise.all([
     syncComponentsToPages(),
+    syncPagesToComponents(),
     syncAppsScriptToRootModules(),
     syncDocsBidirectionalNewestWins()
   ]);
 
   console.log("Sync complete.");
   console.log(`- pages mirrors updated: ${htmlChanged}`);
+  console.log(`- component mirrors updated: ${pageToComponentChanged}`);
   console.log(`- apps-script mirrors updated: ${appsScriptChanged}`);
   console.log(`- docs mirrors updated: ${docsChanged}`);
 }

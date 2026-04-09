@@ -46,7 +46,7 @@ The team roster (TEAM array) is duplicated across components. The canonical list
 - All images have `onerror` fallbacks to initials placeholders
 
 ## Design System
-**Authoritative visual spec:** `docs/ASG-DESIGN-SYSTEM-BRIEF.md` — modern luxury minimal, bento layouts, monochrome-first, generous spacing, pill controls, subtle borders over heavy shadows, restrained accents. Follow the brief for all new or redesigned UI; match existing component prefixes and escape patterns.
+**Authoritative visual spec:** `../docs/ASG-DESIGN-SYSTEM-BRIEF.md` — modern luxury minimal, bento layouts, monochrome-first, generous spacing, pill controls, subtle borders over heavy shadows, restrained accents. Follow the brief for all new or redesigned UI; match existing component prefixes and escape patterns.
 
 **Legacy implementation snapshot** (existing components; align refactors to the brief):
 - Border radius: ~24–32px major containers / ~28px cards, 999px pills, 14–18px compact actions
@@ -56,4 +56,4 @@ The team roster (TEAM array) is duplicated across components. The canonical list
 - Animations: subtle only — fadeIn, barGrow, popIn/popOut, shimmer (loading), pulse (live)
 
 ## Deployment
-Changes are deployed by copying the full file contents and pasting into the corresponding Squarespace Code Block. There is no build step. See `docs/DEPLOYMENT.md` for the mapping.
+Changes are deployed by copying the full file contents and pasting into the corresponding Squarespace Code Block. There is no build step. See `../docs/DEPLOYMENT.md` for the mapping.
