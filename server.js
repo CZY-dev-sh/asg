@@ -190,6 +190,32 @@ function wakePi() {
   }
 }
 
+function runDashboardUpdate(branch = "main") {
+  const scriptPath = path.join(ROOT_DIR, "scripts", "pi-update-dashboard.sh");
+  if (!fs.existsSync(scriptPath)) {
+    throw new Error("Update script not found: " + scriptPath);
+  }
+  try {
+    return execFileSync("bash", [scriptPath, branch], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+  } catch (err) {
+    const out = (err && err.stdout ? String(err.stdout) : "").trim();
+    const detail = (err && err.stderr ? String(err.stderr) : "").trim();
+    const msg = [out, detail].filter(Boolean).join("\n");
+    throw new Error(msg || (err && err.message ? err.message : "Dashboard update failed"));
+  }
+}
+
+function hardRefreshDashboardWindow() {
+  try {
+    return sendXdoKey("ctrl+shift+r");
+  } catch (_) {
+    return sendXdoKey("F5");
+  }
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const reqUrl = new URL(req.url, "http://localhost");
@@ -461,6 +487,38 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/update-dashboard") {
+    if (!requireAuth(reqUrl, res)) return;
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body || "{}");
+        const branch = String(payload.branch || "main").trim() || "main";
+        const hardRefresh = payload.hardRefresh !== false;
+        const output = runDashboardUpdate(branch);
+        let refresh = null;
+        if (hardRefresh) {
+          try {
+            const result = hardRefreshDashboardWindow();
+            refresh = { ok: true, ...result };
+          } catch (refreshErr) {
+            refresh = { ok: false, error: String(refreshErr.message || refreshErr) };
+          }
+        }
+        sendJson(res, 200, {
+          ok: true,
+          branch,
+          output,
+          refresh
+        });
+      } catch (e) {
+        sendJson(res, 500, { error: "update_failed", detail: String(e.message || e) });
       }
     });
     return;

@@ -1142,6 +1142,279 @@
       min-height: 0;
     }
 
+    .system-rotator {
+      position: relative;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .system-panel {
+      position: absolute;
+      inset: 0;
+      min-height: 0;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 300ms ease, transform 300ms ease;
+    }
+
+    .system-panel.is-active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .system-upcoming-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .system-upcoming-col {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--panel-soft) 88%, transparent);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .system-upcoming-col-head {
+      padding: 7px 8px 6px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: color-mix(in srgb, var(--text) 82%, #1d4ed8);
+      background: color-mix(in srgb, var(--panel) 90%, #eff6ff);
+    }
+
+    .system-upcoming-col-count {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .system-upcoming-col-list {
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      gap: 6px;
+      padding: 7px;
+    }
+
+    .system-upcoming-col-list .system-panel-empty {
+      min-height: 58px;
+      font-size: 11px;
+      padding: 8px;
+    }
+
+    .system-upcoming-row {
+      border: 1px solid color-mix(in srgb, var(--line) 86%, #dbeafe);
+      background: color-mix(in srgb, var(--panel-soft) 92%, #eff6ff);
+      border-radius: 12px;
+      padding: 7px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      min-height: 0;
+    }
+
+    .system-upcoming-row .deal-agent-photo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      flex: 0 0 auto;
+    }
+
+    .system-upcoming-row .deal-agent-photo img {
+      border-radius: 12px;
+    }
+
+    .system-upcoming-main {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .system-upcoming-agent {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.05;
+    }
+
+    .system-upcoming-address {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .system-upcoming-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .system-upcoming-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 86%, #c7d2fe);
+      background: color-mix(in srgb, var(--panel) 80%, #eef2ff);
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    .system-upcoming-chip--countdown {
+      border-color: color-mix(in srgb, var(--line) 82%, #cbd5e1);
+      background: color-mix(in srgb, var(--panel) 84%, #f8fafc);
+      color: color-mix(in srgb, var(--text) 82%, #334155);
+    }
+
+    .system-quarterly-wrap {
+      height: 100%;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .system-quarterly-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .system-quarterly-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .system-quarterly-key-dot {
+      width: 9px;
+      height: 3px;
+      border-radius: 999px;
+      background: currentColor;
+      display: inline-block;
+    }
+
+    .system-quarterly-svg-wrap {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-soft);
+      overflow: hidden;
+      padding: 4px;
+    }
+
+    .system-quarterly-svg {
+      width: 100%;
+      height: 100%;
+      min-height: 160px;
+      display: block;
+    }
+
+    .system-quarterly-wrap .amd-viz-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .system-quarterly-wrap .amd-hit-dot {
+      cursor: pointer;
+      transition: r 0.18s ease, opacity 0.18s ease;
+    }
+
+    .system-quarterly-wrap .amd-vis-dot {
+      transition: r 0.18s ease;
+      pointer-events: none;
+    }
+
+    @keyframes amd-glow-pulse {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #00c853); }
+      50% { opacity: 0.55; filter: drop-shadow(0 0 10px #00c853); }
+    }
+
+    @keyframes amd-green-blink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px #00c853); }
+      50% { opacity: 0.45; filter: drop-shadow(0 0 10px #00c853); }
+    }
+
+    .system-quarterly-wrap .amd-glow-line {
+      animation: amd-glow-pulse 2.4s ease-in-out infinite;
+    }
+
+    .system-quarterly-wrap .amd-blink-green {
+      animation: amd-green-blink 1.3s ease-in-out infinite;
+    }
+
+    .system-quarterly-wrap .amd-qt-legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 0;
+      padding: 0;
+    }
+
+    .system-quarterly-wrap .amd-qt-legend-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: "Outfit", system-ui, sans-serif;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      background: #fff;
+      color: #888;
+    }
+
+    .system-quarterly-wrap .amd-qt-legend-btn.is-active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+      font-weight: 700;
+    }
+
+    .system-panel-empty {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      min-height: 82px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px;
+      background: color-mix(in srgb, var(--panel-soft) 85%, transparent);
+    }
+
     .service-list {
       display: grid;
       gap: 5px;
@@ -3004,6 +3277,40 @@
         nextClosingsByAgent: {}
       };
       dataAdapters.directoryAgents = dataAdapters.agents.map((agent) => ({ ...agent }));
+      const SYSTEM_PANEL_ORDER = ["upcoming", "quarterly", "status"];
+      const SYSTEM_PANEL_META = {
+        upcoming: {
+          title: "Upcoming Closings",
+          sub: "Chronological pending timeline"
+        },
+        quarterly: {
+          title: "Quarterly Data",
+          sub: "All-view closed volume trend"
+        },
+        status: {
+          title: "System Status",
+          sub: "Live service heartbeat"
+        }
+      };
+      const CHART_FONT_FAMILY = "Outfit, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+      const QT_YEARS = [2021, 2022, 2023, 2024, 2025, 2026];
+      const QT_COLORS = {
+        2021: "#1a6b3c",
+        2022: "#1565c0",
+        2023: "#b8860b",
+        2024: "#222",
+        2025: "#c0392b",
+        2026: "#00c853"
+      };
+      const QT_WIDTHS = {
+        2021: 1.8,
+        2022: 1.8,
+        2023: 2,
+        2024: 2.2,
+        2025: 2.5,
+        2026: 2.5
+      };
+      const QT_DIM = "#ccc";
 
       const appState = {
         currentView: "overview",
@@ -3029,7 +3336,10 @@
           icon: "🌤"
         },
         overviewHighlightIndex: 0,
-        systemPanelIndex: 0
+        systemPanelIndex: 0,
+        allTimeClosedLoaded: false,
+        allTimeClosedInFlight: false,
+        allTimeClosedRetryAt: 0
       };
       let controlsHideTimeout = null;
 
@@ -3132,6 +3442,12 @@
         txList: document.getElementById("txList"),
         overviewPendingTapeStats: document.getElementById("overviewPendingTapeStats"),
         overviewEventCard: document.getElementById("overviewEventCard"),
+        overviewSystemTitle: document.getElementById("overviewSystemTitle"),
+        overviewSystemSub: document.getElementById("overviewSystemSub"),
+        systemRotator: document.getElementById("systemRotator"),
+        systemUpcomingList: document.getElementById("systemUpcomingList"),
+        systemQuarterlyWrap: document.getElementById("systemQuarterlyWrap"),
+        systemPanels: Array.from(document.querySelectorAll("[data-system-panel]")),
         serviceList: document.getElementById("serviceList"),
         weatherInline: document.getElementById("weatherInline"),
         dealsList: document.getElementById("dealsList"),
@@ -3175,6 +3491,13 @@
 
       function fmtMoneyFull(rawNumber) {
         const n = Number(rawNumber) || 0;
+        return "$" + Math.round(n).toLocaleString("en-US");
+      }
+
+      function fmtMoneyRounded(rawNumber) {
+        const n = Number(rawNumber) || 0;
+        if (Math.abs(n) >= 1000000) return "$" + Math.round(n / 1000000).toLocaleString("en-US") + "M";
+        if (Math.abs(n) >= 1000) return "$" + Math.round(n / 1000).toLocaleString("en-US") + "K";
         return "$" + Math.round(n).toLocaleString("en-US");
       }
 
@@ -3280,6 +3603,45 @@
         const yy = Number(mdy[3]) < 100 ? 2000 + Number(mdy[3]) : Number(mdy[3]);
         const d = new Date(yy, mm, dd);
         return Number.isNaN(d.getTime()) ? null : d;
+      }
+
+      function parseDateAny(raw) {
+        if (raw == null || raw === "") return null;
+        if (raw instanceof Date) {
+          return Number.isNaN(raw.getTime()) ? null : raw;
+        }
+        if (typeof raw === "number" && Number.isFinite(raw)) {
+          if (raw > 1000000000000) {
+            const epochMs = new Date(raw);
+            if (!Number.isNaN(epochMs.getTime())) return epochMs;
+          }
+          if (raw > 1000000000 && raw < 1000000000000) {
+            const epochSec = new Date(raw * 1000);
+            if (!Number.isNaN(epochSec.getTime())) return epochSec;
+          }
+          if (raw > 25000 && raw < 80000) {
+            const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+            excelEpoch.setUTCDate(excelEpoch.getUTCDate() + Math.round(raw));
+            const serialDate = new Date(
+              excelEpoch.getUTCFullYear(),
+              excelEpoch.getUTCMonth(),
+              excelEpoch.getUTCDate()
+            );
+            if (!Number.isNaN(serialDate.getTime())) return serialDate;
+          }
+        }
+        if (typeof raw === "string") {
+          const trimmed = raw.trim();
+          if (!trimmed) return null;
+          const asNumber = Number(trimmed);
+          if (Number.isFinite(asNumber) && trimmed !== "") {
+            const fromNumericString = parseDateAny(asNumber);
+            if (fromNumericString) return fromNumericString;
+          }
+          const loose = parseDateLoose(trimmed);
+          if (loose) return loose;
+        }
+        return null;
       }
 
       function fmtDateMedium(value) {
@@ -3406,6 +3768,10 @@
         return url + separator + "_ts=" + Date.now();
       }
 
+      function appendQuery(url, query) {
+        return url + (String(url).includes("?") ? "&" : "?") + query;
+      }
+
       async function fetchJSON(url) {
         const res = await fetch(withFreshParam(url), { cache: "no-store" });
         if (!res.ok) throw new Error("Request failed: " + url);
@@ -3416,6 +3782,146 @@
         const res = await fetch(withFreshParam(url), { cache: "no-store" });
         if (!res.ok) throw new Error("Request failed: " + url);
         return res.text();
+      }
+
+      function pickFirstArray(payload, keys) {
+        if (!payload) return [];
+        for (let i = 0; i < keys.length; i += 1) {
+          const key = keys[i];
+          if (Array.isArray(payload[key])) return payload[key];
+        }
+        return [];
+      }
+
+      function mapAllTimeClosedRow(row) {
+        if (!row || typeof row !== "object") return null;
+        const address =
+          row.address ||
+          row.propertyAddress ||
+          row.fullAddress ||
+          row.homeAddress ||
+          row.listingAddress ||
+          "";
+        const closeDateRaw =
+          row.closeDate ||
+          row.closedDate ||
+          row.closingDate ||
+          row.date ||
+          row.close_date ||
+          "";
+        const closeDate = parseDateAny(closeDateRaw);
+        const price = safeNum(
+          row.price != null
+            ? row.price
+            : (row.closePrice != null
+              ? row.closePrice
+              : (row.soldPrice != null ? row.soldPrice : row.amount))
+        );
+        if (!address || !closeDate || price <= 0) return null;
+        const sideRaw = row.type != null ? row.type : row.side;
+        const sourceRaw = row.source != null ? row.source : row.leadSource;
+        const canonicalAgent = resolveCanonicalAgentName(
+          row.agent || row.agentName || row.listingAgent || row.buyerAgent || row.owner || "—"
+        );
+        return {
+          agent: canonicalAgent || "—",
+          address: String(address).trim(),
+          status: "Closed",
+          volume: fmtMoney(price),
+          priceNum: price,
+          date: fmtDateMedium(closeDate),
+          dateRaw: closeDate,
+          note: "All-time closed",
+          includeFields: "All-time closed",
+          dealType: normalizeDealSide(sideRaw || "—"),
+          dealSource: sourceRaw != null ? String(sourceRaw) : "—"
+        };
+      }
+
+      function extractAllTimeClosedDeals(payload) {
+        const direct = pickFirstArray(payload, [
+          "allTimeClosed",
+          "allTimeClosedDeals",
+          "closedDeals",
+          "deals",
+          "transactions",
+          "rows"
+        ]);
+        const nested = pickFirstArray(payload && payload.data, [
+          "allTimeClosed",
+          "allTimeClosedDeals",
+          "closedDeals",
+          "deals",
+          "transactions",
+          "rows"
+        ]);
+        const source = direct.length ? direct : nested;
+        return source
+          .map(mapAllTimeClosedRow)
+          .filter(Boolean)
+          .sort((a, b) => {
+            const at = a.dateRaw ? a.dateRaw.getTime() : 0;
+            const bt = b.dateRaw ? b.dateRaw.getTime() : 0;
+            return bt - at || (b.priceNum || 0) - (a.priceNum || 0);
+          });
+      }
+
+      async function withTimeout(promise, timeoutMs) {
+        let timer = null;
+        const timeout = new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error("Timed out after " + timeoutMs + "ms")), timeoutMs);
+        });
+        try {
+          return await Promise.race([promise, timeout]);
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
+      }
+
+      async function fetchAllTimeClosedRowsFromScript() {
+        const candidates = [
+          appendQuery(ALL_TIME_STATS_API, "view=allTimeClosedRows"),
+          appendQuery(ALL_TIME_STATS_API, "view=allTimeClosedDeals"),
+          appendQuery(ALL_TIME_STATS_API, "view=allTimeTransactions"),
+          appendQuery(ALL_TIME_STATS_API, "view=allTimeClosed"),
+          appendQuery(ALL_TIME_STATS_API, "period=allTime&rows=1"),
+          appendQuery(ALL_TIME_STATS_API, "period=allTime&includeRows=1"),
+          appendQuery(ALL_TIME_STATS_API, "period=allTime&details=1")
+        ];
+        for (let i = 0; i < candidates.length; i += 1) {
+          const url = candidates[i];
+          try {
+            const payload = await fetchJSON(url);
+            const rows = extractAllTimeClosedDeals(payload);
+            if (rows.length) return rows;
+          } catch (_err) {
+            // Try next query mode.
+          }
+        }
+        return [];
+      }
+
+      async function refreshAllTimeClosedRowsIfNeeded() {
+        if (appState.allTimeClosedLoaded && dataAdapters.allTimeClosedDeals.length) return dataAdapters.allTimeClosedDeals;
+        if (appState.allTimeClosedInFlight) return dataAdapters.allTimeClosedDeals;
+        if (Date.now() < appState.allTimeClosedRetryAt) return dataAdapters.allTimeClosedDeals;
+        appState.allTimeClosedInFlight = true;
+        try {
+          const rows = await withTimeout(fetchAllTimeClosedRowsFromScript(), 8000);
+          if (Array.isArray(rows) && rows.length) {
+            dataAdapters.allTimeClosedDeals = rows;
+            appState.allTimeClosedLoaded = true;
+            appState.allTimeClosedRetryAt = 0;
+          } else {
+            appState.allTimeClosedRetryAt = Date.now() + 5 * 60 * 1000;
+          }
+          return dataAdapters.allTimeClosedDeals;
+        } catch (_err) {
+          appState.allTimeClosedRetryAt = Date.now() + 5 * 60 * 1000;
+          return dataAdapters.allTimeClosedDeals;
+        } finally {
+          appState.allTimeClosedInFlight = false;
+        }
       }
 
       function deriveDealsFromCSVRows(rows) {
@@ -3675,13 +4181,15 @@
       }
 
       async function fetchAndApplyLiveData() {
+        const allTimeRowsPromise = refreshAllTimeClosedRowsIfNeeded();
         const reqs = [
           { name: "stats", fn: () => fetchJSON(STATS_API + "?period=ytd2026") },
           { name: "pipeline", fn: () => fetchJSON(STATS_API + "?view=pipeline") },
           { name: "listings-active", fn: () => fetchJSON(LISTINGS_API + "?view=active") },
           { name: "listings-archive", fn: () => fetchJSON(LISTINGS_API + "?view=archive") },
           { name: "buyers-csv", fn: () => fetchText(BUYERS_CSV) },
-          { name: "sellers-csv", fn: () => fetchText(SELLERS_CSV) }
+          { name: "sellers-csv", fn: () => fetchText(SELLERS_CSV) },
+          { name: "alltime-summary", fn: () => fetchJSON(STATS_API + "?period=allTime") }
         ];
         const settled = await Promise.allSettled(reqs.map((r) => r.fn()));
         const feedStates = settled.map((entry, idx) => ({
@@ -3695,6 +4203,7 @@
         const archiveJSON = settled[3].status === "fulfilled" ? settled[3].value : null;
         const buyersText = settled[4].status === "fulfilled" ? settled[4].value : "";
         const sellersText = settled[5].status === "fulfilled" ? settled[5].value : "";
+        const allTimeJSON = settled[6].status === "fulfilled" ? settled[6].value : null;
 
         const buyersRows = buyersText ? parseCSV(buyersText, "Buyer") : [];
         const sellersRows = sellersText ? parseCSV(sellersText, "Seller") : [];
@@ -3748,6 +4257,15 @@
           updateAgentsFromStats(statsJSON.agents || [], recentPool);
         }
 
+        const allTimeFromSummary = extractAllTimeClosedDeals(allTimeJSON);
+        if (allTimeFromSummary.length && !dataAdapters.allTimeClosedDeals.length) {
+          dataAdapters.allTimeClosedDeals = allTimeFromSummary;
+        }
+
+        await allTimeRowsPromise;
+        if (!dataAdapters.allTimeClosedDeals.length && allTimeFromSummary.length) {
+          dataAdapters.allTimeClosedDeals = allTimeFromSummary;
+        }
         updateUpdatesFromHealth(feedStates);
         clampSelection();
         renderAll();
@@ -4204,6 +4722,457 @@
           applyServiceSizing();
           setTimeout(applyServiceSizing, 60);
         });
+      }
+
+      function systemUpcomingDeals() {
+        const todayFloor = startOfToday();
+        return filterDealsWithNamedAgent(dataAdapters.deals || [])
+          .filter((deal) => String(deal.status || "").toLowerCase() === "pending")
+          .map((deal) => {
+            const dateRaw = dealDateRaw(deal);
+            return {
+              ...deal,
+              agent: resolveCanonicalAgentName(deal.agent),
+              dateRaw
+            };
+          })
+          .filter((deal) => deal.dateRaw && deal.dateRaw >= todayFloor)
+          .sort((a, b) => {
+            const at = a.dateRaw ? a.dateRaw.getTime() : Number.POSITIVE_INFINITY;
+            const bt = b.dateRaw ? b.dateRaw.getTime() : Number.POSITIVE_INFINITY;
+            return at - bt || (b.priceNum || 0) - (a.priceNum || 0);
+          });
+      }
+
+      function renderSystemUpcomingPanel() {
+        if (!els.systemUpcomingList) return;
+        const upcoming = systemUpcomingDeals();
+        if (!upcoming.length) {
+          els.systemUpcomingList.innerHTML =
+            '<div class="system-panel-empty">No upcoming pending closings from today forward.</div>';
+          return;
+        }
+
+        const startOfCurrentWeek = (() => {
+          const d = startOfToday();
+          const shift = (d.getDay() + 6) % 7;
+          d.setDate(d.getDate() - shift);
+          return d;
+        })();
+        const startOfNextWeek = new Date(startOfCurrentWeek);
+        startOfNextWeek.setDate(startOfNextWeek.getDate() + 7);
+        const startOfFollowingWeek = new Date(startOfNextWeek);
+        startOfFollowingWeek.setDate(startOfFollowingWeek.getDate() + 7);
+
+        const groups = {
+          thisWeek: [],
+          nextWeek: [],
+          later: []
+        };
+        upcoming.forEach((deal) => {
+          const date = dealDateRaw(deal);
+          if (!date) return;
+          if (date < startOfNextWeek) groups.thisWeek.push(deal);
+          else if (date < startOfFollowingWeek) groups.nextWeek.push(deal);
+          else groups.later.push(deal);
+        });
+
+        const renderDealCard = (deal) => {
+          const sideLabel = normalizeDealSide(deal.dealType || "—");
+          const sideSuffix = dealSideClassSuffix(sideLabel);
+          const sideCls = sideSuffix
+            ? "system-upcoming-chip leader-next-chip--" + sideSuffix
+            : "system-upcoming-chip";
+          const daysUntil = daysUntilFromToday(deal.dateRaw);
+          const countdown = daysUntil === null ? "Closing in -- days" : "Closing in " + daysUntil + " days";
+          const priceLabel = deal.priceNum ? fmtMoney(deal.priceNum) : (deal.volume || "—");
+          return (
+            '<article class="system-upcoming-row">' +
+              agentDirectoryPhotoHtml(deal.agent) +
+              '<div class="system-upcoming-main">' +
+                '<div class="system-upcoming-agent">' + esc(deal.agent || "Unassigned") + "</div>" +
+                '<div class="system-upcoming-address">' + esc(deal.address || "Address unavailable") + "</div>" +
+                '<div class="system-upcoming-meta">' +
+                  '<span class="system-upcoming-chip leader-next-chip--date">' + esc(fmtDateMedium(deal.dateRaw)) + "</span>" +
+                  '<span class="' + sideCls + '">' + esc(sideLabel || "—") + "</span>" +
+                  '<span class="system-upcoming-chip leader-next-chip--price">' + esc(priceLabel) + "</span>" +
+                  '<span class="system-upcoming-chip system-upcoming-chip--countdown">' + esc(countdown) + "</span>" +
+                "</div>" +
+              "</div>" +
+            "</article>"
+          );
+        };
+
+        const renderColumn = (label, list) => {
+          const countLabel = list.length === 1 ? "1 deal" : list.length + " deals";
+          const itemsHtml = list.length
+            ? list.map(renderDealCard).join("")
+            : '<div class="system-panel-empty">No closings</div>';
+          return (
+            '<section class="system-upcoming-col">' +
+              '<header class="system-upcoming-col-head">' +
+                "<span>" + esc(label) + "</span>" +
+                '<span class="system-upcoming-col-count">' + esc(countLabel) + "</span>" +
+              "</header>" +
+              '<div class="system-upcoming-col-list">' + itemsHtml + "</div>" +
+            "</section>"
+          );
+        };
+
+        els.systemUpcomingList.innerHTML =
+          renderColumn("This Week", groups.thisWeek) +
+          renderColumn("Next Week", groups.nextWeek) +
+          renderColumn("Later", groups.later);
+      }
+
+      function buildSystemQuarterlyTrendSeries() {
+        const byYear = {};
+        QT_YEARS.forEach((year) => {
+          byYear[year] = { vol: [0, 0, 0, 0], deals: [0, 0, 0, 0] };
+        });
+        const seen = {};
+        const ingest = (deal) => {
+          const closeDate = dealDateRaw(deal);
+          if (!closeDate || Number.isNaN(closeDate.getTime())) return;
+          const year = closeDate.getFullYear();
+          if (!byYear[year]) return;
+          const price = safeNum(deal.priceNum != null ? deal.priceNum : deal.price);
+          if (price <= 0) return;
+          const key = year + "-" + closeDate.getMonth() + "-" + (deal.address || "") + "-" + price;
+          if (seen[key]) return;
+          seen[key] = true;
+          const quarter = Math.floor(closeDate.getMonth() / 3);
+          byYear[year].vol[quarter] += price;
+          byYear[year].deals[quarter] += 1;
+        };
+        (dataAdapters.allTimeClosedDeals || []).forEach(ingest);
+        (dataAdapters.closedDealsYtd || []).forEach(ingest);
+
+        const rows = QT_YEARS.map((year) => {
+          const bucket = byYear[year];
+          return {
+            year,
+            quarters: bucket.vol.slice(),
+            deals: bucket.deals.slice(),
+            projected: [false, false, false, false],
+            total: bucket.vol[0] + bucket.vol[1] + bucket.vol[2] + bucket.vol[3]
+          };
+        });
+
+        const year2026 = rows.find((row) => row.year === 2026);
+        if (year2026 && year2026.quarters[0] > 0) {
+          const byYearMap = {};
+          rows.forEach((row) => {
+            byYearMap[row.year] = row;
+          });
+          const trendYears = [2023, 2024, 2025];
+          year2026.partialActual = [0, 0, 0, 0];
+          for (let quarterIdx = 0; quarterIdx < 4; quarterIdx += 1) {
+            const jumps = [];
+            const dealJumps = [];
+            for (let ti = 1; ti < trendYears.length; ti += 1) {
+              const prev = byYearMap[trendYears[ti - 1]];
+              const curr = byYearMap[trendYears[ti]];
+              if (prev && curr && prev.quarters[quarterIdx] > 0 && curr.quarters[quarterIdx] > 0) {
+                jumps.push(curr.quarters[quarterIdx] - prev.quarters[quarterIdx]);
+                dealJumps.push(curr.deals[quarterIdx] - prev.deals[quarterIdx]);
+              }
+            }
+            const avgJump = jumps.length ? jumps.reduce((sum, value) => sum + value, 0) / jumps.length : 0;
+            const avgDealJump = dealJumps.length ? dealJumps.reduce((sum, value) => sum + value, 0) / dealJumps.length : 0;
+            const base2025 = byYearMap[2025] ? byYearMap[2025].quarters[quarterIdx] : 0;
+            const baseDeals2025 = byYearMap[2025] ? byYearMap[2025].deals[quarterIdx] : 0;
+            const projectedValue = Math.max(0, Math.round(base2025 + avgJump));
+            const projectedDeals = Math.max(0, Math.round(baseDeals2025 + avgDealJump));
+            if (quarterIdx === 0) continue;
+            year2026.partialActual[quarterIdx] = year2026.quarters[quarterIdx];
+            if (projectedValue > year2026.quarters[quarterIdx]) {
+              year2026.quarters[quarterIdx] = projectedValue;
+              year2026.deals[quarterIdx] = projectedDeals;
+            }
+            year2026.projected[quarterIdx] = true;
+          }
+          year2026.total = year2026.quarters[0] + year2026.quarters[1] + year2026.quarters[2] + year2026.quarters[3];
+        }
+        return rows;
+      }
+
+      function renderSystemQuarterlyTrendLegend() {
+        let legend = '<div class="amd-qt-legend">';
+        legend += '<button class="amd-qt-legend-btn is-active" type="button">All</button>';
+        QT_YEARS.forEach((year) => {
+          const color = QT_COLORS[year] || "#999";
+          legend += '<button class="amd-qt-legend-btn" type="button">' +
+            '<span style="width:14px;height:3px;background:' + color + ';border-radius:2px;display:inline-block"></span>' +
+            year + (year === 2026 ? ' <span style="font-size:9px;opacity:0.7">LIVE</span>' : "") +
+            "</button>";
+        });
+        legend += "</div>";
+        return legend;
+      }
+
+      function renderSystemQuarterlyTrendChart() {
+        const rows = buildSystemQuarterlyTrendSeries();
+        const hasData = rows.some((row) => row.total > 0);
+        if (!hasData) {
+          return '<div class="system-panel-empty">No quarterly data yet.</div>';
+        }
+
+        const selected = "all";
+        const width = 760;
+        const height = 560;
+        const padTop = 40;
+        const padBottom = 46;
+        const padLeft = 54;
+        const padRight = 34;
+        const plotW = width - padLeft - padRight;
+        const plotH = height - padTop - padBottom;
+        const ts = ' font-family="' + CHART_FONT_FAMILY + '"';
+
+        let maxV = 1;
+        rows.forEach((row) => {
+          row.quarters.forEach((value) => {
+            if (value > maxV) maxV = value;
+          });
+        });
+
+        const qAvgs = [0, 0, 0, 0];
+        const qCounts = [0, 0, 0, 0];
+        rows.forEach((row) => {
+          row.quarters.forEach((value, qi) => {
+            qAvgs[qi] += value;
+            if (value > 0) qCounts[qi] += 1;
+          });
+        });
+        for (let qi = 0; qi < 4; qi += 1) {
+          qAvgs[qi] = qCounts[qi] > 0 ? qAvgs[qi] / qCounts[qi] : 0;
+        }
+
+        const xSlots = 5;
+        const xStep = plotW / (xSlots - 1);
+        const xPos = [];
+        for (let i = 0; i < xSlots; i += 1) xPos.push(padLeft + i * xStep);
+
+        let gridSvg = "";
+        for (let i = 1; i < xSlots; i += 1) {
+          gridSvg += '<line x1="' + xPos[i].toFixed(1) + '" y1="' + padTop + '" x2="' + xPos[i].toFixed(1) + '" y2="' + (padTop + plotH) + '" stroke="#f0f0f0" stroke-width="1"/>';
+        }
+        gridSvg += '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (width - padRight) + '" y2="' + (padTop + plotH) + '" stroke="#ddd" stroke-width="1"/>';
+
+        let xAxisLabels = "";
+        const quarterNames = ["Jan 1", "Q1", "Q2", "Q3", "Q4"];
+        xAxisLabels += '<text x="' + xPos[0].toFixed(1) + '" y="' + (height - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + ">" + quarterNames[0] + "</text>";
+        for (let i = 1; i < xSlots; i += 1) {
+          const avgStr = qAvgs[i - 1] > 0 ? "  AVG " + fmtMoneyRounded(qAvgs[i - 1]) : "";
+          xAxisLabels += '<text x="' + xPos[i].toFixed(1) + '" y="' + (height - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + ">" + quarterNames[i] + "</text>";
+          if (avgStr) {
+            xAxisLabels += '<text x="' + xPos[i].toFixed(1) + '" y="' + (height - 1) + '" text-anchor="middle" fill="#aaa" font-size="9" font-weight="600"' + ts + ">" + esc(avgStr.trim()) + "</text>";
+          }
+        }
+
+        const yearSpacing = plotH / QT_YEARS.length;
+        const yearAnchors = {};
+        QT_YEARS.forEach((year, idx) => {
+          yearAnchors[year] = padTop + plotH - yearSpacing * 0.5 - idx * yearSpacing;
+        });
+
+        const allPts = {};
+        rows.forEach((row) => {
+          allPts[row.year] = row.quarters.map((value, qi) => {
+            const x = xPos[qi + 1];
+            const ratio = maxV > 0 ? value / maxV : 0;
+            const y = padTop + plotH - ratio * plotH;
+            return { x, y, v: value, qi, deals: row.deals[qi], projected: row.projected[qi], year: row.year };
+          });
+        });
+
+        function spreadCol(colIdx) {
+          const items = [];
+          rows.forEach((row) => {
+            const point = allPts[row.year][colIdx];
+            items.push({ year: row.year, point, origY: point.y });
+          });
+          items.sort((a, b) => a.origY - b.origY);
+          const dotGap = 20;
+          for (let pass = 0; pass < 4; pass += 1) {
+            for (let i = 1; i < items.length; i += 1) {
+              const gap = items[i].point.y - items[i - 1].point.y;
+              if (gap < dotGap) {
+                const push = (dotGap - gap) / 2;
+                items[i - 1].point.y -= push;
+                items[i].point.y += push;
+              }
+            }
+          }
+          let y2026 = null;
+          let y2022 = null;
+          items.forEach((item) => {
+            if (item.year === 2026) y2026 = item.point;
+            if (item.year === 2022) y2022 = item.point;
+          });
+          if (y2026 && y2022 && y2022.y <= y2026.y + 1) {
+            y2022.y = y2026.y + 10;
+          }
+        }
+        spreadCol(0);
+        spreadCol(3);
+
+        let linesSvg = "";
+        const pendingLabels = { 0: [], 1: [], 2: [], 3: [] };
+        rows.forEach((row) => {
+          const isHighlighted = selected === "all" || String(row.year) === String(selected);
+          const is2026 = row.year === 2026;
+          const color = isHighlighted ? (QT_COLORS[row.year] || "#999") : QT_DIM;
+          const strokeWidth = isHighlighted ? (QT_WIDTHS[row.year] || 1.8) : 1.2;
+          const yAnchor = yearAnchors[row.year];
+          const startY = padTop + plotH;
+          const lineOpacity = isHighlighted ? 1 : 0.35;
+          const glowClass = is2026 && isHighlighted ? ' class="amd-glow-line"' : "";
+          const points = allPts[row.year];
+
+          const q0Muted = !is2026;
+          const q0Dash = q0Muted ? ' stroke-dasharray="4 4"' : "";
+          const q0Opacity = q0Muted ? lineOpacity * 0.45 : lineOpacity * 0.95;
+          const q0Stroke = is2026 && isHighlighted ? strokeWidth + 0.4 : strokeWidth;
+          if (is2026 && isHighlighted) {
+            linesSvg += '<g' + glowClass + '><line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + points[0].x.toFixed(1) + '" y2="' + points[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/></g>';
+          } else {
+            linesSvg += '<line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + points[0].x.toFixed(1) + '" y2="' + points[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/>';
+          }
+
+          if (is2026 && isHighlighted) {
+            const fullDashPath = points.map((pt, i) => {
+              return (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+            }).join("");
+            linesSvg += '<g' + glowClass + '><path d="' + fullDashPath + '" fill="none" stroke="' + color + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" opacity="' + (lineOpacity * 0.55) + '"/></g>';
+
+            let solidEnd = { x: points[0].x, y: points[0].y };
+            const partials = row.partialActual || [0, 0, 0, 0];
+            for (let pi = 1; pi < 4; pi += 1) {
+              if (partials[pi] > 0 && points[pi].v > 0) {
+                const frac = Math.min(1, partials[pi] / points[pi].v);
+                solidEnd = {
+                  x: points[pi - 1].x + frac * (points[pi].x - points[pi - 1].x),
+                  y: points[pi - 1].y + frac * (points[pi].y - points[pi - 1].y)
+                };
+                break;
+              }
+            }
+            const solidGlowPath = "M " + points[0].x.toFixed(1) + " " + points[0].y.toFixed(1) + " L " + solidEnd.x.toFixed(1) + " " + solidEnd.y.toFixed(1);
+            linesSvg += '<g' + glowClass + '><path d="' + solidGlowPath + '" fill="none" stroke="' + color + '" stroke-width="' + (strokeWidth + 0.5) + '" stroke-linecap="round" opacity="' + lineOpacity + '"/></g>';
+
+            if (solidEnd.x !== points[0].x || solidEnd.y !== points[0].y) {
+              const progressId = "qd-2026-prog-tv";
+              linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot amd-blink-green" id="' + progressId + '" cx="' + solidEnd.x.toFixed(1) + '" cy="' + solidEnd.y.toFixed(1) + '" r="4" fill="' + color + '" stroke="#fff" stroke-width="2"/></g>';
+            }
+          } else {
+            const solidPath = points.map((pt, i) => {
+              return (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
+            }).join("");
+            linesSvg += '<path d="' + solidPath + '" fill="none" stroke="' + color + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + lineOpacity + '"/>';
+          }
+
+          const yearLabelColor = isHighlighted ? color : QT_DIM;
+          linesSvg += '<circle cx="' + xPos[0].toFixed(1) + '" cy="' + yAnchor.toFixed(1) + '" r="3" fill="' + yearLabelColor + '" opacity="' + (lineOpacity * 0.5) + '"/>';
+          linesSvg += '<text x="' + (xPos[0] - 10).toFixed(1) + '" y="' + (yAnchor + 4).toFixed(1) + '" text-anchor="end" fill="' + yearLabelColor + '" font-size="12" font-weight="700"' + ts + ' opacity="' + (isHighlighted ? 1 : 0.4) + '">' + row.year + "</text>";
+
+          points.forEach((point) => {
+            const dotId = "qd-tv-" + row.year + "-" + point.qi;
+            const dotColor = isHighlighted ? (QT_COLORS[row.year] || "#999") : QT_DIM;
+            const dotOpacity = isHighlighted ? 1 : 0.35;
+            if (is2026 && isHighlighted) {
+              linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot" id="' + dotId + '" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/></g>';
+            } else {
+              linesSvg += '<circle class="amd-vis-dot" id="' + dotId + '" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/>';
+            }
+            if (isHighlighted) {
+              pendingLabels[point.qi].push({ x: point.x, y: point.y, v: point.v, color: dotColor });
+            }
+          });
+        });
+
+        const minGap = 16;
+        [0, 1, 2, 3].forEach((quarterIdx) => {
+          const labels = pendingLabels[quarterIdx];
+          labels.sort((a, b) => a.y - b.y);
+          const slots = [];
+          labels.forEach((item) => {
+            const above = item.y - 16;
+            const below = item.y + 18;
+            let best = above;
+            const fits = (pos) => {
+              for (let i = 0; i < slots.length; i += 1) {
+                if (Math.abs(slots[i] - pos) < minGap) return false;
+              }
+              return true;
+            };
+            if (!fits(above)) {
+              if (fits(below)) {
+                best = below;
+              } else {
+                best = above;
+                for (let step = 1; step <= 60; step += 1) {
+                  const up = above - step * 3;
+                  const down = below + step * 3;
+                  if (fits(up)) { best = up; break; }
+                  if (fits(down)) { best = down; break; }
+                }
+              }
+            }
+            slots.push(best);
+            let anchor = "middle";
+            let lx = item.x;
+            if (quarterIdx === 3) { anchor = "start"; lx = item.x + 14; }
+            if (quarterIdx === 0) { anchor = "end"; lx = item.x - 14; }
+            linesSvg += '<text x="' + lx.toFixed(1) + '" y="' + best.toFixed(1) + '" text-anchor="' + anchor + '" fill="' + item.color + '" font-size="10" font-weight="600"' + ts + ' pointer-events="none">' + esc(fmtMoneyRounded(item.v)) + "</text>";
+          });
+        });
+
+        return '<svg class="amd-viz-svg" viewBox="0 0 ' + width + " " + height + '" preserveAspectRatio="xMidYMid meet">' +
+          gridSvg +
+          xAxisLabels +
+          linesSvg +
+          "</svg>";
+      }
+
+      function renderSystemQuarterlyPanel() {
+        if (!els.systemQuarterlyWrap) return;
+        const chartHtml = renderSystemQuarterlyTrendChart();
+        els.systemQuarterlyWrap.innerHTML =
+          renderSystemQuarterlyTrendLegend() +
+          '<div class="system-quarterly-svg-wrap">' + chartHtml + "</div>";
+      }
+
+      function activateSystemPanel(panelKey) {
+        if (!els.systemPanels || !els.systemPanels.length) return;
+        const idx = SYSTEM_PANEL_ORDER.indexOf(panelKey);
+        const normalizedIndex = idx === -1 ? 0 : idx;
+        appState.systemPanelIndex = normalizedIndex;
+        const activePanel = SYSTEM_PANEL_ORDER[normalizedIndex];
+        const panelMeta = SYSTEM_PANEL_META[activePanel] || SYSTEM_PANEL_META.upcoming;
+        if (els.overviewSystemTitle) {
+          els.overviewSystemTitle.textContent = panelMeta.title;
+        }
+        if (els.overviewSystemSub) {
+          els.overviewSystemSub.textContent = panelMeta.sub;
+        }
+        els.systemPanels.forEach((panel) => {
+          const key = panel.getAttribute("data-system-panel");
+          panel.classList.toggle("is-active", key === activePanel);
+        });
+      }
+
+      function renderOverviewSystemRotator() {
+        renderSystemUpcomingPanel();
+        renderSystemQuarterlyPanel();
+        renderServices();
+        activateSystemPanel(SYSTEM_PANEL_ORDER[appState.systemPanelIndex] || SYSTEM_PANEL_ORDER[0]);
+      }
+
+      function nextSystemPanel() {
+        if (!SYSTEM_PANEL_ORDER.length) return;
+        appState.systemPanelIndex = (appState.systemPanelIndex + 1) % SYSTEM_PANEL_ORDER.length;
+        activateSystemPanel(SYSTEM_PANEL_ORDER[appState.systemPanelIndex]);
       }
 
       function renderSignals() {
@@ -4843,7 +5812,7 @@
         renderLeaderboard();
         renderTransactions();
         renderOverviewHighlight();
-        renderServices();
+        renderOverviewSystemRotator();
         renderCurrentDeals();
         renderTeamDirectory();
         renderEvents();
@@ -4873,9 +5842,16 @@
       function initResizeSync() {
         window.addEventListener("resize", () => {
           renderLeaderboard();
-          renderServices();
+          renderOverviewSystemRotator();
           applyCurrentDealsRowFit();
         });
+      }
+
+      function initSystemPanelRotation() {
+        setInterval(() => {
+          if (appState.currentView !== "overview") return;
+          nextSystemPanel();
+        }, SYSTEM_PANEL_ROTATION_MS);
       }
 
       function initOverviewHighlightLoop() {
@@ -4930,6 +5906,7 @@
         initLiveDataLoop();
         initResizeSync();
         initOverviewHighlightLoop();
+        initSystemPanelRotation();
       }
 
       boot();
