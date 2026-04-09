@@ -541,7 +541,7 @@
 
     .kpi-value {
       margin-top: 6px;
-      font-size: 34px;
+      font-size: 36px;
       line-height: 1;
       letter-spacing: -0.05em;
       font-weight: 800;
@@ -554,33 +554,68 @@
       font-weight: 600;
     }
 
+    .kpi.next-closing .kpi-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .kpi.next-closing .kpi-value {
-      font-size: 30px;
+      font-size: 36px;
+      margin-top: 0;
+    }
+
+    .kpi.next-closing .kpi-sub {
+      margin-top: 4px;
     }
 
     .kpi-next-wrap {
-      margin-top: 4px;
+      margin-top: 6px;
       display: grid;
-      gap: 5px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 10px;
       min-width: 0;
     }
 
-    .kpi-next-price {
+    .kpi-next-main {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .kpi-next-address-row {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 6px;
       min-width: 0;
+    }
+
+    .kpi-next-address {
+      margin-top: 0;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-next-side {
+      display: flex;
+      align-self: center;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     .kpi-next-photo {
-      width: 34px;
-      height: 34px;
+      width: 84px;
+      height: 84px;
       border-radius: 999px;
       border: 1px solid var(--line);
       overflow: hidden;
       display: grid;
       place-items: center;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
       color: #334155;
       background: linear-gradient(180deg, #f8fafc, #e5e7eb);
@@ -594,20 +629,31 @@
       display: block;
     }
 
-    .kpi-next-agent {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .kpi-next-date-badge {
+      width: 84px;
+      height: 84px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 84%, #e5e7eb);
+      background: #fff;
+      color: #111827;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      line-height: 1;
+      flex: 0 0 auto;
     }
 
-    .kpi-next-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+    .kpi-next-date-day {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .kpi-next-date-mon {
+      margin-top: 3px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
     }
 
     .kpi-next-chip {
@@ -622,6 +668,27 @@
       letter-spacing: 0.01em;
       line-height: 1.05;
       color: color-mix(in srgb, var(--text) 82%, #1d4ed8);
+    }
+
+    .kpi-next-chip--date,
+    .leader-next-chip--date {
+      border-color: color-mix(in srgb, var(--line) 78%, #93c5fd);
+      background: color-mix(in srgb, #dbeafe 44%, var(--panel) 56%);
+      color: color-mix(in srgb, var(--text) 78%, #1d4ed8);
+    }
+
+    .kpi-next-chip--buyer,
+    .leader-next-chip--buyer {
+      border-color: color-mix(in srgb, var(--line) 76%, #86efac);
+      background: color-mix(in srgb, #dcfce7 44%, var(--panel) 56%);
+      color: color-mix(in srgb, var(--text) 78%, #166534);
+    }
+
+    .kpi-next-chip--seller,
+    .leader-next-chip--seller {
+      border-color: color-mix(in srgb, var(--line) 76%, #93c5fd);
+      background: color-mix(in srgb, #dbeafe 46%, var(--panel) 54%);
+      color: color-mix(in srgb, var(--text) 78%, #1d4ed8);
     }
 
     .overview-main {
@@ -994,14 +1061,14 @@
       border: 1px solid color-mix(in srgb, var(--line) 88%, #dbeafe);
       background: color-mix(in srgb, var(--panel-soft) 90%, #eff6ff);
       border-radius: calc(10px * var(--lb-scale, 1));
-      padding: calc(5px * var(--lb-scale, 1)) calc(7px * var(--lb-scale, 1));
+      padding: calc(4px * var(--lb-scale, 1)) calc(6px * var(--lb-scale, 1));
       display: grid;
-      gap: calc(4px * var(--lb-scale, 1));
+      gap: calc(3px * var(--lb-scale, 1));
       min-width: 0;
     }
 
     .leader-next-address {
-      font-size: calc(11px * var(--lb-scale, 1));
+      font-size: calc(10px * var(--lb-scale, 1));
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
@@ -1009,18 +1076,10 @@
       letter-spacing: -0.01em;
     }
 
-    .leader-next-price {
-      font-size: calc(12px * var(--lb-scale, 1));
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .leader-next-meta {
+    .leader-next-chips {
       display: flex;
       align-items: center;
-      gap: calc(4px * var(--lb-scale, 1));
+      gap: calc(3px * var(--lb-scale, 1));
       flex-wrap: wrap;
     }
 
@@ -1030,11 +1089,23 @@
       border-radius: 999px;
       border: 1px solid color-mix(in srgb, var(--line) 86%, #c7d2fe);
       background: color-mix(in srgb, var(--panel) 80%, #eef2ff);
-      padding: calc(2px * var(--lb-scale, 1)) calc(6px * var(--lb-scale, 1));
-      font-size: calc(10px * var(--lb-scale, 1));
+      padding: calc(2px * var(--lb-scale, 1)) calc(5px * var(--lb-scale, 1));
+      font-size: calc(9px * var(--lb-scale, 1));
       font-weight: 700;
       line-height: 1.05;
       white-space: nowrap;
+    }
+
+    .leader-next-chip--price {
+      border-color: color-mix(in srgb, var(--line) 78%, #bfdbfe);
+      background: color-mix(in srgb, #dbeafe 34%, var(--panel) 66%);
+      color: color-mix(in srgb, var(--text) 80%, #1d4ed8);
+    }
+
+    .leader-next-chip--countdown {
+      border-color: color-mix(in srgb, var(--line) 82%, #cbd5e1);
+      background: color-mix(in srgb, var(--panel) 84%, #f8fafc);
+      color: color-mix(in srgb, var(--text) 82%, #334155);
     }
 
     .overview-leader {
@@ -2664,11 +2735,21 @@
 
             <article class="card overview-system">
               <div class="panel-head">
-                <h2 class="panel-title">System Status</h2>
-                <div class="panel-sub">Operational Services</div>
+                <h2 class="panel-title" id="overviewSystemTitle">Upcoming Closings</h2>
+                <div class="panel-sub" id="overviewSystemSub">Chronological pending timeline</div>
               </div>
               <div class="system-body">
-                <div class="service-list" id="serviceList"></div>
+                <div class="system-rotator" id="systemRotator">
+                  <section class="system-panel is-active" data-system-panel="upcoming" id="systemUpcomingPanel">
+                    <div class="system-upcoming-list" id="systemUpcomingList"></div>
+                  </section>
+                  <section class="system-panel" data-system-panel="quarterly" id="systemQuarterlyPanel">
+                    <div class="system-quarterly-wrap" id="systemQuarterlyWrap"></div>
+                  </section>
+                  <section class="system-panel" data-system-panel="status" id="systemStatusPanel">
+                    <div class="service-list" id="serviceList"></div>
+                  </section>
+                </div>
               </div>
             </article>
 
@@ -2829,6 +2910,8 @@
       const ROTATION_INTERVAL_MS = 180000;
       const ROTATION_RESUME_IDLE_MS = 90000;
       const LIVE_REFRESH_MS = 30 * 1000;
+      const SYSTEM_PANEL_ROTATION_MS = 60 * 1000;
+      const ALL_TIME_STATS_API = "https://script.google.com/macros/s/AKfycbxwagjmBkLzuHyEmymm1MwtbwiqMAZjKcMLPb_RVD6Lo0hNfMEoXh-76MzJ3dk5NBPv9A/exec";
       const THEME_OPTIONS = [
         { id: "default", label: "Default (Neutral)", note: "Classic ASG look with no seasonal accents" },
         { id: "auto", label: "Auto (US Monthly)", note: "Follows month-based US holiday themes" },
@@ -2915,6 +2998,7 @@
           }
         ],
         closedDealsYtd: [],
+        allTimeClosedDeals: [],
         summaryYtd: null,
         nextClosing: null,
         nextClosingsByAgent: {}
@@ -2944,7 +3028,8 @@
           low: "--",
           icon: "🌤"
         },
-        overviewHighlightIndex: 0
+        overviewHighlightIndex: 0,
+        systemPanelIndex: 0
       };
       let controlsHideTimeout = null;
 
@@ -3213,6 +3298,38 @@
         return raw;
       }
 
+      function dealSideClassSuffix(sideLabel) {
+        const side = String(sideLabel || "").trim().toLowerCase();
+        if (side.includes("buy")) return "buyer";
+        if (side.includes("sell")) return "seller";
+        return "";
+      }
+
+      function firstNameFromAgent(name) {
+        const value = String(name || "").trim();
+        if (!value || value.toLowerCase() === "unassigned") return "";
+        return value.split(/\s+/)[0] || "";
+      }
+
+      function dateBadgeParts(value) {
+        const d = parseDateLoose(value);
+        if (!d) return { day: "--", month: "---" };
+        return {
+          day: String(d.getDate()),
+          month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
+        };
+      }
+
+      function daysUntilFromToday(value) {
+        const d = parseDateLoose(value);
+        if (!d) return null;
+        const today = startOfToday();
+        const target = new Date(d);
+        target.setHours(0, 0, 0, 0);
+        const msPerDay = 24 * 60 * 60 * 1000;
+        return Math.max(0, Math.round((target - today) / msPerDay));
+      }
+
       function dealDateRaw(deal) {
         if (!deal) return null;
         if (deal.dateRaw instanceof Date && !Number.isNaN(deal.dateRaw.getTime())) return deal.dateRaw;
@@ -3221,6 +3338,12 @@
           if (!Number.isNaN(cast.getTime())) return cast;
         }
         return parseDateLoose(deal.date || deal.closeDate || "");
+      }
+
+      function startOfToday() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today;
       }
 
       function updateNextClosingData(deals) {
@@ -3239,9 +3362,12 @@
           .filter((deal) => deal.dateRaw)
           .sort((a, b) => a.dateRaw - b.dateRaw || (b.priceNum || 0) - (a.priceNum || 0));
 
-        dataAdapters.nextClosing = pending.length ? pending[0] : null;
+        const todayFloor = startOfToday();
+        const upcoming = pending.filter((deal) => deal.dateRaw >= todayFloor);
+
+        dataAdapters.nextClosing = upcoming.length ? upcoming[0] : null;
         const byAgent = {};
-        pending.forEach((deal) => {
+        upcoming.forEach((deal) => {
           const key = normalizeAgentName(deal.agent);
           if (!key || byAgent[key]) return;
           byAgent[key] = deal;
@@ -3850,20 +3976,30 @@
         els.overviewKpis.innerHTML = dataAdapters.kpis.map((kpi) => {
           if (kpi.id === "next-closing") {
             const name = kpi.agent || "Unassigned";
+            const firstName = firstNameFromAgent(name);
+            const nextTitle = firstName ? "Next Closing: " + firstName : "Next Closing";
+            const sideLabel = normalizeDealSide(kpi.side || "—");
+            const sideSuffix = dealSideClassSuffix(sideLabel);
+            const sideChipClass = sideSuffix ? "kpi-next-chip kpi-next-chip--" + sideSuffix : "kpi-next-chip";
+            const dateParts = dateBadgeParts(kpi.dateLabel);
             const photo = kpi.agentPhoto
               ? '<div class="kpi-next-photo"><img src="' + esc(kpi.agentPhoto) + '" alt="' + esc(name) + '"></div>'
               : '<div class="kpi-next-photo">' + esc(initials(name)) + "</div>";
             return (
               '<article class="card kpi ' + esc(kpi.css) + '">' +
-                '<div class="kpi-label">' + esc(kpi.label) + "</div>" +
+                '<div class="kpi-label">' + esc(nextTitle) + "</div>" +
                 '<div class="kpi-next-wrap">' +
-                  '<div class="kpi-next-price">' + photo + '<div class="kpi-value">' + esc(kpi.value) + "</div></div>" +
-                  '<div class="kpi-next-agent">' + esc(name) + "</div>" +
-                  '<div class="kpi-next-meta">' +
-                    '<span class="kpi-next-chip">' + esc(kpi.dateLabel || "TBD") + "</span>" +
-                    '<span class="kpi-next-chip">' + esc(kpi.side || "—") + "</span>" +
+                  '<div class="kpi-next-main">' +
+                    '<div class="kpi-value">' + esc(kpi.value) + "</div>" +
+                    '<div class="kpi-next-address-row">' +
+                      '<div class="kpi-sub kpi-next-address">' + esc(kpi.address || kpi.sub || "No pending close date") + "</div>" +
+                      '<span class="' + sideChipClass + '">' + esc(sideLabel || "—") + "</span>" +
+                    "</div>" +
                   "</div>" +
-                  '<div class="kpi-sub">' + esc(kpi.address || kpi.sub || "No pending close date") + "</div>" +
+                  '<div class="kpi-next-side">' +
+                    '<div class="kpi-next-date-badge"><div class="kpi-next-date-day">' + esc(dateParts.day) + '</div><div class="kpi-next-date-mon">' + esc(dateParts.month) + "</div></div>" +
+                    photo +
+                  "</div>" +
                 "</div>" +
               "</article>"
             );
@@ -3919,11 +4055,22 @@
             ? '<div class="leader-photo"><img src="' + esc(leaderMeta.photo) + '" alt="' + esc(agent.name) + '"></div>'
             : '<div class="leader-photo">' + esc(initials(agent.name)) + "</div>";
           const nextCell = next
-            ? '<div class="leader-next"><div class="leader-next-card">' +
+            ? (function () {
+                const sideLabel = normalizeDealSide(next.dealType);
+                const sideSuffix = dealSideClassSuffix(sideLabel);
+                const sideChipClass = sideSuffix ? "leader-next-chip leader-next-chip--" + sideSuffix : "leader-next-chip";
+              const daysUntil = daysUntilFromToday(next.dateRaw);
+              const countdownLabel = daysUntil === null ? "Closing in -- days" : "Closing in " + daysUntil + " days";
+                return '<div class="leader-next"><div class="leader-next-card">' +
                 '<div class="leader-next-address">' + esc(next.address || "Address unavailable") + "</div>" +
-                '<div class="leader-next-price">' + esc(next.volume || "—") + "</div>" +
-                '<div class="leader-next-meta"><span class="leader-next-chip">' + esc(fmtDateMedium(next.dateRaw)) + '</span><span class="leader-next-chip">' + esc(normalizeDealSide(next.dealType)) + "</span></div>" +
-              "</div></div>"
+                '<div class="leader-next-chips">' +
+                  '<span class="leader-next-chip leader-next-chip--price">' + esc(next.volume || (next.priceNum ? fmtMoney(next.priceNum) : "—")) + "</span>" +
+                  '<span class="leader-next-chip leader-next-chip--date">' + esc(fmtDateMedium(next.dateRaw)) + "</span>" +
+                  '<span class="' + sideChipClass + '">' + esc(sideLabel) + "</span>" +
+                  '<span class="leader-next-chip leader-next-chip--countdown">' + esc(countdownLabel) + "</span>" +
+                "</div>" +
+              "</div></div>";
+              })()
             : '<div class="leader-next"></div>';
           return (
             '<div class="leader-row">' +
