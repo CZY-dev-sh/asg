@@ -510,8 +510,11 @@
     }
 
     .kpi {
-      padding: 14px 16px;
+      padding: 11px 16px 9px;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .kpi::before {
@@ -540,7 +543,7 @@
     }
 
     .kpi-value {
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: 36px;
       line-height: 1;
       letter-spacing: -0.05em;
@@ -548,7 +551,7 @@
     }
 
     .kpi-sub {
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: 12px;
       color: var(--muted);
       font-weight: 600;
@@ -566,15 +569,15 @@
     }
 
     .kpi.next-closing .kpi-sub {
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .kpi-next-wrap {
-      margin-top: 6px;
+      margin-top: 2px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
-      gap: 10px;
+      gap: 8px;
       min-width: 0;
     }
 
@@ -601,15 +604,16 @@
 
     .kpi-next-side {
       display: flex;
-      align-self: center;
-      align-items: center;
+      align-self: start;
+      align-items: flex-start;
       justify-content: center;
       gap: 8px;
+      margin-top: -12px;
     }
 
     .kpi-next-photo {
-      width: 84px;
-      height: 84px;
+      width: 74px;
+      height: 74px;
       border-radius: 999px;
       border: 1px solid var(--line);
       overflow: hidden;
@@ -630,8 +634,8 @@
     }
 
     .kpi-next-date-badge {
-      width: 84px;
-      height: 84px;
+      width: 74px;
+      height: 74px;
       border-radius: 999px;
       border: 1px solid color-mix(in srgb, var(--line) 84%, #e5e7eb);
       background: #fff;
@@ -644,14 +648,14 @@
     }
 
     .kpi-next-date-day {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.03em;
     }
 
     .kpi-next-date-mon {
-      margin-top: 3px;
-      font-size: 12px;
+      margin-top: 2px;
+      font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.08em;
     }
@@ -1204,10 +1208,29 @@
 
     .system-upcoming-col-list {
       min-height: 0;
-      overflow: auto;
+      overflow: hidden;
+      padding: 7px;
+    }
+
+    .system-upcoming-col-track {
       display: grid;
       gap: 6px;
-      padding: 7px;
+    }
+
+    .system-upcoming-col-list--marquee .system-upcoming-col-track {
+      animation: upcomingColMarquee var(--upcoming-marquee-sec, 120s) linear infinite;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+    }
+
+    @keyframes upcomingColMarquee {
+      from {
+        transform: translate3d(0, 0, 0);
+      }
+      to {
+        transform: translate3d(0, -50%, 0);
+      }
     }
 
     .system-upcoming-col-list .system-panel-empty {
@@ -1222,37 +1245,73 @@
       border-radius: 12px;
       padding: 7px;
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 8px;
-      align-items: start;
-      min-height: 0;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 7px;
+      align-items: center;
+      min-height: 72px;
+      height: 72px;
     }
 
     .system-upcoming-row .deal-agent-photo {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 12px;
       flex: 0 0 auto;
+      align-self: center;
     }
 
     .system-upcoming-row .deal-agent-photo img {
       border-radius: 12px;
     }
 
+    .system-upcoming-date-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 84%, #e5e7eb);
+      background: #fff;
+      color: #111827;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      line-height: 1;
+      flex: 0 0 auto;
+      align-self: center;
+    }
+
+    .system-upcoming-date-day {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .system-upcoming-date-mon {
+      margin-top: 1px;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
     .system-upcoming-main {
       min-width: 0;
       display: grid;
-      gap: 3px;
+      grid-template-rows: auto auto auto;
+      gap: 2px;
+      align-content: start;
     }
 
     .system-upcoming-agent {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       line-height: 1.05;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.12;
     }
 
     .system-upcoming-address {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--muted);
       white-space: nowrap;
@@ -1262,9 +1321,11 @@
 
     .system-upcoming-meta {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
       gap: 4px;
+      overflow: hidden;
+      align-self: end;
     }
 
     .system-upcoming-chip {
@@ -1274,7 +1335,7 @@
       border: 1px solid color-mix(in srgb, var(--line) 86%, #c7d2fe);
       background: color-mix(in srgb, var(--panel) 80%, #eef2ff);
       padding: 2px 7px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       line-height: 1.05;
       white-space: nowrap;
@@ -1494,14 +1555,17 @@
       display: grid;
       gap: 6px;
       animation: txScroll var(--tx-scroll-sec, 96s) linear infinite;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
     }
 
     @keyframes txScroll {
       from {
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
       }
       to {
-        transform: translateY(-50%);
+        transform: translate3d(0, -50%, 0);
       }
     }
 
@@ -2145,14 +2209,18 @@
 
     .closed-deals-track.closed-deals-track--marquee {
       animation: tvClosedMarquee var(--closed-marquee-sec, 48s) linear infinite;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
     }
 
     @keyframes tvClosedMarquee {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(0, -50%, 0); }
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .system-upcoming-col-list--marquee .system-upcoming-col-track,
+      .tx-list,
       .closed-deals-track.closed-deals-track--marquee {
         animation: none;
       }
@@ -3311,6 +3379,7 @@
         2026: 2.5
       };
       const QT_DIM = "#ccc";
+      const UPCOMING_COLUMN_MARQUEE_SEC = 132;
 
       const appState = {
         currentView: "overview",
@@ -3650,6 +3719,12 @@
         return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
       }
 
+      function fmtWeekday(value) {
+        const d = parseDateLoose(value);
+        if (!d) return "TBD";
+        return d.toLocaleDateString("en-US", { weekday: "short" });
+      }
+
       function normalizeDealSide(raw) {
         const side = String(raw || "").trim().toLowerCase();
         if (!side) return "—";
@@ -3938,6 +4013,7 @@
               priceNum: priceNum,
               date: fmtDateMedium(row.closeDate),
               dateRaw: parseDateLoose(row.closeDate),
+              hasDbCloseDate: false,
               note: row.side + " pipeline · " + (row.stage || "Stage not set"),
               includeFields: inc,
               dealType: row.side || "—",
@@ -3962,6 +4038,7 @@
               priceNum: priceNum,
               date: "TBD",
               dateRaw: null,
+              hasDbCloseDate: false,
               note: inc,
               includeFields: inc,
               dealType: item.listingType || "—",
@@ -4097,6 +4174,10 @@
       function mapPipelineRow(row, statusFallback) {
         const priceNum = Number(row && row.price) || 0;
         let dateRaw = null;
+        const hasDbCloseDate = Boolean(
+          (row && Number.isFinite(Number(row.closeDateMs)) && Number(row.closeDateMs) > 0) ||
+          (row && row.closeDate && String(row.closeDate).trim() && String(row.closeDate).trim() !== "—")
+        );
         if (row.closeDateMs) {
           const d = new Date(row.closeDateMs);
           if (!isNaN(d.getTime())) dateRaw = d;
@@ -4114,6 +4195,7 @@
           priceNum: priceNum,
           date: row.closeDate || "—",
           dateRaw: dateRaw,
+          hasDbCloseDate: hasDbCloseDate,
           note: inc || "Pipeline",
           includeFields: inc,
           dealType: dealType,
@@ -4733,7 +4815,8 @@
             return {
               ...deal,
               agent: resolveCanonicalAgentName(deal.agent),
-              dateRaw
+              dateRaw,
+              hasDbCloseDate: deal.hasDbCloseDate === true
             };
           })
           .filter((deal) => deal.dateRaw && deal.dateRaw >= todayFloor)
@@ -4774,18 +4857,17 @@
           if (!date) return;
           if (date < startOfNextWeek) groups.thisWeek.push(deal);
           else if (date < startOfFollowingWeek) groups.nextWeek.push(deal);
-          else groups.later.push(deal);
+          else if (deal.hasDbCloseDate) groups.later.push(deal);
         });
 
-        const renderDealCard = (deal) => {
+        const renderDealCard = (deal, columnKey) => {
           const sideLabel = normalizeDealSide(deal.dealType || "—");
           const sideSuffix = dealSideClassSuffix(sideLabel);
           const sideCls = sideSuffix
             ? "system-upcoming-chip leader-next-chip--" + sideSuffix
             : "system-upcoming-chip";
-          const daysUntil = daysUntilFromToday(deal.dateRaw);
-          const countdown = daysUntil === null ? "Closing in -- days" : "Closing in " + daysUntil + " days";
           const priceLabel = deal.priceNum ? fmtMoney(deal.priceNum) : (deal.volume || "—");
+          const dateParts = dateBadgeParts(deal.dateRaw);
           return (
             '<article class="system-upcoming-row">' +
               agentDirectoryPhotoHtml(deal.agent) +
@@ -4793,36 +4875,47 @@
                 '<div class="system-upcoming-agent">' + esc(deal.agent || "Unassigned") + "</div>" +
                 '<div class="system-upcoming-address">' + esc(deal.address || "Address unavailable") + "</div>" +
                 '<div class="system-upcoming-meta">' +
-                  '<span class="system-upcoming-chip leader-next-chip--date">' + esc(fmtDateMedium(deal.dateRaw)) + "</span>" +
                   '<span class="' + sideCls + '">' + esc(sideLabel || "—") + "</span>" +
                   '<span class="system-upcoming-chip leader-next-chip--price">' + esc(priceLabel) + "</span>" +
-                  '<span class="system-upcoming-chip system-upcoming-chip--countdown">' + esc(countdown) + "</span>" +
                 "</div>" +
               "</div>" +
+              '<div class="system-upcoming-date-badge"><div class="system-upcoming-date-day">' + esc(dateParts.day) + '</div><div class="system-upcoming-date-mon">' + esc(dateParts.month) + "</div></div>" +
             "</article>"
           );
         };
 
-        const renderColumn = (label, list) => {
+        const renderColumn = (label, list, columnKey) => {
           const countLabel = list.length === 1 ? "1 deal" : list.length + " deals";
-          const itemsHtml = list.length
-            ? list.map(renderDealCard).join("")
-            : '<div class="system-panel-empty">No closings</div>';
+          const cardsHtml = list.length ? list.map((deal) => renderDealCard(deal, columnKey)).join("") : "";
+          let itemsHtml = '<div class="system-panel-empty">No closings</div>';
+          let listClass = "system-upcoming-col-list";
+          if (cardsHtml) {
+            const shouldMarquee = list.length > 4;
+            if (shouldMarquee) {
+              listClass += " system-upcoming-col-list--marquee";
+              itemsHtml =
+                '<div class="system-upcoming-col-track" style="--upcoming-marquee-sec:' + UPCOMING_COLUMN_MARQUEE_SEC + 's">' +
+                cardsHtml + cardsHtml +
+                "</div>";
+            } else {
+              itemsHtml = '<div class="system-upcoming-col-track">' + cardsHtml + "</div>";
+            }
+          }
           return (
             '<section class="system-upcoming-col">' +
               '<header class="system-upcoming-col-head">' +
                 "<span>" + esc(label) + "</span>" +
                 '<span class="system-upcoming-col-count">' + esc(countLabel) + "</span>" +
               "</header>" +
-              '<div class="system-upcoming-col-list">' + itemsHtml + "</div>" +
+              '<div class="' + listClass + '">' + itemsHtml + "</div>" +
             "</section>"
           );
         };
 
         els.systemUpcomingList.innerHTML =
-          renderColumn("This Week", groups.thisWeek) +
-          renderColumn("Next Week", groups.nextWeek) +
-          renderColumn("Later", groups.later);
+          renderColumn("This Week", groups.thisWeek, "thisWeek") +
+          renderColumn("Next Week", groups.nextWeek, "nextWeek") +
+          renderColumn("Later", groups.later, "later");
       }
 
       function buildSystemQuarterlyTrendSeries() {
