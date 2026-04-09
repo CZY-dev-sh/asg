@@ -345,7 +345,7 @@
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       white-space: nowrap;
       width: 196px;
@@ -356,7 +356,7 @@
     }
 
     .weather-inline-icon {
-      font-size: 22px;
+      font-size: 26px;
       line-height: 1;
       width: 24px;
       height: 24px;
@@ -376,7 +376,7 @@
     }
 
     .weather-inline-main {
-      font-size: 12.5px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: -0.01em;
       line-height: 1;
@@ -389,7 +389,7 @@
 
     .weather-inline-location {
       color: var(--muted);
-      font-size: 8.5px;
+      font-size: 11px;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.01em;
@@ -902,7 +902,7 @@
 
     .panel-title {
       margin: 0;
-      font-size: 18px;
+      font-size: clamp(18px, 2vh, 26px);
       letter-spacing: -0.04em;
       font-weight: 800;
     }
@@ -1574,8 +1574,8 @@
       border-radius: 14px;
       padding: 9px 10px;
       display: grid;
-      grid-template-columns: 0.9fr 1.15fr auto auto;
-      gap: 8px;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
+      gap: 6px;
       align-items: center;
       background: var(--panel-soft);
     }
@@ -1603,12 +1603,11 @@
       text-align: right;
     }
 
-    .tx-tags {
-      display: inline-flex;
+    .tx-cell-center {
+      display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-start;
+      min-width: 0;
     }
 
     .tx-pill {
@@ -1620,6 +1619,9 @@
       border: 1px solid transparent;
       white-space: nowrap;
       text-transform: capitalize;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tx-pill-type-listing {
@@ -1873,15 +1875,8 @@
     .deal-pipeline-head,
     .deal-bento-card:not(.deal-bento-card--empty) {
       display: grid;
-      grid-template-columns:
-        minmax(8rem, 1.05fr)
-        minmax(0, 1.32fr)
-        minmax(4.75rem, 0.68fr)
-        minmax(3.75rem, 0.48fr)
-        minmax(5rem, 0.62fr)
-        minmax(0, 1.02fr)
-        minmax(4.25rem, 0.68fr);
-      gap: 6px 10px;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
+      gap: 4px 6px;
       align-items: center;
     }
 
@@ -1898,13 +1893,11 @@
     }
 
     .deal-pipeline-head > div:nth-child(3),
-    .deal-pipeline-head > div:nth-child(4),
-    .deal-pipeline-head > div:nth-child(5),
-    .deal-pipeline-head > div:nth-child(6) {
+    .deal-pipeline-head > div:nth-child(4) {
       text-align: center;
     }
 
-    .deal-pipeline-head > div:nth-child(7) {
+    .deal-pipeline-head > div:nth-child(5) {
       text-align: right;
     }
 
@@ -1922,7 +1915,7 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 8px;
+      gap: 0;
       min-width: 0;
     }
 
@@ -1931,13 +1924,13 @@
     }
 
     .pipeline-deals-board .deal-pipeline-name {
-      font-size: clamp(10px, calc(var(--deal-row-h, 40px) * 0.34), 17px);
+      font-size: clamp(9px, calc(var(--deal-row-h, 40px) * 0.29), 14px);
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--text);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow: visible;
+      text-overflow: clip;
       min-width: 0;
       line-height: 1.12;
     }
@@ -1950,6 +1943,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: clamp(180px, 22vw, 360px);
     }
 
     .deal-pipeline-cell--status {
@@ -2024,7 +2018,7 @@
       background: color-mix(in srgb, var(--panel-soft) 92%, var(--panel));
       border-radius: 999px;
       box-shadow: 0 1px 0 color-mix(in srgb, var(--line) 35%, transparent);
-      padding: 0 clamp(10px, 1.2vw, 18px);
+      padding: 0 clamp(8px, 1vw, 12px);
       min-height: 0;
       height: 100%;
       max-height: 100%;
@@ -3126,9 +3120,7 @@
                   <div class="deal-pipeline-head" aria-hidden="true">
                     <div>Agent</div>
                     <div>Address</div>
-                    <div>Status</div>
-                    <div>Type</div>
-                    <div>Close date</div>
+                    <div>Buy/Sell</div>
                     <div>Source</div>
                     <div>Price</div>
                   </div>
@@ -3617,13 +3609,33 @@
         const aliased = AGENT_NAME_ALIASES[normalized];
         if (aliased) return aliased;
 
+        const firstToken = String(rawName || "").trim().split(/\s+/)[0] || "";
+        const aliasedFirst = AGENT_NAME_ALIASES[normalizeAgentName(firstToken)];
+        if (aliasedFirst) return aliasedFirst;
+
         const exactMeta = TEAM_META.find((m) => normalizeAgentName(m.name) === normalized);
         if (exactMeta) return exactMeta.name;
 
         const firstNameMatches = TEAM_META.filter((m) => normalizeAgentName(m.name.split(" ")[0]) === normalized);
         if (firstNameMatches.length === 1) return firstNameMatches[0].name;
 
+        const firstNameMatchesByToken = TEAM_META.filter((m) => normalizeAgentName(m.name.split(" ")[0]) === normalizeAgentName(firstToken));
+        if (firstNameMatchesByToken.length === 1) return firstNameMatchesByToken[0].name;
+
         return rawName;
+      }
+
+      function displayAgentFullName(rawName) {
+        const canonical = resolveCanonicalAgentName(rawName);
+        const cleaned = String(canonical || rawName || "").trim();
+        if (!cleaned) return "Unassigned";
+        const parts = cleaned.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) return cleaned;
+        const token = parts[0] || "";
+        const tokenKey = normalizeAgentName(token);
+        const matches = TEAM_META.filter((m) => normalizeAgentName(m.name.split(" ")[0]) === tokenKey);
+        if (matches.length === 1) return matches[0].name;
+        return cleaned;
       }
 
       function parseCSV(text, side) {
@@ -4006,7 +4018,7 @@
             const priceNum = safeNum(row.price);
             const inc = row.side + " · " + (row.stage || "Stage not set");
             return {
-              agent: row.agent,
+              agent: displayAgentFullName(row.agent),
               address: row.address,
               status: status,
               volume: fmtMoney(row.price),
@@ -4031,7 +4043,7 @@
             const priceNum = safeNum(item.price);
             const inc = (item.neighborhood || "Chicago") + " · " + (item.listingType || "Listing");
             return {
-              agent: item.agent || "Unassigned",
+              agent: displayAgentFullName(item.agent || "Unassigned"),
               address: item.address || "Address unavailable",
               status: status,
               volume: item.price ? fmtMoney(item.price) : "—",
@@ -4188,7 +4200,7 @@
         const dealType = row.type != null ? String(row.type).trim() : "";
         const dealSource = row.source != null ? String(row.source).trim() : "";
         return {
-          agent: row.agent || "—",
+          agent: displayAgentFullName(row.agent || "—"),
           address: row.address || "—",
           status: st,
           volume: priceNum ? fmtMoney(priceNum) : "—",
@@ -4712,7 +4724,7 @@
           if (els.txList) {
             els.txList.style.removeProperty("--tx-scroll-sec");
             els.txList.innerHTML =
-              '<div class="tx-row"><div class="tx-name">No pending deals</div><div class="tx-address">YTD Pending is empty or the feed is unavailable</div><div class="tx-tags"></div><div class="tx-price">—</div></div>';
+              '<div class="tx-row"><div class="tx-name">No pending deals</div><div class="tx-address">YTD Pending is empty or the feed is unavailable</div><div class="tx-cell-center">—</div><div class="tx-cell-center">—</div><div class="tx-price">—</div></div>';
           }
           return;
         }
@@ -4723,7 +4735,8 @@
             '<div class="tx-row">' +
               '<div class="tx-name">' + esc(tx.agent) + "</div>" +
               '<div class="tx-address">' + esc(tx.address) + "</div>" +
-              '<div class="tx-tags">' + txTypePill(typeLabel) + txSourcePill(sourceLabel) + "</div>" +
+              '<div class="tx-cell-center">' + txTypePill(typeLabel) + "</div>" +
+              '<div class="tx-cell-center">' + txSourcePill(sourceLabel) + "</div>" +
               '<div class="tx-price">' + esc(tx.price) + "</div>" +
             "</div>"
           );
@@ -5566,21 +5579,15 @@
           .map(function (deal) {
             const typeL = dealTypeLabel(deal);
             const srcL = dealSourceLabel(deal);
+            const fullAgentName = displayAgentFullName(deal.agent);
             return (
               '<div class="deal-bento-card">' +
                 '<div class="deal-pipeline-cell deal-pipeline-cell--agent">' +
-                  agentDirectoryPhotoHtml(deal.agent) +
-                  '<span class="deal-pipeline-name">' + esc(deal.agent) + "</span>" +
+                  '<span class="deal-pipeline-name">' + esc(fullAgentName || deal.agent || "Unassigned") + "</span>" +
                 "</div>" +
                 '<div class="deal-pipeline-cell deal-pipeline-cell--address">' + esc(deal.address) + "</div>" +
-                '<div class="deal-pipeline-cell deal-pipeline-cell--status">' +
-                  '<span class="status-chip ' + statusClass(deal.status) + '">' + esc(deal.status) + "</span>" +
-                "</div>" +
                 '<div class="deal-pipeline-cell deal-pipeline-cell--tag">' +
                   dealFieldTag(typeL) +
-                "</div>" +
-                '<div class="deal-pipeline-cell deal-pipeline-cell--tag">' +
-                  dealFieldTag(deal.date) +
                 "</div>" +
                 '<div class="deal-pipeline-cell deal-pipeline-cell--tag">' +
                   dealFieldTag(srcL) +
