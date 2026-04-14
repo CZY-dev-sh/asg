@@ -266,7 +266,7 @@ function _enrichDirectoryRows_(rows) {
       daysUntilBirthday: item.daysUntilBirthday,
       imageUrl: _pick_(item.row, ["image_url", "photo", "headshot_url"]) || "",
       email: _pick_(item.row, ["email"]) || "",
-      phone: _pick_(item.row, ["phone_number", "phone"]) || ""
+      phone: _pick_(item.row, ["phone_number", "phone", "mobile", "cell", "cell_phone", "work_phone"]) || ""
     };
   });
 
@@ -365,8 +365,8 @@ function _orderUpdates_(rows) {
 }
 
 function _eventDateTime_(row) {
-  var dateVal = _pick_(row, ["start_date", "date"]);
-  var timeVal = _pick_(row, ["start_time", "time"]);
+  var dateVal = _pick_(row, ["start_date", "date", "event_date", "event_start_date", "datetime"]);
+  var timeVal = _pick_(row, ["start_time", "time", "event_time"]);
   var date = _parseDate_(dateVal);
   if (!date) return null;
 
@@ -490,7 +490,8 @@ function _normalizeTier_(raw) {
 
 function _toIsoDate_(d) {
   if (!d) return "";
-  return Utilities.formatDate(d, "UTC", "yyyy-MM-dd");
+  // Use script timezone so calendar day matches the sheet / local intent (UTC would shift dates).
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd");
 }
 
 function _pick_(obj, keys) {

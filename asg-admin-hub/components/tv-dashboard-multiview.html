@@ -1657,6 +1657,98 @@
     .overview-event-wrap {
       padding: 8px;
       min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .overview-event-wrap > .event-spotlight,
+    .overview-event-wrap > .birthday-bento {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .birthday-bento {
+      display: grid;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .birthday-bento--has-more {
+      grid-template-rows: minmax(160px, 1fr) auto;
+    }
+
+    .birthday-bento:not(.birthday-bento--has-more) {
+      grid-template-rows: 1fr;
+    }
+
+    .birthday-bento .event-spotlight--birthday.event-spotlight--birthday-hero {
+      min-height: 0;
+      height: 100%;
+    }
+
+    .birthday-bento-next {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 6px;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .birthday-bento-next .birthday-upcoming-row {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .birthday-upcoming-row {
+      min-height: 64px;
+      height: auto;
+      padding: 6px 8px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .birthday-upcoming-row .system-upcoming-main {
+      grid-template-rows: auto auto;
+      gap: 0;
+      align-content: center;
+    }
+
+    .birthday-upcoming-row .system-upcoming-agent {
+      font-size: 13px;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .birthday-upcoming-row .system-upcoming-address {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-top: 2px;
+    }
+
+    .birthday-upcoming-row .deal-agent-photo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+    }
+
+    .birthday-upcoming-row .deal-agent-photo img {
+      border-radius: 12px;
+    }
+
+    .birthday-upcoming-row .system-upcoming-date-badge {
+      width: 42px;
+      height: 42px;
+    }
+
+    .birthday-upcoming-row .system-upcoming-date-day {
+      font-size: 13px;
+    }
+
+    .birthday-upcoming-row .system-upcoming-date-mon {
+      font-size: 9px;
+      margin-top: 0;
     }
 
     .event-spotlight {
@@ -1675,6 +1767,13 @@
       background-position: center;
       height: 136px;
       background-color: color-mix(in srgb, var(--blue) 12%, #0f172a);
+    }
+
+    /* Next-event hero: focal above center so faces read lower in frame vs default 50% crop */
+    .event-spotlight--next-event .event-spotlight-cover.event-spotlight-cover--focus-faces {
+      height: clamp(160px, 19vh, 228px);
+      background-position: center 22%;
+      background-size: cover;
     }
 
     .event-spotlight-cover::after {
@@ -1787,6 +1886,246 @@
       text-align: center;
       line-height: 1.25;
       max-width: 210px;
+    }
+
+    .event-spotlight-qr-col {
+      display: grid;
+      gap: 14px;
+      justify-items: center;
+      align-content: center;
+    }
+
+    .event-spotlight--next-event .event-spotlight-body {
+      grid-template-columns: minmax(0, 1fr) minmax(200px, auto);
+    }
+
+    .event-spotlight--update .event-spotlight-cover:not(.event-spotlight-cover--lesson-image),
+    .event-spotlight--next-event.event-spotlight--empty .event-spotlight-cover,
+    .event-spotlight-cover--placeholder {
+      background-image: none;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--blue) 22%, var(--panel)) 0%, color-mix(in srgb, #6366f1 18%, var(--panel)) 100%);
+    }
+
+    .event-spotlight--update .event-spotlight-cover {
+      display: flex;
+      align-items: flex-end;
+      padding: 12px 16px;
+    }
+
+    .event-spotlight--update .event-spotlight-cover--lesson-image {
+      min-height: clamp(128px, 15vh, 180px);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+
+    .event-spotlight--update .event-spotlight-cover--lesson-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.5));
+      pointer-events: none;
+    }
+
+    .event-spotlight--update .event-spotlight-cover--lesson-image .event-spotlight-update-badge {
+      position: relative;
+      z-index: 1;
+    }
+
+    .event-spotlight-update-badge {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      max-width: min(440px, 92%);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e293b;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .update-spotlight-progress {
+      font-size: clamp(14px, 1.4vh, 18px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .event-spotlight-update-badge--alert {
+      background: color-mix(in srgb, #fef2f2 92%, transparent);
+      color: #b91c1c;
+      border-color: color-mix(in srgb, #fecaca 80%, transparent);
+    }
+
+    .event-spotlight--birthday {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 280px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--panel-soft) 88%, #fff 12%);
+    }
+
+    .event-spotlight--birthday::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.38;
+      background-image:
+        radial-gradient(circle at 8% 14%, #f472b6 0 3px, transparent 4px),
+        radial-gradient(circle at 19% 62%, #38bdf8 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 72% 11%, #fbbf24 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 91% 28%, #a78bfa 0 3px, transparent 4px),
+        radial-gradient(circle at 34% 22%, #34d399 0 2px, transparent 3px),
+        radial-gradient(circle at 56% 78%, #fb7185 0 3px, transparent 4px),
+        radial-gradient(circle at 12% 88%, #22d3ee 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 88% 72%, #fcd34d 0 2px, transparent 3px),
+        radial-gradient(circle at 48% 6%, #c084fc 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 63% 44%, #f97316 0 2px, transparent 3px),
+        radial-gradient(circle at 25% 38%, #ec4899 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 81% 52%, #2dd4bf 0 3px, transparent 4px),
+        radial-gradient(circle at 5% 48%, #e879f9 0 2px, transparent 3px),
+        radial-gradient(circle at 95% 14%, #4ade80 0 2.5px, transparent 3.5px),
+        radial-gradient(circle at 42% 92%, #60a5fa 0 2px, transparent 3px),
+        radial-gradient(circle at 77% 91%, #facc15 0 3px, transparent 4px);
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    .birthday-spotlight-banner {
+      position: relative;
+      z-index: 1;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: color-mix(in srgb, var(--panel-soft) 94%, var(--panel) 6%);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .birthday-spotlight-ribbon {
+      position: relative;
+      z-index: 1;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+
+    .birthday-spotlight-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 18px 20px;
+      align-items: center;
+      padding: 18px 20px;
+      min-height: 0;
+    }
+
+    .birthday-spotlight-photo {
+      width: clamp(104px, 12vh, 148px);
+      height: clamp(104px, 12vh, 148px);
+      border-radius: 50%;
+      border: 2px solid var(--line);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      background: var(--panel);
+      flex-shrink: 0;
+    }
+
+    .birthday-spotlight-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .birthday-spotlight-photo--empty {
+      display: grid;
+      place-items: center;
+      font-size: clamp(22px, 2.4vh, 32px);
+      font-weight: 700;
+      color: var(--muted);
+      background: var(--panel-soft);
+    }
+
+    .birthday-spotlight-text {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-self: center;
+      justify-content: center;
+    }
+
+    .birthday-spotlight-name {
+      font-size: clamp(22px, 2.5vh, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .birthday-spotlight-detail {
+      font-size: clamp(14px, 1.45vh, 16px);
+      font-weight: 500;
+      line-height: 1.35;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .birthday-spotlight-phone {
+      font-size: clamp(15px, 1.5vh, 18px);
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .birthday-spotlight-phone a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, var(--blue));
+    }
+
+    .birthday-spotlight-phone a:hover {
+      border-bottom-color: color-mix(in srgb, var(--blue) 50%, var(--line));
+    }
+
+    .birthday-spotlight-date-circle {
+      width: clamp(76px, 8.5vh, 92px);
+      height: clamp(76px, 8.5vh, 92px);
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    .birthday-spotlight-date-circle .system-upcoming-date-day {
+      font-size: clamp(20px, 2.2vh, 26px);
+    }
+
+    .birthday-spotlight-date-circle .system-upcoming-date-mon {
+      font-size: clamp(9px, 1vh, 11px);
+      margin-top: 1px;
+    }
+
+    .event-spotlight--empty .event-spotlight-title {
+      color: var(--muted);
     }
 
     .deals-layout,
@@ -3101,7 +3440,7 @@
             <article class="card overview-events">
               <div class="panel-head">
                 <h2 class="panel-title">Events and Updates</h2>
-                <div class="panel-sub">Swaps every 15s</div>
+                <div class="panel-sub">Rotates every 20 seconds</div>
               </div>
               <div class="overview-event-wrap" id="overviewEventCard"></div>
             </article>
@@ -3244,6 +3583,7 @@
       const ROTATION_RESUME_IDLE_MS = 90000;
       const LIVE_REFRESH_MS = 30 * 1000;
       const SYSTEM_PANEL_ROTATION_MS = 60 * 1000;
+      const OVERVIEW_HIGHLIGHT_ROTATION_MS = 20 * 1000;
       const ALL_TIME_STATS_API = "https://script.google.com/macros/s/AKfycbxwagjmBkLzuHyEmymm1MwtbwiqMAZjKcMLPb_RVD6Lo0hNfMEoXh-76MzJ3dk5NBPv9A/exec";
       const THEME_OPTIONS = [
         { id: "default", label: "Default (Neutral)", note: "Classic ASG look with no seasonal accents" },
@@ -3320,17 +3660,8 @@
           { name: "Notion", url: "www.notion-status.com", status: "Operational", logo: "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/cf940fa6-0e61-48d2-b624-f44acfb3e457/Notion-logo.svg.png?format=2500w" },
           { name: "Google Workspace", url: "google.com/appsstatus/dashboard", status: "Operational", logo: "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/0c89301b-a741-4e5a-b4d7-1ba6a96ed442/google+%281%29.png?format=2500w" }
         ],
-        overviewHighlights: [
-          {
-            title: "Team Photos",
-            location: "2255 S Michigan Ave, Chicago, IL",
-            time: "9:00 AM",
-            date: "Friday, April 10, 2026",
-            attire: "Business Professional - Black",
-            detailsUrl: "https://www.alexstoykovgroup.com/events/team-photos",
-            cover: "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/19cb32f3-d75e-4b76-86e0-3fb0b4b8ffde/image-asset.jpeg?format=2500w"
-          }
-        ],
+        overviewHighlights: [],
+        hubUpdatesOrdered: [],
         closedDealsYtd: [],
         allTimeClosedDeals: [],
         summaryYtd: null,
@@ -3398,6 +3729,7 @@
           icon: "🌤"
         },
         overviewHighlightIndex: 0,
+        hubUpdateLessonIndex: 0,
         systemPanelIndex: 0,
         allTimeClosedLoaded: false,
         allTimeClosedInFlight: false,
@@ -3535,6 +3867,64 @@
           .replaceAll(">", "&gt;")
           .replaceAll('"', "&quot;")
           .replaceAll("'", "&#39;");
+      }
+
+      function applyTvAgentPhotoFallback(img) {
+        if (!img || !img.parentNode || img.dataset.tvPhotoApplied === "1") return;
+        img.dataset.tvPhotoApplied = "1";
+        let ini = img.getAttribute("data-tv-agent-photo");
+        if (ini == null || ini === "") ini = "—";
+        const mode = img.getAttribute("data-tv-photo-mode") || "";
+        const p = img.parentNode;
+        img.remove();
+        if (mode === "deal") p.classList.add("deal-agent-photo--initials");
+        else if (mode === "birthday") p.classList.add("birthday-spotlight-photo--empty");
+        p.textContent = ini;
+      }
+
+      function bindTvAgentPhotoFallbacks(root) {
+        if (!root || !root.querySelectorAll) return;
+        root.querySelectorAll("img[data-tv-agent-photo]").forEach(function (img) {
+          if (img.dataset.tvPhotoBound === "1") return;
+          img.dataset.tvPhotoBound = "1";
+          img.addEventListener(
+            "error",
+            function () {
+              applyTvAgentPhotoFallback(img);
+            },
+            { once: true }
+          );
+          requestAnimationFrame(function () {
+            if (!img.parentNode || img.dataset.tvPhotoApplied === "1") return;
+            if (img.complete && img.src && img.naturalWidth === 0 && img.naturalHeight === 0) {
+              applyTvAgentPhotoFallback(img);
+            }
+          });
+        });
+      }
+
+      /** Catch broken loads that never fired `error` (e.g. cached empty response). */
+      function sweepTvAgentPhotosForBroken(root) {
+        if (!root || !root.querySelectorAll) return;
+        root.querySelectorAll("img[data-tv-agent-photo]").forEach(function (img) {
+          if (img.dataset.tvPhotoApplied === "1") return;
+          if (img.complete && img.src && img.naturalWidth === 0 && img.naturalHeight === 0) {
+            applyTvAgentPhotoFallback(img);
+          }
+        });
+      }
+
+      function tvAgentPhotoImgTag(src, initialsForFallback, mode) {
+        const modeAttr = mode ? ' data-tv-photo-mode="' + esc(mode) + '"' : "";
+        return (
+          '<img src="' +
+          esc(src) +
+          '" alt="" loading="lazy" data-tv-agent-photo="' +
+          esc(initialsForFallback) +
+          '"' +
+          modeAttr +
+          " />"
+        );
       }
 
       function fmtM(valueM) {
@@ -3676,9 +4066,20 @@
 
       function parseDateLoose(input) {
         if (!input) return null;
-        const direct = new Date(input);
+        const s = String(input).trim();
+        if (!s) return null;
+        // Plain YYYY-MM-DD from hub (birthdays, etc.): must be local calendar date, not UTC midnight.
+        const ymdOnly = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (ymdOnly) {
+          const y = Number(ymdOnly[1]);
+          const mo = Number(ymdOnly[2]) - 1;
+          const da = Number(ymdOnly[3]);
+          const localCal = new Date(y, mo, da);
+          if (!Number.isNaN(localCal.getTime())) return localCal;
+        }
+        const direct = new Date(s);
         if (!Number.isNaN(direct.getTime())) return direct;
-        const mdy = String(input).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+        const mdy = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
         if (!mdy) return null;
         const mm = Number(mdy[1]) - 1;
         const dd = Number(mdy[2]);
@@ -3886,6 +4287,387 @@
         const dir = payload.data.directory;
         if (!dir || dir.success !== true || !Array.isArray(dir.rows)) return [];
         return dir.rows.slice();
+      }
+
+      function hubRowPick(row, keys) {
+        if (!row || typeof row !== "object") return "";
+        for (let i = 0; i < keys.length; i += 1) {
+          const k = keys[i];
+          const v = row[k];
+          if (v != null && String(v).trim() !== "") return String(v).trim();
+          const disp = row[k + "_display"];
+          if (disp != null && String(disp).trim() !== "") return String(disp).trim();
+        }
+        return "";
+      }
+
+      function normalizeHttpUrl(raw) {
+        const s = String(raw || "").trim();
+        if (!s) return "";
+        if (/^https?:\/\//i.test(s)) return s;
+        if (/^(meet\.google\.|zoom\.us|teams\.microsoft\.|www\.)/i.test(s)) return "https://" + s.replace(/^\/+/, "");
+        return s;
+      }
+
+      function isHubTeamMeetingSpotlight(item) {
+        if (!item) return false;
+        const t = String(item.title || "").toLowerCase();
+        const loc = String(item.location || "").toLowerCase();
+        if (/bean/.test(loc)) return true;
+        if (/senior/.test(t) && /meeting/.test(t)) return true;
+        if (/bi[-\s]?weekly/.test(t) && (/senior/.test(t) || /team/.test(t))) return true;
+        return false;
+      }
+
+      function formatHubEventWhen(row) {
+        if (!row) return "";
+        const iso = row.computed_event_datetime_iso;
+        if (iso) {
+          const d = new Date(iso);
+          if (!isNaN(d.getTime())) {
+            return d.toLocaleString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit"
+            });
+          }
+        }
+        const date = hubRowPick(row, ["start_date", "date"]);
+        const time = hubRowPick(row, ["start_time", "time"]);
+        if (date && time) return date + " · " + time;
+        return date || time || "";
+      }
+
+      /** Calendar chip on event hero: never show raw ISO timestamps. */
+      function formatOverviewEventChipDate(raw) {
+        if (raw == null || raw === "") return "";
+        const d = parseDateAny(raw);
+        if (d && !Number.isNaN(d.getTime())) {
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+        const native = new Date(String(raw).trim());
+        if (!Number.isNaN(native.getTime())) {
+          return native.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+        const s = String(raw).trim();
+        if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return "";
+        return s.length <= 18 ? s : "";
+      }
+
+      function fmtMonthDayFromIso(iso) {
+        if (!iso) return "—";
+        const d = parseDateAny(iso);
+        if (!d) return String(iso);
+        return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+      }
+
+      function formatUpdatePublishLabel(publishRaw) {
+        if (publishRaw == null || publishRaw === "") return "—";
+        const d = parseDateAny(publishRaw);
+        if (d) {
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+        const s = String(publishRaw).trim();
+        return s || "—";
+      }
+
+      function findDirectoryRowForBirthday(rows, name, rowNumber) {
+        if (!Array.isArray(rows) || !rows.length) return null;
+        const key = normalizeAgentName(name);
+        if (key) {
+          const byName = rows.find((r) => {
+            const n = hubRowPick(r, ["name", "display_name"]);
+            return normalizeAgentName(n) === key;
+          });
+          if (byName) return byName;
+        }
+        if (rowNumber != null && rowNumber !== "") {
+          const num = Number(rowNumber);
+          const match = rows.find((r) => r && r._rowNumber === num);
+          if (match) return match;
+        }
+        return null;
+      }
+
+      function resolveBirthdaySpotlightPhoto(row, b, key) {
+        if (row) {
+          const icon = hubRowPick(row, ["icon_photo_url", "icon_photo", "iconphoto"]);
+          if (icon) return icon;
+          const regular = hubRowPick(row, ["image_url", "photo", "headshot_url", "headshot"]);
+          if (regular) return regular;
+        }
+        const fromApi = b && b.imageUrl && String(b.imageUrl).trim();
+        if (fromApi) return fromApi;
+        const meta = TEAM_META_MAP[key];
+        return meta && meta.photo ? meta.photo : "";
+      }
+
+      function resolveBirthdaySpotlightPhone(row, b, key) {
+        const fromRow =
+          row &&
+          hubRowPick(row, [
+            "phone",
+            "phone_number",
+            "mobile",
+            "cell",
+            "cell_phone",
+            "work_phone",
+            "primary_phone"
+          ]);
+        if (fromRow && String(fromRow).trim()) return String(fromRow).trim();
+        const fromApi = b && b.phone != null && String(b.phone).trim();
+        if (fromApi) return String(b.phone).trim();
+        const meta = TEAM_META_MAP[key];
+        if (meta && meta.phone && String(meta.phone).trim()) return String(meta.phone).trim();
+        return "";
+      }
+
+      function birthdayPhoneTelHref(display) {
+        const digits = String(display).replace(/\D/g, "");
+        if (digits.length < 10) return "";
+        if (digits.length === 10) return "tel:+1" + digits;
+        if (digits.length === 11 && digits[0] === "1") return "tel:+" + digits;
+        return "tel:+" + digits;
+      }
+
+      function mapNextBirthdayMinis(nextBirthdays, dirRows) {
+        if (!Array.isArray(nextBirthdays) || nextBirthdays.length < 2) return [];
+        return nextBirthdays.slice(1, 4).map((bb) => {
+          if (!bb || !bb.name) return null;
+          const k = normalizeAgentName(bb.name);
+          const dr = findDirectoryRowForBirthday(dirRows, bb.name, bb.rowNumber);
+          return {
+            name: bb.name,
+            photo: resolveBirthdaySpotlightPhoto(dr, bb, k),
+            nextBirthdayIso: bb.nextBirthdayIso || "",
+            daysUntil: typeof bb.daysUntilBirthday === "number" ? bb.daysUntilBirthday : null
+          };
+        }).filter(Boolean);
+      }
+
+      function renderBirthdayMiniRow(entry) {
+        const dateParts = dateBadgeParts(entry.nextBirthdayIso);
+        let subLine = "";
+        if (entry.daysUntil !== null && entry.daysUntil !== undefined) {
+          if (entry.daysUntil === 0) subLine = "Celebrates today";
+          else if (entry.daysUntil === 1) subLine = "Celebrates tomorrow";
+          else subLine = "In " + entry.daysUntil + " days";
+        }
+        const photoFallback = entry.name ? initials(entry.name) || "—" : "—";
+        const photoSrc = tvHttpPhotoUrl(entry.photo);
+        const photoLeft = photoSrc
+          ? '<div class="deal-agent-photo">' + tvAgentPhotoImgTag(photoSrc, photoFallback, "deal") + "</div>"
+          : '<div class="deal-agent-photo deal-agent-photo--initials">' + esc(photoFallback) + "</div>";
+        return (
+          '<article class="system-upcoming-row birthday-upcoming-row">' +
+            photoLeft +
+            '<div class="system-upcoming-main">' +
+              '<div class="system-upcoming-agent">' +
+              esc(entry.name) +
+              "</div>" +
+              '<div class="system-upcoming-address">' +
+              esc(subLine || "\u00a0") +
+              "</div>" +
+            "</div>" +
+            '<div class="system-upcoming-date-badge"><div class="system-upcoming-date-day">' +
+            esc(dateParts.day) +
+            '</div><div class="system-upcoming-date-mon">' +
+            esc(dateParts.month) +
+            "</div></div>" +
+          "</article>"
+        );
+      }
+
+      function renderBirthdayUpcomingMinisHtml(entries) {
+        if (!entries || !entries.length) return "";
+        return '<div class="birthday-bento-next">' + entries.map(renderBirthdayMiniRow).join("") + "</div>";
+      }
+
+      function formatBirthdayRoleLabel(tierRaw, row) {
+        const role = hubRowPick(row, ["role", "title", "position", "job_title"]);
+        if (role) return role;
+        const t = String(tierRaw || "").trim();
+        if (!t) return "Team";
+        const low = t.toLowerCase();
+        if (low === "senior") return "Senior agent";
+        if (low === "junior") return "Junior agent";
+        if (low === "admin") return "Admin";
+        if (low === "other") return "Team";
+        return t.charAt(0).toUpperCase() + t.slice(1);
+      }
+
+      function mapHubNextEventSlide(row) {
+        const title = hubRowPick(row, ["title", "event_title", "name", "event_name", "subject"]) || "Event";
+        const locName = hubRowPick(row, ["location_name"]);
+        const locDisplay = hubRowPick(row, ["location_display", "location_short", "tv_location", "room_display"]);
+        let location = locDisplay;
+        if (!location) {
+          if (/bean/i.test(locName || "")) {
+            location = "The Bean - 3rd Floor";
+          } else if (locName) {
+            location = locName;
+          } else {
+            location =
+              hubRowPick(row, ["location", "venue", "address", "where", "location_address"]) || "";
+          }
+        }
+        const attire = hubRowPick(row, ["attire", "dress_code"]);
+        const detailsUrl = normalizeHttpUrl(hubRowPick(row, ["details_url", "link", "url", "registration_url"]));
+        const joinRaw = hubRowPick(row, [
+          "join_online",
+          "join_online_url",
+          "joinonline",
+          "join_meeting_url",
+          "meeting_url",
+          "video_url"
+        ]);
+        const joinOnlineUrl = normalizeHttpUrl(joinRaw);
+        const cover = hubRowPick(row, [
+          "cover_image_url",
+          "cover_image",
+          "cover",
+          "image",
+          "image_url",
+          "photo",
+          "hero_image"
+        ]);
+        const when = formatHubEventWhen(row);
+        const dateRaw = hubRowPick(row, ["start_date", "date", "event_date"]);
+        let dateBadge = formatOverviewEventChipDate(dateRaw);
+        if (!dateBadge) dateBadge = formatOverviewEventChipDate(row.computed_event_datetime_iso);
+        if (!dateBadge) dateBadge = formatOverviewEventChipDate(when);
+        if (!dateBadge) dateBadge = "Date TBD";
+        const timeLine = hubRowPick(row, ["start_time", "time", "event_time"]) || "—";
+        const note = hubRowPick(row, ["summary_short", "details_long", "notes", "description", "details"]);
+        const typeLabel = hubRowPick(row, ["type", "category", "event_type"]);
+        return {
+          spotlightKind: "next-event",
+          title,
+          location: location || "—",
+          time: timeLine,
+          date: dateBadge,
+          when: when || "Time TBD",
+          attire: attire || "—",
+          detailsUrl: detailsUrl || "",
+          joinOnlineUrl: joinOnlineUrl || "",
+          cover: cover || "",
+          typeLabel: typeLabel || "Event",
+          note: note || ""
+        };
+      }
+
+      function mapHubLatestUpdateSlide(row) {
+        const title = hubRowPick(row, ["title", "headline", "subject", "name"]) || "Update";
+        const chapter = hubRowPick(row, ["chapter"]) || "";
+        const lessonType = hubRowPick(row, ["category", "lesson_type", "lesson"]) || "";
+        const audience = hubRowPick(row, ["audience"]) || "";
+        const status = hubRowPick(row, ["status"]) || "";
+        const publishRaw = hubRowPick(row, ["publish_date", "published_at", "posted_at", "effective_date"]);
+        const publishedLabel = formatUpdatePublishLabel(publishRaw);
+        const postUrl = hubRowPick(row, ["post_url", "link", "url", "details_url"]) || "";
+        const cover = hubRowPick(row, [
+          "cover_url",
+          "cover_image_url",
+          "cover_image",
+          "cover",
+          "hero_image",
+          "image_url"
+        ]);
+        const badgeLabel = lessonType || status || "Update";
+        return {
+          spotlightKind: "latest-update",
+          title,
+          chapter,
+          lessonType,
+          audience,
+          status,
+          publishedLabel,
+          badgeLabel,
+          cover: cover || "",
+          detailsUrl: postUrl || ""
+        };
+      }
+
+      function applyHubOverviewSlides(hubPayload) {
+        const slides = [];
+        const data = hubPayload && hubPayload.success === true && hubPayload.data ? hubPayload.data : null;
+
+        const eventsBlock = data && data.events;
+        const nextUpRow =
+          eventsBlock && eventsBlock.success === true && eventsBlock.nextUp && typeof eventsBlock.nextUp === "object"
+            ? eventsBlock.nextUp
+            : null;
+
+        const updatesBlock = data && data.updates;
+        const updatesOrdered =
+          updatesBlock && updatesBlock.success === true && Array.isArray(updatesBlock.ordered)
+            ? updatesBlock.ordered.slice()
+            : [];
+        dataAdapters.hubUpdatesOrdered = updatesOrdered;
+        if (updatesOrdered.length) {
+          appState.hubUpdateLessonIndex = appState.hubUpdateLessonIndex % updatesOrdered.length;
+        } else {
+          appState.hubUpdateLessonIndex = 0;
+        }
+
+        if (nextUpRow) {
+          slides.push(mapHubNextEventSlide(nextUpRow));
+        } else {
+          slides.push({
+            spotlightKind: "next-event",
+            empty: true,
+            title: "Next event",
+            message: "No upcoming events in the hub sheet."
+          });
+        }
+
+        if (updatesOrdered.length) {
+          slides.push({ spotlightKind: "latest-update", empty: false });
+        } else {
+          slides.push({
+            spotlightKind: "latest-update",
+            empty: true,
+            title: "Lessons",
+            message: "No lessons in the hub Updates sheet yet."
+          });
+        }
+
+        const dir = data && data.directory;
+        const dirRows =
+          dir && dir.success === true && Array.isArray(dir.rows) ? dir.rows : [];
+        const nextBirthdays =
+          dir && dir.success === true && dir.tv && Array.isArray(dir.tv.nextBirthdays) ? dir.tv.nextBirthdays : [];
+        const b = nextBirthdays[0];
+        if (b && b.name) {
+          const key = normalizeAgentName(b.name);
+          const dirRow = findDirectoryRowForBirthday(dirRows, b.name, b.rowNumber);
+          const photo = resolveBirthdaySpotlightPhoto(dirRow, b, key);
+          const phone = resolveBirthdaySpotlightPhone(dirRow, b, key);
+          const roleLabel = formatBirthdayRoleLabel(b.tier, dirRow);
+          slides.push({
+            spotlightKind: "next-birthday",
+            name: b.name,
+            photo,
+            phone,
+            roleLabel,
+            birthdateIso: b.birthdayIso || "",
+            nextBirthdayIso: b.nextBirthdayIso || "",
+            daysUntil: typeof b.daysUntilBirthday === "number" ? b.daysUntilBirthday : null,
+            moreBirthdays: mapNextBirthdayMinis(nextBirthdays, dirRows)
+          });
+        } else {
+          slides.push({
+            spotlightKind: "next-birthday",
+            empty: true,
+            title: "Next birthday",
+            message: "No team birthdays on file in the directory."
+          });
+        }
+
+        dataAdapters.overviewHighlights = slides;
+        appState.overviewHighlightIndex = Math.max(0, Math.min(appState.overviewHighlightIndex, slides.length - 1));
       }
 
       function applyDirectoryIconPhotoOverrides(rows) {
@@ -4313,7 +5095,7 @@
           { name: "buyers-csv", fn: () => fetchText(BUYERS_CSV) },
           { name: "sellers-csv", fn: () => fetchText(SELLERS_CSV) },
           { name: "alltime-summary", fn: () => fetchJSON(STATS_API + "?period=allTime") },
-          { name: "hub-directory", fn: () => fetchJSON(HUB_DATA_API + "?view=directory") }
+          { name: "hub-all", fn: () => fetchJSON(HUB_DATA_API + "?view=all") }
         ];
         const settled = await Promise.allSettled(reqs.map((r) => r.fn()));
         const feedStates = settled.map((entry, idx) => ({
@@ -4328,8 +5110,14 @@
         const buyersText = settled[4].status === "fulfilled" ? settled[4].value : "";
         const sellersText = settled[5].status === "fulfilled" ? settled[5].value : "";
         const allTimeJSON = settled[6].status === "fulfilled" ? settled[6].value : null;
-        const hubDirectoryJSON = settled[7].status === "fulfilled" ? settled[7].value : null;
-        applyDirectoryIconPhotoOverrides(extractDirectoryRows(hubDirectoryJSON));
+        const hubJSON = settled[7].status === "fulfilled" ? settled[7].value : null;
+        if (hubJSON && hubJSON.success === true) {
+          applyDirectoryIconPhotoOverrides(extractDirectoryRows(hubJSON));
+          applyHubOverviewSlides(hubJSON);
+        } else {
+          applyDirectoryIconPhotoOverrides([]);
+          applyHubOverviewSlides(null);
+        }
 
         const buyersRows = buyersText ? parseCSV(buyersText, "Buyer") : [];
         const sellersRows = sellersText ? parseCSV(sellersText, "Seller") : [];
@@ -4626,9 +5414,11 @@
             const sideSuffix = dealSideClassSuffix(sideLabel);
             const sideChipClass = sideSuffix ? "kpi-next-chip kpi-next-chip--" + sideSuffix : "kpi-next-chip";
             const dateParts = dateBadgeParts(kpi.dateLabel);
-            const photo = kpi.agentPhoto
-              ? '<div class="kpi-next-photo"><img src="' + esc(kpi.agentPhoto) + '" alt="' + esc(name) + '"></div>'
-              : '<div class="kpi-next-photo">' + esc(initials(name)) + "</div>";
+            const nextIni = initials(name);
+            const nextSrc = tvHttpPhotoUrl(kpi.agentPhoto);
+            const photo = nextSrc
+              ? '<div class="kpi-next-photo">' + tvAgentPhotoImgTag(nextSrc, nextIni, "") + "</div>"
+              : '<div class="kpi-next-photo">' + esc(nextIni) + "</div>";
             return (
               '<article class="card kpi ' + esc(kpi.css) + '">' +
                 '<div class="kpi-label">' + esc(nextTitle) + "</div>" +
@@ -4656,6 +5446,7 @@
             "</article>"
           );
         }).join("");
+        bindTvAgentPhotoFallbacks(els.overviewKpis);
       }
 
       function normalizedBarWidth(value, min, max) {
@@ -4693,11 +5484,12 @@
           const width = normalizedBarWidth(agent.totalVolume, minV, maxV);
           const rank = idx + 1;
           const rankClass = rank <= 3 ? "leader-rank top" : "leader-rank";
-          const leaderMeta = TEAM_META_MAP[normalizeAgentName(agent.name)];
           const next = dataAdapters.nextClosingsByAgent[normalizeAgentName(resolveCanonicalAgentName(agent.name))];
-          const photoCell = leaderMeta && leaderMeta.photo
-            ? '<div class="leader-photo"><img src="' + esc(leaderMeta.photo) + '" alt="' + esc(agent.name) + '"></div>'
-            : '<div class="leader-photo">' + esc(initials(agent.name)) + "</div>";
+          const lbIni = initials(agent.name);
+          const lbSrc = resolveTvAgentPhotoUrl(agent.name);
+          const photoCell = lbSrc
+            ? '<div class="leader-photo">' + tvAgentPhotoImgTag(lbSrc, lbIni, "") + "</div>"
+            : '<div class="leader-photo">' + esc(lbIni) + "</div>";
           const nextCell = next
             ? (function () {
                 const sideLabel = normalizeDealSide(next.dealType);
@@ -4733,6 +5525,8 @@
           );
         }).join("");
 
+        bindTvAgentPhotoFallbacks(els.leaderList);
+
         requestAnimationFrame(() => {
           const listHeight = els.leaderList.clientHeight;
           if (!listHeight) return;
@@ -4741,6 +5535,7 @@
           els.leaderList.style.setProperty("--lb-row-h", computedRowHeight + "px");
           const rowBasedScale = Math.max(0.58, Math.min(1.7, computedRowHeight / 50));
           els.leaderList.style.setProperty("--lb-scale", rowBasedScale.toFixed(3));
+          sweepTvAgentPhotosForBroken(els.leaderList);
         });
       }
 
@@ -4780,34 +5575,335 @@
       }
 
       function renderOverviewHighlight() {
-        const items = dataAdapters.overviewHighlights || [];
         if (!els.overviewEventCard) return;
+        const card = els.overviewEventCard;
+        const items = dataAdapters.overviewHighlights || [];
         if (!items.length) {
-          els.overviewEventCard.innerHTML = "";
+          card.innerHTML =
+            '<article class="event-spotlight event-spotlight--empty">' +
+              '<div class="event-spotlight-body" style="grid-template-columns:1fr">' +
+                '<p class="event-detail-line">Loading events and updates from the hub…</p>' +
+              "</div>" +
+            "</article>";
+          bindTvAgentPhotoFallbacks(card);
           return;
         }
         const index = Math.max(0, Math.min(appState.overviewHighlightIndex, items.length - 1));
         const item = items[index];
-        const qrUrl = "https://quickchart.io/qr?size=180&text=" + encodeURIComponent(item.detailsUrl || "");
-        const dateBadge = item.date ? esc(item.date) : "Date TBD";
-        const calendarIcon = '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
 
-        els.overviewEventCard.innerHTML =
-          '<article class="event-spotlight">' +
-            '<div class="event-spotlight-cover" style="background-image:url(\'' + esc(item.cover || "") + '\')">' +
-              '<div class="event-date-badge">' + calendarIcon + dateBadge + "</div>" +
-            "</div>" +
-            '<div class="event-spotlight-body">' +
-              '<div class="event-detail-list">' +
-                '<div class="event-spotlight-title">' + esc(item.title || "Event") + "</div>" +
-                '<div class="event-detail-line"><strong>Location:</strong>' + esc(item.location || "--") + "</div>" +
-                '<div class="event-detail-line"><strong>Time:</strong>' + esc(item.time || "--") + "</div>" +
-                '<div class="event-detail-line"><strong>Date:</strong>' + esc(item.date || "--") + "</div>" +
-                '<div class="event-detail-line"><strong>Attire:</strong>' + esc(item.attire || "--") + "</div>" +
+        if (!item || !item.spotlightKind) {
+          const qrUrl = "https://quickchart.io/qr?size=180&text=" + encodeURIComponent((item && item.detailsUrl) || "");
+          const chip =
+            formatOverviewEventChipDate(item && item.date) ||
+            formatOverviewEventChipDate(item && item.when) ||
+            "Date TBD";
+          const dateBadge = esc(chip);
+          const calendarIcon =
+            '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
+          const cover = item && item.cover ? esc(item.cover) : "";
+          card.innerHTML =
+            '<article class="event-spotlight">' +
+              '<div class="event-spotlight-cover" style="background-image:url(\'' + cover + '\')">' +
+                '<div class="event-date-badge">' + calendarIcon + dateBadge + "</div>" +
               "</div>" +
-              '<div class="event-qr-wrap"><img class="event-qr" src="' + esc(qrUrl) + '" alt="Event details QR code"><div class="event-qr-help">Scan for full event details, address map, and updates.</div></div>' +
+              '<div class="event-spotlight-body">' +
+                '<div class="event-detail-list">' +
+                  '<div class="event-spotlight-title">' + esc((item && item.title) || "Event") + "</div>" +
+                  '<div class="event-detail-line"><strong>Location:</strong>' + esc((item && item.location) || "--") + "</div>" +
+                  '<div class="event-detail-line"><strong>Time:</strong>' + esc((item && item.time) || "--") + "</div>" +
+                  '<div class="event-detail-line"><strong>Date:</strong>' + esc((item && item.date) || "--") + "</div>" +
+                  '<div class="event-detail-line"><strong>Attire:</strong>' + esc((item && item.attire) || "--") + "</div>" +
+                "</div>" +
+                '<div class="event-qr-wrap"><img class="event-qr" src="' + esc(qrUrl) + '" alt="Event details QR code"><div class="event-qr-help">Scan for full event details, address map, and updates.</div></div>' +
+              "</div>" +
+            "</article>";
+          bindTvAgentPhotoFallbacks(card);
+          return;
+        }
+
+        if (item.spotlightKind === "latest-update") {
+          const lessons = dataAdapters.hubUpdatesOrdered || [];
+          const d =
+            !item.empty && lessons.length
+              ? mapHubLatestUpdateSlide(lessons[appState.hubUpdateLessonIndex % lessons.length])
+              : null;
+
+          const low = String((d && d.status) || (d && d.lessonType) || "").toLowerCase();
+          const badgeCls =
+            low === "alert" || low.includes("urgent")
+              ? "event-spotlight-update-badge event-spotlight-update-badge--alert"
+              : "event-spotlight-update-badge";
+          const qrTarget =
+            d && d.detailsUrl && /^https?:\/\//i.test(d.detailsUrl) ? d.detailsUrl : "";
+          const qrBlock = qrTarget
+            ? '<div class="event-qr-wrap"><img class="event-qr" src="' +
+              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(qrTarget)) +
+              '" alt="QR code to open this lesson"><div class="event-qr-help">Scan to open the post link.</div></div>'
+            : '<div class="event-qr-wrap"><div class="event-qr-help">No post link in the sheet for this lesson.</div></div>';
+
+          if (!d) {
+            card.innerHTML =
+              '<article class="event-spotlight event-spotlight--update event-spotlight--empty">' +
+                '<div class="event-spotlight-cover"><span class="' +
+                badgeCls +
+                '">Lessons</span></div>' +
+                '<div class="event-spotlight-body">' +
+                '<div class="event-detail-list">' +
+                '<div class="event-spotlight-title">' +
+                esc(item.title || "Lessons") +
+                "</div>" +
+                '<div class="event-detail-line">' +
+                esc(item.message || "No lessons available.") +
+                "</div>" +
+                "</div>" +
+                qrBlock +
+                "</div>" +
+                "</article>";
+            bindTvAgentPhotoFallbacks(card);
+            return;
+          }
+
+          const badgeText = d.badgeLabel || d.lessonType || d.status || "Lesson";
+          const lessonNum = (appState.hubUpdateLessonIndex % lessons.length) + 1;
+          const progressLine =
+            '<div class="update-spotlight-progress">Lesson ' +
+            lessonNum +
+            " of " +
+            lessons.length +
+            "</div>";
+
+          const hasLessonCover = !!(d.cover && String(d.cover).trim());
+          const updateCoverCls =
+            "event-spotlight-cover" + (hasLessonCover ? " event-spotlight-cover--lesson-image" : "");
+          const updateCoverStyle = hasLessonCover ? "background-image:url('" + esc(d.cover) + "')" : "";
+
+          card.innerHTML =
+            '<article class="event-spotlight event-spotlight--update">' +
+              '<div class="' +
+              updateCoverCls +
+              '" style="' +
+              updateCoverStyle +
+              '"><span class="' +
+              badgeCls +
+              '" title="' +
+              esc(badgeText) +
+              '">' +
+              esc(badgeText) +
+              "</span></div>" +
+              '<div class="event-spotlight-body">' +
+              '<div class="event-detail-list">' +
+              progressLine +
+              '<div class="event-spotlight-title">' +
+              esc(d.title) +
+              "</div>" +
+              '<div class="event-detail-line"><strong>Chapter:</strong>' +
+              esc(d.chapter || "—") +
+              "</div>" +
+              '<div class="event-detail-line"><strong>Audience:</strong>' +
+              esc(d.audience || "—") +
+              "</div>" +
+              '<div class="event-detail-line"><strong>Published:</strong>' +
+              esc(d.publishedLabel || "—") +
+              "</div>" +
+              "</div>" +
+              qrBlock +
+              "</div>" +
+            "</article>";
+          bindTvAgentPhotoFallbacks(card);
+          return;
+        }
+
+        if (item.spotlightKind === "next-birthday") {
+          if (item.empty) {
+            card.innerHTML =
+              '<article class="event-spotlight event-spotlight--birthday event-spotlight--empty">' +
+              '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming birthday</div></div>' +
+              '<div class="birthday-spotlight-body">' +
+              '<div class="birthday-spotlight-photo birthday-spotlight-photo--empty" aria-hidden="true">—</div>' +
+              '<div class="birthday-spotlight-text">' +
+              '<div class="birthday-spotlight-name">' +
+              esc(item.title) +
+              "</div>" +
+              '<p class="birthday-spotlight-detail">' +
+              esc(item.message) +
+              "</p>" +
+              "</div>" +
+              '<div class="system-upcoming-date-badge birthday-spotlight-date-circle" aria-hidden="true">' +
+              '<div class="system-upcoming-date-day">—</div>' +
+              '<div class="system-upcoming-date-mon">—</div>' +
+              "</div>" +
+              "</div>" +
+              "</article>";
+            bindTvAgentPhotoFallbacks(card);
+            return;
+          }
+
+          const heroDateParts = dateBadgeParts(item.birthdateIso);
+          let countLine = "";
+          if (item.daysUntil !== null && item.daysUntil !== undefined) {
+            if (item.daysUntil === 0) countLine = "Celebrates today";
+            else if (item.daysUntil === 1) countLine = "Celebrates tomorrow";
+            else countLine = "Next celebration in " + item.daysUntil + " days";
+          }
+          const photoFallback = item.name ? initials(item.name) || "—" : "—";
+          const bHeroSrc = tvHttpPhotoUrl(item.photo);
+          const photoHtml = bHeroSrc
+            ? '<div class="birthday-spotlight-photo">' + tvAgentPhotoImgTag(bHeroSrc, photoFallback, "birthday") + "</div>"
+            : '<div class="birthday-spotlight-photo birthday-spotlight-photo--empty" aria-hidden="true">' + esc(photoFallback) + "</div>";
+
+          const phoneRaw = item.phone && String(item.phone).trim();
+          const phoneTel = phoneRaw ? birthdayPhoneTelHref(phoneRaw) : "";
+          const phoneHtml = phoneRaw
+            ? '<div class="birthday-spotlight-phone">' +
+              (phoneTel
+                ? '<a href="' + esc(phoneTel) + '">' + esc(phoneRaw) + "</a>"
+                : esc(phoneRaw)) +
+              "</div>"
+            : "";
+
+          const dateCircleHtml =
+            '<div class="system-upcoming-date-badge birthday-spotlight-date-circle" title="' +
+            esc(fmtMonthDayFromIso(item.birthdateIso)) +
+            '">' +
+            '<div class="system-upcoming-date-day">' +
+            esc(heroDateParts.day) +
+            '</div><div class="system-upcoming-date-mon">' +
+            esc(heroDateParts.month) +
+            "</div></div>";
+
+          const more = Array.isArray(item.moreBirthdays) ? item.moreBirthdays : [];
+          const bentoClass = "birthday-bento" + (more.length ? " birthday-bento--has-more" : "");
+          const roleLine = item.roleLabel
+            ? '<p class="birthday-spotlight-detail">' + esc(item.roleLabel) + "</p>"
+            : "";
+          const countDetail = countLine ? '<p class="birthday-spotlight-detail">' + esc(countLine) + "</p>" : "";
+          const heroHtml =
+            '<article class="event-spotlight event-spotlight--birthday event-spotlight--birthday-hero">' +
+            '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming birthday</div></div>' +
+            '<div class="birthday-spotlight-body">' +
+            photoHtml +
+            '<div class="birthday-spotlight-text">' +
+            '<div class="birthday-spotlight-name">' +
+            esc(item.name || "Team member") +
             "</div>" +
+            roleLine +
+            countDetail +
+            phoneHtml +
+            "</div>" +
+            dateCircleHtml +
+            "</div>" +
+            "</article>";
+
+          card.innerHTML =
+            '<div class="' + bentoClass + '">' + heroHtml + renderBirthdayUpcomingMinisHtml(more) + "</div>";
+          bindTvAgentPhotoFallbacks(card);
+          return;
+        }
+
+        if (item.empty) {
+          card.innerHTML =
+            '<article class="event-spotlight event-spotlight--next-event event-spotlight--empty">' +
+            '<div class="event-spotlight-cover"></div>' +
+            '<div class="event-spotlight-body" style="grid-template-columns:1fr">' +
+            '<div class="event-detail-list">' +
+            '<div class="event-spotlight-title">' +
+            esc(item.title) +
+            "</div>" +
+            '<div class="event-detail-line">' +
+            esc(item.message) +
+            "</div>" +
+            "</div>" +
+            "</div>" +
+            "</article>";
+          bindTvAgentPhotoFallbacks(card);
+          return;
+        }
+
+        const whenLine = item.when || [item.date, item.time].filter(Boolean).join(" · ") || "Time TBD";
+        const chipDate =
+          formatOverviewEventChipDate(item.date) ||
+          formatOverviewEventChipDate(item.when) ||
+          formatOverviewEventChipDate(whenLine) ||
+          "Date TBD";
+        const dateBadge = esc(chipDate);
+        const calendarIcon =
+          '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
+        const hasCover = !!(item.cover && String(item.cover).trim());
+        const coverCls =
+          "event-spotlight-cover" +
+          (hasCover ? " event-spotlight-cover--focus-faces" : " event-spotlight-cover--placeholder");
+        const coverStyle = hasCover ? "background-image:url('" + esc(item.cover) + "')" : "";
+
+        const join = item.joinOnlineUrl && /^https?:\/\//i.test(String(item.joinOnlineUrl)) ? String(item.joinOnlineUrl).trim() : "";
+        const details =
+          item.detailsUrl && /^https?:\/\//i.test(String(item.detailsUrl)) ? String(item.detailsUrl).trim() : "";
+        const defaultSite = "https://www.alexstoykovgroup.com/";
+        const qrParts = [];
+        if (join) {
+          qrParts.push(
+            '<div class="event-qr-wrap"><img class="event-qr" src="' +
+              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(join)) +
+              '" alt="Join online QR code"><div class="event-qr-help">Scan to join online</div></div>'
+          );
+        }
+        if (details && details !== join) {
+          qrParts.push(
+            '<div class="event-qr-wrap"><img class="event-qr" src="' +
+              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(details)) +
+              '" alt="Event details QR code"><div class="event-qr-help">Scan for event page</div></div>'
+          );
+        }
+        if (!qrParts.length) {
+          qrParts.push(
+            '<div class="event-qr-wrap"><img class="event-qr" src="' +
+              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(defaultSite)) +
+              '" alt="QR code"><div class="event-qr-help">Scan for more information</div></div>'
+          );
+        }
+        const qrColumn = '<div class="event-spotlight-qr-col">' + qrParts.join("") + "</div>";
+
+        const teamMeetingCard = isHubTeamMeetingSpotlight(item);
+        const typeLine = teamMeetingCard
+          ? ""
+          : '<div class="event-detail-line"><strong>Type:</strong>' + esc(item.typeLabel || "Event") + "</div>";
+        const noteLine =
+          !teamMeetingCard && item.note
+            ? '<div class="event-detail-line"><strong>Note:</strong>' + esc(item.note) + "</div>"
+            : "";
+
+        card.innerHTML =
+          '<article class="event-spotlight event-spotlight--next-event">' +
+          '<div class="' +
+          coverCls +
+          '" style="' +
+          coverStyle +
+          '">' +
+          '<div class="event-date-badge">' +
+          calendarIcon +
+          dateBadge +
+          "</div>" +
+          "</div>" +
+          '<div class="event-spotlight-body">' +
+          '<div class="event-detail-list">' +
+          '<div class="event-spotlight-title">' +
+          esc(item.title || "Event") +
+          "</div>" +
+          typeLine +
+          '<div class="event-detail-line"><strong>When:</strong>' +
+          esc(whenLine) +
+          "</div>" +
+          '<div class="event-detail-line"><strong>Location:</strong>' +
+          esc(item.location || "—") +
+          "</div>" +
+          noteLine +
+          (item.attire && item.attire !== "—"
+            ? '<div class="event-detail-line"><strong>Attire:</strong>' + esc(item.attire) + "</div>"
+            : "") +
+          "</div>" +
+          qrColumn +
+          "</div>" +
           "</article>";
+        bindTvAgentPhotoFallbacks(card);
       }
 
       function renderServices() {
@@ -4961,6 +6057,7 @@
           renderColumn("This Week", groups.thisWeek, "thisWeek") +
           renderColumn("Next Week", groups.nextWeek, "nextWeek") +
           renderColumn("Later", groups.later, "later");
+        bindTvAgentPhotoFallbacks(els.systemUpcomingList);
       }
 
       function buildSystemQuarterlyTrendSeries() {
@@ -5035,6 +6132,13 @@
         return rows;
       }
 
+      function qtChartAxisCeiling(maxV) {
+        if (!maxV || maxV <= 0) return 50e6;
+        const padded = maxV * 1.12;
+        const step = padded > 150e6 ? 25e6 : padded > 80e6 ? 20e6 : 10e6;
+        return Math.max(step, Math.ceil(padded / step) * step);
+      }
+
       function renderSystemQuarterlyTrendLegend() {
         let legend = '<div class="amd-qt-legend">';
         legend += '<button class="amd-qt-legend-btn is-active" type="button">All</button>';
@@ -5057,12 +6161,14 @@
         }
 
         const selected = "all";
-        const width = 760;
+        const width = 780;
         const height = 560;
-        const padTop = 40;
+        const padTop = 38;
         const padBottom = 46;
-        const padLeft = 54;
-        const padRight = 34;
+        const yearLegendW = 52;
+        const yAxisLabelW = 38;
+        const padLeft = yearLegendW + yAxisLabelW;
+        const padRight = 30;
         const plotW = width - padLeft - padRight;
         const plotH = height - padTop - padBottom;
         const ts = ' font-family="' + CHART_FONT_FAMILY + '"';
@@ -5073,6 +6179,7 @@
             if (value > maxV) maxV = value;
           });
         });
+        const yCeil = qtChartAxisCeiling(maxV);
 
         const qAvgs = [0, 0, 0, 0];
         const qCounts = [0, 0, 0, 0];
@@ -5086,84 +6193,165 @@
           qAvgs[qi] = qCounts[qi] > 0 ? qAvgs[qi] / qCounts[qi] : 0;
         }
 
+        function yAtVolume(v) {
+          if (yCeil <= 0) return padTop + plotH;
+          return padTop + plotH - (v / yCeil) * plotH;
+        }
+
         const xSlots = 5;
         const xStep = plotW / (xSlots - 1);
         const xPos = [];
         for (let i = 0; i < xSlots; i += 1) xPos.push(padLeft + i * xStep);
 
         let gridSvg = "";
-        for (let i = 1; i < xSlots; i += 1) {
-          gridSvg += '<line x1="' + xPos[i].toFixed(1) + '" y1="' + padTop + '" x2="' + xPos[i].toFixed(1) + '" y2="' + (padTop + plotH) + '" stroke="#f0f0f0" stroke-width="1"/>';
+        const yTickCount = 5;
+        for (let ti = 0; ti <= yTickCount; ti += 1) {
+          const frac = ti / yTickCount;
+          const yLine = padTop + plotH - frac * plotH;
+          const tickVal = yCeil * frac;
+          gridSvg +=
+            '<line x1="' +
+            padLeft.toFixed(1) +
+            '" y1="' +
+            yLine.toFixed(1) +
+            '" x2="' +
+            (width - padRight).toFixed(1) +
+            '" y2="' +
+            yLine.toFixed(1) +
+            '" stroke="#eeeeee" stroke-width="1"/>';
+          gridSvg +=
+            '<text x="' +
+            (padLeft - 10).toFixed(1) +
+            '" y="' +
+            (yLine + 4).toFixed(1) +
+            '" text-anchor="end" fill="#666" font-size="11" font-weight="600"' +
+            ts +
+            ">" +
+            esc(fmtMoneyRounded(tickVal)) +
+            "</text>";
         }
-        gridSvg += '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (width - padRight) + '" y2="' + (padTop + plotH) + '" stroke="#ddd" stroke-width="1"/>';
+        for (let i = 1; i < xSlots; i += 1) {
+          gridSvg +=
+            '<line x1="' +
+            xPos[i].toFixed(1) +
+            '" y1="' +
+            padTop +
+            '" x2="' +
+            xPos[i].toFixed(1) +
+            '" y2="' +
+            (padTop + plotH) +
+            '" stroke="#f4f4f4" stroke-width="1"/>';
+        }
+        gridSvg +=
+          '<line x1="' +
+          padLeft +
+          '" y1="' +
+          (padTop + plotH) +
+          '" x2="' +
+          (width - padRight) +
+          '" y2="' +
+          (padTop + plotH) +
+          '" stroke="#ddd" stroke-width="1"/>';
 
         let xAxisLabels = "";
         const quarterNames = ["Jan 1", "Q1", "Q2", "Q3", "Q4"];
-        xAxisLabels += '<text x="' + xPos[0].toFixed(1) + '" y="' + (height - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + ">" + quarterNames[0] + "</text>";
+        xAxisLabels +=
+          '<text x="' +
+          xPos[0].toFixed(1) +
+          '" y="' +
+          (height - 14) +
+          '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' +
+          ts +
+          ">" +
+          quarterNames[0] +
+          "</text>";
         for (let i = 1; i < xSlots; i += 1) {
-          const avgStr = qAvgs[i - 1] > 0 ? "  AVG " + fmtMoneyRounded(qAvgs[i - 1]) : "";
-          xAxisLabels += '<text x="' + xPos[i].toFixed(1) + '" y="' + (height - 14) + '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' + ts + ">" + quarterNames[i] + "</text>";
+          const avgStr = qAvgs[i - 1] > 0 ? "AVG " + fmtMoneyRounded(qAvgs[i - 1]) : "";
+          xAxisLabels +=
+            '<text x="' +
+            xPos[i].toFixed(1) +
+            '" y="' +
+            (height - 14) +
+            '" text-anchor="middle" fill="#222" font-size="12" font-weight="600"' +
+            ts +
+            ">" +
+            quarterNames[i] +
+            "</text>";
           if (avgStr) {
-            xAxisLabels += '<text x="' + xPos[i].toFixed(1) + '" y="' + (height - 1) + '" text-anchor="middle" fill="#aaa" font-size="9" font-weight="600"' + ts + ">" + esc(avgStr.trim()) + "</text>";
+            xAxisLabels +=
+              '<text x="' +
+              xPos[i].toFixed(1) +
+              '" y="' +
+              (height - 1) +
+              '" text-anchor="middle" fill="#aaa" font-size="9" font-weight="600"' +
+              ts +
+              ">" +
+              esc(avgStr) +
+              "</text>";
           }
         }
 
-        const yearSpacing = plotH / QT_YEARS.length;
-        const yearAnchors = {};
+        let yearLegendSvg = "";
+        const legendRowH = 17;
+        const legendY0 = padTop + plotH / 2 - (QT_YEARS.length * legendRowH) / 2;
         QT_YEARS.forEach((year, idx) => {
-          yearAnchors[year] = padTop + plotH - yearSpacing * 0.5 - idx * yearSpacing;
+          const isHighlighted = selected === "all" || String(year) === String(selected);
+          const color = isHighlighted ? QT_COLORS[year] || "#999" : QT_DIM;
+          const ly = legendY0 + idx * legendRowH + 4;
+          yearLegendSvg +=
+            '<circle cx="10" cy="' +
+            ly.toFixed(1) +
+            '" r="3.5" fill="' +
+            color +
+            '" opacity="' +
+            (isHighlighted ? 1 : 0.45) +
+            '"/>';
+          if (year === 2026) {
+            yearLegendSvg +=
+              '<text x="20" y="' +
+              (ly + 4).toFixed(1) +
+              '" fill="' +
+              color +
+              '" font-size="11" font-weight="700"' +
+              ts +
+              ' opacity="' +
+              (isHighlighted ? 1 : 0.45) +
+              '"><tspan>' +
+              year +
+              '</tspan><tspan font-size="9" opacity="0.75"> LIVE</tspan></text>';
+          } else {
+            yearLegendSvg +=
+              '<text x="20" y="' +
+              (ly + 4).toFixed(1) +
+              '" fill="' +
+              color +
+              '" font-size="11" font-weight="700"' +
+              ts +
+              ' opacity="' +
+              (isHighlighted ? 1 : 0.45) +
+              '">' +
+              year +
+              "</text>";
+          }
         });
 
         const allPts = {};
         rows.forEach((row) => {
           allPts[row.year] = row.quarters.map((value, qi) => {
             const x = xPos[qi + 1];
-            const ratio = maxV > 0 ? value / maxV : 0;
-            const y = padTop + plotH - ratio * plotH;
+            const y = yAtVolume(value);
             return { x, y, v: value, qi, deals: row.deals[qi], projected: row.projected[qi], year: row.year };
           });
         });
 
-        function spreadCol(colIdx) {
-          const items = [];
-          rows.forEach((row) => {
-            const point = allPts[row.year][colIdx];
-            items.push({ year: row.year, point, origY: point.y });
-          });
-          items.sort((a, b) => a.origY - b.origY);
-          const dotGap = 20;
-          for (let pass = 0; pass < 4; pass += 1) {
-            for (let i = 1; i < items.length; i += 1) {
-              const gap = items[i].point.y - items[i - 1].point.y;
-              if (gap < dotGap) {
-                const push = (dotGap - gap) / 2;
-                items[i - 1].point.y -= push;
-                items[i].point.y += push;
-              }
-            }
-          }
-          let y2026 = null;
-          let y2022 = null;
-          items.forEach((item) => {
-            if (item.year === 2026) y2026 = item.point;
-            if (item.year === 2022) y2022 = item.point;
-          });
-          if (y2026 && y2022 && y2022.y <= y2026.y + 1) {
-            y2022.y = y2026.y + 10;
-          }
-        }
-        spreadCol(0);
-        spreadCol(3);
-
         let linesSvg = "";
         const pendingLabels = { 0: [], 1: [], 2: [], 3: [] };
+        const startY = padTop + plotH;
         rows.forEach((row) => {
           const isHighlighted = selected === "all" || String(row.year) === String(selected);
           const is2026 = row.year === 2026;
-          const color = isHighlighted ? (QT_COLORS[row.year] || "#999") : QT_DIM;
-          const strokeWidth = isHighlighted ? (QT_WIDTHS[row.year] || 1.8) : 1.2;
-          const yAnchor = yearAnchors[row.year];
-          const startY = padTop + plotH;
+          const color = isHighlighted ? QT_COLORS[row.year] || "#999" : QT_DIM;
+          const strokeWidth = isHighlighted ? QT_WIDTHS[row.year] || 1.8 : 1.2;
           const lineOpacity = isHighlighted ? 1 : 0.35;
           const glowClass = is2026 && isHighlighted ? ' class="amd-glow-line"' : "";
           const points = allPts[row.year];
@@ -5173,16 +6361,63 @@
           const q0Opacity = q0Muted ? lineOpacity * 0.45 : lineOpacity * 0.95;
           const q0Stroke = is2026 && isHighlighted ? strokeWidth + 0.4 : strokeWidth;
           if (is2026 && isHighlighted) {
-            linesSvg += '<g' + glowClass + '><line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + points[0].x.toFixed(1) + '" y2="' + points[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/></g>';
+            linesSvg +=
+              "<g" +
+              glowClass +
+              '><line x1="' +
+              xPos[0].toFixed(1) +
+              '" y1="' +
+              startY.toFixed(1) +
+              '" x2="' +
+              points[0].x.toFixed(1) +
+              '" y2="' +
+              points[0].y.toFixed(1) +
+              '" stroke="' +
+              color +
+              '" stroke-width="' +
+              q0Stroke +
+              '"' +
+              q0Dash +
+              ' opacity="' +
+              q0Opacity +
+              '"/></g>';
           } else {
-            linesSvg += '<line x1="' + xPos[0].toFixed(1) + '" y1="' + startY.toFixed(1) + '" x2="' + points[0].x.toFixed(1) + '" y2="' + points[0].y.toFixed(1) + '" stroke="' + color + '" stroke-width="' + q0Stroke + '"' + q0Dash + ' opacity="' + q0Opacity + '"/>';
+            linesSvg +=
+              '<line x1="' +
+              xPos[0].toFixed(1) +
+              '" y1="' +
+              startY.toFixed(1) +
+              '" x2="' +
+              points[0].x.toFixed(1) +
+              '" y2="' +
+              points[0].y.toFixed(1) +
+              '" stroke="' +
+              color +
+              '" stroke-width="' +
+              q0Stroke +
+              '"' +
+              q0Dash +
+              ' opacity="' +
+              q0Opacity +
+              '"/>';
           }
 
           if (is2026 && isHighlighted) {
-            const fullDashPath = points.map((pt, i) => {
-              return (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
-            }).join("");
-            linesSvg += '<g' + glowClass + '><path d="' + fullDashPath + '" fill="none" stroke="' + color + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" opacity="' + (lineOpacity * 0.55) + '"/></g>';
+            const fullDashPath = points
+              .map((pt, i) => (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1))
+              .join("");
+            linesSvg +=
+              "<g" +
+              glowClass +
+              '><path d="' +
+              fullDashPath +
+              '" fill="none" stroke="' +
+              color +
+              '" stroke-width="' +
+              strokeWidth +
+              '" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5" opacity="' +
+              lineOpacity * 0.55 +
+              '"/></g>';
 
             let solidEnd = { x: points[0].x, y: points[0].y };
             const partials = row.partialActual || [0, 0, 0, 0];
@@ -5196,32 +6431,87 @@
                 break;
               }
             }
-            const solidGlowPath = "M " + points[0].x.toFixed(1) + " " + points[0].y.toFixed(1) + " L " + solidEnd.x.toFixed(1) + " " + solidEnd.y.toFixed(1);
-            linesSvg += '<g' + glowClass + '><path d="' + solidGlowPath + '" fill="none" stroke="' + color + '" stroke-width="' + (strokeWidth + 0.5) + '" stroke-linecap="round" opacity="' + lineOpacity + '"/></g>';
+            const solidGlowPath =
+              "M " +
+              points[0].x.toFixed(1) +
+              " " +
+              points[0].y.toFixed(1) +
+              " L " +
+              solidEnd.x.toFixed(1) +
+              " " +
+              solidEnd.y.toFixed(1);
+            linesSvg +=
+              "<g" +
+              glowClass +
+              '><path d="' +
+              solidGlowPath +
+              '" fill="none" stroke="' +
+              color +
+              '" stroke-width="' +
+              (strokeWidth + 0.5) +
+              '" stroke-linecap="round" opacity="' +
+              lineOpacity +
+              '"/></g>';
 
             if (solidEnd.x !== points[0].x || solidEnd.y !== points[0].y) {
               const progressId = "qd-2026-prog-tv";
-              linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot amd-blink-green" id="' + progressId + '" cx="' + solidEnd.x.toFixed(1) + '" cy="' + solidEnd.y.toFixed(1) + '" r="4" fill="' + color + '" stroke="#fff" stroke-width="2"/></g>';
+              linesSvg +=
+                '<g class="amd-glow-line"><circle class="amd-vis-dot amd-blink-green" id="' +
+                progressId +
+                '" cx="' +
+                solidEnd.x.toFixed(1) +
+                '" cy="' +
+                solidEnd.y.toFixed(1) +
+                '" r="4" fill="' +
+                color +
+                '" stroke="#fff" stroke-width="2"/></g>';
             }
           } else {
-            const solidPath = points.map((pt, i) => {
-              return (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1);
-            }).join("");
-            linesSvg += '<path d="' + solidPath + '" fill="none" stroke="' + color + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + lineOpacity + '"/>';
+            const solidPath = points
+              .map((pt, i) => (i === 0 ? "M " : " L ") + pt.x.toFixed(1) + " " + pt.y.toFixed(1))
+              .join("");
+            linesSvg +=
+              '<path d="' +
+              solidPath +
+              '" fill="none" stroke="' +
+              color +
+              '" stroke-width="' +
+              strokeWidth +
+              '" stroke-linecap="round" stroke-linejoin="round" opacity="' +
+              lineOpacity +
+              '"/>';
           }
-
-          const yearLabelColor = isHighlighted ? color : QT_DIM;
-          linesSvg += '<circle cx="' + xPos[0].toFixed(1) + '" cy="' + yAnchor.toFixed(1) + '" r="3" fill="' + yearLabelColor + '" opacity="' + (lineOpacity * 0.5) + '"/>';
-          linesSvg += '<text x="' + (xPos[0] - 10).toFixed(1) + '" y="' + (yAnchor + 4).toFixed(1) + '" text-anchor="end" fill="' + yearLabelColor + '" font-size="12" font-weight="700"' + ts + ' opacity="' + (isHighlighted ? 1 : 0.4) + '">' + row.year + "</text>";
 
           points.forEach((point) => {
             const dotId = "qd-tv-" + row.year + "-" + point.qi;
-            const dotColor = isHighlighted ? (QT_COLORS[row.year] || "#999") : QT_DIM;
+            const dotColor = isHighlighted ? QT_COLORS[row.year] || "#999" : QT_DIM;
             const dotOpacity = isHighlighted ? 1 : 0.35;
             if (is2026 && isHighlighted) {
-              linesSvg += '<g class="amd-glow-line"><circle class="amd-vis-dot" id="' + dotId + '" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/></g>';
+              linesSvg +=
+                '<g class="amd-glow-line"><circle class="amd-vis-dot" id="' +
+                dotId +
+                '" cx="' +
+                point.x.toFixed(1) +
+                '" cy="' +
+                point.y.toFixed(1) +
+                '" r="3.5" fill="' +
+                dotColor +
+                '" stroke="#fff" stroke-width="1.5" opacity="' +
+                dotOpacity +
+                '"/></g>';
             } else {
-              linesSvg += '<circle class="amd-vis-dot" id="' + dotId + '" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="3.5" fill="' + dotColor + '" stroke="#fff" stroke-width="1.5" opacity="' + dotOpacity + '"/>';
+              linesSvg +=
+                '<circle class="amd-vis-dot" id="' +
+                dotId +
+                '" cx="' +
+                point.x.toFixed(1) +
+                '" cy="' +
+                point.y.toFixed(1) +
+                '" r="3.5" fill="' +
+                dotColor +
+                '" stroke="#fff" stroke-width="1.5" opacity="' +
+                dotOpacity +
+                '"/>';
             }
             if (isHighlighted) {
               pendingLabels[point.qi].push({ x: point.x, y: point.y, v: point.v, color: dotColor });
@@ -5252,25 +6542,57 @@
                 for (let step = 1; step <= 60; step += 1) {
                   const up = above - step * 3;
                   const down = below + step * 3;
-                  if (fits(up)) { best = up; break; }
-                  if (fits(down)) { best = down; break; }
+                  if (fits(up)) {
+                    best = up;
+                    break;
+                  }
+                  if (fits(down)) {
+                    best = down;
+                    break;
+                  }
                 }
               }
             }
             slots.push(best);
             let anchor = "middle";
             let lx = item.x;
-            if (quarterIdx === 3) { anchor = "start"; lx = item.x + 14; }
-            if (quarterIdx === 0) { anchor = "end"; lx = item.x - 14; }
-            linesSvg += '<text x="' + lx.toFixed(1) + '" y="' + best.toFixed(1) + '" text-anchor="' + anchor + '" fill="' + item.color + '" font-size="10" font-weight="600"' + ts + ' pointer-events="none">' + esc(fmtMoneyRounded(item.v)) + "</text>";
+            if (quarterIdx === 3) {
+              anchor = "start";
+              lx = item.x + 14;
+            }
+            if (quarterIdx === 0) {
+              anchor = "end";
+              lx = item.x - 14;
+            }
+            linesSvg +=
+              '<text x="' +
+              lx.toFixed(1) +
+              '" y="' +
+              best.toFixed(1) +
+              '" text-anchor="' +
+              anchor +
+              '" fill="' +
+              item.color +
+              '" font-size="10" font-weight="600"' +
+              ts +
+              ' pointer-events="none">' +
+              esc(fmtMoneyRounded(item.v)) +
+              "</text>";
           });
         });
 
-        return '<svg class="amd-viz-svg" viewBox="0 0 ' + width + " " + height + '" preserveAspectRatio="xMidYMid meet">' +
+        return (
+          '<svg class="amd-viz-svg" viewBox="0 0 ' +
+          width +
+          " " +
+          height +
+          '" preserveAspectRatio="xMidYMid meet">' +
+          yearLegendSvg +
           gridSvg +
           xAxisLabels +
           linesSvg +
-          "</svg>";
+          "</svg>"
+        );
       }
 
       function renderSystemQuarterlyPanel() {
@@ -5355,6 +6677,31 @@
         return /format=\d+w/i.test(url) ? url.replace(/format=\d+w/gi, "format=1500w") : url;
       }
 
+      function tvHttpPhotoUrl(url) {
+        const s = String(url || "").trim();
+        return /^https?:\/\//i.test(s) ? agentPhotoSrcForTv(s) : "";
+      }
+
+      function resolveTvAgentPhotoUrl(name) {
+        const canonical = resolveCanonicalAgentName(name);
+        const key = normalizeAgentName(canonical);
+        const meta = TEAM_META_MAP[key];
+        if (meta && meta.photo) {
+          const u = tvHttpPhotoUrl(meta.photo);
+          if (u) return u;
+        }
+        if (dataAdapters.directoryAgents && dataAdapters.directoryAgents.length) {
+          const fromDir = dataAdapters.directoryAgents.find(function (a) {
+            return normalizeAgentName(a.name) === key;
+          });
+          if (fromDir && fromDir.photo) {
+            const u = tvHttpPhotoUrl(fromDir.photo);
+            if (u) return u;
+          }
+        }
+        return "";
+      }
+
       function agentDirectoryPhotoHtml(name) {
         const canonical = resolveCanonicalAgentName(name);
         const key = normalizeAgentName(canonical);
@@ -5369,15 +6716,12 @@
           }
         }
         const label = canonical || name;
+        const ini = initials(label);
         if (photo) {
           const src = agentPhotoSrcForTv(photo);
-          return (
-            '<div class="deal-agent-photo">' +
-              '<img src="' + esc(src) + '" alt="" loading="lazy" />' +
-            "</div>"
-          );
+          return '<div class="deal-agent-photo">' + tvAgentPhotoImgTag(src, ini, "deal") + "</div>";
         }
-        return '<div class="deal-agent-photo deal-agent-photo--initials">' + esc(initials(label)) + "</div>";
+        return '<div class="deal-agent-photo deal-agent-photo--initials">' + esc(ini) + "</div>";
       }
 
       function statusClass(status) {
@@ -5575,6 +6919,7 @@
             } else {
               els.closedDealsList.innerHTML = rowsHtml;
             }
+            bindTvAgentPhotoFallbacks(els.closedDealsList);
           }
         }
 
@@ -5640,9 +6985,11 @@
         }
         els.memberList.innerHTML = dataAdapters.directoryAgents.map((agent, idx) => {
           const selectedClass = idx === appState.selected.teamDirectory ? " selected" : "";
-          const avatar = agent.photo
-            ? '<div class="avatar"><img src="' + esc(agent.photo) + '" alt="' + esc(agent.name) + '"></div>'
-            : '<div class="avatar">' + esc(initials(agent.name)) + "</div>";
+          const avIni = initials(agent.name);
+          const avSrc = tvHttpPhotoUrl(agent.photo);
+          const avatar = avSrc
+            ? '<div class="avatar">' + tvAgentPhotoImgTag(avSrc, avIni, "") + "</div>"
+            : '<div class="avatar">' + esc(avIni) + "</div>";
           return (
             '<div class="member-row' + selectedClass + '">' +
               avatar +
@@ -5656,9 +7003,11 @@
         }).join("");
 
         const agent = dataAdapters.directoryAgents[appState.selected.teamDirectory];
-        const heroPhoto = agent.photo
-          ? '<div class="agent-vertical-photo"><img src="' + esc(agent.photo) + '" alt="' + esc(agent.name) + '"></div>'
-          : '<div class="agent-vertical-photo">' + esc(initials(agent.name)) + "</div>";
+        const heroIni = initials(agent.name);
+        const heroSrc = tvHttpPhotoUrl(agent.photo);
+        const heroPhoto = heroSrc
+          ? '<div class="agent-vertical-photo">' + tvAgentPhotoImgTag(heroSrc, heroIni, "") + "</div>"
+          : '<div class="agent-vertical-photo">' + esc(heroIni) + "</div>";
         const share = agent.totalDeals > 0 ? Math.round((agent.closedDeals / Math.max(1, agent.totalDeals)) * 100) : 0;
         const phoneText = agent.phone ? agent.phone : "Phone unavailable";
         const emailText = agent.email ? agent.email : "Email unavailable";
@@ -5700,6 +7049,8 @@
             img.replaceWith(document.createTextNode("QR unavailable"));
           }, { once: true });
         });
+        bindTvAgentPhotoFallbacks(els.memberList);
+        bindTvAgentPhotoFallbacks(els.memberDetail);
       }
 
       function renderEvents() {
@@ -5994,9 +7345,20 @@
             renderOverviewHighlight();
             return;
           }
-          appState.overviewHighlightIndex = (appState.overviewHighlightIndex + 1) % items.length;
+          const prevIndex = appState.overviewHighlightIndex;
+          const prevItem = items[prevIndex];
+          const lessons = dataAdapters.hubUpdatesOrdered || [];
+          if (
+            prevItem &&
+            prevItem.spotlightKind === "latest-update" &&
+            !prevItem.empty &&
+            lessons.length > 0
+          ) {
+            appState.hubUpdateLessonIndex = (appState.hubUpdateLessonIndex + 1) % lessons.length;
+          }
+          appState.overviewHighlightIndex = (prevIndex + 1) % items.length;
           renderOverviewHighlight();
-        }, 15000);
+        }, OVERVIEW_HIGHLIGHT_ROTATION_MS);
       }
 
       function initLiveDataLoop() {
