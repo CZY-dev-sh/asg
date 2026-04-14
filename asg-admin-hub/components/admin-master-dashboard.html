@@ -1166,6 +1166,31 @@
         "alex v": "alex valladares"
       };
       if (aliases[full]) full = aliases[full];
+      var directoryExact = "";
+      var directoryByFirst = {};
+      (state.directoryRows || []).forEach(function (row) {
+        var rawName = row && (row.name || row.display_name);
+        var key = normalizeAgentKey(rawName);
+        if (!key) return;
+        var iconSrc = String(
+          (row && (
+            row.icon_photo_url ||
+            row.icon_photo ||
+            row.iconphoto ||
+            row.image_url ||
+            row.photo ||
+            row.headshot_url ||
+            row.headshot
+          )) || ""
+        ).trim();
+        if (!iconSrc) return;
+        if (key === full) directoryExact = iconSrc;
+        var firstKey = (key.split(" ")[0] || "").trim();
+        if (firstKey && !directoryByFirst[firstKey]) directoryByFirst[firstKey] = iconSrc;
+      });
+      if (directoryExact) return directoryExact;
+      var fullFirst = (full.split(" ")[0] || "").trim();
+      if (fullFirst && directoryByFirst[fullFirst]) return directoryByFirst[fullFirst];
       if (AGENT_PHOTOS[full]) return AGENT_PHOTOS[full];
       var first = full.split(" ")[0] || "";
       if (!first) return "";
@@ -1474,7 +1499,7 @@
           tenureMonths: isFinite(tenureMonths) ? Math.max(0, tenureMonths) : 0,
           tenureLabel: formatTenureShort(tenureMonths),
           seniorityRank: Number(row.computed_seniority_rank_overall) || null,
-          photo: String((row && (row.image_url || row.photo || row.headshot_url || row.headshot)) || resolveAgentPhotoName(key) || ""),
+          photo: String((row && (row.icon_photo_url || row.icon_photo || row.iconphoto || row.image_url || row.photo || row.headshot_url || row.headshot)) || resolveAgentPhotoName(key) || ""),
           months: []
         };
       });
@@ -3077,10 +3102,21 @@
       var updated = state.loadedAt
         ? state.loadedAt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
         : "—";
+      var today = new Date();
+      var todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+      function toDateMs(value) {
+        if (value instanceof Date && !isNaN(value.getTime())) return value.getTime();
+        var parsed = parseDate(value);
+        return parsed && !isNaN(parsed.getTime()) ? parsed.getTime() : NaN;
+      }
       var nextClosing = model.pendingDeals
-        .filter(function (d) { return d && d.closeDate && !isNaN(d.closeDate.getTime()); })
-        .sort(function (a, b) { return a.closeDate - b.closeDate; })[0] || null;
-      var nextCloseDateLabel = nextClosing ? formatShortDate(nextClosing.closeDate) : "No Date";
+        .filter(function (d) {
+          if (!d) return false;
+          var ms = toDateMs(d.closeDate);
+          return !isNaN(ms) && ms >= todayStart;
+        })
+        .sort(function (a, b) { return toDateMs(a.closeDate) - toDateMs(b.closeDate); })[0] || null;
+      var nextCloseDateLabel = nextClosing ? formatShortDate(parseDate(nextClosing.closeDate)) : "No Date";
 
       var panelHTML = "";
       if (state.tab === "deals") {
@@ -3532,13 +3568,13 @@
           state.ytdSummary = ytdJSON && ytdJSON.summary ? ytdJSON.summary : null;
           state.allTimeSummary = allTimeJSON && allTimeJSON.summary ? allTimeJSON.summary : null;
           state.loadedAt = new Date();
-          try { render(); } catch (e) { console.error("render:", e); }
+          try { render(); } catch (e) { console.error("render:", e); setError(e); }
 
           allTimeRowsPromise.then(function (allTimeRowsFromScript) {
             if (!Array.isArray(allTimeRowsFromScript) || !allTimeRowsFromScript.length) return;
             state.allTimeClosedDeals = allTimeRowsFromScript;
             state.loadedAt = new Date();
-            try { render(); } catch (e) { console.error("render:", e); }
+            try { render(); } catch (e) { console.error("render:", e); setError(e); }
           });
         })
         .catch(setError);

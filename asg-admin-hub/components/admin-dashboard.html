@@ -778,6 +778,7 @@
   const SELLERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
   const FOLDERS_API="https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  const HUB_DATA_API=String(window.ASG_HUB_DATA_API||"https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
   const TEAM=[
     {name:"Alex Stoykov",tier:"Senior",role:"Senior Agent",email:"alex.stoykov@compass.com",phone:"312-593-3110",fubPhone:"312-477-2199",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/alexstoykov",book:"https://asgmarketing.as.me/?firstName=Alex&lastName=Stoykov&email=alex.stoykov%40compass.com&phone=3125933110&field:18245579=Alex%20Stoykov&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=pt7tbwwT4JUDdxLj2fbm5Q&d=7720513273924"},
     {name:"Sam Abadi",tier:"Senior",role:"Senior Agent",email:"sam.abadi@compass.com",phone:"847-334-4778",fubPhone:"847-595-5617",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/samabadi",book:"https://asgmarketing.as.me/?firstName=Sam&lastName=Abadi&email=sam.abadi%40compass.com&phone=8473344778&field:18245579=Sam%20Abadi&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=5GNV6fln0YFlMiZrsAJ2Kw&d=7720513273924"},
@@ -875,10 +876,69 @@
     return null;
   }
 
+  function getIconPhoto(person){
+    if(!person) return "";
+    return String(person.iconPhoto||person.photo||"").trim();
+  }
+
+  function extractDirectoryRows(payload){
+    if(!payload||payload.success!==true||!payload.data||!payload.data.directory) return [];
+    const dir=payload.data.directory;
+    if(!dir||dir.success!==true||!Array.isArray(dir.rows)) return [];
+    return dir.rows.slice();
+  }
+
+  /** Same cascade as tv-dashboard-multiview / team-directory (icon → medium → legacy). */
+  function resolveDirectoryRowPhotoUrl(row){
+    return String((row&&(row.icon_photo_url||row.icon_photo||row.iconphoto||row.image_url||row.photo||row.headshot_url||row.headshot))||"").trim();
+  }
+
+  function applyIconPhotoOverridesFromDirectory(rows){
+    if(!Array.isArray(rows)||!rows.length) return;
+    const byExact={};
+    const byFirst={};
+    rows.forEach(row=>{
+      const key=normalizeAgentName(row&&(row.name||row.display_name));
+      if(!key) return;
+      const iconSrc=resolveDirectoryRowPhotoUrl(row);
+      if(!iconSrc) return;
+      byExact[key]=iconSrc;
+      const first=(key.split(/[^a-z0-9]/)[0]||"").trim();
+      if(first&&!byFirst[first]) byFirst[first]=iconSrc;
+    });
+    TEAM.forEach(person=>{
+      const key=normalizeAgentName(person&&person.name);
+      if(!key) return;
+      const first=(key.split(/[^a-z0-9]/)[0]||"").trim();
+      const iconSrc=byExact[key]||(first?byFirst[first]:"");
+      if(iconSrc) person.iconPhoto=iconSrc;
+    });
+  }
+
+  function refreshIconPhotoSurfaces(){
+    renderAgentGrid();
+    renderAgentActions();
+    renderInsBody();
+    const ds=document.getElementById("asgDirSearch");
+    if(ds) renderDir(ds.value.trim());
+  }
+
+  function loadIconPhotoOverrides(){
+    if(!HUB_DATA_API) return Promise.resolve();
+    return fetch(HUB_DATA_API+"?view=directory",{cache:"no-store"})
+      .then(r=>{if(!r.ok)throw new Error("Directory feed failed");return r.json();})
+      .then(payload=>{
+        applyIconPhotoOverridesFromDirectory(extractDirectoryRows(payload));
+        refreshIconPhotoSurfaces();
+      })
+      .catch(()=>{});
+  }
+
   function getAgentPhotoHTML(agentName,cls){
     const person=getTeamPersonByName(agentName);
-    if(person&&person.photo){
-      return `<img class="${cls}" src="${esc(person.photo)}" alt="${esc(agentName)}" data-fallback="${esc(initials(agentName))}">`;
+    const iconPhoto=getIconPhoto(person);
+    if(iconPhoto){
+      return `<img class="${cls}" src="${esc(iconPhoto)}" alt="${esc(agentName)}" data-fallback="${esc(initials(agentName))}">`;
     }
     return `<div class="${cls} is-init">${initials(agentName)}</div>`;
   }
@@ -1082,8 +1142,9 @@
     const existing=document.querySelector(".asg-h-overlay");
     if(existing)existing.remove();
     const tierClass=person.tier==="Senior"?"tier-senior":person.tier==="Junior"?"tier-junior":"tier-admin";
-    const photoHTML=person.photo
-      ?`<img class="asg-h-popup-photo" src="${esc(person.photo)}" alt="${esc(person.name)}">`
+    const popupPhoto=getIconPhoto(person);
+    const photoHTML=popupPhoto
+      ?`<img class="asg-h-popup-photo" src="${esc(popupPhoto)}" alt="${esc(person.name)}">`
       :`<div class="asg-h-popup-photo is-init">${initials(person.name)}</div>`;
     const isAdmin=person.tier==="Admin";
     let lines=`<div class="asg-h-popup-line"><div class="asg-h-popup-line-label">Role</div><div class="asg-h-popup-line-value">${esc(person.role)}</div></div>`;
@@ -1271,8 +1332,9 @@
     const mobile=isMobile();
     dirResults.innerHTML=filtered.map((p,idx)=>{
       const realIdx=TEAM.indexOf(p);
-      const photoHTML=p.photo
-        ?`<img class="asg-h-dir-item-photo" src="${esc(p.photo)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=\\'asg-h-dir-item-photo is-init\\'>${initials(p.name)}</div>'">`
+      const rowPhoto=getIconPhoto(p);
+      const photoHTML=rowPhoto
+        ?`<img class="asg-h-dir-item-photo" src="${esc(rowPhoto)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=\\'asg-h-dir-item-photo is-init\\'>${initials(p.name)}</div>'">`
         :`<div class="asg-h-dir-item-photo is-init">${initials(p.name)}</div>`;
       const emailAction=mobile
         ?`<a class="asg-h-dir-act" href="mailto:${esc(p.email)}" title="Email" onclick="event.stopPropagation()"><svg viewBox="0 0 18 18"><rect x="3" y="5" width="12" height="10" rx="2"/><path d="M3 7l6 4 6-4"/></svg></a>`
@@ -1330,8 +1392,9 @@
   function renderAgentGrid(){
     agentGrid.innerHTML=ACTION_SENIORS.map((p,i)=>{
       const sel=selectedAgent&&selectedAgent.name===p.name?"selected":"";
+      const iconPhoto=getIconPhoto(p);
       return`<div class="asg-h-agent-thumb ${sel}" onclick="window._asgSelectAgent(${i})">
-        <img class="asg-h-agent-thumb-photo" src="${esc(p.photo)}" alt="${esc(p.name)}" onerror="this.style.display='none'">
+        <img class="asg-h-agent-thumb-photo" src="${esc(iconPhoto)}" alt="${esc(p.name)}" onerror="this.style.display='none'">
         <span class="asg-h-agent-thumb-name">${esc(p.name.split(" ")[0])}</span>
       </div>`;
     }).join("");
@@ -1344,10 +1407,11 @@
     }
     actPlaceholder.style.display="none";
     const a=selectedAgent;
+    const iconPhoto=getIconPhoto(a);
     const hasBook=!!a.book;const hasRequest=!!a.request;
     agentActionsArea.innerHTML=`
       <div class="asg-h-selected-agent-header">
-        <img class="asg-h-selected-agent-photo" src="${esc(a.photo)}" alt="${esc(a.name)}">
+        <img class="asg-h-selected-agent-photo" src="${esc(iconPhoto)}" alt="${esc(a.name)}">
         <div class="asg-h-selected-agent-name">${esc(a.name)}</div>
         <button class="asg-h-selected-agent-clear" onclick="window._asgClearAgent()"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg></button>
       </div>
@@ -1380,6 +1444,7 @@
   window._asgClearAgent=function(){selectedAgent=null;renderAgentGrid();renderAgentActions();};
   renderAgentGrid();renderAgentActions();
   renderQuickLinks();
+  loadIconPhotoOverrides();
   if(quickLinksSearchEl){quickLinksSearchEl.addEventListener("input",()=>renderQuickLinks(quickLinksSearchEl.value));}
 
   fetch(FOLDERS_API,{method:"GET"}).then(r=>r.json()).then(data=>{
@@ -1436,7 +1501,7 @@
         return;
       }
       const photoMap={};
-      TEAM.forEach(t=>{if(t.photo)photoMap[t.name]=t.photo;});
+      TEAM.forEach(t=>{const iconPhoto=getIconPhoto(t);if(iconPhoto)photoMap[t.name]=iconPhoto;});
       allDeals.forEach(d=>{if(d.photoUrl&&!photoMap[d.agent])photoMap[d.agent]=d.photoUrl;});
       const recent=allDeals.slice(0,12);
       insBody.innerHTML=recent.map(d=>{
@@ -1734,6 +1799,58 @@
     await Promise.all([statsPromise,csvPromise]);
   }
 
+  function installPageUnlockOverride(){
+    if(window.__asgAdminDashPageUnlockInstalled) return;
+    window.__asgAdminDashPageUnlockInstalled=true;
+
+    const styleId="asg-admin-dash-page-unlock-override";
+    if(!document.getElementById(styleId)){
+      const style=document.createElement("style");
+      style.id=styleId;
+      style.textContent=
+        "html,body{overflow:auto!important;overflow-y:auto!important;height:auto!important;max-height:none!important;pointer-events:auto!important;touch-action:auto!important;}"+
+        "body{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:auto!important;}";
+      (document.head||document.documentElement).appendChild(style);
+    }
+
+    function unlockPageNow(){
+      const docEl=document.documentElement;
+      const body=document.body;
+      if(!docEl||!body) return;
+
+      let scrollY=window.scrollY||window.pageYOffset||0;
+      const bodyTop=parseInt(body.style.top||"0",10);
+      if(!Number.isNaN(bodyTop)&&bodyTop<0) scrollY=Math.max(scrollY,Math.abs(bodyTop));
+
+      [docEl,body].forEach(el=>{
+        el.style.setProperty("overflow","auto","important");
+        el.style.setProperty("overflow-y","auto","important");
+        el.style.setProperty("height","auto","important");
+        el.style.setProperty("max-height","none","important");
+        el.style.setProperty("pointer-events","auto","important");
+        el.style.setProperty("touch-action","auto","important");
+      });
+      body.style.setProperty("position","static","important");
+      body.style.setProperty("top","auto","important");
+      body.style.setProperty("left","auto","important");
+      body.style.setProperty("right","auto","important");
+      body.style.setProperty("width","auto","important");
+
+      if(scrollY>0) window.scrollTo(0,scrollY);
+    }
+
+    unlockPageNow();
+    setTimeout(unlockPageNow,0);
+    setTimeout(unlockPageNow,250);
+    setTimeout(unlockPageNow,1000);
+    window.addEventListener("load",unlockPageNow);
+    window.addEventListener("pageshow",unlockPageNow);
+    document.addEventListener("visibilitychange",()=>{
+      if(!document.hidden) unlockPageNow();
+    });
+  }
+
+  installPageUnlockOverride();
   loadPipeline();
 })();
 </script>

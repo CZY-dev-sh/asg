@@ -3259,6 +3259,7 @@
       ];
       const STATS_API = "https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
       const LISTINGS_API = "https://script.google.com/macros/s/AKfycbzCDWtLVq-QFeKUx1h1jbE_Yd1JBEOXB55xqzkLF_79to-ttuCmqTMNlaB2r5zIznnJ/exec";
+      const HUB_DATA_API = String(window.ASG_HUB_DATA_API || "https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
       const BUYERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv";
       const SELLERS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
 
@@ -3880,6 +3881,34 @@
         return [];
       }
 
+      function extractDirectoryRows(payload) {
+        if (!payload || payload.success !== true || !payload.data || !payload.data.directory) return [];
+        const dir = payload.data.directory;
+        if (!dir || dir.success !== true || !Array.isArray(dir.rows)) return [];
+        return dir.rows.slice();
+      }
+
+      function applyDirectoryIconPhotoOverrides(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        rows.forEach((row) => {
+          const key = normalizeAgentName(row && (row.name || row.display_name));
+          if (!key) return;
+          const iconSrc = String(
+            (row && (
+              row.icon_photo_url ||
+              row.icon_photo ||
+              row.iconphoto ||
+              row.image_url ||
+              row.photo ||
+              row.headshot_url ||
+              row.headshot
+            )) || ""
+          ).trim();
+          if (!iconSrc || !TEAM_META_MAP[key]) return;
+          TEAM_META_MAP[key].photo = iconSrc;
+        });
+      }
+
       function mapAllTimeClosedRow(row) {
         if (!row || typeof row !== "object") return null;
         const address =
@@ -4283,7 +4312,8 @@
           { name: "listings-archive", fn: () => fetchJSON(LISTINGS_API + "?view=archive") },
           { name: "buyers-csv", fn: () => fetchText(BUYERS_CSV) },
           { name: "sellers-csv", fn: () => fetchText(SELLERS_CSV) },
-          { name: "alltime-summary", fn: () => fetchJSON(STATS_API + "?period=allTime") }
+          { name: "alltime-summary", fn: () => fetchJSON(STATS_API + "?period=allTime") },
+          { name: "hub-directory", fn: () => fetchJSON(HUB_DATA_API + "?view=directory") }
         ];
         const settled = await Promise.allSettled(reqs.map((r) => r.fn()));
         const feedStates = settled.map((entry, idx) => ({
@@ -4298,6 +4328,8 @@
         const buyersText = settled[4].status === "fulfilled" ? settled[4].value : "";
         const sellersText = settled[5].status === "fulfilled" ? settled[5].value : "";
         const allTimeJSON = settled[6].status === "fulfilled" ? settled[6].value : null;
+        const hubDirectoryJSON = settled[7].status === "fulfilled" ? settled[7].value : null;
+        applyDirectoryIconPhotoOverrides(extractDirectoryRows(hubDirectoryJSON));
 
         const buyersRows = buyersText ? parseCSV(buyersText, "Buyer") : [];
         const sellersRows = sellersText ? parseCSV(sellersText, "Seller") : [];
