@@ -927,18 +927,20 @@
     .leader-head,
     .leader-row {
       display: grid;
-      grid-template-columns: 1.6fr 1.05fr 0.8fr 0.8fr 0.6fr 0.52fr 0.52fr 1.25fr;
-      gap: 8px;
-      align-items: center;
+      /* First track: names; second: tight total vol; next two 1fr: CP (spans both). Narrow col 2 pulls $ + bars left. */
+      grid-template-columns: minmax(11.5rem, 1.95fr) minmax(0, 0.52fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.55fr) minmax(0, 0.46fr) minmax(0, 0.46fr) minmax(0, 1.05fr);
+      gap: 4px;
     }
 
     .leader-head {
+      align-items: center;
       color: var(--muted);
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       font-weight: 800;
-      padding: 5px 8px;
+      /* Match .leader-row horizontal padding so volume header stacks above numbers */
+      padding: 5px 9px;
     }
 
     .leader-list {
@@ -950,6 +952,7 @@
     }
 
     .leader-row {
+      align-items: stretch;
       background: var(--panel-soft);
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
@@ -967,11 +970,20 @@
       text-overflow: ellipsis;
     }
 
+    .leader-row > .agent-name {
+      display: flex;
+      align-items: center;
+      align-self: stretch;
+      min-width: 0;
+    }
+
     .leader-agent {
       display: grid;
       grid-template-columns: auto auto minmax(0, 1fr);
       align-items: center;
+      align-self: stretch;
       gap: 8px;
+      min-height: 0;
       min-width: 0;
     }
 
@@ -1017,36 +1029,292 @@
       display: block;
     }
 
+    .leader-head-total {
+      text-align: center;
+      min-width: 0;
+      margin-left: calc(-1 * clamp(12px, 2.6vw, 30px));
+      margin-right: calc(-1 * clamp(2px, 0.55vw, 8px));
+    }
+
     .volume-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: stretch;
+      min-width: 0;
+      text-align: center;
+      margin-left: calc(-1 * clamp(12px, 2.6vw, 30px));
+      margin-right: calc(-1 * clamp(2px, 0.55vw, 8px));
+    }
+
+    /* Total deals + closed/pending deal counts: centered under column + vertically with agent name */
+    .leader-head-metric {
+      text-align: center;
+    }
+
+    .leader-row > .num,
+    .leader-row > .subnum {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: stretch;
+      width: 100%;
+      min-width: 0;
+      text-align: center;
+    }
+
+    /* Spans Closed + Pending grid columns: two amounts, one full-width bar */
+    .leader-head-cp,
+    .leader-cp-vol {
+      grid-column: 3 / 5;
       display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 6px;
+      min-width: 0;
+    }
+
+    .leader-head-cp__h {
+      text-align: center;
+      min-width: 0;
+    }
+
+    .leader-cp-vol {
+      grid-template-rows: auto auto;
+      align-self: start;
+      /* Keep closed / pending $ + bar lower than the name + total + deal-count row */
+      padding-top: clamp(0px, calc(var(--lb-row-h, 52px) * 0.26 - 4px), 22px);
+    }
+
+    .leader-cp-vol__amt {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .leader-cp-vol__bar {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: 72%;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .volume-main {
       font-size: calc(14px * var(--lb-scale, 1));
       font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .leader-cp-vol .money {
+      font-variant-numeric: tabular-nums;
     }
 
     .mini-bar {
-      height: 7px;
+      height: clamp(6px, calc(7.5px * var(--lb-scale, 1)), 11px);
       border-radius: 999px;
-      background: var(--bar-track);
-      position: relative;
+      background: transparent;
+      overflow: visible;
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* Full width: only closed (solid) + pending (lighter); no grey “unused” track */
+    .mini-bar-track-fill {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      min-width: 0;
+      flex: 1 1 auto;
+      border-radius: 999px;
+      overflow: visible;
+      filter: drop-shadow(0 0 5px color-mix(in srgb, var(--bar-fill) 38%, transparent));
+    }
+
+    .mini-bar-track-fill:empty {
+      background: linear-gradient(180deg, #f8fafc, #eef2f6);
+      filter: none;
+    }
+
+    body.dark .mini-bar-track-fill:empty {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 92%, #000), #4a4a4a);
+      filter: none;
+    }
+
+    .mini-bar-seg {
+      height: 100%;
+      flex: 0 0 auto;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--closed:first-child {
+      border-radius: 999px 0 0 999px;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--closed:only-child {
+      border-radius: 999px;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--pending:last-child {
+      border-radius: 0 999px 999px 0;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--pending:only-child {
+      border-radius: 999px;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--pending:only-child::before {
+      display: none;
+    }
+
+    .mini-bar-seg--pending:only-child .mini-bar-seg__clip {
+      border-radius: 999px;
+    }
+
+    .mini-bar-track-fill > .mini-bar-seg--neutral:only-child {
+      border-radius: 999px;
+    }
+
+    .mini-bar-seg__label {
+      font-size: clamp(4px, calc(5.5px * var(--lb-scale, 1)), 8px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .mini-bar-seg__label--closed {
+      color: rgba(255, 255, 255, 0.96);
+      text-shadow: 0 1px 1px rgba(15, 23, 42, 0.2);
+    }
+
+    body.dark .mini-bar-seg__label--closed {
+      color: rgba(255, 255, 255, 0.98);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+    }
+
+    .mini-bar-seg__clip {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
+      border-radius: 0 999px 999px 0;
+      position: relative;
+      z-index: 2;
     }
 
-    .mini-bar-fill {
+    .mini-bar-seg__label--pending {
+      color: rgba(30, 41, 59, 0.82);
+    }
+
+    body.dark .mini-bar-seg__label--pending {
+      color: rgba(248, 250, 252, 0.9);
+    }
+
+    .mini-bar-seg__label--neutral {
+      color: rgba(100, 116, 139, 0.88);
+      font-size: clamp(4px, calc(5px * var(--lb-scale, 1)), 7px);
+    }
+
+    body.dark .mini-bar-seg__label--neutral {
+      color: rgba(148, 163, 184, 0.85);
+    }
+
+    .mini-bar-seg--closed {
+      overflow: hidden;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, #ffffff 26%, var(--bar-fill)),
+        var(--bar-fill)
+      );
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+    }
+
+    body.dark .mini-bar-seg--closed {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, #ffffff 14%, var(--bar-fill)),
+        var(--bar-fill)
+      );
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    /* Pending: faint cool grey + hairline join (slightly taller than bar for visibility) */
+    .mini-bar-seg--pending {
+      position: relative;
+      overflow: visible;
+      background: linear-gradient(180deg, #f9fafb, #e8edf3);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.58),
+        inset 0 -1px 0 rgba(15, 23, 42, 0.06),
+        inset -1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.45));
+    }
+
+    .mini-bar-seg--pending::before {
+      content: "";
       position: absolute;
-      top: 0;
       left: 0;
-      bottom: 0;
-      width: var(--w);
-      border-radius: 999px;
-      background: linear-gradient(90deg, color-mix(in srgb, var(--bar-fill) 45%, #d1d5db), var(--bar-fill));
+      top: -1px;
+      bottom: -1px;
+      width: 1px;
+      transform: translateX(-0.5px);
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0),
+        rgba(15, 23, 42, 0.12) 18%,
+        rgba(15, 23, 42, 0.2) 50%,
+        rgba(15, 23, 42, 0.12) 82%,
+        rgba(15, 23, 42, 0)
+      );
+      border-radius: 1px;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    body.dark .mini-bar-fill {
-      background: linear-gradient(90deg, #f87171, #ef4444);
+    body.dark .mini-bar-seg--pending {
+      background: linear-gradient(180deg, #4b4b4b, #3d3d3d);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.11),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.38),
+        inset -1px 0 0 rgba(255, 255, 255, 0.09);
+    }
+
+    body.dark .mini-bar-seg--pending::before {
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.35) 18%,
+        rgba(0, 0, 0, 0.55) 50%,
+        rgba(0, 0, 0, 0.35) 82%,
+        rgba(0, 0, 0, 0)
+      );
+    }
+
+    .mini-bar-seg--neutral {
+      background: linear-gradient(180deg, #f9fafb, #e8edf3);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.58),
+        inset 0 -1px 0 rgba(15, 23, 42, 0.06),
+        inset -1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.45)),
+        inset 1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.35));
+    }
+
+    body.dark .mini-bar-seg--neutral {
+      background: linear-gradient(180deg, #4b4b4b, #3d3d3d);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.11),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.38),
+        inset -1px 0 0 rgba(255, 255, 255, 0.09),
+        inset 1px 0 0 rgba(255, 255, 255, 0.05);
     }
 
     .num,
@@ -1058,6 +1326,7 @@
     }
 
     .leader-next {
+      align-self: start;
       min-width: 0;
     }
 
@@ -1138,6 +1407,55 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       min-height: 0;
+    }
+
+    /* Overview: fill the stage, keep the main grid row flexible so every card can shrink/scroll */
+    .view-screen[data-view="overview"] {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+      height: 100%;
+      align-content: stretch;
+      overflow: hidden;
+    }
+
+    .view-screen[data-view="overview"] > .overview-theme-art {
+      grid-column: 1;
+      grid-row: 1 / -1;
+    }
+
+    .view-screen[data-view="overview"] > .kpi-grid {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .view-screen[data-view="overview"] > .overview-main {
+      grid-column: 1;
+      grid-row: 2;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Redact list prices + closing calendar chips in bentos (KPI strip unchanged) */
+    .overview-transactions .tx-price {
+      filter: blur(9px);
+      -webkit-filter: blur(9px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    #systemUpcomingPanel .system-upcoming-date-badge {
+      display: none !important;
+    }
+
+    #systemUpcomingPanel .system-upcoming-chip.leader-next-chip--price {
+      display: none !important;
+    }
+
+    .overview-leader .leader-next-chip--price,
+    .overview-leader .leader-next-chip--date {
+      display: none !important;
     }
 
     .system-body {
@@ -1655,10 +1973,12 @@
     }
 
     .overview-event-wrap {
-      padding: 8px;
+      padding: 4px 6px 6px;
       min-height: 0;
       display: flex;
       flex-direction: column;
+      container-type: size;
+      container-name: overview-event;
     }
 
     .overview-event-wrap > .event-spotlight,
@@ -1667,14 +1987,23 @@
       min-height: 0;
     }
 
-    .birthday-bento {
-      display: grid;
-      gap: 8px;
+    .overview-events .birthday-bento {
+      height: 100%;
       min-height: 0;
     }
 
+    .birthday-bento {
+      display: grid;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .overview-events .birthday-bento--has-more {
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
     .birthday-bento--has-more {
-      grid-template-rows: minmax(160px, 1fr) auto;
+      grid-template-rows: minmax(220px, 1fr) auto;
     }
 
     .birthday-bento:not(.birthday-bento--has-more) {
@@ -1690,7 +2019,7 @@
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      gap: 6px;
+      gap: 10px;
       min-height: 0;
       min-width: 0;
     }
@@ -1701,10 +2030,10 @@
     }
 
     .birthday-upcoming-row {
-      min-height: 64px;
+      min-height: 84px;
       height: auto;
-      padding: 6px 8px;
-      gap: 6px;
+      padding: 10px 12px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -1715,39 +2044,39 @@
     }
 
     .birthday-upcoming-row .system-upcoming-agent {
-      font-size: 13px;
+      font-size: 16px;
       line-height: 1.15;
       letter-spacing: -0.01em;
     }
 
     .birthday-upcoming-row .system-upcoming-address {
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 700;
       line-height: 1.15;
       margin-top: 2px;
     }
 
     .birthday-upcoming-row .deal-agent-photo {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
     }
 
     .birthday-upcoming-row .deal-agent-photo img {
-      border-radius: 12px;
+      border-radius: 14px;
     }
 
     .birthday-upcoming-row .system-upcoming-date-badge {
-      width: 42px;
-      height: 42px;
+      width: 54px;
+      height: 54px;
     }
 
     .birthday-upcoming-row .system-upcoming-date-day {
-      font-size: 13px;
+      font-size: 16px;
     }
 
     .birthday-upcoming-row .system-upcoming-date-mon {
-      font-size: 9px;
+      font-size: 11px;
       margin-top: 0;
     }
 
@@ -1761,6 +2090,14 @@
       min-height: 0;
     }
 
+    .overview-events .event-spotlight:not(.event-spotlight--birthday) {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+    }
+
     .event-spotlight-cover {
       position: relative;
       background-size: cover;
@@ -1769,11 +2106,20 @@
       background-color: color-mix(in srgb, var(--blue) 12%, #0f172a);
     }
 
+    .overview-events .event-spotlight-cover {
+      flex-shrink: 0;
+      height: clamp(52px, 22vh, 160px);
+    }
+
     /* Next-event hero: focal above center so faces read lower in frame vs default 50% crop */
     .event-spotlight--next-event .event-spotlight-cover.event-spotlight-cover--focus-faces {
       height: clamp(160px, 19vh, 228px);
       background-position: center 22%;
       background-size: cover;
+    }
+
+    .overview-events .event-spotlight--next-event .event-spotlight-cover.event-spotlight-cover--focus-faces {
+      height: clamp(56px, 24vh, 220px);
     }
 
     .event-spotlight-cover::after {
@@ -1793,27 +2139,107 @@
       margin-bottom: 8px;
     }
 
+    /* Match update-style layout: kicker + title same scale as Chapter / Audience / Published lines */
+    .overview-events .event-spotlight-title {
+      font-size: clamp(22px, 3.5vh, 48px);
+      line-height: 1.05;
+      margin: 0 0 clamp(0px, 0.2vh, 6px) 0;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .overview-events .event-detail-line {
+      font-size: clamp(22px, 3.5vh, 48px);
+      line-height: 1.05;
+      margin: 0;
+    }
+
+    .overview-events .event-detail-list {
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      align-self: stretch;
+      gap: 0;
+      row-gap: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .overview-events .update-spotlight-progress {
+      font-size: clamp(15px, 2vh, 24px);
+      margin-bottom: clamp(0px, 0.2vh, 6px);
+      line-height: 1.1;
+    }
+
+    .overview-events .event-detail-list > .update-spotlight-progress:first-child {
+      margin-top: 0;
+    }
+
+    .overview-events .event-spotlight-update-badge {
+      font-size: clamp(11px, 1.35vh, 15px);
+      padding: clamp(5px, 0.85vh, 8px) clamp(8px, 1.45vw, 14px);
+      max-width: 100%;
+    }
+
+    .overview-events .event-qr {
+      width: clamp(96px, 20vh, 240px);
+      height: clamp(96px, 20vh, 240px);
+      padding: clamp(5px, 1.1vh, 12px);
+    }
+
+    .overview-events .event-qr-help {
+      font-size: clamp(11px, 1.45vh, 15px);
+      max-width: none;
+    }
+
+    .overview-events .event-spotlight-qr-col {
+      gap: clamp(6px, 1vh, 14px);
+      align-self: center;
+      justify-items: center;
+    }
+
+    .overview-events .event-spotlight-body > .event-qr-wrap {
+      align-self: center;
+      justify-self: center;
+    }
+
+    .overview-events .event-date-badge {
+      left: clamp(8px, 1.2vw, 14px);
+      right: auto;
+      top: clamp(6px, 1vh, 12px);
+      font-size: clamp(11px, 1.45vh, 15px);
+      padding: clamp(4px, 0.65vh, 7px) clamp(8px, 1.35vw, 12px);
+      gap: clamp(5px, 0.8vh, 8px);
+    }
+
+    .overview-events .event-date-icon,
+    .overview-events .event-date-icon svg {
+      width: clamp(14px, 1.75vh, 18px);
+      height: clamp(14px, 1.75vh, 18px);
+    }
+
     .event-date-badge {
       position: absolute;
-      right: 10px;
+      left: 10px;
+      right: auto;
       top: 8px;
       z-index: 1;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
+      gap: 7px;
+      padding: 6px 11px;
       border-radius: 999px;
       border: 1px solid rgba(15, 23, 42, 0.14);
       background: rgba(255, 255, 255, 0.96);
       color: #0f172a;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 800;
       letter-spacing: 0.02em;
       backdrop-filter: blur(2px);
     }
     .event-date-icon {
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1821,8 +2247,8 @@
       flex-shrink: 0;
     }
     .event-date-icon svg {
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
@@ -1841,9 +2267,22 @@
       align-items: center;
     }
 
+    .overview-events .event-spotlight-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      padding: clamp(8px, 1.1vh, 16px) clamp(8px, 1.8vw, 20px) clamp(10px, 1.35vh, 18px);
+      gap: clamp(8px, 1.2vh, 18px);
+      align-items: center;
+    }
+
+    .overview-events .event-spotlight--empty .event-spotlight-body {
+      padding-top: clamp(8px, 1vh, 16px);
+    }
+
     .event-detail-list {
       display: grid;
-      gap: 7px;
+      gap: 3px;
       min-width: 0;
       align-self: center;
     }
@@ -1853,7 +2292,7 @@
       color: var(--muted);
       font-weight: 800;
       white-space: normal;
-      line-height: 1.2;
+      line-height: 1.1;
     }
 
     .event-detail-line strong {
@@ -1863,8 +2302,8 @@
     }
 
     .event-qr {
-      width: 188px;
-      height: 188px;
+      width: 220px;
+      height: 220px;
       justify-self: center;
       border-radius: 14px;
       border: 1px solid var(--line);
@@ -1885,7 +2324,7 @@
       color: var(--muted);
       text-align: center;
       line-height: 1.25;
-      max-width: 210px;
+      max-width: 260px;
     }
 
     .event-spotlight-qr-col {
@@ -1896,7 +2335,7 @@
     }
 
     .event-spotlight--next-event .event-spotlight-body {
-      grid-template-columns: minmax(0, 1fr) minmax(200px, auto);
+      grid-template-columns: minmax(0, 1fr) minmax(240px, auto);
     }
 
     .event-spotlight--update .event-spotlight-cover:not(.event-spotlight-cover--lesson-image),
@@ -1912,12 +2351,63 @@
       padding: 12px 16px;
     }
 
+    .overview-events .event-spotlight--update .event-spotlight-cover:not(.event-spotlight-cover--lesson-image) {
+      padding: clamp(6px, 1.1vh, 12px) clamp(8px, 1.6vw, 16px);
+    }
+
     .event-spotlight--update .event-spotlight-cover--lesson-image {
       min-height: clamp(128px, 15vh, 180px);
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       position: relative;
+      display: block;
+    }
+
+    .overview-events .event-spotlight--update .event-spotlight-cover--lesson-image {
+      min-height: 0;
+      flex-shrink: 0;
+      height: clamp(48px, 26vh, 180px);
+      padding: 0;
+    }
+
+    /* Lesson type chip: same chrome as .event-date-badge; top-left in overview */
+    .event-spotlight--update .event-spotlight-cover--lesson-image .event-spotlight-update-badge {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      right: auto;
+      bottom: auto;
+      margin: 0;
+      z-index: 2;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      background: rgba(255, 255, 255, 0.96);
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      backdrop-filter: blur(2px);
+      max-width: min(440px, calc(100% - 24px));
+    }
+
+    .overview-events .event-spotlight--update .event-spotlight-cover--lesson-image .event-spotlight-update-badge {
+      top: clamp(6px, 1vh, 12px);
+      left: clamp(8px, 1.2vw, 14px);
+      right: auto;
+      padding: clamp(4px, 0.65vh, 7px) clamp(8px, 1.35vw, 12px);
+      font-size: clamp(11px, 1.45vh, 15px);
+    }
+
+    .overview-events
+      .event-spotlight--update
+      .event-spotlight-cover--lesson-image
+      .event-spotlight-update-badge.event-spotlight-update-badge--alert {
+      background: color-mix(in srgb, #fef2f2 92%, transparent);
+      color: #b91c1c;
+      border-color: color-mix(in srgb, #fecaca 80%, transparent);
     }
 
     .event-spotlight--update .event-spotlight-cover--lesson-image::after {
@@ -1926,10 +2416,6 @@
       inset: 0;
       background: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.5));
       pointer-events: none;
-    }
-
-    .event-spotlight--update .event-spotlight-cover--lesson-image .event-spotlight-update-badge {
-      position: relative;
       z-index: 1;
     }
 
@@ -1939,9 +2425,9 @@
       display: inline-flex;
       align-items: center;
       max-width: min(440px, 92%);
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -1954,7 +2440,7 @@
     }
 
     .update-spotlight-progress {
-      font-size: clamp(14px, 1.4vh, 18px);
+      font-size: clamp(15px, 1.55vh, 20px);
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -1972,9 +2458,374 @@
       position: relative;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
-      min-height: 280px;
+      min-height: 360px;
       overflow: hidden;
       background: color-mix(in srgb, var(--panel-soft) 88%, #fff 12%);
+    }
+
+    .overview-events .event-spotlight--birthday {
+      min-height: 0;
+      height: 100%;
+    }
+
+    .overview-events .birthday-spotlight-body {
+      padding: clamp(12px, 1.8vh, 24px) clamp(10px, 2vw, 26px);
+      gap: clamp(12px, 1.6vh, 22px) clamp(14px, 2.2vw, 28px);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .overview-events .birthday-spotlight-text {
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .overview-events .birthday-bento-next {
+      flex-wrap: wrap;
+      min-height: 0;
+    }
+
+    .overview-events .birthday-spotlight-banner {
+      padding: clamp(8px, 1.1vh, 14px) clamp(12px, 2vw, 22px);
+      min-height: 0;
+    }
+
+    .overview-events .birthday-spotlight-ribbon {
+      font-size: clamp(18px, 2.65vh, 32px);
+    }
+
+    .overview-events .birthday-spotlight-photo {
+      width: clamp(96px, 18vmin, 220px);
+      height: clamp(96px, 18vmin, 220px);
+    }
+
+    .overview-events .birthday-spotlight-photo--empty {
+      font-size: clamp(26px, 3.2vh, 44px);
+    }
+
+    .overview-events .birthday-spotlight-date-circle {
+      width: clamp(104px, 17vmin, 172px);
+      height: clamp(104px, 17vmin, 172px);
+      border-width: 2px;
+      border-color: color-mix(in srgb, var(--line) 42%, #64748b);
+      background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 55%, #e2e8f0 100%);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 -1px 0 rgba(15, 23, 42, 0.05) inset,
+        0 2px 6px rgba(15, 23, 42, 0.08),
+        0 8px 22px rgba(15, 23, 42, 0.14),
+        0 18px 40px rgba(15, 23, 42, 0.1);
+    }
+
+    body.dark .overview-events .birthday-spotlight-date-circle {
+      border-color: color-mix(in srgb, var(--line) 55%, #94a3b8);
+      background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--panel) 88%, #fff) 0%,
+        color-mix(in srgb, var(--panel-soft) 94%, #0f172a) 100%
+      );
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 10px 28px rgba(0, 0, 0, 0.55),
+        0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .overview-events .birthday-spotlight-date-circle .system-upcoming-date-day {
+      font-size: clamp(28px, 4vh, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .overview-events .birthday-spotlight-date-circle .system-upcoming-date-mon {
+      font-size: clamp(13px, 1.55vh, 18px);
+      letter-spacing: 0.08em;
+    }
+
+    .overview-events .birthday-spotlight-name {
+      font-size: clamp(22px, 3.1vh, 44px);
+    }
+
+    .overview-events .birthday-spotlight-detail {
+      font-size: clamp(14px, 1.85vh, 22px);
+    }
+
+    .overview-events .birthday-spotlight-phone {
+      font-size: clamp(15px, 1.9vh, 24px);
+    }
+
+    .overview-events .birthday-upcoming-row {
+      min-height: 78px;
+      padding: clamp(8px, 1.1vh, 12px) clamp(8px, 1.4vw, 14px);
+    }
+
+    .overview-events .birthday-upcoming-row .deal-agent-photo {
+      width: clamp(44px, 8vmin, 58px);
+      height: clamp(44px, 8vmin, 58px);
+    }
+
+    .overview-events .birthday-upcoming-row .system-upcoming-date-badge {
+      width: clamp(52px, 9.5vmin, 68px);
+      height: clamp(52px, 9.5vmin, 68px);
+      border-width: 2px;
+      border-color: color-mix(in srgb, var(--line) 42%, #64748b);
+      background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85) inset,
+        0 2px 5px rgba(15, 23, 42, 0.1),
+        0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    body.dark .overview-events .birthday-upcoming-row .system-upcoming-date-badge {
+      border-color: color-mix(in srgb, var(--line) 55%, #94a3b8);
+      background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--panel) 90%, #fff) 0%,
+        color-mix(in srgb, var(--panel-soft) 92%, #0f172a) 100%
+      );
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.1) inset,
+        0 4px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    .overview-events .birthday-upcoming-row .system-upcoming-agent {
+      font-size: clamp(13px, 1.65vh, 18px);
+    }
+
+    .overview-events .birthday-upcoming-row .system-upcoming-address {
+      font-size: clamp(11px, 1.35vh, 16px);
+    }
+
+    .overview-events .birthday-upcoming-row .system-upcoming-date-day {
+      font-size: clamp(14px, 1.65vh, 19px);
+    }
+
+    .overview-events .birthday-upcoming-row .system-upcoming-date-mon {
+      font-size: clamp(10px, 1.12vh, 13px);
+    }
+
+    @supports (container-type: size) {
+      .overview-events .event-spotlight-cover {
+        height: clamp(44px, 30cqmin, 200px);
+      }
+
+      .overview-events .event-spotlight--next-event .event-spotlight-cover.event-spotlight-cover--focus-faces {
+        height: clamp(48px, 34cqmin, 220px);
+      }
+
+      .overview-events .event-spotlight-title {
+        font-size: clamp(22px, 6.5cqmin, 48px);
+        line-height: 1.05;
+        margin: 0 0 clamp(0px, 0.35cqmin, 6px) 0;
+        letter-spacing: -0.02em;
+      }
+
+      .overview-events .event-detail-line {
+        font-size: clamp(22px, 6.5cqmin, 48px);
+        line-height: 1.05;
+        margin: 0;
+      }
+
+      .overview-events .event-detail-list {
+        gap: 0;
+        row-gap: 0;
+      }
+
+      .overview-events .update-spotlight-progress {
+        font-size: clamp(15px, 4.2cqmin, 24px);
+        margin-bottom: clamp(0px, 0.4cqmin, 6px);
+      }
+
+      .overview-events .event-spotlight-body {
+        padding: clamp(8px, 1.4cqmin, 16px) clamp(8px, 3cqw, 20px) clamp(10px, 1.8cqmin, 18px);
+        gap: clamp(8px, 2.2cqmin, 18px);
+        align-items: center;
+      }
+
+      .overview-events .event-spotlight--empty .event-spotlight-body {
+        padding-top: clamp(8px, 2.5cqmin, 16px);
+      }
+
+      .overview-events .event-qr {
+        width: clamp(96px, 34cqmin, 248px);
+        height: clamp(96px, 34cqmin, 248px);
+        padding: clamp(5px, 1.4cqmin, 12px);
+      }
+
+      .overview-events .event-qr-help {
+        font-size: clamp(11px, 3cqmin, 15px);
+      }
+
+      .overview-events .event-spotlight-qr-col {
+        gap: clamp(6px, 1.8cqmin, 14px);
+        align-self: center;
+        justify-items: center;
+      }
+
+      .overview-events .event-date-badge {
+        left: clamp(8px, 2cqw, 14px);
+        right: auto;
+        top: clamp(6px, 1.2cqmin, 12px);
+        font-size: clamp(11px, 3.4cqmin, 15px);
+        padding: clamp(4px, 1.1cqmin, 7px) clamp(8px, 2.4cqmin, 12px);
+        gap: clamp(5px, 1cqmin, 8px);
+      }
+
+      .overview-events .event-date-icon,
+      .overview-events .event-date-icon svg {
+        width: clamp(14px, 3.6cqmin, 18px);
+        height: clamp(14px, 3.6cqmin, 18px);
+      }
+
+      .overview-events .event-spotlight--update .event-spotlight-cover:not(.event-spotlight-cover--lesson-image) {
+        padding: clamp(6px, 1.8cqmin, 12px) clamp(8px, 2.5cqw, 16px);
+      }
+
+      .overview-events .event-spotlight--update .event-spotlight-cover--lesson-image {
+        height: clamp(40px, 30cqmin, 180px);
+      }
+
+      .overview-events .event-spotlight--update .event-spotlight-cover--lesson-image .event-spotlight-update-badge {
+        top: clamp(6px, 1.2cqmin, 12px);
+        left: clamp(8px, 2cqw, 14px);
+        right: auto;
+        padding: clamp(4px, 1.1cqmin, 7px) clamp(8px, 2.4cqmin, 12px);
+        font-size: clamp(11px, 3.4cqmin, 15px);
+      }
+
+      .overview-events .birthday-spotlight-body {
+        padding: clamp(12px, 2.8cqmin, 26px) clamp(10px, 3.2cqw, 28px);
+        gap: clamp(12px, 2.6cqmin, 24px) clamp(14px, 3cqw, 30px);
+      }
+
+      .overview-events .birthday-spotlight-banner {
+        padding: clamp(8px, 1.8cqmin, 14px) clamp(12px, 3cqw, 22px);
+      }
+
+      .overview-events .birthday-spotlight-ribbon {
+        font-size: clamp(18px, 6cqmin, 34px);
+      }
+
+      .overview-events .birthday-spotlight-photo {
+        width: clamp(96px, 36cqmin, 220px);
+        height: clamp(96px, 36cqmin, 220px);
+      }
+
+      .overview-events .birthday-spotlight-photo--empty {
+        font-size: clamp(26px, 7cqmin, 44px);
+      }
+
+      .overview-events .birthday-spotlight-date-circle {
+        width: clamp(104px, 32cqmin, 176px);
+        height: clamp(104px, 32cqmin, 176px);
+      }
+
+      .overview-events .birthday-spotlight-date-circle .system-upcoming-date-day {
+        font-size: clamp(28px, 9.5cqmin, 48px);
+        letter-spacing: -0.03em;
+      }
+
+      .overview-events .birthday-spotlight-date-circle .system-upcoming-date-mon {
+        font-size: clamp(13px, 3.8cqmin, 18px);
+        letter-spacing: 0.08em;
+      }
+
+      .overview-events .birthday-spotlight-name {
+        font-size: clamp(22px, 7.5cqmin, 44px);
+      }
+
+      .overview-events .birthday-spotlight-detail {
+        font-size: clamp(14px, 4.2cqmin, 22px);
+      }
+
+      .overview-events .birthday-spotlight-phone {
+        font-size: clamp(15px, 4.4cqmin, 24px);
+      }
+
+      .overview-events .birthday-upcoming-row {
+        padding: clamp(8px, 2cqmin, 12px) clamp(8px, 2.4cqw, 14px);
+        min-height: clamp(72px, 18cqmin, 96px);
+      }
+
+      .overview-events .birthday-upcoming-row .deal-agent-photo {
+        width: clamp(44px, 14cqmin, 58px);
+        height: clamp(44px, 14cqmin, 58px);
+      }
+
+      .overview-events .birthday-upcoming-row .system-upcoming-date-badge {
+        width: clamp(52px, 16cqmin, 70px);
+        height: clamp(52px, 16cqmin, 70px);
+      }
+
+      .overview-events .birthday-upcoming-row .system-upcoming-agent {
+        font-size: clamp(13px, 3.8cqmin, 18px);
+      }
+
+      .overview-events .birthday-upcoming-row .system-upcoming-address {
+        font-size: clamp(11px, 3.2cqmin, 16px);
+      }
+
+      .overview-events .birthday-upcoming-row .system-upcoming-date-day {
+        font-size: clamp(14px, 4cqmin, 19px);
+      }
+
+      .overview-events .birthday-upcoming-row .system-upcoming-date-mon {
+        font-size: clamp(10px, 2.9cqmin, 13px);
+      }
+    }
+
+    @container overview-event (max-width: 560px) {
+      .overview-events .event-spotlight-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+        justify-items: stretch;
+        align-items: center;
+      }
+
+      .overview-events .event-spotlight--next-event .event-spotlight-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .overview-events .event-spotlight-qr-col {
+        width: 100%;
+        justify-self: center;
+      }
+
+      .overview-events .event-qr-wrap {
+        width: 100%;
+        max-width: 380px;
+        justify-self: center;
+      }
+    }
+
+    @container overview-event (max-height: 300px) {
+      .overview-events .birthday-bento-next {
+        display: none;
+      }
+
+      .overview-events .birthday-bento--has-more {
+        grid-template-rows: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .overview-events .event-spotlight-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: center;
+      }
+
+      .overview-events .event-spotlight--next-event .event-spotlight-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .overview-events .event-spotlight-qr-col {
+        width: 100%;
+        justify-self: center;
+      }
+
+      .overview-events .event-qr-wrap {
+        width: 100%;
+        max-width: 380px;
+        justify-self: center;
+      }
     }
 
     .event-spotlight--birthday::before {
@@ -2008,8 +2859,8 @@
     .birthday-spotlight-banner {
       position: relative;
       z-index: 1;
-      min-height: 44px;
-      padding: 8px 16px;
+      min-height: 56px;
+      padding: 12px 20px;
       background: color-mix(in srgb, var(--panel-soft) 94%, var(--panel) 6%);
       border-bottom: 1px solid var(--line);
       display: flex;
@@ -2021,10 +2872,14 @@
     .birthday-spotlight-ribbon {
       position: relative;
       z-index: 1;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: var(--muted);
+      font-size: clamp(19px, 2.75vh, 32px);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #0f172a;
+    }
+
+    body.dark .birthday-spotlight-ribbon {
+      color: #f8fafc;
     }
 
     .birthday-spotlight-body {
@@ -2032,18 +2887,18 @@
       z-index: 1;
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 18px 20px;
+      gap: 22px 26px;
       align-items: center;
-      padding: 18px 20px;
+      padding: 22px 24px;
       min-height: 0;
     }
 
     .birthday-spotlight-photo {
-      width: clamp(104px, 12vh, 148px);
-      height: clamp(104px, 12vh, 148px);
+      width: clamp(132px, 16vh, 220px);
+      height: clamp(132px, 16vh, 220px);
       border-radius: 50%;
-      border: 2px solid var(--line);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+      border: 3px solid var(--line);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
       overflow: hidden;
       background: var(--panel);
       flex-shrink: 0;
@@ -2059,7 +2914,7 @@
     .birthday-spotlight-photo--empty {
       display: grid;
       place-items: center;
-      font-size: clamp(22px, 2.4vh, 32px);
+      font-size: clamp(28px, 3.1vh, 44px);
       font-weight: 700;
       color: var(--muted);
       background: var(--panel-soft);
@@ -2069,13 +2924,13 @@
       min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       align-self: center;
       justify-content: center;
     }
 
     .birthday-spotlight-name {
-      font-size: clamp(22px, 2.5vh, 32px);
+      font-size: clamp(28px, 3.2vh, 44px);
       font-weight: 700;
       letter-spacing: -0.02em;
       line-height: 1.2;
@@ -2084,7 +2939,7 @@
     }
 
     .birthday-spotlight-detail {
-      font-size: clamp(14px, 1.45vh, 16px);
+      font-size: clamp(17px, 1.85vh, 22px);
       font-weight: 500;
       line-height: 1.35;
       color: var(--muted);
@@ -2092,10 +2947,10 @@
     }
 
     .birthday-spotlight-phone {
-      font-size: clamp(15px, 1.5vh, 18px);
+      font-size: clamp(17px, 1.85vh, 22px);
       font-weight: 600;
       color: var(--text);
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .birthday-spotlight-phone a {
@@ -2109,19 +2964,21 @@
     }
 
     .birthday-spotlight-date-circle {
-      width: clamp(76px, 8.5vh, 92px);
-      height: clamp(76px, 8.5vh, 92px);
+      width: clamp(104px, 13vh, 148px);
+      height: clamp(104px, 13vh, 148px);
       flex-shrink: 0;
       align-self: center;
     }
 
     .birthday-spotlight-date-circle .system-upcoming-date-day {
-      font-size: clamp(20px, 2.2vh, 26px);
+      font-size: clamp(30px, 3.25vh, 46px);
+      letter-spacing: -0.03em;
     }
 
     .birthday-spotlight-date-circle .system-upcoming-date-mon {
-      font-size: clamp(9px, 1vh, 11px);
-      margin-top: 1px;
+      font-size: clamp(12px, 1.35vh, 17px);
+      margin-top: 2px;
+      letter-spacing: 0.08em;
     }
 
     .event-spotlight--empty .event-spotlight-title {
@@ -2238,6 +3095,10 @@
 
     .deal-pipeline-head > div:nth-child(5) {
       text-align: right;
+      filter: blur(8px);
+      -webkit-filter: blur(8px);
+      user-select: none;
+      pointer-events: none;
     }
 
     .deal-pipeline-cell {
@@ -2323,6 +3184,10 @@
       line-height: 1.08;
       white-space: nowrap;
       color: var(--text);
+      filter: blur(9px);
+      -webkit-filter: blur(9px);
+      user-select: none;
+      pointer-events: none;
     }
 
     .pipeline-deals-board .deal-pipeline-cell--status .status-chip {
@@ -2790,6 +3655,39 @@
 
     #memberDetail .detail-stat-value {
       font-size: 34px;
+    }
+
+    /* Upcoming Events → Event Focus: tighter vertical rhythm between title / meta / stats / note */
+    #eventDetail.detail-pane {
+      gap: 6px;
+      padding: 11px 12px;
+    }
+
+    #eventDetail .detail-title {
+      line-height: 1.08;
+    }
+
+    #eventDetail .detail-sub {
+      line-height: 1.22;
+      margin: 0;
+    }
+
+    #eventDetail .detail-grid {
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    #eventDetail .detail-stat {
+      padding: 7px 9px;
+    }
+
+    #eventDetail .detail-stat-label {
+      line-height: 1.15;
+    }
+
+    #eventDetail .detail-stat-value {
+      margin-top: 3px;
+      line-height: 1.1;
     }
 
     .agent-hero {
@@ -3395,12 +4293,14 @@
               <div class="leaderboard-wrap">
                 <div class="leader-head">
                   <div>Agent</div>
-                  <div>Total Volume</div>
-                  <div>Closed Vol.</div>
-                  <div>Pending Vol.</div>
-                  <div>Total Deals</div>
-                  <div>Closed</div>
-                  <div>Pending</div>
+                  <div class="leader-head-total">Total Volume</div>
+                  <div class="leader-head-cp">
+                    <div class="leader-head-cp__h">Closed Vol.</div>
+                    <div class="leader-head-cp__h">Pending Vol.</div>
+                  </div>
+                  <div class="leader-head-metric">Total Deals</div>
+                  <div class="leader-head-metric">Closed</div>
+                  <div class="leader-head-metric">Pending</div>
                   <div>Next Closing</div>
                 </div>
                 <div class="leader-list" id="leaderList"></div>
@@ -5449,13 +6349,6 @@
         bindTvAgentPhotoFallbacks(els.overviewKpis);
       }
 
-      function normalizedBarWidth(value, min, max) {
-        if (max <= min) return 40;
-        const normalized = (value - min) / (max - min);
-        const eased = Math.pow(normalized, 0.62);
-        return Math.round(26 + eased * 72);
-      }
-
       function renderLeaderboard() {
         const rawAgents = dataAdapters.agents || [];
         const agents = [...rawAgents]
@@ -5469,7 +6362,13 @@
           els.leaderList.innerHTML =
             '<div class="leader-row"><div class="agent-name">' +
             esc(emptyLabel) +
-            '</div><div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div><div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div><div class="leader-next"></div></div>';
+            '</div><div class="volume-cell"><div class="volume-main">—</div></div>' +
+            '<div class="leader-cp-vol">' +
+            '<div class="leader-cp-vol__amt"><div class="money">—</div></div>' +
+            '<div class="leader-cp-vol__amt"><div class="money">—</div></div>' +
+            '<div class="leader-cp-vol__bar"><div class="mini-bar"><div class="mini-bar-track-fill"></div></div></div>' +
+            "</div>" +
+            '<div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div><div class="leader-next"></div></div>';
           return;
         }
 
@@ -5478,10 +6377,48 @@
         els.leaderList.style.gridTemplateRows = "repeat(" + rowCount + ", minmax(0, 1fr))";
         els.leaderList.style.setProperty("--lb-scale", dynamicScale.toFixed(3));
 
-        const minV = agents[agents.length - 1].totalVolume;
-        const maxV = agents[0].totalVolume;
         els.leaderList.innerHTML = agents.map((agent, idx) => {
-          const width = normalizedBarWidth(agent.totalVolume, minV, maxV);
+          const cv = safeNum(agent.closedVolume);
+          const pv = safeNum(agent.pendingVolume);
+          const sumCP = cv + pv;
+          let closedSplitPct = 0;
+          let pendingSplitPct = 0;
+          if (sumCP > 0) {
+            closedSplitPct = (cv / sumCP) * 100;
+            pendingSplitPct = 100 - closedSplitPct;
+          }
+          const closedPctRounded = sumCP > 0 ? Math.round(closedSplitPct) : 0;
+          const pendingPctRounded = sumCP > 0 ? 100 - closedPctRounded : 0;
+          const fullClosed = sumCP > 0 && pendingSplitPct < 0.001;
+          const fullPending = sumCP > 0 && closedSplitPct < 0.001;
+          let miniBarInner;
+          if (sumCP <= 0) {
+            miniBarInner =
+              '<div class="mini-bar-seg mini-bar-seg--neutral" style="width:100%"><span class="mini-bar-seg__label mini-bar-seg__label--neutral">—</span></div>';
+          } else if (fullClosed) {
+            miniBarInner =
+              '<div class="mini-bar-seg mini-bar-seg--closed" style="width:100%"><span class="mini-bar-seg__label mini-bar-seg__label--closed">' +
+              esc(String(closedPctRounded) + "%") +
+              "</span></div>";
+          } else if (fullPending) {
+            miniBarInner =
+              '<div class="mini-bar-seg mini-bar-seg--pending" style="width:100%"><span class="mini-bar-seg__clip"><span class="mini-bar-seg__label mini-bar-seg__label--pending">' +
+              esc(String(pendingPctRounded) + "%") +
+              "</span></span></div>";
+          } else {
+            miniBarInner =
+              '<div class="mini-bar-seg mini-bar-seg--closed" style="width:' +
+              closedSplitPct +
+              '%"><span class="mini-bar-seg__label mini-bar-seg__label--closed">' +
+              esc(String(closedPctRounded) + "%") +
+              '</span></div><div class="mini-bar-seg mini-bar-seg--pending" style="width:' +
+              pendingSplitPct +
+              '%"><span class="mini-bar-seg__clip"><span class="mini-bar-seg__label mini-bar-seg__label--pending">' +
+              esc(String(pendingPctRounded) + "%") +
+              "</span></span></div>";
+          }
+          const shareMiniBar =
+            '<div class="mini-bar"><div class="mini-bar-track-fill">' + miniBarInner + "</div></div>";
           const rank = idx + 1;
           const rankClass = rank <= 3 ? "leader-rank top" : "leader-rank";
           const next = dataAdapters.nextClosingsByAgent[normalizeAgentName(resolveCanonicalAgentName(agent.name))];
@@ -5513,10 +6450,18 @@
               '<div class="leader-agent"><div class="' + rankClass + '">#' + rank + "</div>" + photoCell + '<div class="agent-name">' + esc(agent.name) + "</div></div>" +
               '<div class="volume-cell">' +
                 '<div class="volume-main">' + esc(fmtM(agent.totalVolume)) + "</div>" +
-                '<div class="mini-bar"><div class="mini-bar-fill" style="--w:' + width + '%"></div></div>' +
               "</div>" +
-              '<div class="money">' + esc(fmtM(agent.closedVolume)) + "</div>" +
-              '<div class="money">' + esc(fmtM(agent.pendingVolume)) + "</div>" +
+              '<div class="leader-cp-vol">' +
+                '<div class="leader-cp-vol__amt"><div class="money">' +
+                esc(fmtM(agent.closedVolume)) +
+                "</div></div>" +
+                '<div class="leader-cp-vol__amt"><div class="money">' +
+                esc(fmtM(agent.pendingVolume)) +
+                "</div></div>" +
+                '<div class="leader-cp-vol__bar">' +
+                shareMiniBar +
+                "</div>" +
+              "</div>" +
               '<div class="num">' + esc(agent.totalDeals) + "</div>" +
               '<div class="subnum">' + esc(agent.closedDeals) + "</div>" +
               '<div class="subnum">' + esc(agent.pendingDeals) + "</div>" +
@@ -5592,12 +6537,14 @@
         const item = items[index];
 
         if (!item || !item.spotlightKind) {
-          const qrUrl = "https://quickchart.io/qr?size=180&text=" + encodeURIComponent((item && item.detailsUrl) || "");
+          const qrUrl = "https://quickchart.io/qr?size=260&text=" + encodeURIComponent((item && item.detailsUrl) || "");
           const chip =
             formatOverviewEventChipDate(item && item.date) ||
             formatOverviewEventChipDate(item && item.when) ||
             "Date TBD";
           const dateBadge = esc(chip);
+          const eventKicker =
+            '<div class="update-spotlight-progress">' + esc(String(chip || "Date TBD").toUpperCase()) + "</div>";
           const calendarIcon =
             '<span class="event-date-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></span>';
           const cover = item && item.cover ? esc(item.cover) : "";
@@ -5608,6 +6555,7 @@
               "</div>" +
               '<div class="event-spotlight-body">' +
                 '<div class="event-detail-list">' +
+                  eventKicker +
                   '<div class="event-spotlight-title">' + esc((item && item.title) || "Event") + "</div>" +
                   '<div class="event-detail-line"><strong>Location:</strong>' + esc((item && item.location) || "--") + "</div>" +
                   '<div class="event-detail-line"><strong>Time:</strong>' + esc((item && item.time) || "--") + "</div>" +
@@ -5637,7 +6585,7 @@
             d && d.detailsUrl && /^https?:\/\//i.test(d.detailsUrl) ? d.detailsUrl : "";
           const qrBlock = qrTarget
             ? '<div class="event-qr-wrap"><img class="event-qr" src="' +
-              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(qrTarget)) +
+              esc("https://quickchart.io/qr?size=260&text=" + encodeURIComponent(qrTarget)) +
               '" alt="QR code to open this lesson"><div class="event-qr-help">Scan to open the post link.</div></div>'
             : '<div class="event-qr-wrap"><div class="event-qr-help">No post link in the sheet for this lesson.</div></div>';
 
@@ -5649,6 +6597,7 @@
                 '">Lessons</span></div>' +
                 '<div class="event-spotlight-body">' +
                 '<div class="event-detail-list">' +
+                '<div class="update-spotlight-progress">LESSONS</div>' +
                 '<div class="event-spotlight-title">' +
                 esc(item.title || "Lessons") +
                 "</div>" +
@@ -5717,7 +6666,7 @@
           if (item.empty) {
             card.innerHTML =
               '<article class="event-spotlight event-spotlight--birthday event-spotlight--empty">' +
-              '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming birthday</div></div>' +
+              '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming Birthdays</div></div>' +
               '<div class="birthday-spotlight-body">' +
               '<div class="birthday-spotlight-photo birthday-spotlight-photo--empty" aria-hidden="true">—</div>' +
               '<div class="birthday-spotlight-text">' +
@@ -5779,7 +6728,7 @@
           const countDetail = countLine ? '<p class="birthday-spotlight-detail">' + esc(countLine) + "</p>" : "";
           const heroHtml =
             '<article class="event-spotlight event-spotlight--birthday event-spotlight--birthday-hero">' +
-            '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming birthday</div></div>' +
+            '<div class="birthday-spotlight-banner"><div class="birthday-spotlight-ribbon">Upcoming Birthdays</div></div>' +
             '<div class="birthday-spotlight-body">' +
             photoHtml +
             '<div class="birthday-spotlight-text">' +
@@ -5806,6 +6755,7 @@
             '<div class="event-spotlight-cover"></div>' +
             '<div class="event-spotlight-body" style="grid-template-columns:1fr">' +
             '<div class="event-detail-list">' +
+            '<div class="update-spotlight-progress">NEXT EVENT</div>' +
             '<div class="event-spotlight-title">' +
             esc(item.title) +
             "</div>" +
@@ -5842,27 +6792,31 @@
         if (join) {
           qrParts.push(
             '<div class="event-qr-wrap"><img class="event-qr" src="' +
-              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(join)) +
+              esc("https://quickchart.io/qr?size=260&text=" + encodeURIComponent(join)) +
               '" alt="Join online QR code"><div class="event-qr-help">Scan to join online</div></div>'
           );
         }
         if (details && details !== join) {
           qrParts.push(
             '<div class="event-qr-wrap"><img class="event-qr" src="' +
-              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(details)) +
+              esc("https://quickchart.io/qr?size=260&text=" + encodeURIComponent(details)) +
               '" alt="Event details QR code"><div class="event-qr-help">Scan for event page</div></div>'
           );
         }
         if (!qrParts.length) {
           qrParts.push(
             '<div class="event-qr-wrap"><img class="event-qr" src="' +
-              esc("https://quickchart.io/qr?size=180&text=" + encodeURIComponent(defaultSite)) +
+              esc("https://quickchart.io/qr?size=260&text=" + encodeURIComponent(defaultSite)) +
               '" alt="QR code"><div class="event-qr-help">Scan for more information</div></div>'
           );
         }
         const qrColumn = '<div class="event-spotlight-qr-col">' + qrParts.join("") + "</div>";
 
         const teamMeetingCard = isHubTeamMeetingSpotlight(item);
+        const eventHeadKicker =
+          '<div class="update-spotlight-progress">' +
+          esc(teamMeetingCard ? "TEAM MEETING" : String(chipDate || "").toUpperCase()) +
+          "</div>";
         const typeLine = teamMeetingCard
           ? ""
           : '<div class="event-detail-line"><strong>Type:</strong>' + esc(item.typeLabel || "Event") + "</div>";
@@ -5885,6 +6839,7 @@
           "</div>" +
           '<div class="event-spotlight-body">' +
           '<div class="event-detail-list">' +
+          eventHeadKicker +
           '<div class="event-spotlight-title">' +
           esc(item.title || "Event") +
           "</div>" +
