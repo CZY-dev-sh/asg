@@ -1,0 +1,245 @@
+/*
+ * Elm Street / IDX Broker — CATEGORY CSS: Contact
+ * Paste into the "Contact" category CSS field.
+ * Global: ../idx-global.css
+ *
+ * Covers: Contact, Home Valuation, More Info, Schedule Showing, etc.
+ *
+ * More Info template: targets #IDX-main.IDX-type-moreinfo (IDX body classes).
+ * Other Contact pages may use different IDX-type-* classes — extend as needed.
+ */
+
+/* =========================
+   IDX MORE INFO / CONTACT PAGE
+   ========================= */
+
+#IDX-main.IDX-type-moreinfo {
+  max-width: 1360px !important;
+  margin: 0 auto !important;
+  padding: 20px 20px 64px !important;
+  background: transparent !important;
+  color: #111 !important;
+  font-family: "Satoshi","Outfit","Poppins",system-ui,sans-serif !important;
+}
+
+#IDX-main.IDX-type-moreinfo,
+#IDX-main.IDX-type-moreinfo * {
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+}
+
+/* reset shells */
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoContainer,
+#IDX-main.IDX-type-moreinfo #IDX-pageContainer,
+#IDX-main.IDX-type-moreinfo .IDX-pageContainer,
+#IDX-main.IDX-type-moreinfo .IDX-wrapper-standard {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+/* top account row */
+#IDX-main.IDX-type-moreinfo #IDX-leadToolsBar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 0 18px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-leadToolsBar a {
+  display: inline !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #111 !important;
+  text-decoration: none !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+/* page title area */
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoHeader {
+  margin: 0 0 8px !important;
+  color: #111 !important;
+  font-size: clamp(2rem, 3vw, 3rem) !important;
+  line-height: 1.02 !important;
+  font-weight: 500 !important;
+  letter-spacing: -.03em !important;
+}
+
+/* property summary row under title */
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoWrapper > p,
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoContainer > p,
+#IDX-main.IDX-type-moreinfo .IDX-moreInfoAddress {
+  margin: 0 0 20px !important;
+  color: rgba(17,17,17,.68) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* kill random pill styling inside summary line */
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoWrapper > p a,
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoContainer > p a,
+#IDX-main.IDX-type-moreinfo .IDX-moreInfoAddress a,
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoWrapper > p span,
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoContainer > p span,
+#IDX-main.IDX-type-moreinfo .IDX-moreInfoAddress span {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+/* main bento card */
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoFormWrapper {
+  display: grid !important;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr) !important;
+  gap: 24px !important;
+  padding: 24px !important;
+  background: #fff !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.08) !important;
+  overflow: hidden !important;
+}
+
+/* left form card */
+#IDX-main.IDX-type-moreinfo #IDX-contactForm {
+  padding: 24px !important;
+  background: #fff !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.05) !important;
+  align-self: start !important;
+}
+
+/* right agent card */
+#IDX-main.IDX-type-moreinfo #IDX-contactInformation {
+  background: #fff !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.05) !important;
+  overflow: hidden !important;
+  align-self: start !important;
+}
+
+/* remove duplicate view property buttons / noisy utility links */
+#IDX-main.IDX-type-moreinfo a[href*="details"],
+#IDX-main.IDX-type-moreinfo a[href*="view"] {
+  text-decoration: none !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoContainer > a,
+#IDX-main.IDX-type-moreinfo #IDX-moreInfoWrapper > a,
+#IDX-main.IDX-type-moreinfo .IDX-moreInfoActions a:not(:first-child) {
+  display: none !important;
+}
+
+/* form fields */
+#IDX-main.IDX-type-moreinfo input[type="text"],
+#IDX-main.IDX-type-moreinfo input[type="email"],
+#IDX-main.IDX-type-moreinfo input[type="tel"],
+#IDX-main.IDX-type-moreinfo textarea,
+#IDX-main.IDX-type-moreinfo select {
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(17,17,17,.12) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  color: #111 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 15px !important;
+}
+
+#IDX-main.IDX-type-moreinfo textarea {
+  min-height: 116px !important;
+  resize: vertical !important;
+}
+
+#IDX-main.IDX-type-moreinfo label {
+  color: rgba(17,17,17,.76) !important;
+  font-size: 14px !important;
+}
+
+/* submit button */
+#IDX-main.IDX-type-moreinfo button,
+#IDX-main.IDX-type-moreinfo input[type="submit"],
+#IDX-main.IDX-type-moreinfo .IDX-button,
+#IDX-main.IDX-type-moreinfo .IDX-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 48px !important;
+  padding: 0 20px !important;
+  border: 1px solid #111 !important;
+  border-radius: 18px !important;
+  background: #111 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: .04em !important;
+  box-shadow: none !important;
+}
+
+/* agent image */
+#IDX-main.IDX-type-moreinfo #IDX-contactPic {
+  overflow: hidden !important;
+  border-radius: 24px 24px 0 0 !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-contactPic img {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  border-radius: 24px 24px 0 0 !important;
+}
+
+/* agent info */
+#IDX-main.IDX-type-moreinfo #IDX-contactInfo {
+  padding: 18px 20px 20px !important;
+  color: #111 !important;
+  font-size: 0 !important;
+  line-height: 1.45 !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-contactInfo > * {
+  margin: 0 0 6px !important;
+  font-size: 15px !important;
+  color: rgba(17,17,17,.82) !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-contactInfo > *:first-child {
+  font-size: 28px !important;
+  line-height: 1.05 !important;
+  font-weight: 700 !important;
+  color: #111 !important;
+  margin-bottom: 10px !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-contactInfo > *:nth-child(4) {
+  display: none !important;
+}
+
+#IDX-main.IDX-type-moreinfo #IDX-contactInfo > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* mobile — paste was cut off after `padding:`; completed for valid CSS */
+@media (max-width: 991px) {
+  #IDX-main.IDX-type-moreinfo #IDX-moreInfoFormWrapper {
+    grid-template-columns: 1fr !important;
+    padding: 20px !important;
+  }
+}

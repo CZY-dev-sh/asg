@@ -1,0 +1,113 @@
+/* Squarespace global — part B: listing modal + IDX detail fallbacks (embedded #IDX-main). Rebuild: ./build-squarespace-global.sh */
+
+/* Listing modal (custom JS fills #idx-modal-*) */
+#idx-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9999;
+  display:none;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .25s ease
+}
+#idx-modal-overlay.is-visible{opacity:1}
+#idx-modal{
+  background:#fff;border-radius:24px;overflow:hidden;width:100%;max-width:540px;box-shadow:0 32px 80px rgba(0,0,0,.25);
+  transform:translateY(24px) scale(.96);transition:transform .3s cubic-bezier(.34,1.4,.64,1);position:relative
+}
+#idx-modal-overlay.is-visible #idx-modal{transform:translateY(0) scale(1)}
+#idx-modal-photo{width:100%;height:280px;object-fit:cover;display:block}
+#idx-modal-body{padding:24px 28px 28px;font-family:"Satoshi","Inter",system-ui,sans-serif}
+#idx-modal-close{
+  position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:10;transition:background .15s
+}
+#idx-modal-close:hover{background:rgba(0,0,0,.65)}
+#idx-modal-status{
+  display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#111;border-radius:999px;padding:5px 12px 5px 9px;
+  font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px
+}
+#idx-modal-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0}
+#idx-modal-status.status--contract::before{background:#f59e0b}
+#idx-modal-status.status--pending::before{background:#ef4444}
+#idx-modal-address{font-size:20px;font-weight:700;color:#111;margin:0 0 5px;line-height:1.3}
+#idx-modal-location{font-size:13px;color:#adb5bd;margin:0 0 18px}
+#idx-modal-price{font-size:30px;font-weight:800;color:#111;letter-spacing:-.03em;padding-top:18px;border-top:1px solid #f1f3f5;margin:0 0 14px}
+#idx-modal-specs{display:flex;gap:20px;margin:0 0 24px;color:#6b7280;font-size:14px;font-weight:500}
+#idx-modal-actions{display:flex;gap:10px}
+#idx-modal-view{
+  flex:1;display:block;text-align:center;background:#111;color:#fff!important;border-radius:12px;padding:14px;font-size:14px;font-weight:600;
+  text-decoration:none!important;transition:background .2s
+}
+#idx-modal-view:hover{background:#333!important}
+#idx-modal-contact{
+  flex:1;display:block;text-align:center;background:#f3f4f6;color:#111!important;border-radius:12px;padding:14px;font-size:14px;font-weight:600;
+  text-decoration:none!important;transition:background .2s
+}
+#idx-modal-contact:hover{background:#e5e7eb!important}
+@media (max-width:600px){
+  #idx-modal-photo{height:200px}
+  #idx-modal-address{font-size:17px}
+  #idx-modal-price{font-size:24px}
+  #idx-modal-actions{flex-direction:column}
+}
+
+/* IDX detail (when #IDX-main appears on marketing domain) */
+#IDX-main,#IDX-detailsContent,.IDX-detailsContent,#IDX-detailsWrapper{
+  font-family:"Satoshi","Inter",system-ui,-apple-system,sans-serif!important;color:#1a1a1a!important;max-width:1100px!important;margin:0 auto!important;padding:32px 24px!important
+}
+#IDX-detailsGallery,.IDX-detailsGallery,#IDX-photo-gallery,.IDX-photo-gallery{border-radius:20px!important;overflow:hidden!important;margin-bottom:32px!important}
+#IDX-detailsGallery img,.IDX-detailsGallery img,#IDX-photo-gallery img,.IDX-photo-gallery img{
+  width:100%!important;height:480px!important;object-fit:cover!important;border-radius:20px!important;display:block!important
+}
+#IDX-detailsMain,.IDX-detailsMain,#IDX-detailsAddress,.IDX-detailsAddress{
+  background:#fff!important;border-radius:20px!important;box-shadow:0 4px 24px rgba(0,0,0,.08)!important;padding:32px!important;margin-bottom:24px!important;border:0!important
+}
+#IDX-detailsAddress h1,.IDX-detailsAddress h1,#IDX-detailsAddress .IDX-address,.IDX-detailsAddress .IDX-address,#IDX-detailsAddress .IDX-showcaseAddress,.IDX-detailsAddress .IDX-showcaseAddress{
+  font-size:26px!important;font-weight:700!important;color:#1a1a1a!important;margin:0 0 8px!important;line-height:1.3!important
+}
+#IDX-detailsPrice,.IDX-detailsPrice,.IDX-price,#IDX-detailsMain .IDX-price{font-size:32px!important;font-weight:800!important;color:#1a1a1a!important;margin:12px 0!important}
+#IDX-detailsStatus,.IDX-detailsStatus,.IDX-status{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;background:#f0fdf4!important;color:#16a34a!important;font-size:13px!important;font-weight:600!important;
+  padding:4px 12px!important;border-radius:999px!important;text-transform:uppercase!important;letter-spacing:.04em!important;margin-bottom:16px!important
+}
+#IDX-detailsFacts,.IDX-detailsFacts,#IDX-detailsStats,.IDX-detailsStats,.IDX-detailsKeyFacts{
+  display:flex!important;flex-wrap:wrap!important;gap:16px!important;background:#f8f8f8!important;border-radius:16px!important;padding:24px!important;margin-bottom:24px!important
+}
+#IDX-detailsFacts .IDX-factsItem,.IDX-detailsFacts .IDX-factsItem,.IDX-detailsKeyFacts div,.IDX-detailsKeyFacts span,.IDX-detailsStats div,.IDX-detailsStats span{
+  flex:1 1 120px!important;text-align:center!important;background:#fff!important;border-radius:12px!important;padding:16px!important;font-weight:600!important;font-size:15px!important
+}
+#IDX-detailsDescription,.IDX-detailsDescription,#IDX-propertyDescription,.IDX-propertyDescription{
+  background:#fff!important;border-radius:20px!important;box-shadow:0 4px 24px rgba(0,0,0,.06)!important;padding:32px!important;margin-bottom:24px!important;
+  font-size:16px!important;line-height:1.7!important;color:#333!important;border:0!important
+}
+#IDX-detailsDescription h2,.IDX-detailsDescription h2,#IDX-detailsDescription h3,.IDX-detailsDescription h3{font-size:20px!important;font-weight:700!important;margin-bottom:12px!important}
+#IDX-detailsFields,.IDX-detailsFields,#IDX-detailsInfo,.IDX-detailsInfo,.IDX-propertyDetails{
+  background:#fff!important;border-radius:20px!important;box-shadow:0 4px 24px rgba(0,0,0,.06)!important;padding:32px!important;margin-bottom:24px!important;border:0!important
+}
+#IDX-detailsFields table,.IDX-detailsFields table,.IDX-propertyDetails table{width:100%!important;border-collapse:collapse!important}
+#IDX-detailsFields tr,.IDX-detailsFields tr,.IDX-propertyDetails tr{border-bottom:1px solid #f0f0f0!important}
+#IDX-detailsFields td,.IDX-detailsFields td,.IDX-propertyDetails td{padding:10px 4px!important;font-size:14px!important;border:0!important;vertical-align:top!important}
+#IDX-detailsFields td:first-child,.IDX-detailsFields td:first-child,.IDX-propertyDetails td:first-child{font-weight:600!important;color:#555!important;width:45%!important}
+#IDX-detailsContact,.IDX-detailsContact,#IDX-agentInfo,.IDX-agentInfo,.IDX-contactAgent{
+  background:#1a1a1a!important;color:#fff!important;border-radius:20px!important;padding:32px!important;margin-bottom:24px!important;border:0!important
+}
+#IDX-detailsContact h2,.IDX-detailsContact h2,#IDX-agentInfo h2,.IDX-agentInfo h2{color:#fff!important;font-size:20px!important;margin-bottom:16px!important}
+#IDX-detailsContact input,.IDX-detailsContact input,#IDX-detailsContact textarea,.IDX-detailsContact textarea,.IDX-contactAgent input,.IDX-contactAgent textarea{
+  width:100%!important;background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;border-radius:10px!important;padding:12px 16px!important;color:#fff!important;font-size:15px!important;margin-bottom:12px!important;box-sizing:border-box!important
+}
+#IDX-detailsContact input::placeholder,.IDX-detailsContact input::placeholder,#IDX-detailsContact textarea::placeholder,.IDX-detailsContact textarea::placeholder{color:rgba(255,255,255,.5)!important}
+#IDX-detailsContact button,.IDX-detailsContact button,.IDX-contactAgent button,.IDX-btn,#IDX-main .IDX-btn,#IDX-main button[type="submit"],a.IDX-btn{
+  background:#1a1a1a!important;color:#fff!important;border:0!important;border-radius:10px!important;padding:13px 28px!important;font-size:15px!important;font-weight:600!important;
+  cursor:pointer!important;transition:background .2s ease!important;text-decoration:none!important;display:inline-block!important
+}
+#IDX-detailsContact button:hover,.IDX-contactAgent button:hover,#IDX-main button[type="submit"]:hover{background:#333!important}
+#IDX-similarListings,.IDX-similarListings,#IDX-detailsSimilar,.IDX-detailsSimilar{margin-top:40px!important}
+#IDX-similarListings h2,.IDX-similarListings h2,#IDX-detailsSimilar h2,.IDX-detailsSimilar h2{font-size:22px!important;font-weight:700!important;margin-bottom:20px!important}
+#IDX-similarListings .IDX-showcaseCell,.IDX-similarListings .IDX-showcaseCell,#IDX-detailsSimilar .IDX-showcaseCell,.IDX-detailsSimilar .IDX-showcaseCell{
+  background:#fff!important;border-radius:20px!important;box-shadow:0 4px 20px rgba(0,0,0,.08)!important;overflow:hidden!important;border:0!important;transition:transform .22s ease,box-shadow .22s ease!important
+}
+#IDX-similarListings .IDX-showcaseCell:hover,#IDX-detailsSimilar .IDX-showcaseCell:hover{transform:translateY(-4px)!important;box-shadow:0 12px 32px rgba(0,0,0,.14)!important}
+#IDX-detailsBreadcrumb,.IDX-detailsBreadcrumb,.IDX-breadcrumb{font-size:13px!important;color:#888!important;margin-bottom:20px!important}
+#IDX-detailsBreadcrumb a,.IDX-breadcrumb a{color:#888!important;text-decoration:none!important}
+#IDX-detailsBreadcrumb a:hover,.IDX-breadcrumb a:hover{color:#1a1a1a!important}
+#IDX-detailsIDXlink,.IDX-detailsIDXlink,#IDX-poweredBy,.IDX-poweredBy{display:none!important}
+@media (max-width:768px){
+  #IDX-detailsGallery img,.IDX-detailsGallery img{height:260px!important}
+  #IDX-detailsMain,.IDX-detailsMain,#IDX-detailsDescription,.IDX-detailsDescription,#IDX-detailsFields,.IDX-detailsFields{padding:20px!important}
+}

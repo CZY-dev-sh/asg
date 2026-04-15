@@ -1,0 +1,256 @@
+/*
+ * Elm Street / IDX Broker — CATEGORY CSS: User
+ * Paste into the "User" category CSS field.
+ * Global: ../idx-global.css
+ *
+ * Covers: My Account, User Login, User Signup, modals on user flows, etc.
+ *
+ * Rules are scoped under #IDX-main where possible. May overlap Global
+ * .ui-dialog styles; later rules / category load order determine wins.
+ */
+
+/* =========================
+   IDX SIGN UP / LOG IN MODALS
+   Global attempt
+   ========================= */
+
+/* Base font and text smoothing */
+#IDX-main,
+#IDX-main * {
+  font-family: "Satoshi","Poppins","Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Common modal / popup shells */
+#IDX-main .ui-dialog,
+#IDX-main .ui-dialog-content,
+#IDX-main .IDX-registration,
+#IDX-main .IDX-login,
+#IDX-main .IDX-signup,
+#IDX-main .IDX-modal,
+#IDX-main .IDX-popup,
+#IDX-main .IDX-formContainer,
+#IDX-main .IDX-leadSignUp,
+#IDX-main .IDX-loginForm,
+#IDX-main form[action*="login"],
+#IDX-main form[action*="signup"],
+#IDX-main form[action*="register"] {
+  border-radius: 28px !important;
+}
+
+/* Dialog outer shell */
+#IDX-main .ui-dialog,
+#IDX-main .IDX-modal,
+#IDX-main .IDX-popup {
+  background: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,.16) !important;
+  overflow: hidden !important;
+}
+
+/* Modal inner content */
+#IDX-main .ui-dialog-content,
+#IDX-main .IDX-registration,
+#IDX-main .IDX-login,
+#IDX-main .IDX-signup,
+#IDX-main .IDX-formContainer,
+#IDX-main .IDX-leadSignUp,
+#IDX-main .IDX-loginForm {
+  background: #ffffff !important;
+  padding: 28px !important;
+  border: 0 !important;
+}
+
+/* Header / title areas */
+#IDX-main .ui-dialog-titlebar,
+#IDX-main .IDX-modalHeader,
+#IDX-main .IDX-popupHeader,
+#IDX-main .IDX-registrationHeader,
+#IDX-main .IDX-loginHeader {
+  background: #ffffff !important;
+  border: 0 !important;
+  padding: 24px 28px 8px !important;
+}
+
+/* Title text */
+#IDX-main .ui-dialog-title,
+#IDX-main .IDX-modalHeader *,
+#IDX-main .IDX-popupHeader *,
+#IDX-main .IDX-registrationHeader *,
+#IDX-main .IDX-loginHeader *,
+#IDX-main h1,
+#IDX-main h2,
+#IDX-main h3,
+#IDX-main h4 {
+  color: #111111 !important;
+  font-weight: 600 !important;
+  letter-spacing: -.02em !important;
+}
+
+/* Body copy */
+#IDX-main .ui-dialog-content,
+#IDX-main .IDX-registration,
+#IDX-main .IDX-login,
+#IDX-main .IDX-signup,
+#IDX-main p,
+#IDX-main label,
+#IDX-main span,
+#IDX-main div {
+  color: #222222 !important;
+}
+
+/* Inputs */
+#IDX-main input[type="text"],
+#IDX-main input[type="email"],
+#IDX-main input[type="tel"],
+#IDX-main input[type="password"],
+#IDX-main input[type="search"],
+#IDX-main select,
+#IDX-main textarea {
+  width: 100% !important;
+  background: #ffffff !important;
+  border: 1px solid #e7e7e7 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  padding: 14px 16px !important;
+  color: #111111 !important;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease !important;
+}
+
+/* Input placeholders */
+#IDX-main input::placeholder,
+#IDX-main textarea::placeholder {
+  color: #8b8b8b !important;
+}
+
+/* Input focus */
+#IDX-main input:focus,
+#IDX-main select:focus,
+#IDX-main textarea:focus {
+  outline: none !important;
+  border-color: #111111 !important;
+  box-shadow: 0 0 0 4px rgba(0,0,0,.06) !important;
+}
+
+/* Labels */
+#IDX-main label {
+  display: block !important;
+  margin: 0 0 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #444444 !important;
+}
+
+/* Buttons */
+#IDX-main button,
+#IDX-main input[type="submit"],
+#IDX-main input[type="button"],
+#IDX-main .IDX-btn,
+#IDX-main .ui-button,
+#IDX-main a.IDX-button,
+#IDX-main a[class*="button"] {
+  appearance: none !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  padding: 14px 20px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.01em !important;
+  text-transform: none !important;
+  transition: transform .15s ease, opacity .15s ease, background-color .15s ease !important;
+}
+
+#IDX-main button:hover,
+#IDX-main input[type="submit"]:hover,
+#IDX-main input[type="button"]:hover,
+#IDX-main .IDX-btn:hover,
+#IDX-main .ui-button:hover,
+#IDX-main a.IDX-button:hover,
+#IDX-main a[class*="button"]:hover {
+  opacity: .92 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Secondary links */
+#IDX-main a {
+  color: #111111 !important;
+  text-decoration: none !important;
+}
+
+#IDX-main a:hover {
+  text-decoration: underline !important;
+}
+
+/* Close button */
+#IDX-main .ui-dialog-titlebar-close,
+#IDX-main .IDX-close,
+#IDX-main .IDX-modalClose {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 999px !important;
+  border: 1px solid #ebebeb !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  right: 16px !important;
+  top: 16px !important;
+}
+
+/* Helper text / small text */
+#IDX-main small,
+#IDX-main .IDX-help,
+#IDX-main .IDX-formText,
+#IDX-main .IDX-disclaimer {
+  color: #6f6f6f !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* Error states */
+#IDX-main .error,
+#IDX-main .IDX-error,
+#IDX-main .ui-state-error {
+  color: #b42318 !important;
+  background: #fef3f2 !important;
+  border: 1px solid #fecdca !important;
+  border-radius: 14px !important;
+  padding: 10px 12px !important;
+}
+
+/* Checkbox / radio spacing */
+#IDX-main input[type="checkbox"],
+#IDX-main input[type="radio"] {
+  accent-color: #111111 !important;
+}
+
+/* Form spacing */
+#IDX-main form > div,
+#IDX-main form > p,
+#IDX-main .IDX-control-group,
+#IDX-main .form-group,
+#IDX-main .IDX-form-group {
+  margin-bottom: 16px !important;
+}
+
+/* Hide dated borders / lines */
+#IDX-main hr,
+#IDX-main .ui-widget-header,
+#IDX-main .IDX-border,
+#IDX-main [class*="border"] {
+  border-color: #efefef !important;
+}
+
+/* Overlay backdrop if accessible */
+.ui-widget-overlay,
+#IDX-main .ui-widget-overlay,
+#IDX-main .IDX-overlay,
+#IDX-main .modal-backdrop {
+  background: rgba(17,17,17,.45) !important;
+  opacity: 1 !important;
+}

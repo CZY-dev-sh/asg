@@ -32,7 +32,6 @@ const SENIORS = [
 const JUNIORS = [
   { name: "Justin Curran",          email: "justin.curran@compass.com",          phone: "847-507-7753", fubPhone: "312-516-4375" },
   { name: "Cheryl Cohn",            email: "cheryl.cohn@compass.com",            phone: "312-860-0200", fubPhone: "312-847-4243" },
-  { name: "David Drzal",            email: "david.drzal@compass.com",            phone: "224-766-1324", fubPhone: "224-506-0798" },
   { name: "Jason Stone",            email: "jason.stone@compass.com",            phone: "863-221-7522", fubPhone: "815-702-0994" },
   { name: "Andrea Mirchef",         email: "andrea.mirchef@compass.com",         phone: "847-884-8183", fubPhone: "312-818-2401" },
   { name: "Andrea Koedjikova",      email: "andrea.koedjikova@compass.com",      phone: "872-361-8022", fubPhone: "779-382-2765" },
@@ -49,7 +48,7 @@ const JUNIORS = [
 ];
 
 // Additional juniors in team-directory.html only:
-// Breanna Raspopovich, James Basile, Danica Thomas, Deannine Weber Ronan
+// Breanna Raspopovich, Danica Thomas, Deannine Weber Ronan
 
 // ── ADMIN STAFF ─────────────────────────────────────────────
 const ADMIN = [

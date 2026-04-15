@@ -1,0 +1,481 @@
+/* ==========================================
+   IDX MODAL STABLE FIX
+   Remove the previous hard-fix blocks first
+   ========================================== */
+
+/* modal shell */
+.ui-dialog {
+  width: min(760px, calc(100vw - 40px)) !important;
+  max-width: 760px !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 26px !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,.22) !important;
+  overflow: hidden !important;
+  font-family: "Satoshi","Poppins","Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+}
+
+.ui-dialog *,
+.ui-dialog input,
+.ui-dialog select,
+.ui-dialog textarea,
+.ui-dialog button,
+.ui-dialog a,
+.ui-dialog label,
+.ui-dialog td,
+.ui-dialog div,
+.ui-dialog span,
+.ui-dialog p {
+  font-family: "Satoshi","Poppins","Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+}
+
+/* header */
+.ui-dialog .ui-dialog-titlebar {
+  position: relative !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-bottom: 1px solid #ececec !important;
+  padding: 28px 84px 22px 28px !important;
+}
+
+.ui-dialog .ui-dialog-title {
+  font-size: 26px !important;
+  line-height: 1.1 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  color: #111 !important;
+  margin: 0 !important;
+}
+
+/* close button top-right */
+.ui-dialog .ui-dialog-titlebar-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  left: auto !important;
+  width: 42px !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  border: 1px solid #ececec !important;
+  background: #fafafa !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close span,
+.ui-dialog .ui-dialog-titlebar-close .ui-icon,
+.ui-dialog .ui-dialog-titlebar-close .ui-button-text {
+  display: none !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close::before {
+  content: "×" !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  color: #8a8a8a !important;
+  font-weight: 600 !important;
+}
+
+/* content */
+.ui-dialog .ui-dialog-content {
+  background: #fff !important;
+  padding: 28px !important;
+  color: #333 !important;
+}
+
+.ui-dialog p,
+.ui-dialog div,
+.ui-dialog span,
+.ui-dialog td {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  color: #444 !important;
+}
+
+.ui-dialog label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #2f2f2f !important;
+}
+
+/* keep native field layout, only improve appearance */
+.ui-dialog input[type="text"],
+.ui-dialog input[type="email"],
+.ui-dialog input[type="tel"],
+.ui-dialog input[type="password"],
+.ui-dialog select,
+.ui-dialog textarea {
+  height: 56px !important;
+  border-radius: 16px !important;
+  border: 1px solid #dcdcdc !important;
+  background: #fcfcfc !important;
+  padding: 0 16px !important;
+  font-size: 16px !important;
+  color: #111 !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+}
+
+.ui-dialog input:focus,
+.ui-dialog select:focus,
+.ui-dialog textarea:focus {
+  outline: none !important;
+  border-color: #bcbcbc !important;
+  box-shadow: 0 0 0 4px rgba(0,0,0,.05) !important;
+  background: #fff !important;
+}
+
+/* hard force the submit button */
+.ui-dialog input[type="submit"],
+.ui-dialog button[type="submit"],
+.ui-dialog form input[type="submit"],
+.ui-dialog form button[type="submit"] {
+  display: block !important;
+  width: 100% !important;
+  min-height: 58px !important;
+  margin: 22px 0 8px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #05070b !important;
+  background-image: none !important;
+  color: #fff !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-align: center !important;
+  box-shadow: none !important;
+}
+
+/* center login link without touching full form layout */
+.ui-dialog a[href*="login"],
+.ui-dialog a[title*="Log"],
+.ui-dialog a[title*="login"] {
+  display: block !important;
+  width: 100% !important;
+  margin: 10px auto 0 !important;
+  text-align: center !important;
+  float: none !important;
+  position: static !important;
+  color: #202020 !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+}
+
+.ui-dialog a[href*="login"]:hover,
+.ui-dialog a[title*="Log"]:hover,
+.ui-dialog a[title*="login"]:hover {
+  text-decoration: underline !important;
+}
+
+/* legal copy */
+.ui-dialog small,
+.ui-dialog [class*="privacy"],
+.ui-dialog [class*="terms"] {
+  display: block !important;
+  margin-top: 14px !important;
+  text-align: center !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: #6d6d6d !important;
+}
+
+/* =========================================
+   IDX GLOBAL DESIGN SYSTEM
+   ========================================= */
+
+:root {
+  --idx-bg: #f5f3ef;
+  --idx-card: #ffffff;
+  --idx-text: #111111;
+  --idx-text-soft: rgba(17,17,17,.68);
+  --idx-border: rgba(17,17,17,.08);
+  --idx-border-strong: rgba(17,17,17,.14);
+  --idx-shadow: 0 10px 30px rgba(0,0,0,.06);
+  --idx-shadow-lg: 0 18px 50px rgba(0,0,0,.08);
+  --idx-radius: 24px;
+  --idx-radius-sm: 16px;
+  --idx-radius-xs: 12px;
+  --idx-max: 1360px;
+  --idx-space-xs: 10px;
+  --idx-space-sm: 16px;
+  --idx-space-md: 24px;
+  --idx-space-lg: 32px;
+  --idx-space-xl: 48px;
+  --idx-font: "Satoshi","Outfit","Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+/* Main container reset */
+.idx-theme,
+.idx-theme * {
+  box-sizing: border-box;
+  font-family: var(--idx-font) !important;
+}
+
+/* Wrapper */
+.idx-theme {
+  max-width: var(--idx-max);
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  color: var(--idx-text);
+}
+
+/* Generic IDX shells */
+.idx-theme .IDX-wrapper-standard,
+.idx-theme .IDX-page-wrapper,
+.idx-theme .IDX-content,
+.idx-theme #IDX-main,
+.idx-theme #IDX-pageContent {
+  background: transparent !important;
+  color: var(--idx-text) !important;
+}
+
+/* Headings */
+.idx-theme h1,
+.idx-theme h2,
+.idx-theme h3,
+.idx-theme h4,
+.idx-theme .IDX-page-title,
+.idx-theme .IDX-heading,
+.idx-theme .IDX-title {
+  font-family: var(--idx-font) !important;
+  color: var(--idx-text) !important;
+  letter-spacing: -.02em;
+  line-height: 1.05;
+}
+
+.idx-theme h1,
+.idx-theme .IDX-page-title {
+  font-size: clamp(2rem, 3vw, 3.25rem) !important;
+  font-weight: 500 !important;
+  margin: 0 0 18px !important;
+}
+
+.idx-theme h2 {
+  font-size: clamp(1.4rem, 2vw, 2rem) !important;
+  font-weight: 500 !important;
+}
+
+.idx-theme h3 {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+
+/* Paragraph and labels */
+.idx-theme p,
+.idx-theme label,
+.idx-theme span,
+.idx-theme li,
+.idx-theme .IDX-text,
+.idx-theme .IDX-fieldLabel {
+  color: var(--idx-text) !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+.idx-theme .IDX-muted,
+.idx-theme .IDX-description,
+.idx-theme .IDX-subheading,
+.idx-theme small {
+  color: var(--idx-text-soft) !important;
+}
+
+/* Cards / boxes */
+.idx-theme .IDX-box,
+.idx-theme .IDX-panel,
+.idx-theme .IDX-card,
+.idx-theme .IDX-form-container,
+.idx-theme .IDX-resultsContent,
+.idx-theme .IDX-detailsWrapper,
+.idx-theme .IDX-contactForm,
+.idx-theme .IDX-userWrapper {
+  background: var(--idx-card) !important;
+  border: 1px solid var(--idx-border) !important;
+  border-radius: var(--idx-radius) !important;
+  box-shadow: var(--idx-shadow) !important;
+  overflow: hidden !important;
+}
+
+/* Inputs */
+.idx-theme input[type="text"],
+.idx-theme input[type="email"],
+.idx-theme input[type="password"],
+.idx-theme input[type="tel"],
+.idx-theme input[type="number"],
+.idx-theme select,
+.idx-theme textarea {
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--idx-border-strong) !important;
+  background: #fff !important;
+  color: var(--idx-text) !important;
+  font-size: 15px !important;
+  line-height: 1.3 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.idx-theme textarea {
+  min-height: 140px !important;
+  resize: vertical !important;
+}
+
+.idx-theme input:focus,
+.idx-theme select:focus,
+.idx-theme textarea:focus {
+  border-color: #111 !important;
+}
+
+/* Buttons */
+.idx-theme button,
+.idx-theme input[type="submit"],
+.idx-theme input[type="button"],
+.idx-theme .IDX-btn,
+.idx-theme .IDX-button,
+.idx-theme a.IDX-btn,
+.idx-theme a.IDX-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 52px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  border: 1px solid #111 !important;
+  background: #111 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+  box-shadow: none !important;
+  transition: .2s ease !important;
+  cursor: pointer !important;
+}
+
+.idx-theme button:hover,
+.idx-theme input[type="submit"]:hover,
+.idx-theme input[type="button"]:hover,
+.idx-theme .IDX-btn:hover,
+.idx-theme .IDX-button:hover,
+.idx-theme a.IDX-btn:hover,
+.idx-theme a.IDX-button:hover {
+  opacity: .92 !important;
+  transform: translateY(-1px);
+}
+
+/* Secondary buttons */
+.idx-theme .IDX-btn-secondary,
+.idx-theme .IDX-button--secondary,
+.idx-theme .IDX-grayButton {
+  background: #fff !important;
+  color: #111 !important;
+  border: 1px solid var(--idx-border-strong) !important;
+}
+
+/* Tables */
+.idx-theme table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+}
+
+.idx-theme th,
+.idx-theme td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid var(--idx-border) !important;
+  color: var(--idx-text) !important;
+  background: #fff !important;
+  text-align: left !important;
+}
+
+.idx-theme th {
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  color: var(--idx-text-soft) !important;
+}
+
+/* Links */
+.idx-theme a {
+  color: var(--idx-text) !important;
+  text-decoration: none !important;
+}
+
+.idx-theme a:hover {
+  opacity: .8;
+}
+
+/* Images */
+.idx-theme img {
+  max-width: 100%;
+  height: auto;
+  border: 0 !important;
+}
+
+/* Pills / badges */
+.idx-theme .IDX-badge,
+.idx-theme .IDX-status,
+.idx-theme .IDX-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1px solid var(--idx-border) !important;
+  color: var(--idx-text) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Pagination */
+.idx-theme .IDX-pagination,
+.idx-theme .IDX-paging {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 24px !important;
+}
+
+.idx-theme .IDX-pagination a,
+.idx-theme .IDX-paging a,
+.idx-theme .IDX-pagination span,
+.idx-theme .IDX-paging span {
+  min-width: 42px !important;
+  height: 42px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid var(--idx-border) !important;
+  background: #fff !important;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .idx-theme {
+    padding: 20px 14px 40px;
+  }
+
+  .idx-theme h1,
+  .idx-theme .IDX-page-title {
+    font-size: 2rem !important;
+  }
+
+  .idx-theme button,
+  .idx-theme input[type="submit"],
+  .idx-theme input[type="button"],
+  .idx-theme .IDX-btn,
+  .idx-theme .IDX-button {
+    width: 100% !important;
+  }
+}

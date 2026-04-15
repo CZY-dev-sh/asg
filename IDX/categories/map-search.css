@@ -1,0 +1,35 @@
+/*
+ * Elm Street / IDX Broker — CATEGORY CSS: Map Search
+ * Paste into the "Map Search" category CSS field.
+ * Global: ../idx-global.css
+ *
+ * Wrapper: add class `idx-map-search-page` on the page wrapper (or body).
+ */
+
+/* =========================================
+   IDX MAP SEARCH PAGE
+   ========================================= */
+
+.idx-map-search-page .IDX-mapWrapper,
+.idx-map-search-page .IDX-map,
+.idx-map-search-page #IDX-map {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.08) !important;
+}
+
+.idx-map-search-page .IDX-sidebar,
+.idx-map-search-page .IDX-mapSidebar,
+.idx-map-search-page .IDX-searchPanel {
+  background: #fff !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  border-radius: 24px !important;
+  padding: 20px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06) !important;
+}
+
+.idx-map-search-page .IDX-mapControls,
+.idx-map-search-page .IDX-filterBar {
+  margin-bottom: 18px !important;
+}

@@ -9,6 +9,7 @@
     --ink: #111111;
     --muted: #666666;
     --line: rgba(17, 17, 17, 0.12);
+    --bar-fill: #7aa2ff;
     --blue: #111111;
     --green: #111111;
     --amber: #111111;
@@ -359,6 +360,205 @@
     grid-template-columns: 1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr;
     gap: 8px;
     align-items: center;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-head,
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-row {
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 0.55fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.52fr) minmax(0, 0.44fr) minmax(0, 0.44fr) minmax(0, 1.05fr);
+    gap: 6px;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-head {
+    align-items: center;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-row {
+    align-items: stretch;
+  }
+  #asg-admin-master-dashboard .leader-head-total {
+    text-align: center;
+    min-width: 0;
+    margin-left: calc(-1 * clamp(4px, 1.2vw, 14px));
+    margin-right: calc(-1 * clamp(2px, 0.5vw, 8px));
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .volume-cell--lb-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: 0;
+    text-align: center;
+    margin-left: calc(-1 * clamp(4px, 1.2vw, 14px));
+    margin-right: calc(-1 * clamp(2px, 0.5vw, 8px));
+  }
+  #asg-admin-master-dashboard .leader-head-metric {
+    text-align: center;
+  }
+  #asg-admin-master-dashboard .leader-head-cp,
+  #asg-admin-master-dashboard .leader-cp-vol {
+    grid-column: 3 / 5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leader-head-cp__h {
+    text-align: center;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leader-cp-vol {
+    grid-template-rows: auto auto;
+    align-self: start;
+    padding-top: clamp(0px, calc(var(--lb-row-h, 48px) * 0.22 - 2px), 18px);
+  }
+  #asg-admin-master-dashboard .leader-cp-vol__amt {
+    min-width: 0;
+    text-align: center;
+  }
+  #asg-admin-master-dashboard .leader-cp-vol__bar {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 72%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-row > .num,
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-row > .subnum {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .money {
+    font-variant-numeric: tabular-nums;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar {
+    height: clamp(6px, calc(7.5px * var(--lb-scale, 1)), 11px);
+    border-radius: 999px;
+    background: transparent;
+    overflow: visible;
+    display: flex;
+    align-items: stretch;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+    border-radius: 999px;
+    overflow: visible;
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--bar-fill) 38%, transparent));
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill:empty {
+    background: linear-gradient(180deg, #f8fafc, #eef2f6);
+    filter: none;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg {
+    height: 100%;
+    flex: 0 0 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill > .mini-bar-seg--closed:first-child {
+    border-radius: 999px 0 0 999px;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill > .mini-bar-seg--closed:only-child {
+    border-radius: 999px;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill > .mini-bar-seg--pending:last-child {
+    border-radius: 0 999px 999px 0;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill > .mini-bar-seg--pending:only-child {
+    border-radius: 999px;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-track-fill > .mini-bar-seg--pending:only-child::before {
+    display: none;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg__label {
+    font-size: clamp(4px, calc(5.5px * var(--lb-scale, 1)), 8px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg__label--closed {
+    color: rgba(255, 255, 255, 0.96);
+    text-shadow: 0 1px 1px rgba(15, 23, 42, 0.2);
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg__clip {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0 999px 999px 0;
+    position: relative;
+    z-index: 2;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg__label--pending {
+    color: rgba(30, 41, 59, 0.82);
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg__label--neutral {
+    color: rgba(100, 116, 139, 0.88);
+    font-size: clamp(4px, calc(5px * var(--lb-scale, 1)), 7px);
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg--pending:only-child .mini-bar-seg__clip {
+    border-radius: 999px;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg--closed {
+    overflow: hidden;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #ffffff 26%, var(--bar-fill)),
+      var(--bar-fill)
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg--pending {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(180deg, #f9fafb, #e8edf3);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06),
+      inset -1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.45));
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg--pending::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -1px;
+    bottom: -1px;
+    width: 1px;
+    transform: translateX(-0.5px);
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0),
+      rgba(15, 23, 42, 0.12) 18%,
+      rgba(15, 23, 42, 0.2) 50%,
+      rgba(15, 23, 42, 0.12) 82%,
+      rgba(15, 23, 42, 0)
+    );
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-cp-vol .mini-bar-seg--neutral {
+    background: linear-gradient(180deg, #f9fafb, #e8edf3);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.58),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06),
+      inset -1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.45)),
+      inset 1px 0 0 color-mix(in srgb, var(--line) 55%, rgba(148, 163, 184, 0.35));
   }
   #asg-admin-master-dashboard .leader-head {
     color: #667085;
@@ -881,6 +1081,10 @@
     #asg-admin-master-dashboard .leader-head,
     #asg-admin-master-dashboard .leader-row {
       min-width: 860px;
+    }
+    #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-head,
+    #asg-admin-master-dashboard .leaderboard-wrap--ytd .leader-row {
+      min-width: 980px;
     }
     #asg-admin-master-dashboard .leader-next-box {
       min-width: 190px;
@@ -1769,6 +1973,50 @@
       return Math.round(26 + eased * 72);
     }
 
+    /** Closed vs pending share bar (matches TV leaderboard), expects dollar volumes. */
+    function renderClosedPendingMiniBarHtml(closedVol, pendingVol) {
+      var cv = Number(closedVol) || 0;
+      var pv = Number(pendingVol) || 0;
+      var sumCP = cv + pv;
+      var closedSplitPct = 0;
+      var pendingSplitPct = 0;
+      if (sumCP > 0) {
+        closedSplitPct = (cv / sumCP) * 100;
+        pendingSplitPct = 100 - closedSplitPct;
+      }
+      var closedPctRounded = sumCP > 0 ? Math.round(closedSplitPct) : 0;
+      var pendingPctRounded = sumCP > 0 ? 100 - closedPctRounded : 0;
+      var fullClosed = sumCP > 0 && pendingSplitPct < 0.001;
+      var fullPending = sumCP > 0 && closedSplitPct < 0.001;
+      var miniBarInner;
+      if (sumCP <= 0) {
+        miniBarInner =
+          '<div class="mini-bar-seg mini-bar-seg--neutral" style="width:100%"><span class="mini-bar-seg__label mini-bar-seg__label--neutral">—</span></div>';
+      } else if (fullClosed) {
+        miniBarInner =
+          '<div class="mini-bar-seg mini-bar-seg--closed" style="width:100%"><span class="mini-bar-seg__label mini-bar-seg__label--closed">' +
+          esc(String(closedPctRounded) + "%") +
+          "</span></div>";
+      } else if (fullPending) {
+        miniBarInner =
+          '<div class="mini-bar-seg mini-bar-seg--pending" style="width:100%"><span class="mini-bar-seg__clip"><span class="mini-bar-seg__label mini-bar-seg__label--pending">' +
+          esc(String(pendingPctRounded) + "%") +
+          "</span></span></div>";
+      } else {
+        miniBarInner =
+          '<div class="mini-bar-seg mini-bar-seg--closed" style="width:' +
+          closedSplitPct +
+          '%"><span class="mini-bar-seg__label mini-bar-seg__label--closed">' +
+          esc(String(closedPctRounded) + "%") +
+          '</span></div><div class="mini-bar-seg mini-bar-seg--pending" style="width:' +
+          pendingSplitPct +
+          '%"><span class="mini-bar-seg__clip"><span class="mini-bar-seg__label mini-bar-seg__label--pending">' +
+          esc(String(pendingPctRounded) + "%") +
+          "</span></span></div>";
+      }
+      return '<div class="mini-bar"><div class="mini-bar-track-fill">' + miniBarInner + "</div></div>";
+    }
+
     function renderLeaderboardTvStyle(items, view) {
       function displayNameForLeaderboard(name, leaderboardView) {
         var key = normalizeAgentKey(name);
@@ -1820,27 +2068,58 @@
       });
 
       if (!agents.length) {
-        var emptyGrid = view === "ytd"
-          ? "1.7fr 1.1fr 0.85fr 0.85fr 0.55fr 1.25fr"
-          : "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
-        var emptyHead = view === "ytd"
-          ? '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:center">Deals</div><div>Next Closing</div>'
-          : '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
-        return '<div class="leaderboard-wrap">' +
-          '<div class="leader-head" style="grid-template-columns:' + emptyGrid + ';">' + emptyHead + "</div>" +
-          '<div class="leader-list">' +
-            '<div class="leader-row" style="grid-template-columns:' + emptyGrid + ';"><div class="agent-name">No leaderboard data available</div><div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div><div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div></div>' +
-          '</div>' +
-        '</div>';
+        if (view === "ytd") {
+          return (
+            '<div class="leaderboard-wrap leaderboard-wrap--ytd">' +
+              '<div class="leader-head">' +
+                "<div>Agent</div>" +
+                '<div class="leader-head-total">Total Volume</div>' +
+                '<div class="leader-head-cp">' +
+                  '<div class="leader-head-cp__h">Closed Vol.</div>' +
+                  '<div class="leader-head-cp__h">Pending Vol.</div>' +
+                "</div>" +
+                '<div class="leader-head-metric">Total Deals</div>' +
+                '<div class="leader-head-metric">Closed</div>' +
+                '<div class="leader-head-metric">Pending</div>' +
+                "<div>Next Closing</div>" +
+              "</div>" +
+              '<div class="leader-list">' +
+                '<div class="leader-row">' +
+                  '<div class="leader-agent"><div class="leader-rank">—</div><div class="leader-photo">·</div><div class="agent-name">No leaderboard data available</div></div>' +
+                  '<div class="volume-cell volume-cell--lb-total"><div class="volume-main">—</div></div>' +
+                  '<div class="leader-cp-vol">' +
+                    '<div class="leader-cp-vol__amt"><div class="money">—</div></div>' +
+                    '<div class="leader-cp-vol__amt"><div class="money">—</div></div>' +
+                    '<div class="leader-cp-vol__bar"><div class="mini-bar"><div class="mini-bar-track-fill"></div></div></div>' +
+                  "</div>" +
+                  '<div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div>' +
+                  "<div></div>" +
+                "</div>" +
+              "</div>" +
+            "</div>"
+          );
+        }
+        var emptyGridAt = "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
+        var emptyHeadAt =
+          '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
+        return (
+          '<div class="leaderboard-wrap">' +
+            '<div class="leader-head" style="grid-template-columns:' + emptyGridAt + ';">' + emptyHeadAt + "</div>" +
+            '<div class="leader-list">' +
+              '<div class="leader-row" style="grid-template-columns:' + emptyGridAt + ';">' +
+                '<div class="agent-name">No leaderboard data available</div>' +
+                '<div class="volume-cell"><div class="volume-main">—</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:0%"></div></div></div>' +
+                '<div class="money">—</div><div class="money">—</div><div class="num">—</div><div class="subnum">—</div><div class="subnum">—</div>' +
+              "</div>" +
+            "</div>" +
+          "</div>"
+        );
       }
 
-      var gridTemplate = view === "ytd"
-        ? "1.7fr 1.1fr 0.85fr 0.85fr 0.55fr 1.25fr"
-        : "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
+      var gridTemplateAt = "1.7fr 1.15fr 0.85fr 0.85fr 0.7fr 0.55fr 0.55fr";
       var minV = Number(agents[agents.length - 1].totalVolume) || 0;
       var maxV = Number(agents[0].totalVolume) || 0;
       var list = agents.map(function (agent, idx) {
-        var width = normalizedLeaderboardBarWidth(Number(agent.totalVolume) || 0, minV, maxV);
         var rank = idx + 1;
         var rankClass = rank <= 3 ? "leader-rank top" : "leader-rank";
         var displayName = displayNameForLeaderboard(agent.agent, view);
@@ -1856,35 +2135,78 @@
         var nextSideLower = nextSide.toLowerCase();
         var sideClass = nextSideLower.indexOf("buy") > -1 ? "buy" : (nextSideLower.indexOf("sell") > -1 ? "sell" : "other");
         var sideLabel = nextSide || "Pending";
-        var metrics = view === "ytd"
-          ? ('<div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div>" +
-             '<div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div>" +
-             '<div class="num" style="text-align:center;">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
-             (next
-               ? ('<div class="leader-next-box"><div class="leader-next-layout"><div class="leader-next-left"><div class="leader-next-address">' + esc(next.address || "—") + '</div><div class="leader-next-chip-row"><span class="leader-next-date"><span class="leader-next-cal">📅</span>' + esc(formatShortDate(next.closeDate)) + '</span></div></div>' +
-                  '<div class="leader-next-right"><span class="leader-next-price">' + esc(fmtMoney(next.price)) + '</span><span class="leader-next-chip ' + sideClass + '">' + esc(sideLabel) + '</span></div></div></div>')
-               : ''))
-          : ('<div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div>" +
-             '<div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div>" +
-             '<div class="num">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
-             '<div class="subnum">' + esc(fmtNum(agent.closedDeals)) + "</div>" +
-             '<div class="subnum">' + esc(fmtNum(agent.pendingDeals)) + "</div>");
+        if (view === "ytd") {
+          var nextCellYtd = next
+            ? '<div class="leader-next-box"><div class="leader-next-layout"><div class="leader-next-left"><div class="leader-next-address">' +
+              esc(next.address || "—") +
+              '</div><div class="leader-next-chip-row"><span class="leader-next-date"><span class="leader-next-cal">📅</span>' +
+              esc(formatShortDate(next.closeDate)) +
+              '</span></div></div><div class="leader-next-right"><span class="leader-next-price">' +
+              esc(fmtMoney(next.price)) +
+              '</span><span class="leader-next-chip ' +
+              sideClass +
+              '">' +
+              esc(sideLabel) +
+              "</span></div></div></div>"
+            : "<div></div>";
+          return (
+            '<div class="leader-row">' +
+              '<div class="leader-agent"><div class="' + rankClass + '">#' + rank + "</div>" + photoCell + '<div class="agent-name">' + esc(displayName) + "</div></div>" +
+              '<div class="volume-cell volume-cell--lb-total"><div class="volume-main">' + esc(fmtMoney(agent.totalVolume)) + "</div></div>" +
+              '<div class="leader-cp-vol">' +
+              '<div class="leader-cp-vol__amt"><div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div></div>" +
+              '<div class="leader-cp-vol__amt"><div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div></div>" +
+              '<div class="leader-cp-vol__bar">' + renderClosedPendingMiniBarHtml(agent.closedVolume, agent.pendingVolume) + "</div>" +
+              "</div>" +
+              '<div class="num">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
+              '<div class="subnum">' + esc(fmtNum(agent.closedDeals)) + "</div>" +
+              '<div class="subnum">' + esc(fmtNum(agent.pendingDeals)) + "</div>" +
+              nextCellYtd +
+              "</div>"
+          );
+        }
+        var width = normalizedLeaderboardBarWidth(Number(agent.totalVolume) || 0, minV, maxV);
         return (
-          '<div class="leader-row" style="grid-template-columns:' + gridTemplate + ';">' +
+          '<div class="leader-row" style="grid-template-columns:' + gridTemplateAt + ';">' +
             '<div class="leader-agent"><div class="' + rankClass + '">#' + rank + "</div>" + photoCell + '<div class="agent-name">' + esc(displayName) + "</div></div>" +
             '<div class="volume-cell"><div class="volume-main">' + esc(fmtMoney(agent.totalVolume)) + '</div><div class="mini-bar"><div class="mini-bar-fill" style="--w:' + width + '%"></div></div></div>' +
-            metrics +
-          "</div>"
+            '<div class="money">' + esc(fmtMoney(agent.closedVolume)) + "</div>" +
+            '<div class="money">' + esc(fmtMoney(agent.pendingVolume)) + "</div>" +
+            '<div class="num">' + esc(fmtNum(agent.totalDeals)) + "</div>" +
+            '<div class="subnum">' + esc(fmtNum(agent.closedDeals)) + "</div>" +
+            '<div class="subnum">' + esc(fmtNum(agent.pendingDeals)) + "</div>" +
+            "</div>"
         );
       }).join("");
 
-      var headCols = view === "ytd"
-        ? '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:center">Deals</div><div>Next Closing</div>'
-        : '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
-      return '<div class="leaderboard-wrap">' +
-        '<div class="leader-head" style="grid-template-columns:' + gridTemplate + ';">' + headCols + "</div>" +
-        '<div class="leader-list">' + list + "</div>" +
-      "</div>";
+      if (view === "ytd") {
+        var headColsYtd =
+          "<div>Agent</div>" +
+          '<div class="leader-head-total">Total Volume</div>' +
+          '<div class="leader-head-cp">' +
+            '<div class="leader-head-cp__h">Closed Vol.</div>' +
+            '<div class="leader-head-cp__h">Pending Vol.</div>' +
+          "</div>" +
+          '<div class="leader-head-metric">Total Deals</div>' +
+          '<div class="leader-head-metric">Closed</div>' +
+          '<div class="leader-head-metric">Pending</div>' +
+          "<div>Next Closing</div>";
+        return (
+          '<div class="leaderboard-wrap leaderboard-wrap--ytd">' +
+            '<div class="leader-head">' + headColsYtd + "</div>" +
+            '<div class="leader-list">' + list + "</div>" +
+          "</div>"
+        );
+      }
+
+      var headColsAt =
+        '<div>Agent</div><div>Volume</div><div>Closed</div><div>Pending</div><div style="text-align:right">Deals</div><div style="text-align:right">Closed</div><div style="text-align:right">Pending</div>';
+      return (
+        '<div class="leaderboard-wrap">' +
+          '<div class="leader-head" style="grid-template-columns:' + gridTemplateAt + ';">' + headColsAt + "</div>" +
+          '<div class="leader-list">' + list + "</div>" +
+        "</div>"
+      );
     }
 
     function renderClosedAllTimeRows(items) {
