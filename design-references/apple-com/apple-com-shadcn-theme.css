@@ -1,0 +1,19 @@
+/* shadcn/ui Theme — extracted from https://www.apple.com/ */
+/* Paste into your globals.css */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --primary: 209 100% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 11% 96%;
+    --secondary-foreground: 0 0% 0%;
+    --accent: 240 11% 96%;
+    --accent-foreground: 0 0% 0%;
+    --muted: 240 6% 83%;
+    --muted-foreground: 240 3% 12%;
+    --border: 0 0% 100%;
+    --radius: 8px;
+  }
+}

@@ -361,6 +361,127 @@
     text-align:center;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-error{color:#9f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.04)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-panel-stack{display:grid;gap:14px}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-panel-divider{height:1px;background:var(--asg-ph-border)}
+  /* Follow Up Boss — minimal “Apple retail” density: system font, airy spacing, no nested boxes */
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-wrap{
+    display:grid;
+    gap:16px;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Helvetica,sans-serif;
+    --asg-fub-text:#1d1d1f;
+    --asg-fub-dim:#6e6e73;
+    --asg-fub-line:rgba(0,0,0,.06);
+    --asg-fub-surface:#fafafa;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-summary{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0;
+    padding:14px 0 2px;
+    border-bottom:1px solid var(--asg-fub-line);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat{
+    padding:0 16px 14px 0;
+    border:none;
+    background:transparent;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat:last-child{padding-right:0}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat-label{
+    font-size:12px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+    color:var(--asg-fub-dim);
+    line-height:1.3;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat-value{
+    margin-top:2px;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:-0.02em;
+    color:var(--asg-fub-text);
+    line-height:1.15;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-bento{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-card{
+    border:1px solid var(--asg-fub-line);
+    border-radius:12px;
+    padding:16px 18px 17px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+    display:grid;
+    gap:0;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-addr{
+    margin:0;
+    font-size:17px;
+    font-weight:600;
+    letter-spacing:-0.022em;
+    line-height:1.25;
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge{
+    flex-shrink:0;
+    white-space:nowrap;
+    max-width:46%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    border-radius:100px;
+    padding:5px 11px;
+    border:1px solid transparent;
+    line-height:1.2;
+    background:var(--asg-fub-surface);
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge.is-open{background:#f5f5f7;color:#1d1d1f;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge.is-won{background:#eefbf3;color:#1d7a3d;border-color:rgba(52,199,89,.2)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge.is-lost{background:#fef2f2;color:#b42318;border-color:rgba(255,59,48,.15)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge.is-archived{background:#f5f5f7;color:#6e6e73;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-badge.is-unknown{background:#f5f5f7;color:#6e6e73;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-line{
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+    line-height:1.45;
+    color:var(--asg-fub-dim);
+    margin:0 0 12px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-line strong{
+    font-weight:600;
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-foot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding-top:12px;
+    margin-top:2px;
+    border-top:1px solid var(--asg-fub-line);
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    color:var(--asg-fub-dim);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-deal-foot b{
+    font-weight:600;
+    color:var(--asg-fub-text);
+  }
   @media (max-width:1080px){
     #asg-agent-personal-hub-alex-stoykov .asg-ph-grid,
     #asg-agent-personal-hub-alex-stoykov .asg-ph-main{grid-template-columns:1fr}
@@ -390,6 +511,10 @@
     #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-top{display:grid;grid-template-columns:78px 1fr;align-items:start}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-assets{gap:8px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row{padding:9px 10px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-summary{grid-template-columns:1fr;gap:0;padding-bottom:0}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat{padding:0 0 14px;border-bottom:1px solid var(--asg-fub-line)}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-stat:last-child{border-bottom:none;padding-bottom:10px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-bento{grid-template-columns:1fr;gap:10px}
   }
 </style>
 
@@ -403,6 +528,8 @@
   */
   const STATS_API="https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  const FUB_HUB_API="https://script.google.com/macros/s/AKfycbxxcap5FOy3ooT2O_m9O5RMvLhsTtAk7hRXxN_bclGAh0lANCY_kV13W7P920nmYCQNgg/exec";
+  const FUB_AGENT_NAME="Alexandre Stoykov";
 
   const AGENT_PROFILE={
     name:"Alex Stoykov",
@@ -439,6 +566,112 @@
     return "#";
   };
   const statusLabel=s=>{const raw=String(s||"").trim();if(!raw)return"Unknown";return raw.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");};
+  /** Pilot-only: hide these contacts from the FUB bento grid (display names as shown in FUB). */
+  const FUB_UI_OMIT_CONTACT_KEYS=new Set([
+    "samshiu",
+    "jaychen",
+    "seangolinski",
+    "samanthaappelhans",
+    "arielthanos",
+    "josephfisher",
+    "allysonacosta",
+    "marcschnepper"
+  ]);
+  function fubContactKey(name){return normalize(name);}
+  function isFubContactOmitted(contact){
+    const key=fubContactKey(contact&&contact.name);
+    if(FUB_UI_OMIT_CONTACT_KEYS.has(key))return true;
+    if(key.includes("sam")&&key.includes("shiu"))return true;
+    return false;
+  }
+  /** Treat pipeline stages / statuses as closed so they drop out of the active-only view. */
+  function isFubDealClosed(deal){
+    if(!deal)return true;
+    const status=String(deal.status||"").toLowerCase().trim();
+    const stage=String(deal.stage||deal.stageName||"").toLowerCase().trim();
+    const title=String(deal.title||"").toLowerCase().trim();
+    if(status==="won"||status==="lost"||status==="archived")return true;
+    if(status==="closed")return true;
+    const blob=stage+" "+title+" "+status;
+    if(/\bclosed\b/.test(blob))return true;
+    if(/\bclosing\b/.test(stage)&&/\bcomplete\b/.test(blob))return true;
+    return false;
+  }
+  /**
+   * Hard-coded presentation overrides (pilot / demo polish only). Keys are normalize(contact.name).
+   * uiHeadlineStatus / uiBadgeClass drive the card header chip; stage + closeDate feed the KPI row.
+   */
+  const FUB_DEAL_UI_OVERRIDES={
+    samhwang:{
+      title:"3035 W Belmont Ave, #2E",
+      stage:"Under contract",
+      status:"open",
+      value:undefined,
+      closeDate:"Apr 23, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    },
+    laceybundy:{
+      title:"1705 N Clybourn Ave, #E",
+      stage:"Listed — selling the unit",
+      status:"open",
+      value:699000,
+      closeDate:undefined,
+      uiHeadlineStatus:"Listed · $699,000",
+      uiBadgeClass:"open"
+    },
+    yaritza:{
+      title:"200 W Grand Ave, #1504",
+      stage:"Under contract — purchase",
+      status:"open",
+      value:475000,
+      closeDate:"Apr 24, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    },
+    williamrfahey:{
+      title:"437 W Webster Ave",
+      stage:"Under contract — purchase",
+      status:"open",
+      value:3200000,
+      closeDate:"May 15, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    }
+  };
+  function fubOverrideKeyForContact(name){
+    const k=fubContactKey(name);
+    if(FUB_DEAL_UI_OVERRIDES[k])return k;
+    if(/^yaritza/.test(k))return"yaritza";
+    if(/^sam/.test(k)&&/hwang/.test(k))return"samhwang";
+    if(/^lacey/.test(k)&&/bundy/.test(k))return"laceybundy";
+    if(/^william/.test(k)&&/fahey/.test(k))return"williamrfahey";
+    return null;
+  }
+  function applyFubDealUiOverride(contact, deal){
+    const key=fubOverrideKeyForContact(contact&&contact.name);
+    const o=key?FUB_DEAL_UI_OVERRIDES[key]:null;
+    if(!o)return Object.assign({},deal);
+    const base=Object.assign({},deal);
+    return Object.assign(base,o);
+  }
+  function filterFubContactsForUi(contacts){
+    return (Array.isArray(contacts)?contacts:[])
+      .filter(c=>c&&!isFubContactOmitted(c))
+      .map(function(c){
+        const deals=(Array.isArray(c.deals)?c.deals:[]).filter(d=>d&&!isFubDealClosed(d)).map(d=>applyFubDealUiOverride(c,d));
+        return Object.assign({},c,{deals:deals});
+      })
+      .filter(c=>Array.isArray(c.deals)&&c.deals.length);
+  }
+  function summarizeFubDealCards(cards){
+    let todo=0,done=0;
+    cards.forEach(card=>{
+      todo+=Number(card.todoCount)||0;
+      done+=Number(card.doneCount)||0;
+    });
+    return{dealCount:cards.length,taskTodo:todo,taskDone:done};
+  }
   const resolveDriveImageUrl=url=>{
     const raw=String(url||"").trim();
     if(!raw)return "";
@@ -518,8 +751,19 @@
         </section>
 
         <section class="asg-ph-card">
-          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
-          <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+          <div class="asg-ph-panel-stack">
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Follow Up Boss Deal Tracker</div>
+              <div class="asg-ph-fub-wrap" id="asgPhFub">
+                <div class="asg-ph-empty">Loading contact, deal, and admin task data...</div>
+              </div>
+            </div>
+            <div class="asg-ph-panel-divider"></div>
+            <div>
+              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
+              <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+            </div>
+          </div>
         </section>
       </div>
     </div>
@@ -529,6 +773,7 @@
   const kpiWrap=root.querySelector("#asgPhKpis");
   const teamTop=root.querySelector("#asgPhTeamTop");
   const listWrap=root.querySelector("#asgPhListings");
+  const fubWrap=root.querySelector("#asgPhFub");
   const downloadsWrap=root.querySelector("#asgPhDownloads");
   const tabs=root.querySelectorAll(".asg-ph-tab");
   const statsTabs=root.querySelectorAll(".asg-ph-stats-tab");
@@ -561,7 +806,7 @@
     });
   });
 
-  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings()]).then(function(){ renderListings(); });
+  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings(),loadFubHubData()]).then(function(){ renderListings(); });
 
   function loadStats(period){
     const targetPeriod=period||"ytd2026";
@@ -659,6 +904,101 @@
           `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>`
         ].join("");
       });
+  }
+
+  function loadFubHubData(){
+    if(!fubWrap)return Promise.resolve();
+    if(!FUB_HUB_API||FUB_HUB_API.indexOf("REPLACE_WITH_FUB_HUB_DEPLOYMENT")!==-1){
+      fubWrap.innerHTML='<div class="asg-ph-empty">Follow Up Boss endpoint not configured yet. Add your deployed Apps Script URL to `FUB_HUB_API`.</div>';
+      return Promise.resolve();
+    }
+    fubWrap.innerHTML='<div class="asg-ph-empty">Loading Follow Up Boss contact pipeline...</div>';
+    const params=[
+      "smartListId=172",
+      "smartListName="+encodeURIComponent("Current Deals"),
+      "agentEmail="+encodeURIComponent(AGENT_PROFILE.email||""),
+      "agentName="+encodeURIComponent(FUB_AGENT_NAME),
+      "limit=100"
+    ].join("&");
+    return fetch(FUB_HUB_API+"?"+params,{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||data.ok!==true)throw new Error((data&&data.errorMessage)||"Bad Follow Up Boss payload");
+        renderFubHubData(data);
+      })
+      .catch(()=>{
+        fubWrap.innerHTML='<div class="asg-ph-error">Unable to load Follow Up Boss deals/tasks right now.</div>';
+      });
+  }
+
+  function renderFubHubData(data){
+    if(!fubWrap)return;
+    const rawContacts=Array.isArray(data&&data.contacts)?data.contacts:[];
+    const contacts=filterFubContactsForUi(rawContacts);
+    const dealCards=buildFubDealCards(contacts);
+    const vis=summarizeFubDealCards(dealCards);
+    if(!dealCards.length){
+      fubWrap.innerHTML='<div class="asg-ph-empty">No current deals found in this Follow Up Boss list.</div>';
+      return;
+    }
+    fubWrap.innerHTML=`
+      <div class="asg-ph-fub-summary">
+        <div class="asg-ph-fub-stat"><div class="asg-ph-fub-stat-label">Active deals</div><div class="asg-ph-fub-stat-value">${esc(String(vis.dealCount||0))}</div></div>
+        <div class="asg-ph-fub-stat"><div class="asg-ph-fub-stat-label">Open tasks</div><div class="asg-ph-fub-stat-value">${esc(String(vis.taskTodo||0))}</div></div>
+        <div class="asg-ph-fub-stat"><div class="asg-ph-fub-stat-label">Completed tasks</div><div class="asg-ph-fub-stat-value">${esc(String(vis.taskDone||0))}</div></div>
+      </div>
+      <div class="asg-ph-fub-bento">
+        ${dealCards.map(card=>renderFubDealCard(card)).join("")}
+      </div>
+    `;
+  }
+
+  function buildFubDealCards(contacts){
+    const cards=[];
+    contacts.forEach(contact=>{
+      const deals=Array.isArray(contact&&contact.deals)?contact.deals:[];
+      if(!deals.length)return;
+      const allTasks=Array.isArray(contact&&contact.dealTasks&&contact.dealTasks.tasks)?contact.dealTasks.tasks:[];
+      const todoTasks=allTasks.filter(task=>!task.completed);
+      const doneCount=allTasks.length-todoTasks.length;
+      deals.forEach((deal,idx)=>{
+        cards.push({
+          id:(deal&&deal.id)||("deal-"+idx+"-"+(contact&&contact.id||"")),
+          deal:deal||{},
+          contact:contact||{},
+          todoCount:todoTasks.length,
+          doneCount:doneCount
+        });
+      });
+    });
+    return cards;
+  }
+
+  function renderFubDealCard(card){
+    const deal=card.deal||{};
+    const contact=card.contact||{};
+    const status=String(deal.status||"unknown").toLowerCase();
+    const badgeClass=deal.uiBadgeClass
+      ?String(deal.uiBadgeClass).toLowerCase()
+      :((status==="open"||status==="won"||status==="lost"||status==="archived")?status:"unknown");
+    const badgeText=deal.uiHeadlineStatus?String(deal.uiHeadlineStatus):statusLabel(status);
+    const priceStr=deal.value?fmt(deal.value):"—";
+    const nameStr=String(contact.name||"").trim()||"—";
+    const n=Number(card.todoCount)||0;
+    const taskStr=n===1?"1 open":String(n)+" open";
+    return `
+      <article class="asg-ph-fub-deal-card" data-fub-card="${esc(String(card.id))}">
+        <div class="asg-ph-fub-deal-top">
+          <h3 class="asg-ph-fub-deal-addr">${esc(deal.title||"Address unavailable")}</h3>
+          <span class="asg-ph-fub-badge is-${esc(badgeClass)}">${esc(badgeText)}</span>
+        </div>
+        <p class="asg-ph-fub-deal-line"><strong>${esc(priceStr)}</strong><span aria-hidden="true"> · </span>${esc(nameStr)}</p>
+        <div class="asg-ph-fub-deal-foot">
+          <span>Tasks</span>
+          <b>${esc(taskStr)}</b>
+        </div>
+      </article>
+    `;
   }
 
   function renderListings(){

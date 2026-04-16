@@ -47,6 +47,38 @@
   #idx-modal-actions{flex-direction:column}
 }
 
+/* ASG — "For rent" chip (Footer script: idx-for-rent-chip.js; listings under $20k) */
+.asg-showcase-badge-row{
+  position:absolute!important;top:12px!important;left:12px!important;z-index:10!important;display:flex!important;flex-wrap:wrap!important;
+  gap:8px!important;align-items:center!important;max-width:calc(100% - 24px)!important;box-sizing:border-box!important
+}
+#IDX-showcaseGallery-33467 .asg-showcase-badge-row .IDX-showcaseStatus,
+[id^="IDX-showcaseGallery-"] .asg-showcase-badge-row .IDX-showcaseStatus,
+#IDX-similarListings .asg-showcase-badge-row .IDX-showcaseStatus,
+#IDX-detailsSimilar .asg-showcase-badge-row .IDX-showcaseStatus{
+  position:relative!important;top:auto!important;left:auto!important
+}
+#IDX-main .asg-showcase-badge-row .IDX-resultsStatus,
+#IDX-main .asg-showcase-badge-row .IDX-listingStatus{position:relative!important;top:auto!important;left:auto!important}
+.asg-for-rent-chip{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff!important;color:#111!important;border-radius:999px!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.14)!important;padding:6px 12px 6px 9px!important;font-size:10px!important;font-weight:700!important;letter-spacing:.07em!important;
+  text-transform:uppercase!important;line-height:1!important;white-space:nowrap!important
+}
+.asg-for-rent-chip::before{
+  content:""!important;width:7px!important;height:7px!important;border-radius:50%!important;background:#2563eb!important;display:inline-block!important;flex-shrink:0!important
+}
+.asg-modal-badge-row{display:flex!important;flex-wrap:wrap!important;gap:8px!important;align-items:center!important;margin:0 0 14px!important}
+#idx-modal-status{margin-bottom:0!important}
+.asg-for-rent-chip--modal{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;background:#e8eefc!important;color:#1e3a8a!important;border-radius:999px!important;
+  padding:5px 12px 5px 9px!important;font-size:10px!important;font-weight:700!important;letter-spacing:.07em!important;text-transform:uppercase!important;line-height:1!important;
+  white-space:nowrap!important;box-shadow:none!important
+}
+.asg-for-rent-chip--modal::before{
+  content:""!important;width:7px!important;height:7px!important;border-radius:50%!important;background:#2563eb!important;display:inline-block!important;flex-shrink:0!important
+}
+
 /* IDX detail (when #IDX-main appears on marketing domain) */
 #IDX-main,#IDX-detailsContent,.IDX-detailsContent,#IDX-detailsWrapper{
   font-family:"Satoshi","Inter",system-ui,-apple-system,sans-serif!important;color:#1a1a1a!important;max-width:1100px!important;margin:0 auto!important;padding:32px 24px!important

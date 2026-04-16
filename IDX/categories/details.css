@@ -595,7 +595,7 @@
 #IDX-main.IDX-category-details [class*="Agent"] img {
   width: 100% !important;
   height: 100% !important;
-  min-height: 640px !important;
+  min-height: 0 !important;
   object-fit: cover !important;
   border-radius: 24px 24px 0 0 !important;
   display: block !important;
@@ -637,6 +637,18 @@
   #IDX-main.IDX-category-details [class*="Agent"] img {
     min-height: auto !important;
     height: auto !important;
+  }
+
+  /* Agent card total height matches hero (overrides broad [class*="Agent"] img rule) */
+  #IDX-main.IDX-category-details #IDX-contactInformation,
+  #IDX-main.IDX-category-details .IDX-contact-information {
+    height: var(--asg-detail-hero-h) !important;
+    max-height: min(92vw, 540px) !important;
+  }
+
+  #IDX-main.IDX-category-details #IDX-contactPic img {
+    height: 100% !important;
+    min-height: 0 !important;
   }
 }
 
@@ -788,23 +800,50 @@
   display: none !important;
 }
 
+/* Primary listing photo and agent headshot: one shared hero height (desktop) */
+#IDX-main.IDX-category-details {
+  --asg-detail-hero-h: min(56vw, 540px) !important;
+}
+
+@media (min-width: 992px) {
+  #IDX-main.IDX-category-details {
+    --asg-detail-hero-h: 540px !important;
+  }
+}
+
 #IDX-main.IDX-category-details #IDX-primaryPhoto,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-wrapper {
+  height: var(--asg-detail-hero-h) !important;
+  min-height: var(--asg-detail-hero-h) !important;
+  max-height: var(--asg-detail-hero-h) !important;
+}
+
 #IDX-main.IDX-category-details #IDX-primaryPhoto img,
-#IDX-main.IDX-category-details .swiper-container,
-#IDX-main.IDX-category-details .swiper-container img {
-  height: 540px !important;
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container img,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-slide img {
+  height: var(--asg-detail-hero-h) !important;
+  max-height: var(--asg-detail-hero-h) !important;
   object-fit: cover !important;
 }
 
-#IDX-main.IDX-category-details #IDX-contactPic,
-#IDX-main.IDX-category-details #IDX-contactPic img {
-  height: 450px !important;
-  width: 100% !important;
-  object-fit: cover !important;
+/* Agent card (photo + name block): total height matches listing hero only */
+#IDX-main.IDX-category-details #IDX-contactInformation,
+#IDX-main.IDX-category-details .IDX-contact-information {
+  height: var(--asg-detail-hero-h) !important;
+  max-height: var(--asg-detail-hero-h) !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
 }
 
 #IDX-main.IDX-category-details #IDX-contactPic {
-  height: 640px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
   overflow: hidden !important;
   border-radius: 24px 24px 0 0 !important;
 }
@@ -812,11 +851,15 @@
 #IDX-main.IDX-category-details #IDX-contactPic img {
   width: 100% !important;
   height: 100% !important;
+  min-height: 0 !important;
   object-fit: cover !important;
   display: block !important;
 }
 
 #IDX-main.IDX-category-details #IDX-contactInfo {
+  flex: 0 0 auto !important;
+  max-height: 42% !important;
+  overflow: hidden auto !important;
   font-size: 0 !important;
 }
 
@@ -843,17 +886,15 @@
 }
 
 #IDX-main.IDX-category-details #IDX-contactInformation,
-#IDX-main.IDX-category-details .IDX-contact-information,
-#IDX-main.IDX-category-details #IDX-contactInfo {
-  border-radius: 0 0 24px 24px !important;
-  overflow: hidden !important;
+#IDX-main.IDX-category-details .IDX-contact-information {
+  border-radius: 24px !important;
 }
 
 #IDX-main.IDX-category-details #IDX-contactInfo > *:first-child {
-  font-size: 28px !important;
-  line-height: 1.05 !important;
+  font-size: 22px !important;
+  line-height: 1.08 !important;
   font-weight: 700 !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 6px !important;
 }
 
 #IDX-main.IDX-category-details #IDX-photoCounter,
@@ -870,7 +911,7 @@
 #IDX-main.IDX-category-details #IDX-contact input[type="submit"],
 #IDX-main.IDX-category-details .IDX-contactForm button,
 #IDX-main.IDX-category-details .IDX-contactForm input[type="submit"] {
-  border-radius: 30px !important;
+  border-radius: 999px !important;
   font-family: "Satoshi","Outfit","Poppins",system-ui,sans-serif !important;
   font-weight: 500 !important;
   letter-spacing: .04em !important;
@@ -883,4 +924,160 @@
 #IDX-main.IDX-category-details .IDX-panel-default > .IDX-panel-heading {
   border-radius: 30px !important;
   overflow: hidden !important;
+}
+
+/* ----- Listing gallery: minimal (Apple-like) prev/next ----- */
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-prev,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-next,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-prev,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-next {
+  width: 44px !important;
+  height: 44px !important;
+  margin-top: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: rgba(17, 17, 17, 0.28) !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #fff !important;
+}
+
+/* Thinner chevrons than default Swiper glyph (border triangle) */
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-prev:after,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-next:after,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-prev:after,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-next:after {
+  content: "" !important;
+  width: 9px !important;
+  height: 9px !important;
+  border: 0 solid #fff !important;
+  border-left-width: 2px !important;
+  border-bottom-width: 2px !important;
+  transform: rotate(45deg) !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+}
+
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-prev:after,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-prev:after {
+  margin-left: 3px !important;
+  transform: rotate(45deg) !important;
+}
+
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-next:after,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-container .swiper-button-next:after {
+  margin-right: 3px !important;
+  transform: rotate(-135deg) !important;
+}
+
+/* Hide chunky multi-bar arrow layers if IDX renders nested spans inside Swiper buttons */
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-prev > span,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .swiper-button-next > span {
+  display: none !important;
+}
+
+/* Bootstrap carousel fallback */
+#IDX-main.IDX-category-details #IDX-primaryPhoto .carousel-control-prev,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .carousel-control-next {
+  width: 44px !important;
+  height: 44px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+  opacity: 1 !important;
+  border-radius: 999px !important;
+  background: rgba(17, 17, 17, 0.28) !important;
+}
+
+#IDX-main.IDX-category-details #IDX-primaryPhoto .carousel-control-prev-icon,
+#IDX-main.IDX-category-details #IDX-primaryPhoto .carousel-control-next-icon {
+  width: 12px !important;
+  height: 12px !important;
+  background-size: 100% 100% !important;
+  filter: invert(1) !important;
+}
+
+/* ----- Under-hero actions: pill match to header actions ----- */
+#IDX-main.IDX-category-details .IDX-detailsPage-main a.IDX-btn,
+#IDX-main.IDX-category-details .IDX-detailsPage-main a.IDX-button,
+#IDX-main.IDX-category-details .IDX-detailsPage-main a.IDX-grayButton,
+#IDX-main.IDX-category-details .IDX-detailsPage-main button.IDX-btn,
+#IDX-main.IDX-category-details .IDX-detailsPage-main button.IDX-button,
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="button"].IDX-btn,
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="submit"].IDX-btn,
+#IDX-main.IDX-category-details #IDX-detailsPrimaryPhoto ~ * a.IDX-btn,
+#IDX-main.IDX-category-details #IDX-detailsPrimaryPhoto ~ * a.IDX-button,
+#IDX-main.IDX-category-details #IDX-primaryPhoto ~ * a.IDX-btn,
+#IDX-main.IDX-category-details #IDX-primaryPhoto ~ * a.IDX-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 50px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  border: 1px solid #111 !important;
+  background: #111 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Calculate payment often ships as a plain link or non-.IDX-btn input */
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="MortgageCalc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="mortgageCalc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="mortgage-calc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="Mortgage-Calc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="paymentCalc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="PaymentCalc"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a[href*="idxMortgage"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="button"][value*="CALCULATE"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="button"][value*="Calculate"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="submit"][value*="CALCULATE"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main input[type="submit"][value*="Calculate"],
+#IDX-main.IDX-category-details .IDX-detailsPage-main a.asg-details-pill-action,
+#IDX-main.IDX-category-details .IDX-detailsPage-main button.asg-details-pill-action,
+#IDX-main.IDX-category-details .IDX-detailsPage-main input.asg-details-pill-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 50px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  border: 1px solid #111 !important;
+  background: #111 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* "More Information" / "Get Directions": plain text links (class from idx-details-enhancements.js) */
+#IDX-main.IDX-category-details .IDX-detailsPage-main a.asg-details-text-action {
+  display: inline !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 0.4em !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #111 !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  letter-spacing: 0 !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(17, 17, 17, 0.38) !important;
+  text-underline-offset: 0.18em !important;
+  box-shadow: none !important;
+  vertical-align: baseline !important;
 }

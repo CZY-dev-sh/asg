@@ -48,6 +48,102 @@ All backend logic runs on **Google Apps Script** web apps deployed as public end
 
 ---
 
+## Follow Up Boss Agent Hub API (Pilot)
+
+**Apps Script Source**: `asg-admin-hub/apps-script/follow-up-boss/FubAgentHub.gs`
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec`
+
+**Method**: `GET`
+
+**Query params**:
+- `?agentEmail=alex.stoykov@compass.com` (recommended filter)
+- `?agentName=Alex%20Stoykov` (name fallback)
+- `?limit=8` (optional, clamped 1-25)
+
+**Response**:
+```json
+{
+  "ok": true,
+  "meta": {
+    "generatedAt": "2026-04-16T17:10:49.000Z",
+    "contactCount": 4,
+    "dealCount": 6,
+    "todoCount": 9,
+    "doneCount": 7
+  },
+  "contacts": [
+    {
+      "id": "12345",
+      "name": "Jane Contact",
+      "email": "jane@example.com",
+      "phone": "312-555-1000",
+      "deals": [
+        {
+          "id": "d-100",
+          "title": "123 Main St Purchase",
+          "status": "open",
+          "stage": "Under Contract",
+          "value": 950000,
+          "closeDate": "2026-05-20"
+        }
+      ],
+      "adminTasks": {
+        "doneCount": 2,
+        "todoCount": 3,
+        "tasks": [
+          {
+            "id": "t-51",
+            "title": "Collect condo docs",
+            "completed": false,
+            "dueDate": "2026-04-22"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "deals": {
+      "total": 6,
+      "open": 4,
+      "won": 1,
+      "lost": 1,
+      "archived": 0,
+      "unknown": 0
+    },
+    "adminTasks": {
+      "doneCount": 7,
+      "todoCount": 9
+    }
+  }
+}
+```
+
+**Security / secret handling**:
+- Store Follow Up Boss API key in Apps Script **Script Properties** as `FUB_API_KEY`.
+- Optional Script Properties:
+  - `FUB_API_BASE_URL` (defaults to `https://api.followupboss.com/v1`)
+  - `FUB_ADMIN_USER_IDS` (comma-separated user IDs treated as admin assignees)
+  - `FUB_DEFAULT_LIMIT`
+- Never place the API key in hub page HTML/JS (Squarespace source is public to browser users).
+
+**Task status mapping**:
+- Done = Follow Up Boss task marked completed (`isCompleted`, `completed`, or `status=completed/done`)
+- To Do = any admin task not completed
+
+**Pilot usage**:
+- `asg-admin-hub/components/agent-personal-hub-alex-stoykov.html` reads this endpoint via `FUB_HUB_API`.
+- UI surfaces Contact -> Deal status/info -> Admin Tasks (Done/To Do).
+- Includes loading/empty/error fallback states so existing page sections remain functional if the endpoint fails.
+
+**Rollout to other agent hubs**:
+1. Copy FUB block/functions from `agent-personal-hub-alex-stoykov.html` into another `agent-personal-hub-*.html`.
+2. Keep `FUB_HUB_API` pointing to the deployed script URL.
+3. Ensure `AGENT_PROFILE.name` + `AGENT_PROFILE.email` match the target agent.
+4. Validate with one live agent page before broad rollout.
+
+---
+
 ## Recent Folders API
 
 **URL**: `https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec`
