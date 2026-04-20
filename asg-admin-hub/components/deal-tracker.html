@@ -1,0 +1,1064 @@
+<div id="asg-deal-tracker"></div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@keyframes asg-dt-fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes asg-dt-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes asg-dt-pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+#asg-deal-tracker{
+  font-family:'Poppins',system-ui,sans-serif;color:#111;width:100%;padding:0;
+  --card:#ffffff;--card-border:rgba(0,0,0,.06);--card-shadow:0 12px 40px rgba(0,0,0,.06);
+  --card-radius:24px;--pill-bg:#f2f2f0;
+  --muted:rgba(0,0,0,.52);--muted-light:rgba(0,0,0,.3);
+  --blue:#3b82f6;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --green:#22c55e;--purple:#8b5cf6;--teal:#14b8a6;
+  --ink:#111;--soft:#fafafa;
+}
+#asg-deal-tracker *{box-sizing:border-box}
+.asg-dt-shell{max-width:1440px;margin:0 auto;padding:0 0 32px}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.asg-dt-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  flex-wrap:wrap;margin-bottom:20px;
+}
+.asg-dt-title-wrap h2{
+  margin:0;font-size:30px;font-weight:800;letter-spacing:-.035em;color:#111;line-height:1.05;
+}
+.asg-dt-title-wrap p{
+  margin:6px 0 0;font-size:13px;color:var(--muted);font-weight:500;
+}
+.asg-dt-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.asg-dt-search{
+  height:40px;min-width:220px;border-radius:999px;border:1px solid rgba(0,0,0,.08);
+  background:#fafafa;padding:0 16px;font-size:12px;font-family:inherit;color:#111;outline:none;
+  transition:border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.asg-dt-search:focus{background:#fff;border-color:rgba(0,0,0,.18);box-shadow:0 0 0 4px rgba(0,0,0,.04)}
+.asg-dt-refresh{
+  height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(0,0,0,.08);
+  background:#fff;color:#111;font:inherit;font-size:11px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:7px;letter-spacing:.04em;
+  text-transform:uppercase;transition:all .18s ease;
+}
+.asg-dt-refresh:hover{background:#111;color:#fff;border-color:#111}
+.asg-dt-refresh svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── KPI STRIP ──────────────────────────────────────────────── */
+.asg-dt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.asg-dt-kpi{
+  background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;
+  box-shadow:0 8px 28px rgba(15,23,42,.05);padding:18px 20px;
+  animation:asg-dt-fadein .5s ease both;cursor:pointer;
+  transition:transform .22s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.asg-dt-kpi:nth-child(2){animation-delay:.05s}
+.asg-dt-kpi:nth-child(3){animation-delay:.1s}
+.asg-dt-kpi:nth-child(4){animation-delay:.15s}
+.asg-dt-kpi:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(15,23,42,.08)}
+.asg-dt-kpi.is-active{border-color:rgba(17,17,17,.25);background:#fafaf8;box-shadow:0 14px 34px rgba(15,23,42,.1)}
+.asg-dt-kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:8px}
+.asg-dt-kpi-value{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1;color:#111}
+.asg-dt-kpi-sub{font-size:11px;color:var(--muted-light);margin-top:6px;font-weight:500}
+.asg-dt-kpi-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* ── FILTER TABS ────────────────────────────────────────────── */
+.asg-dt-tabs{
+  display:inline-flex;gap:3px;padding:4px;border-radius:999px;
+  background:#f4f4f2;border:1px solid rgba(0,0,0,.05);margin-bottom:16px;flex-wrap:wrap;
+}
+.asg-dt-tab{
+  appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;
+  font-size:11px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;
+  transition:all 180ms ease;display:inline-flex;align-items:center;gap:6px;
+}
+.asg-dt-tab:hover{color:#111}
+.asg-dt-tab.is-active{background:#111;color:#fff;box-shadow:0 3px 10px rgba(17,17,17,.15)}
+.asg-dt-tab-count{
+  display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 5px;
+  border-radius:999px;background:rgba(0,0,0,.08);font-size:9px;font-weight:700;
+}
+.asg-dt-tab.is-active .asg-dt-tab-count{background:rgba(255,255,255,.2)}
+
+/* ── CARDS GRID ─────────────────────────────────────────────── */
+.asg-dt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:18px}
+.asg-dt-card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--card-radius);
+  box-shadow:var(--card-shadow);overflow:hidden;
+  animation:asg-dt-fadein .5s ease both;display:flex;flex-direction:column;
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+.asg-dt-card:hover{box-shadow:0 20px 48px rgba(15,23,42,.08);transform:translateY(-1px)}
+
+/* card head */
+.asg-dt-card-head{
+  padding:20px 22px 16px;border-bottom:1px solid rgba(0,0,0,.05);
+  display:flex;flex-direction:column;gap:10px;
+}
+.asg-dt-chip-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.asg-dt-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1;
+  border:1px solid transparent;
+}
+.asg-dt-chip-buy{background:rgba(59,130,246,.1);color:#1d4ed8;border-color:rgba(59,130,246,.22)}
+.asg-dt-chip-sell{background:rgba(16,185,129,.11);color:#047857;border-color:rgba(16,185,129,.28)}
+.asg-dt-chip-cash{background:rgba(139,92,246,.1);color:#6d28d9;border-color:rgba(139,92,246,.22)}
+.asg-dt-chip-status{
+  padding:4px 10px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:999px;line-height:1;display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid rgba(0,0,0,.08);
+}
+.asg-dt-chip-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#9ca3af}
+.asg-dt-chip-status.is-ontrack{background:rgba(34,197,94,.09);border-color:rgba(34,197,94,.3);color:#15803d}
+.asg-dt-chip-status.is-ontrack::before{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+.asg-dt-chip-status.is-risk{background:rgba(234,179,8,.1);border-color:rgba(234,179,8,.32);color:#854d0e}
+.asg-dt-chip-status.is-risk::before{background:#eab308;animation:asg-dt-pulse 1.6s ease infinite}
+.asg-dt-chip-status.is-late{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#b91c1c}
+.asg-dt-chip-status.is-late::before{background:#ef4444;animation:asg-dt-pulse 1.2s ease infinite}
+.asg-dt-chip-status.is-closing{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.32);color:#92400e}
+.asg-dt-chip-status.is-closing::before{background:#f59e0b}
+
+.asg-dt-address{font-size:18px;font-weight:800;letter-spacing:-.022em;color:#111;line-height:1.2;margin:0}
+.asg-dt-price{font-size:14px;font-weight:800;color:#111;letter-spacing:-.01em;margin-left:auto}
+.asg-dt-price.is-cash{color:#6d28d9}
+
+/* people grid — condensed 4-up */
+.asg-dt-people{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);
+  gap:10px 14px;
+  padding:10px 12px;border-radius:12px;background:#fafaf8;border:1px solid rgba(0,0,0,.04);
+}
+.asg-dt-person{display:flex;flex-direction:column;gap:1px;min-width:0}
+.asg-dt-person-label{
+  font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted-light);line-height:1;margin-bottom:3px;
+}
+.asg-dt-person-value{
+  font-size:11.5px;font-weight:700;color:#111;letter-spacing:-.015em;line-height:1.2;
+  white-space:nowrap;overflow:visible;text-overflow:clip;
+}
+.asg-dt-person-value.is-muted{color:var(--muted-light);font-weight:500}
+.asg-dt-person-sub{
+  font-size:10px;font-weight:500;color:var(--muted);line-height:1.2;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* progress bar */
+.asg-dt-progress{margin-top:4px;display:flex;align-items:center;gap:10px}
+.asg-dt-progress-bar{
+  flex:1;height:6px;border-radius:999px;background:rgba(0,0,0,.06);overflow:hidden;position:relative;
+}
+.asg-dt-progress-fill{
+  height:100%;border-radius:999px;background:linear-gradient(90deg,#111,#374151);
+  transition:width .5s ease;
+}
+.asg-dt-progress-text{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+/* ── TIMELINE ───────────────────────────────────────────────── */
+.asg-dt-timeline{padding:18px 22px;background:#fbfbf9;border-bottom:1px solid rgba(0,0,0,.05)}
+.asg-dt-section-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.asg-dt-section-label::before{
+  content:"";width:5px;height:5px;border-radius:50%;background:var(--muted-light);display:inline-block;
+}
+.asg-dt-tl{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;position:relative}
+.asg-dt-tl-item{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:10px 8px;border-radius:10px;cursor:pointer;transition:background .18s ease;
+}
+.asg-dt-tl-item:hover{background:rgba(0,0,0,.03)}
+.asg-dt-tl-item.is-cash-hidden{opacity:.35;pointer-events:none}
+.asg-dt-tl-dot{
+  width:12px;height:12px;border-radius:50%;background:#e5e5e5;border:2px solid #fff;
+  box-shadow:0 0 0 1.5px rgba(0,0,0,.08);position:relative;z-index:2;
+}
+.asg-dt-tl-item.is-done .asg-dt-tl-dot{background:#22c55e;box-shadow:0 0 0 1.5px rgba(34,197,94,.35)}
+.asg-dt-tl-item.is-soon .asg-dt-tl-dot{background:#eab308;box-shadow:0 0 0 1.5px rgba(234,179,8,.35);animation:asg-dt-pulse 1.8s ease infinite}
+.asg-dt-tl-item.is-late .asg-dt-tl-dot{background:#ef4444;box-shadow:0 0 0 1.5px rgba(239,68,68,.35);animation:asg-dt-pulse 1.4s ease infinite}
+.asg-dt-tl-item.is-extended .asg-dt-tl-dot{background:#8b5cf6;box-shadow:0 0 0 1.5px rgba(139,92,246,.35)}
+.asg-dt-tl-label{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.asg-dt-tl-date{font-size:12px;font-weight:700;color:#111;letter-spacing:-.01em;line-height:1.1}
+.asg-dt-tl-date.is-empty{color:rgba(0,0,0,.25);font-weight:500}
+.asg-dt-tl-relative{font-size:9.5px;font-weight:600;color:var(--muted-light);line-height:1.1}
+.asg-dt-tl-item.is-late .asg-dt-tl-relative{color:#b91c1c}
+.asg-dt-tl-item.is-soon .asg-dt-tl-relative{color:#854d0e}
+.asg-dt-tl-item.is-extended .asg-dt-tl-relative{color:#6d28d9}
+.asg-dt-tl-ext{
+  display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;
+  background:rgba(139,92,246,.14);color:#6d28d9;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;
+}
+
+/* connector line */
+.asg-dt-tl::before{
+  content:"";position:absolute;top:18px;left:14px;right:14px;height:2px;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.1) 0 4px,transparent 4px 8px);
+  z-index:1;
+}
+
+/* ── EARNEST MONEY ──────────────────────────────────────────── */
+.asg-dt-em{padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.05)}
+.asg-dt-em.is-cash{display:none}
+.asg-dt-em-rows{display:flex;flex-direction:column;gap:10px}
+.asg-dt-em-row{
+  display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;
+  padding:11px 14px;border-radius:14px;background:#fafafa;border:1px solid rgba(0,0,0,.05);
+}
+.asg-dt-em-left{display:flex;flex-direction:column;gap:2px}
+.asg-dt-em-kind{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.asg-dt-em-amount{font-size:15px;font-weight:800;color:#111;letter-spacing:-.01em}
+.asg-dt-em-checks{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.asg-dt-em-badge{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;
+  font-size:10px;font-weight:700;letter-spacing:.02em;cursor:pointer;user-select:none;
+  border:1px solid rgba(0,0,0,.08);background:#fff;color:var(--muted);
+  transition:all .18s ease;
+}
+.asg-dt-em-badge:hover{border-color:rgba(0,0,0,.2);background:#fafafa}
+.asg-dt-em-badge.is-on{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#15803d}
+.asg-dt-em-badge.is-on .asg-dt-em-badge-check{background:#22c55e;color:#fff}
+.asg-dt-em-badge-check{
+  display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;
+  background:rgba(0,0,0,.1);color:transparent;font-size:9px;font-weight:800;transition:all .18s ease;
+}
+.asg-dt-em-badge.is-on .asg-dt-em-badge-check::before{content:"✓";color:#fff;font-size:9px;line-height:1}
+.asg-dt-em-due{
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:80px;
+}
+.asg-dt-em-due-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted-light)}
+.asg-dt-em-due-date{font-size:11px;font-weight:700;color:#111}
+.asg-dt-em-due-date.is-late{color:#b91c1c}
+.asg-dt-em-due-date.is-soon{color:#854d0e}
+
+/* ── CHECKLIST ──────────────────────────────────────────────── */
+.asg-dt-checks{padding:18px 22px 20px}
+.asg-dt-checks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 12px}
+.asg-dt-check{
+  display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;
+  cursor:pointer;transition:background .15s ease;user-select:none;
+}
+.asg-dt-check:hover{background:#fafafa}
+.asg-dt-check.is-hidden{display:none}
+.asg-dt-check-box{
+  width:18px;height:18px;min-width:18px;border-radius:6px;border:1.5px solid rgba(0,0,0,.18);
+  background:#fff;display:inline-flex;align-items:center;justify-content:center;
+  transition:all .18s ease;
+}
+.asg-dt-check-box svg{width:11px;height:11px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .18s ease}
+.asg-dt-check.is-done .asg-dt-check-box{background:#111;border-color:#111}
+.asg-dt-check.is-done .asg-dt-check-box svg{opacity:1}
+.asg-dt-check-label{font-size:12px;font-weight:600;color:#111;line-height:1.25}
+.asg-dt-check.is-done .asg-dt-check-label{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2);text-decoration-thickness:1.5px}
+.asg-dt-check-meta{font-size:10px;color:var(--muted-light);font-weight:500;margin-top:1px}
+
+/* ── FOOTER ACTIONS ─────────────────────────────────────────── */
+.asg-dt-foot{
+  padding:14px 22px;background:#fafaf8;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid rgba(0,0,0,.04);
+}
+.asg-dt-foot-left{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);font-weight:500}
+.asg-dt-foot-left svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.asg-dt-foot-btns{display:flex;gap:6px;flex-wrap:wrap}
+.asg-dt-foot-btn{
+  appearance:none;border:1px solid rgba(0,0,0,.08);background:#fff;color:#111;
+  font:inherit;font-size:10.5px;font-weight:700;padding:7px 12px;border-radius:999px;
+  cursor:pointer;letter-spacing:.03em;transition:all .18s ease;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.asg-dt-foot-btn:hover{background:#111;color:#fff;border-color:#111}
+.asg-dt-foot-btn svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.asg-dt-foot-btn.is-primary{background:#111;color:#fff;border-color:#111}
+.asg-dt-foot-btn.is-primary:hover{background:#000}
+
+/* ── EMPTY STATE ────────────────────────────────────────────── */
+.asg-dt-empty{
+  text-align:center;padding:48px 24px;border:1px dashed rgba(0,0,0,.12);border-radius:20px;
+  color:var(--muted);font-size:13px;background:#fafafa;grid-column:1 / -1;
+}
+.asg-dt-empty-icon{
+  width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.06);
+  display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.asg-dt-empty-icon svg{width:20px;height:20px;stroke:var(--muted-light);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.asg-dt-empty-title{font-size:14px;font-weight:700;color:#111;margin-bottom:4px}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:1100px){
+  .asg-dt-grid{grid-template-columns:1fr}
+  .asg-dt-kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .asg-dt-title-wrap h2{font-size:24px}
+  .asg-dt-tl{grid-template-columns:repeat(3,1fr);gap:8px}
+  .asg-dt-tl::before{display:none}
+  .asg-dt-checks-grid{grid-template-columns:1fr}
+  .asg-dt-em-row{grid-template-columns:1fr;gap:8px}
+  .asg-dt-em-due{align-items:flex-start}
+  .asg-dt-kpis{grid-template-columns:1fr 1fr}
+  .asg-dt-card-head,.asg-dt-timeline,.asg-dt-em,.asg-dt-checks,.asg-dt-foot{padding-left:16px;padding-right:16px}
+  .asg-dt-people{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+
+<script>
+(function(){
+  const MOUNT = document.getElementById('asg-deal-tracker');
+  if(!MOUNT) return;
+
+  // ─────────────────────────────────────────────────────────────
+  // Live FUB + Google Sheet join via FubAgentHub.gs ?view=dealTracker.
+  // Override DEAL_TRACKER_API via window.DEAL_TRACKER_API before load
+  // if deploying to a different Apps Script URL per environment.
+  // ─────────────────────────────────────────────────────────────
+  const DEAL_TRACKER_API = window.DEAL_TRACKER_API ||
+    'https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec';
+  const TODAY = new Date();
+
+  function addBizDays(dateStr, n){
+    if(!dateStr) return null;
+    const d = new Date(dateStr+'T12:00:00');
+    let added = 0;
+    while(added < n){
+      d.setDate(d.getDate()+1);
+      const wd = d.getDay();
+      if(wd !== 0 && wd !== 6) added++;
+    }
+    return d.toISOString().slice(0,10);
+  }
+  function subBizDays(dateStr, n){
+    if(!dateStr) return null;
+    const d = new Date(dateStr+'T12:00:00');
+    let removed = 0;
+    while(removed < n){
+      d.setDate(d.getDate()-1);
+      const wd = d.getDay();
+      if(wd !== 0 && wd !== 6) removed++;
+    }
+    return d.toISOString().slice(0,10);
+  }
+
+  // Deals are hydrated asynchronously from the Apps Script proxy.
+  let DEALS = [];
+  const loadState = { status: 'idle', error: '', lastSyncedAt: null, generatedAt: null };
+  const DEFAULT_CHECKLIST = {
+    inspectionScheduled:false, inspectionDone:false,
+    appraisalDone:false, mortgageCommitment:false,
+    finalWalkScheduled:false, finalWalkDone:false,
+    closingStatement:false, reviewSent:false,
+    commissionStatement:false, socialPost:false, followUp3wk:false
+  };
+  const DEFAULT_EM = {amount:0, sent:false, receipt:false, toClient:false, toLender:false};
+
+  function normalizeDealShape(raw){
+    const base = raw && typeof raw === 'object' ? raw : {};
+    return {
+      id: base.id || '',
+      address: base.address || '',
+      client: base.client || '',
+      side: base.side || '',
+      price: base.price == null ? null : base.price,
+      lender: base.lender || null,
+      attorney: base.attorney || null,
+      agent: base.agent || '',
+      stage: base.stage || '',
+      dates: Object.assign({
+        contract:null, inspection:null, attorney:null,
+        appraisal:null, mortgageCommitment:null, closing:null
+      }, base.dates || {}),
+      extended: Object.assign({attorney:false, mortgageCommitment:false}, base.extended || {}),
+      earnest: {
+        initial: Object.assign({}, DEFAULT_EM, (base.earnest && base.earnest.initial) || {}),
+        balance: Object.assign({}, DEFAULT_EM, (base.earnest && base.earnest.balance) || {})
+      },
+      checklist: Object.assign({}, DEFAULT_CHECKLIST, base.checklist || {}),
+      fub: base.fub || null
+    };
+  }
+
+  async function loadDeals({ force = false } = {}){
+    if (!DEAL_TRACKER_API || DEAL_TRACKER_API.indexOf('REPLACE_WITH') !== -1){
+      loadState.status = 'error';
+      loadState.error = 'Deal Tracker API URL not configured. Set window.DEAL_TRACKER_API before this script loads.';
+      render();
+      return;
+    }
+    loadState.status = DEALS.length ? 'refreshing' : 'loading';
+    loadState.error = '';
+    render();
+    try {
+      const url = DEAL_TRACKER_API +
+        (DEAL_TRACKER_API.indexOf('?') === -1 ? '?' : '&') +
+        'view=dealTracker' + (force ? '&refresh=1' : '');
+      const resp = await fetch(url, { method: 'GET' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (!data || data.ok === false){
+        throw new Error((data && data.errorMessage) || 'Deal Tracker API returned no data');
+      }
+      const rawDeals = Array.isArray(data.deals) ? data.deals : [];
+      DEALS = rawDeals.map(normalizeDealShape);
+      loadState.status = 'loaded';
+      loadState.lastSyncedAt = new Date();
+      loadState.generatedAt = (data.meta && data.meta.generatedAt) ? new Date(data.meta.generatedAt) : null;
+      render();
+    } catch (err) {
+      loadState.status = 'error';
+      loadState.error = (err && err.message) || String(err);
+      render();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────
+  const STORE_KEY = 'asg-dt-overrides-v1';
+  function loadOverrides(){
+    try{ return JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); }catch(e){ return {}; }
+  }
+  function saveOverrides(o){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(o)); }catch(e){}
+  }
+  let overrides = loadOverrides();
+
+  function applyOverrides(deals){
+    return deals.map(d => {
+      const o = overrides[d.id];
+      if(!o) return d;
+      return {
+        ...d,
+        checklist:{...d.checklist, ...(o.checklist||{})},
+        earnest:{
+          initial:{...d.earnest.initial, ...((o.earnest||{}).initial||{})},
+          balance:{...d.earnest.balance, ...((o.earnest||{}).balance||{})}
+        }
+      };
+    });
+  }
+  function setOverride(dealId, path, value){
+    overrides[dealId] = overrides[dealId] || {};
+    const ref = overrides[dealId];
+    let cur = ref;
+    for(let i=0;i<path.length-1;i++){
+      cur[path[i]] = cur[path[i]] || {};
+      cur = cur[path[i]];
+    }
+    cur[path[path.length-1]] = value;
+    saveOverrides(overrides);
+  }
+
+  function shortenAddress(addr){
+    if(!addr) return '';
+    const parts = addr.split(',').map(s => s.trim()).filter(Boolean);
+    const street = parts[0] || '';
+    let unit = '';
+    for(let i = 1; i < parts.length; i++){
+      const m = parts[i].match(/(?:Unit|Apt|Suite|Ste|#)\s*([A-Za-z0-9-]+)/i);
+      if(m){ unit = '#' + m[1]; break; }
+    }
+    return unit ? `${street}, ${unit}` : street;
+  }
+
+  function fmtMoney(n){
+    if(n==null) return '—';
+    return '$'+Number(n).toLocaleString('en-US');
+  }
+  function fmtDate(dateStr){
+    if(!dateStr) return '—';
+    const d = new Date(dateStr+'T12:00:00');
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  }
+  function daysBetween(aStr, bStr){
+    if(!aStr || !bStr) return null;
+    const a = new Date(aStr+'T12:00:00'), b = new Date(bStr+'T12:00:00');
+    return Math.round((a - b)/86400000);
+  }
+  function relativeText(dateStr){
+    if(!dateStr) return '';
+    const today = TODAY.toISOString().slice(0,10);
+    const delta = daysBetween(dateStr, today);
+    if(delta === 0) return 'Today';
+    if(delta === 1) return 'Tomorrow';
+    if(delta === -1) return 'Yesterday';
+    if(delta > 0) return 'in ' + delta + 'd';
+    return Math.abs(delta) + 'd ago';
+  }
+  function dateStatus(dateStr, done){
+    if(!dateStr) return 'empty';
+    if(done) return 'done';
+    const delta = daysBetween(dateStr, TODAY.toISOString().slice(0,10));
+    if(delta < 0) return 'late';
+    if(delta <= 2) return 'soon';
+    return 'ontrack';
+  }
+
+  // derive checklist progress
+  function checklistProgress(deal){
+    const keys = Object.keys(deal.checklist).filter(k => {
+      if(k === 'commissionStatement') return deal.side === 'sell';
+      return true;
+    });
+    const done = keys.filter(k => deal.checklist[k]).length;
+    return {done, total:keys.length, pct:Math.round((done/keys.length)*100)};
+  }
+
+  // overall deal status
+  function dealStatus(deal){
+    const today = TODAY.toISOString().slice(0,10);
+    const closingDelta = daysBetween(deal.dates.closing, today);
+    const prog = checklistProgress(deal);
+    if(closingDelta != null && closingDelta <= 7 && closingDelta >= 0 && prog.pct < 80) return 'risk';
+    if(closingDelta != null && closingDelta < 0 && prog.pct < 100) return 'late';
+    if(closingDelta != null && closingDelta <= 7 && closingDelta >= 0) return 'closing';
+    return 'ontrack';
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // CHECKLIST DEFINITIONS
+  // ─────────────────────────────────────────────────────────────
+  const CHECKLIST_ITEMS = [
+    {key:'inspectionScheduled', label:'Inspection scheduled', meta:'Usually day 1–3'},
+    {key:'inspectionDone',      label:'Inspection completed', meta:'By day 5'},
+    {key:'appraisalDone',       label:'Appraisal done',       meta:'Lender-ordered', hideIf:d=>d.side==='cash'},
+    {key:'mortgageCommitment',  label:'Mortgage commitment',  meta:'~7 biz days pre-close', hideIf:d=>d.side==='cash'},
+    {key:'finalWalkScheduled',  label:'Final walk scheduled', meta:'Day before close'},
+    {key:'finalWalkDone',       label:'Final walk completed', meta:''},
+    {key:'closingStatement',    label:'Closing statement on file', meta:'Required'},
+    {key:'reviewSent',          label:'Review sent to client', meta:'Post-close'},
+    {key:'commissionStatement', label:'Commission statement sent', meta:'2 days prior (sell)', onlyIf:d=>d.side==='sell'},
+    {key:'socialPost',          label:'Social media post ready', meta:''},
+    {key:'followUp3wk',         label:'3-week follow-up set',  meta:'Post-close check-in'}
+  ];
+
+  // ─────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────
+  const ICONS = {
+    user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>',
+    bank:'<svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M19 10v9M9 10v9M15 10v9"/><path d="M3 21h18"/></svg>',
+    agent:'<svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M6 22v-2a6 6 0 0112 0v2"/></svg>',
+    refresh:'<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>',
+    fub:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>',
+    ext:'<svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg>',
+    note:'<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    check:'<svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg>',
+    search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'
+  };
+
+  const FILTERS = [
+    {id:'all',     label:'All Deals'},
+    {id:'buy',     label:'Buy Side'},
+    {id:'sell',    label:'Sell Side'},
+    {id:'cash',    label:'Cash'},
+    {id:'closing', label:'Closing ≤ 7 days'},
+    {id:'risk',    label:'At Risk'}
+  ];
+
+  const state = {
+    filter:'all',
+    search:''
+  };
+
+  function matchesFilter(deal, f){
+    if(f === 'all') return true;
+    if(f === 'buy' || f === 'sell' || f === 'cash') return deal.side === f;
+    if(f === 'closing'){
+      const delta = daysBetween(deal.dates.closing, TODAY.toISOString().slice(0,10));
+      return delta != null && delta >= 0 && delta <= 7;
+    }
+    if(f === 'risk'){
+      const s = dealStatus(deal);
+      return s === 'risk' || s === 'late';
+    }
+    return true;
+  }
+  function matchesSearch(deal, q){
+    if(!q) return true;
+    const needle = q.toLowerCase();
+    const lender = deal.lender ? (deal.lender.name+' '+(deal.lender.company||'')) : '';
+    const atty = deal.attorney ? deal.attorney.name : '';
+    return (deal.address+' '+deal.client+' '+lender+' '+atty+' '+deal.agent).toLowerCase().includes(needle);
+  }
+
+  function render(){
+    const deals = applyOverrides(DEALS);
+    const counts = {
+      all: deals.length,
+      buy: deals.filter(d=>d.side==='buy').length,
+      sell: deals.filter(d=>d.side==='sell').length,
+      cash: deals.filter(d=>d.side==='cash').length,
+      closing: deals.filter(d=>{const delta=daysBetween(d.dates.closing, TODAY.toISOString().slice(0,10));return delta!=null && delta>=0 && delta<=7;}).length,
+      risk: deals.filter(d=>{const s=dealStatus(d);return s==='risk'||s==='late';}).length
+    };
+
+    const visible = deals.filter(d=>matchesFilter(d,state.filter) && matchesSearch(d,state.search));
+
+    MOUNT.innerHTML = `
+      <div class="asg-dt-shell">
+        <div class="asg-dt-head">
+          <div class="asg-dt-title-wrap">
+            <h2>Deal Tracker</h2>
+            <p>${renderSyncStatus()}</p>
+          </div>
+          <div class="asg-dt-toolbar">
+            <input class="asg-dt-search" type="text" placeholder="Search address, client, lender…" value="${escapeAttr(state.search)}" />
+            <button class="asg-dt-refresh" data-refresh>${ICONS.refresh}<span>Sync FUB</span></button>
+          </div>
+        </div>
+
+        <div class="asg-dt-kpis">
+          ${renderKPI('Active Deals', counts.all, 'All pipelines', '#111')}
+          ${renderKPI('Closing ≤ 7 Days', counts.closing, 'High urgency', '#f59e0b')}
+          ${renderKPI('At Risk', counts.risk, 'Behind schedule', '#ef4444')}
+          ${renderKPI('Ready to Close', deals.filter(d=>checklistProgress(d).pct>=80).length, 'Checklist 80%+', '#22c55e')}
+        </div>
+
+        <div class="asg-dt-tabs" role="tablist">
+          ${FILTERS.map(f=>`
+            <button class="asg-dt-tab ${state.filter===f.id?'is-active':''}" data-filter="${f.id}">
+              <span>${f.label}</span>
+              <span class="asg-dt-tab-count">${counts[f.id]||0}</span>
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="asg-dt-grid">
+          ${visible.length ? visible.map(renderCard).join('') : renderEmpty()}
+        </div>
+      </div>
+    `;
+    wireUp();
+  }
+
+  function renderKPI(label, value, sub, dotColor){
+    return `
+      <div class="asg-dt-kpi">
+        <div class="asg-dt-kpi-label"><span class="asg-dt-kpi-dot" style="background:${dotColor}"></span>${label}</div>
+        <div class="asg-dt-kpi-value">${value}</div>
+        <div class="asg-dt-kpi-sub">${sub}</div>
+      </div>
+    `;
+  }
+
+  function renderEmpty(){
+    if (loadState.status === 'loading'){
+      return `
+        <div class="asg-dt-empty">
+          <div class="asg-dt-empty-icon">${ICONS.refresh}</div>
+          <div class="asg-dt-empty-title">Loading deals from Follow Up Boss…</div>
+          <div>First sync can take up to 10 seconds.</div>
+        </div>
+      `;
+    }
+    if (loadState.status === 'error'){
+      return `
+        <div class="asg-dt-empty">
+          <div class="asg-dt-empty-icon">${ICONS.search}</div>
+          <div class="asg-dt-empty-title">Couldn't load deals</div>
+          <div>${escapeHTML(loadState.error || 'Unknown error.')}</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="asg-dt-empty">
+        <div class="asg-dt-empty-icon">${ICONS.search}</div>
+        <div class="asg-dt-empty-title">No deals match your filters</div>
+        <div>Try clearing your search or switching tabs.</div>
+      </div>
+    `;
+  }
+
+  function renderSyncStatus(){
+    if (loadState.status === 'loading' || loadState.status === 'refreshing'){
+      return 'Syncing…';
+    }
+    if (loadState.status === 'error'){
+      return 'Sync failed — ' + escapeHTML(loadState.error || '');
+    }
+    if (loadState.lastSyncedAt){
+      const secs = Math.max(0, Math.round((Date.now() - loadState.lastSyncedAt.getTime())/1000));
+      if (secs < 60) return 'Last synced ' + secs + 's ago';
+      const mins = Math.round(secs/60);
+      if (mins < 60) return 'Last synced ' + mins + 'm ago';
+      const hrs = Math.round(mins/60);
+      return 'Last synced ' + hrs + 'h ago';
+    }
+    return 'Live pipeline synced from Follow Up Boss & Deal Tracker Workflow Sheet';
+  }
+
+  function renderCard(deal){
+    const prog = checklistProgress(deal);
+    const status = dealStatus(deal);
+    const statusLabel = {
+      ontrack:'On Track', risk:'At Risk', late:'Behind', closing:'Closing Soon'
+    }[status];
+
+    const sideChip = {
+      buy:  `<span class="asg-dt-chip asg-dt-chip-buy">Buy Side</span>`,
+      sell: `<span class="asg-dt-chip asg-dt-chip-sell">Sell Side</span>`,
+      cash: `<span class="asg-dt-chip asg-dt-chip-cash">Cash Deal</span>`
+    }[deal.side];
+
+    const priceHTML = deal.side === 'cash'
+      ? `<span class="asg-dt-price is-cash">CASH</span>`
+      : `<span class="asg-dt-price">${fmtMoney(deal.price)}</span>`;
+
+    // Timeline steps
+    const today = TODAY.toISOString().slice(0,10);
+    const checkedMap = {
+      contract: true, // always locked once signed
+      inspection: deal.checklist.inspectionDone,
+      attorney: !!deal.dates.attorney && daysBetween(today, deal.dates.attorney) >= 0,
+      appraisal: deal.checklist.appraisalDone,
+      mortgageCommitment: deal.checklist.mortgageCommitment,
+      closing: false
+    };
+
+    const steps = [
+      {key:'contract',          label:'Contract',    date:deal.dates.contract},
+      {key:'inspection',        label:'Inspection',  date:deal.dates.inspection},
+      {key:'attorney',          label:'Attorney',    date:deal.dates.attorney},
+      {key:'appraisal',         label:'Appraisal',   date:deal.dates.appraisal, cashHide:true},
+      {key:'mortgageCommitment',label:'Mortgage',    date:deal.dates.mortgageCommitment, cashHide:true},
+      {key:'closing',           label:'Closing',     date:deal.dates.closing}
+    ];
+
+    const timelineHTML = steps.map(step => {
+      const isCashHide = step.cashHide && deal.side === 'cash';
+      const st = isCashHide ? 'empty' : dateStatus(step.date, checkedMap[step.key]);
+      const ext = deal.extended && deal.extended[step.key];
+      const rel = step.date && !isCashHide ? relativeText(step.date) : '';
+      return `
+        <div class="asg-dt-tl-item ${isCashHide?'is-cash-hidden':''} ${
+          st==='done'?'is-done':st==='late'?'is-late':st==='soon'?'is-soon':ext?'is-extended':''
+        }">
+          <div class="asg-dt-tl-dot"></div>
+          <div class="asg-dt-tl-label">${step.label}</div>
+          <div class="asg-dt-tl-date ${!step.date||isCashHide?'is-empty':''}">${isCashHide?'N/A':fmtDate(step.date)}</div>
+          ${rel && !isCashHide ? `<div class="asg-dt-tl-relative">${rel}</div>`:''}
+          ${ext ? `<span class="asg-dt-tl-ext">Extended</span>`:''}
+        </div>
+      `;
+    }).join('');
+
+    // Earnest money rows
+    const emHTML = renderEarnestSection(deal);
+
+    // Checklist
+    const checksHTML = CHECKLIST_ITEMS.map(item => {
+      if(item.onlyIf && !item.onlyIf(deal)) return '';
+      if(item.hideIf && item.hideIf(deal)) return '';
+      const done = !!deal.checklist[item.key];
+      return `
+        <div class="asg-dt-check ${done?'is-done':''}" data-check data-deal="${deal.id}" data-key="${item.key}">
+          <div class="asg-dt-check-box">${ICONS.check}</div>
+          <div>
+            <div class="asg-dt-check-label">${item.label}</div>
+            ${item.meta?`<div class="asg-dt-check-meta">${item.meta}</div>`:''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <article class="asg-dt-card" data-deal-id="${deal.id}">
+        <header class="asg-dt-card-head">
+          <div class="asg-dt-chip-row">
+            ${sideChip}
+            <span class="asg-dt-chip-status is-${status}">${statusLabel}</span>
+            ${priceHTML}
+          </div>
+          <h3 class="asg-dt-address" title="${escapeAttr(deal.address)}">${escapeHTML(shortenAddress(deal.address))}</h3>
+          ${renderPeople(deal)}
+          <div class="asg-dt-progress" title="Checklist ${prog.done}/${prog.total}">
+            <div class="asg-dt-progress-bar"><div class="asg-dt-progress-fill" style="width:${prog.pct}%"></div></div>
+            <div class="asg-dt-progress-text">${prog.done}/${prog.total} · ${prog.pct}%</div>
+          </div>
+        </header>
+
+        <section class="asg-dt-timeline">
+          <div class="asg-dt-section-label">Key Dates</div>
+          <div class="asg-dt-tl">${timelineHTML}</div>
+        </section>
+
+        ${emHTML}
+
+        <section class="asg-dt-checks">
+          <div class="asg-dt-section-label">Closing Checklist</div>
+          <div class="asg-dt-checks-grid">${checksHTML}</div>
+        </section>
+
+        <footer class="asg-dt-foot">
+          <div class="asg-dt-foot-left">${ICONS.fub}<span>FUB #${deal.id.replace('fub-','')}</span></div>
+          <div class="asg-dt-foot-btns">
+            <button class="asg-dt-foot-btn" data-open-fub="${deal.id}">${ICONS.ext}<span>Open in FUB</span></button>
+            <button class="asg-dt-foot-btn is-primary" data-open-notes="${deal.id}">${ICONS.note}<span>Add Note</span></button>
+          </div>
+        </footer>
+      </article>
+    `;
+  }
+
+  function renderPeople(deal){
+    const clientLabel = deal.side === 'sell' ? 'Seller' : 'Buyer';
+    const lenderCell = deal.side === 'cash'
+      ? `<div class="asg-dt-person-value is-muted">Cash — no financing</div>`
+      : deal.lender
+        ? `<div class="asg-dt-person-value">${escapeHTML(deal.lender.name)}</div>
+           ${deal.lender.company ? `<div class="asg-dt-person-sub">${escapeHTML(deal.lender.company)}</div>`:''}`
+        : `<div class="asg-dt-person-value is-muted">Listing side</div>`;
+    const attyCell = deal.attorney
+      ? `<div class="asg-dt-person-value">${escapeHTML(deal.attorney.name)}</div>
+         ${deal.attorney.company ? `<div class="asg-dt-person-sub">${escapeHTML(deal.attorney.company)}</div>`:''}`
+      : `<div class="asg-dt-person-value is-muted">—</div>`;
+    const agentName = typeof deal.agent === 'object' ? deal.agent.name : deal.agent;
+    const agentCompany = typeof deal.agent === 'object' ? deal.agent.company : 'Compass · ASG';
+    return `
+      <div class="asg-dt-people">
+        <div class="asg-dt-person">
+          <div class="asg-dt-person-label">${clientLabel}</div>
+          <div class="asg-dt-person-value">${escapeHTML(deal.client)}</div>
+        </div>
+        <div class="asg-dt-person">
+          <div class="asg-dt-person-label">Lender</div>
+          ${lenderCell}
+        </div>
+        <div class="asg-dt-person">
+          <div class="asg-dt-person-label">Attorney</div>
+          ${attyCell}
+        </div>
+        <div class="asg-dt-person">
+          <div class="asg-dt-person-label">Agent</div>
+          <div class="asg-dt-person-value">${escapeHTML(agentName)}</div>
+          ${agentCompany ? `<div class="asg-dt-person-sub">${escapeHTML(agentCompany)}</div>`:''}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderEarnestSection(deal){
+    if(deal.side === 'cash'){
+      return `
+        <section class="asg-dt-em">
+          <div class="asg-dt-section-label">Earnest Money</div>
+          ${renderEMRow(deal,'initial','Initial EM', addBizDays(deal.dates.contract,2))}
+        </section>
+      `;
+    }
+    return `
+      <section class="asg-dt-em">
+        <div class="asg-dt-section-label">Earnest Money</div>
+        <div class="asg-dt-em-rows">
+          ${renderEMRow(deal,'initial','Initial EM', addBizDays(deal.dates.contract,2))}
+          ${renderEMRow(deal,'balance','Balance EM (10%)', addBizDays(deal.dates.inspection,2))}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderEMRow(deal, which, label, dueDate){
+    const em = deal.earnest[which] || {};
+    const dueStatus = dateStatus(dueDate, em.sent && em.receipt);
+    const badges = [
+      {key:'sent',     label:'Sent'},
+      {key:'receipt',  label:'Receipt'},
+      {key:'toClient', label:'To Client'},
+      {key:'toLender', label:'To Lender', hideIfSell:true}
+    ];
+    const badgesHTML = badges.map(b => {
+      if(b.hideIfSell && deal.side === 'sell') return '';
+      const on = !!em[b.key];
+      return `
+        <span class="asg-dt-em-badge ${on?'is-on':''}" data-em data-deal="${deal.id}" data-which="${which}" data-key="${b.key}">
+          <span class="asg-dt-em-badge-check"></span>${b.label}
+        </span>
+      `;
+    }).join('');
+
+    return `
+      <div class="asg-dt-em-row">
+        <div class="asg-dt-em-left">
+          <span class="asg-dt-em-kind">${label}</span>
+          <span class="asg-dt-em-amount">${fmtMoney(em.amount)}</span>
+        </div>
+        <div class="asg-dt-em-checks">${badgesHTML}</div>
+        <div class="asg-dt-em-due">
+          <span class="asg-dt-em-due-label">Due</span>
+          <span class="asg-dt-em-due-date ${dueStatus==='late'?'is-late':dueStatus==='soon'?'is-soon':''}">${fmtDate(dueDate)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // EVENT BINDING
+  // ─────────────────────────────────────────────────────────────
+  function wireUp(){
+    MOUNT.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.filter = btn.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    const search = MOUNT.querySelector('.asg-dt-search');
+    if(search){
+      search.addEventListener('input', e => {
+        state.search = e.target.value;
+        // light debounce using RAF
+        cancelAnimationFrame(search._raf);
+        search._raf = requestAnimationFrame(() => {
+          const active = document.activeElement === search;
+          const pos = search.selectionStart;
+          render();
+          if(active){
+            const s = MOUNT.querySelector('.asg-dt-search');
+            if(s){ s.focus(); s.setSelectionRange(pos,pos); }
+          }
+        });
+      });
+    }
+
+    MOUNT.querySelectorAll('[data-check]').forEach(el => {
+      el.addEventListener('click', () => {
+        const dealId = el.getAttribute('data-deal');
+        const key = el.getAttribute('data-key');
+        const deal = applyOverrides(DEALS).find(d=>d.id===dealId);
+        const next = !deal.checklist[key];
+        setOverride(dealId, ['checklist', key], next);
+        render();
+      });
+    });
+
+    MOUNT.querySelectorAll('[data-em]').forEach(el => {
+      el.addEventListener('click', () => {
+        const dealId = el.getAttribute('data-deal');
+        const which = el.getAttribute('data-which');
+        const key = el.getAttribute('data-key');
+        const deal = applyOverrides(DEALS).find(d=>d.id===dealId);
+        const next = !deal.earnest[which][key];
+        setOverride(dealId, ['earnest', which, key], next);
+        render();
+      });
+    });
+
+    const refresh = MOUNT.querySelector('[data-refresh]');
+    if(refresh){
+      refresh.addEventListener('click', () => {
+        if (loadState.status === 'loading' || loadState.status === 'refreshing') return;
+        loadDeals({ force: true });
+      });
+    }
+
+    MOUNT.querySelectorAll('[data-open-fub]').forEach(b => {
+      b.addEventListener('click', () => {
+        const rawId = b.getAttribute('data-open-fub');
+        const deal = DEALS.find(d => d.id === rawId);
+        const fubInfo = deal && deal.fub ? deal.fub : null;
+        const target = (fubInfo && fubInfo.dealUrl) || (fubInfo && fubInfo.personUrl) ||
+          ('https://allstargrouprealestate.followupboss.com/2/people/' + rawId.replace('fub-',''));
+        window.open(target, '_blank');
+      });
+    });
+    MOUNT.querySelectorAll('[data-open-notes]').forEach(b => {
+      b.addEventListener('click', () => {
+        const rawId = b.getAttribute('data-open-notes');
+        const deal = DEALS.find(d => d.id === rawId);
+        openNotesDrawer(deal);
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // NOTES DRAWER (read-only for now; surfaces FUB notes payload)
+  // ─────────────────────────────────────────────────────────────
+  function openNotesDrawer(deal){
+    if(!deal){ alert('Deal not loaded yet.'); return; }
+    const notes = (deal.fub && Array.isArray(deal.fub.notes)) ? deal.fub.notes : [];
+    const appts = (deal.fub && Array.isArray(deal.fub.appointments)) ? deal.fub.appointments : [];
+    const plan = deal.fub && deal.fub.actionPlan;
+    const rowsHTML = notes.length
+      ? notes.map(n => `
+          <div style="padding:12px 14px;border:1px solid rgba(0,0,0,.08);border-radius:12px;margin-bottom:8px;background:#fafafa">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(0,0,0,.5);margin-bottom:4px">
+              ${escapeHTML(n.author || 'FUB Note')}${n.createdAt ? ' · ' + escapeHTML(new Date(n.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})) : ''}
+            </div>
+            ${n.subject ? `<div style="font-size:13px;font-weight:600;margin-bottom:4px">${escapeHTML(n.subject)}</div>` : ''}
+            <div style="font-size:12px;line-height:1.45;color:#111;white-space:pre-wrap">${escapeHTML(n.body || '')}</div>
+          </div>
+        `).join('')
+      : '<div style="padding:12px;color:rgba(0,0,0,.5);font-size:12px">No recent notes in Follow Up Boss for this contact.</div>';
+
+    const apptsHTML = appts.length
+      ? '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(0,0,0,.5);margin:12px 0 6px">Upcoming Appointments</div>' +
+        appts.slice(0,5).map(a => `
+          <div style="padding:8px 12px;border:1px solid rgba(0,0,0,.06);border-radius:10px;margin-bottom:6px;font-size:12px">
+            <strong>${escapeHTML(a.title || a.type || 'Appointment')}</strong>
+            ${a.startsAt ? ` · ${escapeHTML(new Date(a.startsAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}` : ''}
+            ${a.status ? ` · ${escapeHTML(a.status)}` : ''}
+          </div>
+        `).join('')
+      : '';
+
+    const planHTML = plan && plan.name
+      ? `<div style="margin-top:12px;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:#f4f4f2">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(0,0,0,.5);margin-bottom:4px">Action Plan</div>
+          <div style="font-size:13px;font-weight:600">${escapeHTML(plan.name)}</div>
+          ${plan.totalCount ? `<div style="font-size:12px;color:rgba(0,0,0,.55);margin-top:2px">${plan.doneCount||0}/${plan.totalCount} steps${plan.nextStep ? ' · Next: ' + escapeHTML(plan.nextStep) : ''}</div>` : ''}
+        </div>`
+      : '';
+
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(17,17,17,.45);z-index:9998;animation:asg-dt-fadein .18s ease both';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'position:fixed;top:0;right:0;bottom:0;width:min(460px,92vw);background:#fff;z-index:9999;box-shadow:-12px 0 40px rgba(0,0,0,.12);display:flex;flex-direction:column;font-family:Poppins,system-ui,sans-serif';
+    panel.innerHTML = `
+      <div style="padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(0,0,0,.5)">Notes &amp; Activity</div>
+          <div style="font-size:15px;font-weight:700;margin-top:2px">${escapeHTML(deal.client || 'Deal')}</div>
+          <div style="font-size:11px;color:rgba(0,0,0,.5);margin-top:2px">${escapeHTML(shortenAddress(deal.address || ''))}</div>
+        </div>
+        <button data-close style="background:transparent;border:0;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px;color:rgba(0,0,0,.55)">&times;</button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:16px 18px">
+        ${planHTML}
+        ${apptsHTML}
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(0,0,0,.5);margin:12px 0 6px">Recent Notes</div>
+        ${rowsHTML}
+        ${deal.fub && deal.fub.dealUrl ? `<a href="${escapeAttr(deal.fub.dealUrl)}" target="_blank" style="display:inline-block;margin-top:12px;font-size:12px;font-weight:600;color:#111">Add a note in Follow Up Boss &rarr;</a>` : ''}
+      </div>
+    `;
+    function close(){ backdrop.remove(); panel.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    backdrop.addEventListener('click', close);
+    panel.querySelector('[data-close]').addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(backdrop);
+    document.body.appendChild(panel);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // UTIL
+  // ─────────────────────────────────────────────────────────────
+  function escapeHTML(s){
+    if(s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s){ return escapeHTML(s); }
+
+  // ─────────────────────────────────────────────────────────────
+  // BOOT
+  // ─────────────────────────────────────────────────────────────
+  render();
+  loadDeals();
+
+  // Local checklist/earnest overrides in localStorage are session-only
+  // until write support is added to the proxy. Edits persist in the
+  // browser but do NOT sync back to Follow Up Boss or the Workflow Sheet.
+})();
+</script>

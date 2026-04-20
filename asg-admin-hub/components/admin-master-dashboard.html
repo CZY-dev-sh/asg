@@ -1096,6 +1096,256 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ── DEAL TRACKER VIEW ─────────────────────────────────────── */
+  #asg-admin-master-dashboard {
+    --amd-dt-muted: rgba(0,0,0,.52);
+    --amd-dt-muted-2: rgba(0,0,0,.3);
+    --amd-dt-green: #22c55e;
+    --amd-dt-yellow: #eab308;
+    --amd-dt-red: #ef4444;
+    --amd-dt-purple: #8b5cf6;
+    --amd-dt-blue: #3b82f6;
+    --amd-dt-orange: #f59e0b;
+  }
+  @keyframes amd-dt-fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes amd-dt-pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+  #asg-admin-master-dashboard .amd-dt-head {
+    display:flex; align-items:flex-end; justify-content:space-between; gap:14px;
+    flex-wrap:wrap; margin-bottom:14px;
+  }
+  #asg-admin-master-dashboard .amd-dt-title {
+    margin:0; font-size:20px; font-weight:800; letter-spacing:-.02em; color:var(--ink);
+  }
+  #asg-admin-master-dashboard .amd-dt-sub {
+    margin:4px 0 0; font-size:12px; color:var(--muted); font-weight:500;
+  }
+  #asg-admin-master-dashboard .amd-dt-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  #asg-admin-master-dashboard .amd-dt-search {
+    height:36px; min-width:220px; border-radius:999px; border:1px solid rgba(0,0,0,.1);
+    background:#fafafa; padding:0 14px; font-size:12px; font-family:inherit; color:#111; outline:none;
+    transition: border-color .18s ease, background .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-search:focus { background:#fff; border-color:rgba(0,0,0,.2); }
+  #asg-admin-master-dashboard .amd-dt-agent-select {
+    height:36px; min-width:180px; border-radius:999px; border:1px solid rgba(0,0,0,.1);
+    background:#fafafa url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 14px center;
+    padding:0 32px 0 14px; font-size:12px; font-family:inherit; font-weight:600; color:#111;
+    outline:none; appearance:none; -webkit-appearance:none; cursor:pointer;
+    transition:border-color .18s ease, background-color .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-agent-select:hover { background-color:#f0f0f0; }
+  #asg-admin-master-dashboard .amd-dt-agent-select:focus { background-color:#fff; border-color:rgba(0,0,0,.25); }
+  #asg-admin-master-dashboard .amd-dt-agent-select.is-scoped {
+    background-color:#111; color:#fff;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23fff' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    border-color:#111;
+  }
+
+  #asg-admin-master-dashboard .amd-dt-filter-row {
+    display:inline-flex; gap:3px; padding:3px; border-radius:999px;
+    background:#f4f4f2; border:1px solid rgba(0,0,0,.05); margin-bottom:14px; flex-wrap:wrap;
+  }
+  #asg-admin-master-dashboard .amd-dt-filter {
+    appearance:none; border:0; background:transparent; color:var(--amd-dt-muted); font:inherit;
+    font-size:11px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer;
+    transition: all 180ms ease; display:inline-flex; align-items:center; gap:6px;
+  }
+  #asg-admin-master-dashboard .amd-dt-filter:hover { color:#111; }
+  #asg-admin-master-dashboard .amd-dt-filter.is-active {
+    background:#111; color:#fff; box-shadow:0 3px 10px rgba(17,17,17,.15);
+  }
+  #asg-admin-master-dashboard .amd-dt-filter-count {
+    display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:16px;
+    padding:0 5px; border-radius:999px; background:rgba(0,0,0,.08); font-size:9px; font-weight:700;
+  }
+  #asg-admin-master-dashboard .amd-dt-filter.is-active .amd-dt-filter-count { background:rgba(255,255,255,.22); }
+
+  #asg-admin-master-dashboard .amd-dt-fub-hint {
+    font-size:11px; color:var(--muted); background:rgba(139,92,246,.06);
+    border:1px solid rgba(139,92,246,.18); padding:8px 14px; border-radius:10px; margin-bottom:14px;
+    display:flex; gap:8px; align-items:center;
+  }
+  #asg-admin-master-dashboard .amd-dt-fub-hint::before {
+    content:""; width:6px; height:6px; border-radius:50%; background:#8b5cf6; display:inline-block;
+  }
+
+  #asg-admin-master-dashboard .amd-dt-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(480px, 1fr)); gap:16px;
+  }
+  #asg-admin-master-dashboard .amd-dt-card {
+    background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:20px;
+    box-shadow:0 10px 28px rgba(15,23,42,.05); overflow:hidden;
+    animation: amd-dt-fadein .4s ease both; display:flex; flex-direction:column;
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-card:hover { box-shadow:0 16px 38px rgba(15,23,42,.08); transform:translateY(-1px); }
+
+  #asg-admin-master-dashboard .amd-dt-card-head {
+    padding:16px 18px 14px; border-bottom:1px solid rgba(0,0,0,.05);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  #asg-admin-master-dashboard .amd-dt-chip-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  #asg-admin-master-dashboard .amd-dt-chip {
+    display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px;
+    font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; line-height:1;
+    border:1px solid transparent;
+  }
+  #asg-admin-master-dashboard .amd-dt-chip-buy { background:rgba(59,130,246,.1); color:#1d4ed8; border-color:rgba(59,130,246,.22); }
+  #asg-admin-master-dashboard .amd-dt-chip-sell { background:rgba(16,185,129,.11); color:#047857; border-color:rgba(16,185,129,.28); }
+  #asg-admin-master-dashboard .amd-dt-chip-cash { background:rgba(139,92,246,.1); color:#6d28d9; border-color:rgba(139,92,246,.22); }
+  #asg-admin-master-dashboard .amd-dt-chip-status {
+    padding:4px 10px; font-size:9px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; line-height:1; display:inline-flex; align-items:center; gap:6px;
+    background:#fff; border:1px solid rgba(0,0,0,.08);
+  }
+  #asg-admin-master-dashboard .amd-dt-chip-status::before { content:""; width:6px; height:6px; border-radius:50%; background:#9ca3af; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-ontrack { background:rgba(34,197,94,.09); border-color:rgba(34,197,94,.3); color:#15803d; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-ontrack::before { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.18); }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-risk { background:rgba(234,179,8,.1); border-color:rgba(234,179,8,.32); color:#854d0e; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-risk::before { background:#eab308; animation:amd-dt-pulse 1.6s ease infinite; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-late { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.3); color:#b91c1c; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-late::before { background:#ef4444; animation:amd-dt-pulse 1.2s ease infinite; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-closing { background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.32); color:#92400e; }
+  #asg-admin-master-dashboard .amd-dt-chip-status.is-closing::before { background:#f59e0b; }
+
+  #asg-admin-master-dashboard .amd-dt-address { font-size:17px; font-weight:800; letter-spacing:-.02em; color:#111; line-height:1.2; margin:0; }
+  #asg-admin-master-dashboard .amd-dt-meta-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  #asg-admin-master-dashboard .amd-dt-meta-item {
+    display:inline-flex; align-items:center; gap:5px; font-size:11px; color:var(--amd-dt-muted); font-weight:600;
+  }
+  #asg-admin-master-dashboard .amd-dt-meta-item.is-missing { color:var(--amd-dt-muted-2); font-style:italic; }
+  #asg-admin-master-dashboard .amd-dt-meta-sep { color:rgba(0,0,0,.18); font-size:11px; }
+  #asg-admin-master-dashboard .amd-dt-price { font-size:13px; font-weight:800; color:#111; letter-spacing:-.01em; margin-left:auto; }
+  #asg-admin-master-dashboard .amd-dt-price.is-cash { color:#6d28d9; }
+
+  #asg-admin-master-dashboard .amd-dt-progress { margin-top:2px; display:flex; align-items:center; gap:10px; }
+  #asg-admin-master-dashboard .amd-dt-progress-bar { flex:1; height:6px; border-radius:999px; background:rgba(0,0,0,.06); overflow:hidden; }
+  #asg-admin-master-dashboard .amd-dt-progress-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#111,#374151); transition:width .5s ease; }
+  #asg-admin-master-dashboard .amd-dt-progress-text { font-size:10px; font-weight:700; color:var(--amd-dt-muted); letter-spacing:.04em; text-transform:uppercase; }
+
+  #asg-admin-master-dashboard .amd-dt-timeline { padding:14px 18px; background:#fbfbf9; border-bottom:1px solid rgba(0,0,0,.05); }
+  #asg-admin-master-dashboard .amd-dt-section-label {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--amd-dt-muted); margin-bottom:10px; display:flex; align-items:center; gap:6px;
+  }
+  #asg-admin-master-dashboard .amd-dt-section-label::before { content:""; width:5px; height:5px; border-radius:50%; background:var(--amd-dt-muted-2); }
+  #asg-admin-master-dashboard .amd-dt-tl { display:grid; grid-template-columns:repeat(6,1fr); gap:3px; position:relative; }
+  #asg-admin-master-dashboard .amd-dt-tl::before {
+    content:""; position:absolute; top:16px; left:14px; right:14px; height:2px;
+    background:repeating-linear-gradient(90deg, rgba(0,0,0,.1) 0 4px, transparent 4px 8px); z-index:1;
+  }
+  #asg-admin-master-dashboard .amd-dt-tl-item {
+    position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:3px;
+    padding:8px 6px; border-radius:10px; cursor:pointer; transition:background .18s ease; z-index:2;
+  }
+  #asg-admin-master-dashboard .amd-dt-tl-item:hover { background:rgba(0,0,0,.03); }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-cash-hidden { opacity:.3; pointer-events:none; }
+  #asg-admin-master-dashboard .amd-dt-tl-dot {
+    width:11px; height:11px; border-radius:50%; background:#e5e5e5; border:2px solid #fff;
+    box-shadow:0 0 0 1.5px rgba(0,0,0,.08);
+  }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-done .amd-dt-tl-dot { background:#22c55e; box-shadow:0 0 0 1.5px rgba(34,197,94,.35); }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-soon .amd-dt-tl-dot { background:#eab308; box-shadow:0 0 0 1.5px rgba(234,179,8,.35); animation:amd-dt-pulse 1.8s ease infinite; }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-late .amd-dt-tl-dot { background:#ef4444; box-shadow:0 0 0 1.5px rgba(239,68,68,.35); animation:amd-dt-pulse 1.4s ease infinite; }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-extended .amd-dt-tl-dot { background:#8b5cf6; box-shadow:0 0 0 1.5px rgba(139,92,246,.35); }
+  #asg-admin-master-dashboard .amd-dt-tl-label { font-size:9px; font-weight:700; color:var(--amd-dt-muted); text-transform:uppercase; letter-spacing:.04em; line-height:1.1; }
+  #asg-admin-master-dashboard .amd-dt-tl-date { font-size:11.5px; font-weight:700; color:#111; letter-spacing:-.01em; line-height:1.1; }
+  #asg-admin-master-dashboard .amd-dt-tl-date.is-empty { color:rgba(0,0,0,.25); font-weight:500; }
+  #asg-admin-master-dashboard .amd-dt-tl-relative { font-size:9px; font-weight:600; color:var(--amd-dt-muted-2); line-height:1.1; }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-late .amd-dt-tl-relative { color:#b91c1c; }
+  #asg-admin-master-dashboard .amd-dt-tl-item.is-soon .amd-dt-tl-relative { color:#854d0e; }
+  #asg-admin-master-dashboard .amd-dt-tl-ext {
+    display:inline-block; font-size:8px; font-weight:700; padding:1px 5px; border-radius:4px;
+    background:rgba(139,92,246,.14); color:#6d28d9; letter-spacing:.04em; text-transform:uppercase;
+  }
+
+  #asg-admin-master-dashboard .amd-dt-em { padding:14px 18px; border-bottom:1px solid rgba(0,0,0,.05); }
+  #asg-admin-master-dashboard .amd-dt-em-rows { display:flex; flex-direction:column; gap:8px; }
+  #asg-admin-master-dashboard .amd-dt-em-row {
+    display:grid; grid-template-columns:110px 1fr auto; gap:10px; align-items:center;
+    padding:10px 12px; border-radius:12px; background:#fafafa; border:1px solid rgba(0,0,0,.05);
+  }
+  #asg-admin-master-dashboard .amd-dt-em-left { display:flex; flex-direction:column; gap:2px; }
+  #asg-admin-master-dashboard .amd-dt-em-kind { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--amd-dt-muted); }
+  #asg-admin-master-dashboard .amd-dt-em-amount { font-size:14px; font-weight:800; color:#111; letter-spacing:-.01em; }
+  #asg-admin-master-dashboard .amd-dt-em-checks { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+  #asg-admin-master-dashboard .amd-dt-em-badge {
+    display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px;
+    font-size:10px; font-weight:700; cursor:pointer; user-select:none;
+    border:1px solid rgba(0,0,0,.08); background:#fff; color:var(--amd-dt-muted); transition:all .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-em-badge:hover { border-color:rgba(0,0,0,.2); background:#fafafa; }
+  #asg-admin-master-dashboard .amd-dt-em-badge.is-on { background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.3); color:#15803d; }
+  #asg-admin-master-dashboard .amd-dt-em-badge-check {
+    display:inline-flex; align-items:center; justify-content:center; width:13px; height:13px; border-radius:50%;
+    background:rgba(0,0,0,.1); color:transparent; font-size:9px; font-weight:800; transition:all .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-em-badge.is-on .amd-dt-em-badge-check { background:#22c55e; color:#fff; }
+  #asg-admin-master-dashboard .amd-dt-em-badge.is-on .amd-dt-em-badge-check::before { content:"✓"; color:#fff; font-size:9px; line-height:1; }
+  #asg-admin-master-dashboard .amd-dt-em-due { display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:70px; }
+  #asg-admin-master-dashboard .amd-dt-em-due-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--amd-dt-muted-2); }
+  #asg-admin-master-dashboard .amd-dt-em-due-date { font-size:11px; font-weight:700; color:#111; }
+  #asg-admin-master-dashboard .amd-dt-em-due-date.is-late { color:#b91c1c; }
+  #asg-admin-master-dashboard .amd-dt-em-due-date.is-soon { color:#854d0e; }
+
+  #asg-admin-master-dashboard .amd-dt-checks { padding:14px 18px 16px; }
+  #asg-admin-master-dashboard .amd-dt-checks-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:4px 10px; }
+  #asg-admin-master-dashboard .amd-dt-check {
+    display:flex; align-items:flex-start; gap:9px; padding:6px 8px; border-radius:9px;
+    cursor:pointer; transition:background .15s ease; user-select:none;
+  }
+  #asg-admin-master-dashboard .amd-dt-check:hover { background:#fafafa; }
+  #asg-admin-master-dashboard .amd-dt-check.is-hidden { display:none; }
+  #asg-admin-master-dashboard .amd-dt-check-box {
+    width:17px; height:17px; min-width:17px; border-radius:5px; border:1.5px solid rgba(0,0,0,.18);
+    background:#fff; display:inline-flex; align-items:center; justify-content:center; margin-top:1px;
+    transition:all .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-check-box::after {
+    content:""; display:inline-block; width:4px; height:8px;
+    border-right:2px solid #fff; border-bottom:2px solid #fff;
+    transform: rotate(45deg) translate(-1px,-1px); opacity:0; transition:opacity .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-check.is-done .amd-dt-check-box { background:#111; border-color:#111; }
+  #asg-admin-master-dashboard .amd-dt-check.is-done .amd-dt-check-box::after { opacity:1; }
+  #asg-admin-master-dashboard .amd-dt-check-label { font-size:11.5px; font-weight:600; color:#111; line-height:1.25; }
+  #asg-admin-master-dashboard .amd-dt-check.is-done .amd-dt-check-label {
+    color:var(--amd-dt-muted); text-decoration:line-through; text-decoration-color:rgba(0,0,0,.2); text-decoration-thickness:1.5px;
+  }
+  #asg-admin-master-dashboard .amd-dt-check-meta { font-size:9.5px; color:var(--amd-dt-muted-2); font-weight:500; margin-top:1px; }
+
+  #asg-admin-master-dashboard .amd-dt-foot {
+    padding:10px 18px; background:#fafaf8; display:flex; align-items:center; justify-content:space-between;
+    gap:10px; flex-wrap:wrap; border-top:1px solid rgba(0,0,0,.04);
+  }
+  #asg-admin-master-dashboard .amd-dt-foot-left {
+    display:flex; align-items:center; gap:8px; font-size:10.5px; color:var(--amd-dt-muted); font-weight:600;
+  }
+  #asg-admin-master-dashboard .amd-dt-foot-btns { display:flex; gap:5px; flex-wrap:wrap; }
+  #asg-admin-master-dashboard .amd-dt-foot-btn {
+    appearance:none; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111;
+    font:inherit; font-size:10px; font-weight:700; padding:6px 11px; border-radius:999px;
+    cursor:pointer; transition:all .18s ease;
+  }
+  #asg-admin-master-dashboard .amd-dt-foot-btn:hover { background:#111; color:#fff; border-color:#111; }
+  #asg-admin-master-dashboard .amd-dt-foot-btn.is-primary { background:#111; color:#fff; border-color:#111; }
+
+  #asg-admin-master-dashboard .amd-dt-empty {
+    text-align:center; padding:40px 20px; border:1px dashed rgba(0,0,0,.12); border-radius:18px;
+    color:var(--amd-dt-muted); font-size:13px; background:#fafafa; grid-column:1 / -1;
+  }
+  #asg-admin-master-dashboard .amd-dt-empty-title { font-size:14px; font-weight:700; color:#111; margin-bottom:4px; }
+
+  @media (max-width: 900px) {
+    #asg-admin-master-dashboard .amd-dt-grid { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-dt-tl { grid-template-columns:repeat(3,1fr); gap:6px; }
+    #asg-admin-master-dashboard .amd-dt-tl::before { display:none; }
+    #asg-admin-master-dashboard .amd-dt-checks-grid { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-dt-em-row { grid-template-columns: 1fr; gap:6px; }
+    #asg-admin-master-dashboard .amd-dt-em-due { align-items:flex-start; }
+  }
 </style>
 
 <script>
@@ -1130,7 +1380,10 @@
       ytdSummary: null,
       allTimeSummary: null,
       tab: "leaderboard",
-      dealsView: "active",
+      dealsView: "tracker",
+      dealsTrackerFilter: "all",
+      dealsTrackerSearch: "",
+      dealsTrackerAgent: "all",
       closedView: "ytd",
       leaderboardView: "ytd",
       forecastView: "team",
@@ -3419,6 +3672,458 @@
       }).join("");
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // DEAL TRACKER (FUB + YTD Pending Sheet)
+    // Real fields from sheet: agent, address, price, side, closeDate, stage
+    // Derived (biz-day math from closeDate) until FUB is wired: contract,
+    // inspection, attorney, appraisal, mortgageCommitment dates.
+    // All user toggles (checklist, earnest money, manual date overrides)
+    // persist to localStorage keyed by stable deal hash.
+    // ─────────────────────────────────────────────────────────────
+    var DT_STORE_KEY = "amd-deal-tracker-overrides-v1";
+    var dtOverrides = (function () {
+      try { return JSON.parse(localStorage.getItem(DT_STORE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    })();
+    function dtSaveOverrides() {
+      try { localStorage.setItem(DT_STORE_KEY, JSON.stringify(dtOverrides)); } catch (e) {}
+    }
+    function dtDealId(d) {
+      var raw = String((d.address || "") + "|" + (d.agent || "") + "|" + (d.price || 0)).toLowerCase();
+      var h = 0;
+      for (var i = 0; i < raw.length; i++) h = ((h << 5) - h + raw.charCodeAt(i)) | 0;
+      return "d" + Math.abs(h).toString(36);
+    }
+    function dtAddBizDays(date, n) {
+      if (!date) return null;
+      var d = new Date(date.getTime());
+      var added = 0;
+      while (added < n) {
+        d.setDate(d.getDate() + 1);
+        var wd = d.getDay();
+        if (wd !== 0 && wd !== 6) added++;
+      }
+      return d;
+    }
+    function dtSubBizDays(date, n) {
+      if (!date) return null;
+      var d = new Date(date.getTime());
+      var removed = 0;
+      while (removed < n) {
+        d.setDate(d.getDate() - 1);
+        var wd = d.getDay();
+        if (wd !== 0 && wd !== 6) removed++;
+      }
+      return d;
+    }
+    function dtNormalizeSide(side, stage) {
+      var s = String(side || "").toLowerCase();
+      var st = String(stage || "").toLowerCase();
+      if (s.indexOf("cash") >= 0 || st.indexOf("cash") >= 0) return "cash";
+      if (s.indexOf("buy") >= 0) return "buy";
+      if (s.indexOf("list") >= 0 || s.indexOf("sell") >= 0) return "sell";
+      return s || "buy";
+    }
+    function dtFmtMoney(n) {
+      if (n == null || !n) return "—";
+      return "$" + Number(n).toLocaleString("en-US");
+    }
+    function dtFmtDate(d) {
+      if (!d || isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+    function dtDayDiff(a, b) {
+      if (!a || !b || isNaN(a.getTime()) || isNaN(b.getTime())) return null;
+      var ad = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+      var bd = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+      return Math.round((ad - bd) / 86400000);
+    }
+    function dtRelText(d) {
+      if (!d || isNaN(d.getTime())) return "";
+      var delta = dtDayDiff(d, new Date());
+      if (delta == null) return "";
+      if (delta === 0) return "Today";
+      if (delta === 1) return "Tomorrow";
+      if (delta === -1) return "Yesterday";
+      if (delta > 0) return "in " + delta + "d";
+      return Math.abs(delta) + "d ago";
+    }
+    function dtDateStatus(d, done) {
+      if (!d || isNaN(d.getTime())) return "empty";
+      if (done) return "done";
+      var delta = dtDayDiff(d, new Date());
+      if (delta == null) return "empty";
+      if (delta < 0) return "late";
+      if (delta <= 2) return "soon";
+      return "ontrack";
+    }
+
+    // Build tracker-shaped deal from raw pending sheet row
+    function dtBuildDeal(raw) {
+      var id = dtDealId(raw);
+      var ov = dtOverrides[id] || {};
+      var side = dtNormalizeSide(raw.side, raw.stage);
+      var closeDate = (raw.closeDate && !isNaN(raw.closeDate.getTime())) ? raw.closeDate : null;
+
+      // Derive contract + milestone dates from closeDate when no explicit values exist.
+      // Typical deal timeline is ~45 biz days contract → close.
+      var contractDate = ov.contractDate ? new Date(ov.contractDate) : (closeDate ? dtSubBizDays(closeDate, 45) : null);
+      var inspectionDate = ov.inspectionDate ? new Date(ov.inspectionDate) : (contractDate ? dtAddBizDays(contractDate, 5) : null);
+      var attorneyDate = ov.attorneyDate ? new Date(ov.attorneyDate) : (contractDate ? dtAddBizDays(contractDate, 5) : null);
+      var appraisalDate = ov.appraisalDate ? new Date(ov.appraisalDate) : (contractDate ? dtAddBizDays(contractDate, 15) : null);
+      var mortgageDate = ov.mortgageDate ? new Date(ov.mortgageDate) : (closeDate ? dtSubBizDays(closeDate, 7) : null);
+
+      var checklist = Object.assign({
+        inspectionScheduled: false, inspectionDone: false,
+        appraisalDone: false, mortgageCommitment: false,
+        finalWalkScheduled: false, finalWalkDone: false,
+        closingStatement: false, reviewSent: false,
+        commissionStatement: false, socialPost: false, followUp3wk: false
+      }, ov.checklist || {});
+
+      var earnest = {
+        initial: Object.assign({ amount: null, sent: false, receipt: false, toClient: false, toLender: false }, (ov.earnest || {}).initial || {}),
+        balance: Object.assign({ amount: null, sent: false, receipt: false, toClient: false, toLender: false }, (ov.earnest || {}).balance || {})
+      };
+      // Auto-estimate balance EM as 10% of price if not manually set
+      if (earnest.balance.amount == null && raw.price) earnest.balance.amount = Math.round(raw.price * 0.1);
+      if (earnest.initial.amount == null) earnest.initial.amount = 5000;
+
+      return {
+        id: id,
+        raw: raw,
+        address: raw.address || "—",
+        agent: raw.agent || "—",
+        price: raw.price || 0,
+        side: side,
+        stage: raw.stage || "",
+        client: ov.client || "", // awaiting FUB
+        lender: ov.lender || "", // awaiting FUB
+        dates: {
+          contract: contractDate,
+          inspection: inspectionDate,
+          attorney: attorneyDate,
+          appraisal: appraisalDate,
+          mortgageCommitment: mortgageDate,
+          closing: closeDate
+        },
+        extended: ov.extended || {},
+        checklist: checklist,
+        earnest: earnest
+      };
+    }
+    function dtSetOverride(id, path, value) {
+      dtOverrides[id] = dtOverrides[id] || {};
+      var cur = dtOverrides[id];
+      for (var i = 0; i < path.length - 1; i++) {
+        cur[path[i]] = cur[path[i]] || {};
+        cur = cur[path[i]];
+      }
+      cur[path[path.length - 1]] = value;
+      dtSaveOverrides();
+    }
+    function dtChecklistProgress(deal) {
+      var keys = Object.keys(deal.checklist).filter(function (k) {
+        if (k === "commissionStatement") return deal.side === "sell";
+        if (k === "appraisalDone" || k === "mortgageCommitment") return deal.side !== "cash";
+        return true;
+      });
+      var done = keys.filter(function (k) { return deal.checklist[k]; }).length;
+      return { done: done, total: keys.length, pct: keys.length ? Math.round((done / keys.length) * 100) : 0 };
+    }
+    function dtDealStatus(deal) {
+      var closingDelta = dtDayDiff(deal.dates.closing, new Date());
+      var prog = dtChecklistProgress(deal);
+      if (closingDelta != null && closingDelta < 0 && prog.pct < 100) return "late";
+      if (closingDelta != null && closingDelta <= 7 && closingDelta >= 0 && prog.pct < 80) return "risk";
+      if (closingDelta != null && closingDelta <= 7 && closingDelta >= 0) return "closing";
+      return "ontrack";
+    }
+
+    var DT_CHECKLIST_ITEMS = [
+      { key: "inspectionScheduled", label: "Inspection scheduled", meta: "Day 1–3 after contract" },
+      { key: "inspectionDone",      label: "Inspection completed", meta: "By day 5" },
+      { key: "appraisalDone",       label: "Appraisal done",       meta: "Lender-ordered",  hideIfCash: true },
+      { key: "mortgageCommitment",  label: "Mortgage commitment",  meta: "~7 biz days pre-close", hideIfCash: true },
+      { key: "finalWalkScheduled",  label: "Final walk scheduled", meta: "Day before close" },
+      { key: "finalWalkDone",       label: "Final walk completed", meta: "" },
+      { key: "closingStatement",    label: "Closing statement on file", meta: "Required" },
+      { key: "reviewSent",          label: "Review sent to client", meta: "Post-close" },
+      { key: "commissionStatement", label: "Commission statement sent", meta: "2 days prior (sell)", sellOnly: true },
+      { key: "socialPost",          label: "Social media post ready", meta: "" },
+      { key: "followUp3wk",         label: "3-week follow-up set",  meta: "Post-close check-in" }
+    ];
+
+    function renderTrackerEMRow(deal, which, label, dueDate) {
+      var em = deal.earnest[which] || {};
+      var dueStatus = dtDateStatus(dueDate, em.sent && em.receipt);
+      var badges = [
+        { key: "sent",     label: "Sent" },
+        { key: "receipt",  label: "Receipt" },
+        { key: "toClient", label: "To Client" },
+        { key: "toLender", label: "To Lender", hideIfSell: true }
+      ];
+      var badgesHTML = badges.map(function (b) {
+        if (b.hideIfSell && deal.side === "sell") return "";
+        var on = !!em[b.key];
+        return '<span class="amd-dt-em-badge ' + (on ? "is-on" : "") +
+          '" data-amd-dt-em data-deal="' + deal.id + '" data-which="' + which + '" data-key="' + b.key + '">' +
+          '<span class="amd-dt-em-badge-check"></span>' + b.label + '</span>';
+      }).join("");
+      return '<div class="amd-dt-em-row">' +
+        '<div class="amd-dt-em-left">' +
+          '<span class="amd-dt-em-kind">' + label + '</span>' +
+          '<span class="amd-dt-em-amount">' + dtFmtMoney(em.amount) + '</span>' +
+        '</div>' +
+        '<div class="amd-dt-em-checks">' + badgesHTML + '</div>' +
+        '<div class="amd-dt-em-due">' +
+          '<span class="amd-dt-em-due-label">Due</span>' +
+          '<span class="amd-dt-em-due-date ' + (dueStatus === "late" ? "is-late" : dueStatus === "soon" ? "is-soon" : "") + '">' + dtFmtDate(dueDate) + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function renderTrackerEMSection(deal) {
+      if (deal.side === "cash") {
+        return '<section class="amd-dt-em"><div class="amd-dt-section-label">Earnest Money</div>' +
+          renderTrackerEMRow(deal, "initial", "Initial EM", dtAddBizDays(deal.dates.contract, 2)) +
+          '</section>';
+      }
+      return '<section class="amd-dt-em"><div class="amd-dt-section-label">Earnest Money</div>' +
+        '<div class="amd-dt-em-rows">' +
+          renderTrackerEMRow(deal, "initial", "Initial EM", dtAddBizDays(deal.dates.contract, 2)) +
+          renderTrackerEMRow(deal, "balance", "Balance EM (10%)", dtAddBizDays(deal.dates.inspection, 2)) +
+        '</div>' +
+      '</section>';
+    }
+
+    function renderTrackerCard(deal) {
+      var prog = dtChecklistProgress(deal);
+      var status = dtDealStatus(deal);
+      var statusLabel = { ontrack: "On Track", risk: "At Risk", late: "Behind", closing: "Closing Soon" }[status];
+      var sideChip = {
+        buy:  '<span class="amd-dt-chip amd-dt-chip-buy">Buy Side</span>',
+        sell: '<span class="amd-dt-chip amd-dt-chip-sell">Sell Side</span>',
+        cash: '<span class="amd-dt-chip amd-dt-chip-cash">Cash Deal</span>'
+      }[deal.side];
+      var priceHTML = deal.side === "cash"
+        ? '<span class="amd-dt-price is-cash">CASH</span>'
+        : '<span class="amd-dt-price">' + dtFmtMoney(deal.price) + '</span>';
+
+      // Timeline
+      var checkedMap = {
+        contract: !!(deal.dates.contract && dtDayDiff(new Date(), deal.dates.contract) >= 0),
+        inspection: deal.checklist.inspectionDone,
+        attorney: !!(deal.dates.attorney && dtDayDiff(new Date(), deal.dates.attorney) >= 0),
+        appraisal: deal.checklist.appraisalDone,
+        mortgageCommitment: deal.checklist.mortgageCommitment,
+        closing: false
+      };
+      var steps = [
+        { key: "contract",          label: "Contract",    date: deal.dates.contract },
+        { key: "inspection",        label: "Inspection",  date: deal.dates.inspection },
+        { key: "attorney",          label: "Attorney",    date: deal.dates.attorney },
+        { key: "appraisal",         label: "Appraisal",   date: deal.dates.appraisal,         cashHide: true },
+        { key: "mortgageCommitment",label: "Mortgage",    date: deal.dates.mortgageCommitment, cashHide: true },
+        { key: "closing",           label: "Closing",     date: deal.dates.closing }
+      ];
+      var timelineHTML = steps.map(function (step) {
+        var isCashHide = step.cashHide && deal.side === "cash";
+        var st = isCashHide ? "empty" : dtDateStatus(step.date, checkedMap[step.key]);
+        var ext = deal.extended && deal.extended[step.key];
+        var rel = step.date && !isCashHide ? dtRelText(step.date) : "";
+        var cls = isCashHide ? "is-cash-hidden" : (st === "done" ? "is-done" : st === "late" ? "is-late" : st === "soon" ? "is-soon" : ext ? "is-extended" : "");
+        return '<div class="amd-dt-tl-item ' + cls + '">' +
+          '<div class="amd-dt-tl-dot"></div>' +
+          '<div class="amd-dt-tl-label">' + step.label + '</div>' +
+          '<div class="amd-dt-tl-date ' + (!step.date || isCashHide ? "is-empty" : "") + '">' + (isCashHide ? "N/A" : dtFmtDate(step.date)) + '</div>' +
+          (rel && !isCashHide ? '<div class="amd-dt-tl-relative">' + rel + '</div>' : '') +
+          (ext ? '<span class="amd-dt-tl-ext">Extended</span>' : '') +
+        '</div>';
+      }).join("");
+
+      var checksHTML = DT_CHECKLIST_ITEMS.map(function (item) {
+        if (item.sellOnly && deal.side !== "sell") return "";
+        if (item.hideIfCash && deal.side === "cash") return "";
+        var done = !!deal.checklist[item.key];
+        return '<div class="amd-dt-check ' + (done ? "is-done" : "") +
+          '" data-amd-dt-check data-deal="' + deal.id + '" data-key="' + item.key + '">' +
+          '<div class="amd-dt-check-box"></div>' +
+          '<div>' +
+            '<div class="amd-dt-check-label">' + item.label + '</div>' +
+            (item.meta ? '<div class="amd-dt-check-meta">' + item.meta + '</div>' : '') +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      var clientHTML = deal.client
+        ? '<span class="amd-dt-meta-item">👤 ' + esc(deal.client) + '</span>'
+        : '<span class="amd-dt-meta-item is-missing">Client — awaiting FUB</span>';
+      var lenderHTML = deal.side === "cash"
+        ? '<span class="amd-dt-meta-item">💵 Cash — no financing</span>'
+        : (deal.lender
+            ? '<span class="amd-dt-meta-item">🏦 ' + esc(deal.lender) + '</span>'
+            : '<span class="amd-dt-meta-item is-missing">Lender — awaiting FUB</span>');
+
+      return '<article class="amd-dt-card" data-deal-id="' + deal.id + '">' +
+        '<header class="amd-dt-card-head">' +
+          '<div class="amd-dt-chip-row">' + sideChip +
+            '<span class="amd-dt-chip-status is-' + status + '">' + statusLabel + '</span>' +
+            priceHTML +
+          '</div>' +
+          '<h3 class="amd-dt-address">' + esc(deal.address) + '</h3>' +
+          '<div class="amd-dt-meta-row">' +
+            clientHTML +
+            '<span class="amd-dt-meta-sep">·</span>' +
+            lenderHTML +
+            '<span class="amd-dt-meta-sep">·</span>' +
+            '<span class="amd-dt-meta-item">🧑‍💼 ' + esc(deal.agent) + '</span>' +
+          '</div>' +
+          '<div class="amd-dt-progress" title="Checklist ' + prog.done + '/' + prog.total + '">' +
+            '<div class="amd-dt-progress-bar"><div class="amd-dt-progress-fill" style="width:' + prog.pct + '%"></div></div>' +
+            '<div class="amd-dt-progress-text">' + prog.done + '/' + prog.total + ' · ' + prog.pct + '%</div>' +
+          '</div>' +
+        '</header>' +
+        '<section class="amd-dt-timeline">' +
+          '<div class="amd-dt-section-label">Key Dates</div>' +
+          '<div class="amd-dt-tl">' + timelineHTML + '</div>' +
+        '</section>' +
+        renderTrackerEMSection(deal) +
+        '<section class="amd-dt-checks">' +
+          '<div class="amd-dt-section-label">Closing Checklist</div>' +
+          '<div class="amd-dt-checks-grid">' + checksHTML + '</div>' +
+        '</section>' +
+        '<footer class="amd-dt-foot">' +
+          '<div class="amd-dt-foot-left">📋 ' + (deal.stage ? esc(deal.stage) : "Active") + '</div>' +
+          '<div class="amd-dt-foot-btns">' +
+            '<button class="amd-dt-foot-btn" data-amd-dt-fub="' + deal.id + '">Open in FUB</button>' +
+            '<button class="amd-dt-foot-btn is-primary" data-amd-dt-reset="' + deal.id + '">Reset Deal</button>' +
+          '</div>' +
+        '</footer>' +
+      '</article>';
+    }
+
+    function renderTrackerView(model) {
+      var raws = (model.pendingDeals || []).filter(function (d) {
+        return d && d.address && d.address !== "—" && d.closeDate && !isNaN(d.closeDate.getTime());
+      });
+      var allDeals = raws.map(dtBuildDeal);
+
+      // Unique agents (sorted alphabetically) with deal counts
+      var agentCounts = {};
+      allDeals.forEach(function (d) {
+        var a = (d.agent || "—").trim();
+        if (!a) a = "—";
+        agentCounts[a] = (agentCounts[a] || 0) + 1;
+      });
+      var agentList = Object.keys(agentCounts).sort(function (a, b) {
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+      });
+
+      var agentSel = state.dealsTrackerAgent || "all";
+      if (agentSel !== "all" && agentCounts[agentSel] == null) {
+        agentSel = "all";
+        state.dealsTrackerAgent = "all";
+      }
+
+      // Scope deals to selected agent first (so side/risk counts reflect that view)
+      var deals = agentSel === "all"
+        ? allDeals
+        : allDeals.filter(function (d) { return (d.agent || "—").trim() === agentSel; });
+
+      // Filters
+      var filters = [
+        { id: "all",     label: "All Deals" },
+        { id: "buy",     label: "Buy Side" },
+        { id: "sell",    label: "Sell Side" },
+        { id: "cash",    label: "Cash" },
+        { id: "closing", label: "Closing ≤ 7 days" },
+        { id: "risk",    label: "At Risk" }
+      ];
+      var counts = {
+        all: deals.length,
+        buy: deals.filter(function (d) { return d.side === "buy"; }).length,
+        sell: deals.filter(function (d) { return d.side === "sell"; }).length,
+        cash: deals.filter(function (d) { return d.side === "cash"; }).length,
+        closing: deals.filter(function (d) {
+          var dd = dtDayDiff(d.dates.closing, new Date());
+          return dd != null && dd >= 0 && dd <= 7;
+        }).length,
+        risk: deals.filter(function (d) {
+          var s = dtDealStatus(d);
+          return s === "risk" || s === "late";
+        }).length
+      };
+
+      var fSel = state.dealsTrackerFilter || "all";
+      var qSel = (state.dealsTrackerSearch || "").toLowerCase();
+      var visible = deals.filter(function (d) {
+        if (fSel === "buy" || fSel === "sell" || fSel === "cash") { if (d.side !== fSel) return false; }
+        if (fSel === "closing") {
+          var dd = dtDayDiff(d.dates.closing, new Date());
+          if (!(dd != null && dd >= 0 && dd <= 7)) return false;
+        }
+        if (fSel === "risk") {
+          var st = dtDealStatus(d);
+          if (st !== "risk" && st !== "late") return false;
+        }
+        if (qSel) {
+          var hay = (d.address + " " + d.agent + " " + (d.client || "") + " " + (d.lender || "")).toLowerCase();
+          if (hay.indexOf(qSel) < 0) return false;
+        }
+        return true;
+      });
+
+      // Sort: soonest closing first
+      visible.sort(function (a, b) {
+        var at = a.dates.closing ? a.dates.closing.getTime() : Infinity;
+        var bt = b.dates.closing ? b.dates.closing.getTime() : Infinity;
+        return at - bt;
+      });
+
+      var agentOptions =
+        '<option value="all">All Agents · ' + allDeals.length + '</option>' +
+        agentList.map(function (a) {
+          var selected = agentSel === a ? " selected" : "";
+          return '<option value="' + esc(a) + '"' + selected + '>' + esc(a) + ' · ' + agentCounts[a] + '</option>';
+        }).join("");
+
+      var subCopy = agentSel === "all"
+        ? ("Live pipeline from YTD Pending Sheet · " + allDeals.length + " active " + (allDeals.length === 1 ? "deal" : "deals") + " across " + agentList.length + " " + (agentList.length === 1 ? "agent" : "agents"))
+        : (esc(agentSel) + " · " + deals.length + " active " + (deals.length === 1 ? "deal" : "deals"));
+
+      var head =
+        '<div class="amd-dt-head">' +
+          '<div>' +
+            '<h3 class="amd-dt-title">Deal Tracker</h3>' +
+            '<p class="amd-dt-sub">' + subCopy + '</p>' +
+          '</div>' +
+          '<div class="amd-dt-toolbar">' +
+            '<select class="amd-dt-agent-select ' + (agentSel !== "all" ? "is-scoped" : "") + '" data-amd-dt-agent aria-label="Filter by agent">' + agentOptions + '</select>' +
+            '<input class="amd-dt-search" type="search" placeholder="Search address, agent, client, lender…" data-amd-dt-search value="' + esc(state.dealsTrackerSearch || "") + '">' +
+          '</div>' +
+        '</div>' +
+        '<div class="amd-dt-fub-hint">Client name, lender, and exact milestone dates sync from Follow Up Boss. Dates shown are auto-derived from the close date until FUB is wired. Checklist &amp; earnest money toggles save locally per deal.</div>' +
+        '<div class="amd-dt-filter-row">' +
+          filters.map(function (f) {
+            return '<button class="amd-dt-filter ' + (fSel === f.id ? "is-active" : "") + '" data-amd-dt-filter="' + f.id + '" type="button">' +
+              '<span>' + f.label + '</span>' +
+              '<span class="amd-dt-filter-count">' + (counts[f.id] || 0) + '</span>' +
+            '</button>';
+          }).join("") +
+        '</div>';
+
+      var emptyMsg = agentSel !== "all" && !deals.length
+        ? '<div class="amd-dt-empty"><div class="amd-dt-empty-title">No active deals for ' + esc(agentSel) + '</div><div>Switch to All Agents or choose another agent above.</div></div>'
+        : '<div class="amd-dt-empty"><div class="amd-dt-empty-title">No deals match your filters</div><div>Try clearing your search or switching tabs.</div></div>';
+
+      var body = visible.length
+        ? '<div class="amd-dt-grid">' + visible.map(renderTrackerCard).join("") + '</div>'
+        : emptyMsg;
+
+      return head + body;
+    }
+
     function render() {
       var model = computeModel();
       var updated = state.loadedAt
@@ -3444,10 +4149,13 @@
       if (state.tab === "deals") {
         var dealsSubtabs =
           '<div class="amd-subtabs">' +
+            '<button class="amd-subtab ' + (state.dealsView === "tracker" ? "is-active" : "") + '" data-subtab="deals-tracker" type="button">Deal Tracker</button>' +
             '<button class="amd-subtab ' + (state.dealsView === "active" ? "is-active" : "") + '" data-subtab="deals-active" type="button">Active</button>' +
             '<button class="amd-subtab ' + (state.dealsView === "closed" ? "is-active" : "") + '" data-subtab="deals-closed" type="button">Closed</button>' +
           "</div>";
-        if (state.dealsView === "active") {
+        if (state.dealsView === "tracker") {
+          panelHTML = dealsSubtabs + renderTrackerView(model);
+        } else if (state.dealsView === "active") {
           var activeRows = model.pendingDeals
             .filter(function (d) {
               var hasName = !!String(d && d.agent || "").trim();
@@ -3659,6 +4367,7 @@
       for (var j = 0; j < subtabs.length; j++) {
         subtabs[j].addEventListener("click", function () {
           var key = this.getAttribute("data-subtab");
+          if (key === "deals-tracker") state.dealsView = "tracker";
           if (key === "deals-active") state.dealsView = "active";
           if (key === "deals-closed") state.dealsView = "closed";
           if (key === "closed-ytd") state.closedView = "ytd";
@@ -3699,8 +4408,78 @@
           render();
         });
       }
+      try { initDealTracker(); } catch (e) { console.error("deal-tracker:", e); }
       try { initDealsTables(); } catch (e) { console.error("deals-table:", e); }
       try { initChartTooltips(); } catch (e) { console.error("tooltips:", e); }
+    }
+
+    function initDealTracker() {
+      var filters = root.querySelectorAll('[data-amd-dt-filter]');
+      for (var i = 0; i < filters.length; i++) {
+        filters[i].addEventListener('click', function () {
+          state.dealsTrackerFilter = this.getAttribute('data-amd-dt-filter');
+          render();
+        });
+      }
+      var agentSelect = root.querySelector('[data-amd-dt-agent]');
+      if (agentSelect) {
+        agentSelect.addEventListener('change', function () {
+          state.dealsTrackerAgent = this.value || "all";
+          state.dealsTrackerFilter = "all";
+          render();
+        });
+      }
+      var search = root.querySelector('[data-amd-dt-search]');
+      if (search) {
+        search.addEventListener('input', function () {
+          var self = this;
+          clearTimeout(self._dt);
+          self._dt = setTimeout(function () {
+            state.dealsTrackerSearch = self.value;
+            var pos = self.selectionStart;
+            render();
+            var s = root.querySelector('[data-amd-dt-search]');
+            if (s) { s.focus(); try { s.setSelectionRange(pos, pos); } catch (e) {} }
+          }, 120);
+        });
+      }
+      var checks = root.querySelectorAll('[data-amd-dt-check]');
+      for (var c = 0; c < checks.length; c++) {
+        checks[c].addEventListener('click', function () {
+          var id = this.getAttribute('data-deal');
+          var key = this.getAttribute('data-key');
+          var cur = (dtOverrides[id] && dtOverrides[id].checklist && dtOverrides[id].checklist[key]) || false;
+          dtSetOverride(id, ['checklist', key], !cur);
+          render();
+        });
+      }
+      var emBadges = root.querySelectorAll('[data-amd-dt-em]');
+      for (var e2 = 0; e2 < emBadges.length; e2++) {
+        emBadges[e2].addEventListener('click', function () {
+          var id = this.getAttribute('data-deal');
+          var which = this.getAttribute('data-which');
+          var key = this.getAttribute('data-key');
+          var cur = (dtOverrides[id] && dtOverrides[id].earnest && dtOverrides[id].earnest[which] && dtOverrides[id].earnest[which][key]) || false;
+          dtSetOverride(id, ['earnest', which, key], !cur);
+          render();
+        });
+      }
+      var resetBtns = root.querySelectorAll('[data-amd-dt-reset]');
+      for (var r = 0; r < resetBtns.length; r++) {
+        resetBtns[r].addEventListener('click', function () {
+          var id = this.getAttribute('data-amd-dt-reset');
+          if (!confirm("Reset all local checklist/earnest/date overrides for this deal?")) return;
+          delete dtOverrides[id];
+          dtSaveOverrides();
+          render();
+        });
+      }
+      var fubBtns = root.querySelectorAll('[data-amd-dt-fub]');
+      for (var f = 0; f < fubBtns.length; f++) {
+        fubBtns[f].addEventListener('click', function () {
+          window.open('https://allstargrouprealestate.followupboss.com/', '_blank');
+        });
+      }
     }
 
     var _tipState = { dot: null, origR: null };

@@ -144,6 +144,146 @@ All backend logic runs on **Google Apps Script** web apps deployed as public end
 
 ---
 
+## Deal Tracker View (`?view=dealTracker`)
+
+Same Apps Script deployment as the Agent Hub API above. The view parameter switches the response shape.
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec?view=dealTracker`
+
+**Method**: `GET`
+
+**Query params**:
+- `?view=dealTracker` (required to enter this mode)
+- `?refresh=1` — bypass the 60s cache and force a fresh FUB pull
+- `?smartListId=172` / `?smartListName=Current Deals` — override the deal pool
+- `?agentEmail=` / `?agentName=` — scope to a specific agent
+
+**Data sources joined**:
+1. **Follow Up Boss** — deals, persons, notes, appointments, action plans, custom fields, pipelines, stages
+2. **Google Sheet** ("Deal Tracker Workflow" tab) — team-specific workflow fields (earnest-money flags, closing checklist, lender/attorney contact info, extension flags)
+
+**Response**:
+```json
+{
+  "ok": true,
+  "meta": {
+    "generatedAt": "2026-04-20T14:22:03.000Z",
+    "dealCount": 5,
+    "smartListId": 172,
+    "smartListName": "Current Deals",
+    "cached": false,
+    "sheetRowsLoaded": 8
+  },
+  "deals": [
+    {
+      "id": "fub-10293",
+      "address": "1428 N Astor St #5A, Chicago IL 60610",
+      "client": "Michael & Jessica Reyes",
+      "side": "buy",
+      "price": 1250000,
+      "lender": { "name": "George Kamberos", "company": "Cross Country Mortgage" },
+      "attorney": { "name": "Namit Bammi", "company": "Bammi Law Group" },
+      "agent": "Alex Stoykov",
+      "stage": "Under Contract",
+      "dates": {
+        "contract": "2026-04-15",
+        "inspection": "2026-04-22",
+        "attorney": "2026-04-22",
+        "appraisal": "2026-05-04",
+        "mortgageCommitment": "2026-05-20",
+        "closing": "2026-05-27"
+      },
+      "extended": { "attorney": true, "mortgageCommitment": false },
+      "earnest": {
+        "initial": { "amount": 5000,  "sent": true,  "receipt": true,  "toClient": true,  "toLender": true },
+        "balance": { "amount": 120000, "sent": false, "receipt": false, "toClient": false, "toLender": false }
+      },
+      "checklist": {
+        "inspectionScheduled": true, "inspectionDone": false,
+        "appraisalDone": false, "mortgageCommitment": false,
+        "finalWalkScheduled": false, "finalWalkDone": false,
+        "closingStatement": false, "reviewSent": false,
+        "commissionStatement": false, "socialPost": false, "followUp3wk": false
+      },
+      "fub": {
+        "personId": "12345",
+        "dealId": "10293",
+        "dealUrl": "https://app.followupboss.com/2/deals/10293",
+        "personUrl": "https://app.followupboss.com/2/people/view/12345",
+        "notes": [{ "id": "n1", "body": "...", "author": "...", "createdAt": "..." }],
+        "appointments": [{ "id": "a1", "title": "Inspection", "startsAt": "...", "status": "..." }],
+        "actionPlan": { "name": "Under Contract Plan", "doneCount": 7, "totalCount": 14, "nextStep": "Order appraisal" },
+        "tags": ["VIP", "Referral"]
+      }
+    }
+  ]
+}
+```
+
+**Required Script Properties (in addition to `FUB_API_KEY`)**:
+- `DEAL_TRACKER_SHEET_ID` — Google Sheet file ID holding the workflow tab
+
+**Optional Script Properties**:
+- `FUB_DEAL_TRACKER_SMART_LIST_ID` — Smart List used as the deal pool (defaults to `172`)
+- `FUB_DEAL_TRACKER_SMART_LIST_NAME` — Smart List name fallback (defaults to `"Current Deals"`)
+- `FUB_CACHE_TTL_SECONDS` — Full-payload cache TTL (defaults to `60`)
+- `DEAL_TRACKER_SHEET_TAB` — Sheet tab name (defaults to `"Deal Tracker Workflow"`)
+
+**Deal Tracker Workflow sheet schema** (one row per deal, header row required):
+
+| Column (exact, case-insensitive) | Type | Notes |
+|---|---|---|
+| `deal_id` | string | Primary key. Either the raw FUB deal id (`10293`) or the prefixed form (`fub-10293`). |
+| `lender_name`, `lender_company` | string | Lender contact for the buyer side. |
+| `attorney_name`, `attorney_company` | string | Attorney contact. |
+| `earnest_initial_amount`, `earnest_initial_sent`, `earnest_initial_receipt`, `earnest_initial_to_client`, `earnest_initial_to_lender` | number / bool | Initial EM tracking. |
+| `earnest_balance_amount`, `earnest_balance_sent`, `earnest_balance_receipt`, `earnest_balance_to_client`, `earnest_balance_to_lender` | number / bool | Balance EM tracking (10%). |
+| `extended_attorney`, `extended_mortgage_commitment` | bool | Extension flags that flip their timeline dot to the "extended" state. |
+| `inspection_scheduled`, `inspection_done`, `appraisal_done`, `mortgage_commitment`, `final_walk_scheduled`, `final_walk_done`, `closing_statement`, `review_sent`, `commission_statement`, `social_post`, `follow_up3wk` | bool | 11 closing-checklist flags matching `CHECKLIST_ITEMS` in `deal-tracker.html`. |
+| `inspection_date`, `attorney_date`, `appraisal_date`, `mortgage_commitment_date` | date | Optional overrides if the date isn't on a FUB Appointment or custom field. |
+
+Boolean values accept: `TRUE/FALSE`, `yes/no`, `1/0`, `x`, `done`.
+
+**Rate limits & caching**:
+- FUB public API tolerates ~10 req/sec. The proxy sleeps 75ms between per-deal sub-calls.
+- Full payload is cached 60s in `CacheService`; schema (custom fields, pipelines, stages) cached 10 minutes.
+- Cold load of 20 deals takes ~5-10s; cached response is instant.
+
+**Consumer**:
+- `asg-admin-hub/components/deal-tracker.html` reads this endpoint via `window.DEAL_TRACKER_API` (falls back to the baked-in URL constant). Shows loading/refreshing/error states, a "last synced Xs ago" label, and a notes drawer that surfaces the `fub.notes`, `fub.appointments`, and `fub.actionPlan` payload per deal.
+- Local checklist/earnest edits persist only in the browser's `localStorage` — writes back to FUB/Sheet are not in scope for the read-only proxy.
+
+---
+
+## Schema View (`?view=schema`)
+
+Same Apps Script deployment. Returns the FUB custom-field catalog plus pipelines and stages. Cached 10 minutes.
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec?view=schema`
+
+**Response**:
+```json
+{
+  "ok": true,
+  "meta": { "generatedAt": "..." },
+  "schema": {
+    "customFields": [
+      { "id": "1", "name": "dealSide", "label": "Deal Side", "type": "dropdown", "entity": "deal", "options": ["Buy","Sell","Cash"] }
+    ],
+    "stages": [
+      { "id": "9", "name": "Under Contract", "pipelineId": "1", "order": 9 }
+    ],
+    "pipelines": [
+      { "id": "1", "name": "Sales Pipeline" }
+    ]
+  }
+}
+```
+
+**Used for**: Future UI dropdowns in the Deal Tracker (stage picker, custom-field admin).
+
+---
+
 ## Recent Folders API
 
 **URL**: `https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec`

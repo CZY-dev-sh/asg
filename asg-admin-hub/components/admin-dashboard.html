@@ -791,7 +791,7 @@
     {name:"Barbara Laken",tier:"Senior",role:"Senior Agent",email:"barbara.laken@compass.com",phone:"312-282-1087",fubPhone:"",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/61c6aac4-a530-4807-a26a-8d511db76a58/AndrewMiller-Barbara2020%281%29.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/barbaralaken",book:"https://asgmarketing.as.me/?firstName=Barbara&lastName=Laken&email=barbara.laken%40compass.com&phone=3122821087&field:18245579=Barbara%20Laken&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=espwfceO9_elFbLyN8iBbw&d=7720513273924"},
     {name:"Gabriel Rendon",tier:"Senior",role:"Senior Agent",email:"gabriel.rendon@compass.com",phone:"(847) 813-7507",fubPhone:"224-506-0798",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/10a058a9-3ef3-4b5b-8466-e47388e23843/Headshot-10.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/gabrielrendon",book:"https://asgmarketing.as.me/?firstName=Gabriel&lastName=Rendon&email=gabriel.rendon%40compass.com&phone=8478137507&field:18245579=Gabriel%20Rendon&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=Dn1_kKOAfdejXCnkIIEktA&d=7720513273924"},
     {name:"Matthew Clevenger",tier:"Senior",role:"Senior Agent",email:"matthew.clevenger@compass.com",phone:"619-708-4420",fubPhone:"619-389-2658",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5c117b07-d067-453d-86fb-d0b4e22f7998/image0.jpeg?format=500w",landing:"https://www.alexstoykovgroup.com/mattclevenger",book:"https://asgmarketing.as.me/?firstName=Matthew&lastName=Clevenger&email=matthew.clevenger%40compass.com&phone=6197084420&field:18245579=Matthew%20Clevenger&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=EqgNKJpvBteZLA1laayeAQ&d=7720513273924"},
-    {name:"Justin Curran",tier:"Junior",role:"Junior Agent",email:"justin.curran@compass.com",phone:"847-507-7753",fubPhone:"312-516-4375",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/e8dcd0fc-419f-4703-8383-423fd5a7b876/Justn+Headshots-6.jpg?format=500w",landing:"",book:"",request:""},
+    {name:"Justin Curran",tier:"Junior",role:"Junior Agent",email:"justin.curran@compass.com",phone:"847-507-7753",fubPhone:"312-516-4375",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/e8dcd0fc-419f-4703-8383-423fd5a7b876/Justn+Headshots-6.jpg?format=500w",landing:"",book:"https://asgmarketing.as.me/?firstName=Justin&lastName=Curran&email=justin.curran%40compass.com&phone=8475077753&field:18245579=Justin%20Curran&field:18245580=Admin%20Hub",request:""},
     {name:"Cheryl Cohn",tier:"Junior",role:"Junior Agent",email:"cheryl.cohn@compass.com",phone:"312-860-0200",fubPhone:"312-847-4243",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f672ca49-4e2e-480c-aeea-ecae358de45b/Cheryl+Studio+Sitting.jpg?format=500w",landing:"",book:"",request:""},
     {name:"Jason Stone",tier:"Junior",role:"Junior Agent",email:"jason.stone@compass.com",phone:"863-221-7522",fubPhone:"815-702-0994",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/8ffe22d9-28a8-4b2f-bf0c-85521b6acf7a/Photo+1-3.jpg?format=500w",landing:"",book:"",request:""},
     {name:"Andrea Mirchef",tier:"Junior",role:"Junior Agent",email:"andrea.mirchef@compass.com",phone:"847-884-8183",fubPhone:"312-818-2401",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/9e105fd4-ad39-47ea-a9ac-7a1e47544932/DSC00258-Enhanced-NR.jpg?format=500w",landing:"",book:"",request:""},
@@ -813,7 +813,7 @@
     {name:"Ellie Ngassa",tier:"Admin",role:"Marketing Coordinator",email:"ellie.ngassa@compass.com",phone:"517-648-0654",fubPhone:"",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ac0b5781-e113-4b03-8bd7-6d9425c9dbd3/DSC07726.jpg?format=500w",department:"Marketing",hours:"9–5 Mon–Fri",landing:"",book:"",request:""}
   ];
 
-  const ACTION_SENIORS=TEAM.filter(t=>t.tier==="Senior"&&t.name!=="Alex Valladares");
+  const ACTION_SENIORS=TEAM.filter(t=>(t.tier==="Senior"||t.name==="Justin Curran")&&t.name!=="Alex Valladares");
 
   const QUICK_LINKS=[
     {title:"Zillow",sub:"Agent showcase",href:"https://www.zillow.com/agents/showcase/",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d74e0ab4-5262-477e-9d43-50ab11765fbf/zillow.png?format=1500w",keywords:["zillow","showcase","listing","listings","portal","agent"]},
@@ -877,7 +877,7 @@
 
   function getIconPhoto(person){
     if(!person) return "";
-    return String(person.iconPhoto||person.photo||"").trim();
+    return resolveDriveImageUrl(String(person.iconPhoto||person.photo||"").trim());
   }
 
   function extractDirectoryRows(payload){
@@ -889,7 +889,18 @@
 
   /** Same cascade as tv-dashboard-multiview / team-directory (icon → medium → legacy). */
   function resolveDirectoryRowPhotoUrl(row){
-    return String((row&&(row.icon_photo_url||row.icon_photo||row.iconphoto||row.image_url||row.photo||row.headshot_url||row.headshot))||"").trim();
+    return String((row&&(
+      row.icon_photo_url||
+      row.icon_photo||
+      row.iconphoto||
+      row.medium_photo_url||
+      row.medium_photo||
+      row.photo_url||
+      row.image_url||
+      row.photo||
+      row.headshot_url||
+      row.headshot
+    ))||"").trim();
   }
 
   function applyIconPhotoOverridesFromDirectory(rows){
