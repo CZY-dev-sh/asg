@@ -1,0 +1,1217 @@
+<div id="asg-command-center"></div>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
+  #asg-command-center {
+    --bg: #f6f6f6;
+    --card: #ffffff;
+    --ink: #111111;
+    --muted: rgba(17,17,17,.58);
+    --muted-2: rgba(17,17,17,.32);
+    --line: rgba(17,17,17,0.08);
+    --line-2: rgba(17,17,17,0.14);
+    --green: #22c55e;
+    --green-soft: rgba(34,197,94,.1);
+    --green-ink: #15803d;
+    --amber: #eab308;
+    --amber-soft: rgba(234,179,8,.12);
+    --amber-ink: #854d0e;
+    --red: #ef4444;
+    --red-soft: rgba(239,68,68,.1);
+    --red-ink: #b91c1c;
+    --blue: #3b82f6;
+    --blue-soft: rgba(59,130,246,.1);
+    --blue-ink: #1d4ed8;
+    --purple: #8b5cf6;
+    --purple-soft: rgba(139,92,246,.1);
+    --purple-ink: #6d28d9;
+    --radius: 20px;
+    font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #f8f8f8 0%, #f1f1f1 100%);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 22px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #asg-command-center * { box-sizing: border-box; }
+  #asg-command-center .cc-shell { max-width: 1440px; margin: 0 auto; }
+
+  @keyframes cc-fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes cc-pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  @keyframes cc-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+
+  /* HEADER */
+  #asg-command-center .cc-head {
+    display: flex; justify-content: space-between; gap: 14px; align-items: flex-start;
+    flex-wrap: wrap; margin-bottom: 18px;
+  }
+  #asg-command-center .cc-title { margin: 0; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.03em; line-height: 1.05; font-weight: 800; }
+  #asg-command-center .cc-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; font-weight: 500; }
+  #asg-command-center .cc-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #asg-command-center .cc-period {
+    display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px;
+    background: #f4f4f2; border: 1px solid rgba(0,0,0,.05);
+  }
+  #asg-command-center .cc-period-btn {
+    appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    padding: 7px 12px; border-radius: 999px; cursor: pointer; transition: all 180ms ease;
+  }
+  #asg-command-center .cc-period-btn:hover { color: var(--ink); }
+  #asg-command-center .cc-period-btn.is-active { background: var(--ink); color: #fff; box-shadow: 0 3px 10px rgba(17,17,17,.15); }
+  #asg-command-center .cc-refresh {
+    height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2);
+    background: #fff; color: var(--ink); font: inherit; font-size: 11px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px; transition: all 180ms ease;
+  }
+  #asg-command-center .cc-refresh:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  #asg-command-center .cc-refresh svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  #asg-command-center .cc-refresh.is-spinning svg { animation: cc-spin 0.9s linear infinite; }
+  @keyframes cc-spin { to { transform: rotate(360deg); } }
+  #asg-command-center .cc-updated { color: var(--muted); font-size: 11px; font-weight: 600; padding: 0 6px; }
+
+  /* TABS */
+  #asg-command-center .cc-tabs {
+    display: flex; gap: 4px; padding: 4px; border-radius: 999px;
+    background: #ececea; border: 1px solid rgba(0,0,0,.05); margin-bottom: 18px; flex-wrap: wrap;
+    width: fit-content;
+  }
+  #asg-command-center .cc-tab {
+    appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit;
+    font-size: 12px; font-weight: 700; padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    transition: all 180ms ease; display: inline-flex; align-items: center; gap: 8px;
+    letter-spacing: .01em;
+  }
+  #asg-command-center .cc-tab:hover { color: var(--ink); }
+  #asg-command-center .cc-tab.is-active { background: var(--ink); color: #fff; box-shadow: 0 4px 12px rgba(17,17,17,.18); }
+  #asg-command-center .cc-tab-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,.18); }
+  #asg-command-center .cc-tab.is-active .cc-tab-dot { background: rgba(255,255,255,.5); }
+  #asg-command-center .cc-tab-dot.is-green { background: var(--green); }
+  #asg-command-center .cc-tab-dot.is-amber { background: var(--amber); }
+  #asg-command-center .cc-tab-dot.is-red { background: var(--red); }
+  #asg-command-center .cc-tab-dot.is-blue { background: var(--blue); }
+
+  /* PANEL */
+  #asg-command-center .cc-panel { display: none; animation: cc-fadein .35s ease both; }
+  #asg-command-center .cc-panel.is-active { display: block; }
+
+  /* KPI STRIP */
+  #asg-command-center .cc-kpis {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 920px) {
+    #asg-command-center .cc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  #asg-command-center .cc-kpi {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; min-height: 100px; box-shadow: 0 8px 24px rgba(15,23,42,.04);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  #asg-command-center .cc-kpi-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  #asg-command-center .cc-kpi-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  #asg-command-center .cc-kpi-chip {
+    display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px;
+    font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1;
+    background: var(--blue-soft); color: var(--blue-ink);
+  }
+  #asg-command-center .cc-kpi-chip.is-green { background: var(--green-soft); color: var(--green-ink); }
+  #asg-command-center .cc-kpi-chip.is-amber { background: var(--amber-soft); color: var(--amber-ink); }
+  #asg-command-center .cc-kpi-chip.is-red { background: var(--red-soft); color: var(--red-ink); }
+  #asg-command-center .cc-kpi-chip.is-purple { background: var(--purple-soft); color: var(--purple-ink); }
+  #asg-command-center .cc-kpi-value { font-size: 28px; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+  #asg-command-center .cc-kpi-sub { font-size: 11px; color: var(--muted-2); font-weight: 500; margin-top: auto; }
+
+  /* GRID / CARDS */
+  #asg-command-center .cc-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  @media (max-width: 920px) { #asg-command-center .cc-grid { grid-template-columns: 1fr; } }
+  #asg-command-center .cc-grid-3 {
+    display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px;
+  }
+  @media (max-width: 1180px) { #asg-command-center .cc-grid-3 { grid-template-columns: 1fr; } }
+  #asg-command-center .cc-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 10px 28px rgba(15,23,42,.04); padding: 18px;
+  }
+  #asg-command-center .cc-card-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  #asg-command-center .cc-card-title { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+  #asg-command-center .cc-card-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+  /* AGENT TABLE */
+  #asg-command-center .cc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  #asg-command-center .cc-table th {
+    text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line);
+  }
+  #asg-command-center .cc-table th.is-num { text-align: right; }
+  #asg-command-center .cc-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  #asg-command-center .cc-table td.is-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  #asg-command-center .cc-table tbody tr:hover { background: rgba(17,17,17,.025); }
+  #asg-command-center .cc-table tbody tr:last-child td { border-bottom: 0; }
+  #asg-command-center .cc-agent-cell { display: flex; gap: 10px; align-items: center; }
+  #asg-command-center .cc-agent-avatar {
+    width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+    color: #555; border: 1px solid var(--line);
+  }
+  #asg-command-center .cc-agent-name { font-weight: 700; font-size: 13px; }
+  #asg-command-center .cc-agent-tier { font-size: 10px; color: var(--muted-2); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+
+  /* SCORE PILL */
+  #asg-command-center .cc-score {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1;
+  }
+  #asg-command-center .cc-score::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+  #asg-command-center .cc-score.is-green { background: var(--green-soft); color: var(--green-ink); }
+  #asg-command-center .cc-score.is-green::before { background: var(--green); }
+  #asg-command-center .cc-score.is-amber { background: var(--amber-soft); color: var(--amber-ink); }
+  #asg-command-center .cc-score.is-amber::before { background: var(--amber); }
+  #asg-command-center .cc-score.is-red { background: var(--red-soft); color: var(--red-ink); }
+  #asg-command-center .cc-score.is-red::before { background: var(--red); }
+  #asg-command-center .cc-score.is-grey { background: rgba(17,17,17,.06); color: var(--muted); }
+  #asg-command-center .cc-score.is-grey::before { background: var(--muted-2); }
+
+  /* MINI BAR */
+  #asg-command-center .cc-bar { display: inline-flex; align-items: center; gap: 8px; min-width: 120px; }
+  #asg-command-center .cc-bar-track { flex: 1; height: 6px; background: rgba(17,17,17,.06); border-radius: 999px; overflow: hidden; }
+  #asg-command-center .cc-bar-fill { height: 100%; background: var(--ink); border-radius: 999px; transition: width .5s ease; }
+  #asg-command-center .cc-bar-fill.is-green { background: var(--green); }
+  #asg-command-center .cc-bar-fill.is-amber { background: var(--amber); }
+  #asg-command-center .cc-bar-fill.is-red { background: var(--red); }
+  #asg-command-center .cc-bar-pct { font-size: 11px; font-weight: 700; min-width: 36px; text-align: right; color: var(--muted); }
+
+  /* ALERTS */
+  #asg-command-center .cc-alerts { display: flex; flex-direction: column; gap: 8px; }
+  #asg-command-center .cc-alert {
+    display: flex; gap: 10px; padding: 12px; border-radius: 14px;
+    background: rgba(17,17,17,.025); border: 1px solid var(--line);
+  }
+  #asg-command-center .cc-alert.is-red { background: var(--red-soft); border-color: rgba(239,68,68,.2); }
+  #asg-command-center .cc-alert.is-amber { background: var(--amber-soft); border-color: rgba(234,179,8,.22); }
+  #asg-command-center .cc-alert.is-green { background: var(--green-soft); border-color: rgba(34,197,94,.22); }
+  #asg-command-center .cc-alert-icon {
+    width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: #fff; flex-shrink: 0; font-size: 14px;
+  }
+  #asg-command-center .cc-alert-body { flex: 1; min-width: 0; }
+  #asg-command-center .cc-alert-title { font-size: 12px; font-weight: 700; margin: 0 0 2px; }
+  #asg-command-center .cc-alert-text { font-size: 11px; color: var(--muted); margin: 0; line-height: 1.4; }
+  #asg-command-center .cc-alert-time { font-size: 10px; color: var(--muted-2); font-weight: 600; flex-shrink: 0; }
+
+  /* COMMITS / FEED */
+  #asg-command-center .cc-feed { display: flex; flex-direction: column; gap: 0; max-height: 360px; overflow-y: auto; }
+  #asg-command-center .cc-feed-item {
+    display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+  #asg-command-center .cc-feed-item:last-child { border-bottom: 0; }
+  #asg-command-center .cc-feed-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 6px;
+  }
+  #asg-command-center .cc-feed-dot.is-green { background: var(--green); }
+  #asg-command-center .cc-feed-dot.is-amber { background: var(--amber); }
+  #asg-command-center .cc-feed-dot.is-red { background: var(--red); }
+  #asg-command-center .cc-feed-dot.is-purple { background: var(--purple); }
+  #asg-command-center .cc-feed-body { flex: 1; min-width: 0; }
+  #asg-command-center .cc-feed-title {
+    font-size: 12px; font-weight: 700; margin: 0; line-height: 1.35;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #asg-command-center .cc-feed-meta { font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+  #asg-command-center .cc-feed-meta a { color: var(--blue-ink); text-decoration: none; }
+  #asg-command-center .cc-feed-meta a:hover { text-decoration: underline; }
+
+  /* OWNERSHIP */
+  #asg-command-center .cc-ownership { display: grid; grid-template-columns: 2fr 1fr 1fr 0.7fr; gap: 0; font-size: 12px; }
+  #asg-command-center .cc-ownership > div {
+    padding: 9px 10px; border-bottom: 1px solid var(--line);
+  }
+  #asg-command-center .cc-ownership > div.cc-ownership-head {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--line-2);
+  }
+  #asg-command-center .cc-ownership-row { font-weight: 600; }
+  #asg-command-center .cc-ownership-row.cc-ownership-name { font-weight: 700; }
+
+  /* EMPTY / LOADING */
+  #asg-command-center .cc-empty {
+    text-align: center; padding: 28px 18px; font-size: 12px; color: var(--muted); font-weight: 500;
+  }
+  #asg-command-center .cc-skeleton {
+    background: linear-gradient(90deg, #eee, #f6f6f6, #eee);
+    background-size: 800px 100%; animation: cc-shimmer 1.4s ease-in-out infinite;
+    border-radius: 8px; height: 14px; margin: 6px 0;
+  }
+  #asg-command-center .cc-skeleton.is-tall { height: 80px; }
+
+  /* ASANA / ACUITY ROWS */
+  #asg-command-center .cc-mr-row {
+    display: grid; grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 0.8fr; gap: 0;
+    padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 12px; align-items: center;
+  }
+  #asg-command-center .cc-mr-row.is-head {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--line-2); padding: 8px 0;
+  }
+  #asg-command-center .cc-mr-row:last-child { border-bottom: 0; }
+  #asg-command-center .cc-mr-task { font-weight: 700; line-height: 1.3; }
+  #asg-command-center .cc-mr-agent { color: var(--muted); font-weight: 600; }
+
+  /* STATUS CHIPS */
+  #asg-command-center .cc-status-chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px;
+    font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1;
+    background: rgba(17,17,17,.06); color: var(--muted);
+  }
+  #asg-command-center .cc-status-chip::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  #asg-command-center .cc-status-chip.is-active { background: var(--blue-soft); color: var(--blue-ink); }
+  #asg-command-center .cc-status-chip.is-done { background: var(--green-soft); color: var(--green-ink); }
+  #asg-command-center .cc-status-chip.is-late { background: var(--red-soft); color: var(--red-ink); }
+  #asg-command-center .cc-status-chip.is-review { background: var(--amber-soft); color: var(--amber-ink); }
+
+  /* CONFIG / DIAG */
+  #asg-command-center .cc-diag {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600;
+    color: var(--muted); padding: 4px 8px; border-radius: 999px; background: rgba(17,17,17,.04);
+    border: 1px solid var(--line);
+  }
+  #asg-command-center .cc-diag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  #asg-command-center .cc-diag-dot.is-amber { background: var(--amber); }
+  #asg-command-center .cc-diag-dot.is-red { background: var(--red); }
+  #asg-command-center .cc-diag-dot.is-grey { background: var(--muted-2); }
+</style>
+
+<div id="asg-command-center">
+  <div class="cc-shell">
+    <!-- HEADER -->
+    <div class="cc-head">
+      <div>
+        <h1 class="cc-title">ASG OS Command Center</h1>
+        <p class="cc-subtitle">Single source of truth for adoption, performance, marketing operations, and system health.</p>
+      </div>
+      <div class="cc-actions">
+        <div class="cc-period" role="tablist">
+          <button class="cc-period-btn" data-period="7d">7d</button>
+          <button class="cc-period-btn is-active" data-period="30d">30d</button>
+          <button class="cc-period-btn" data-period="ytd">YTD</button>
+          <button class="cc-period-btn" data-period="all">All</button>
+        </div>
+        <button class="cc-refresh" id="cc-refresh-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+          Refresh
+        </button>
+        <span class="cc-updated" id="cc-updated-label">Loading…</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="cc-tabs" role="tablist">
+      <button class="cc-tab is-active" data-tab="executive">
+        <span class="cc-tab-dot is-green"></span>Executive Scorecard
+      </button>
+      <button class="cc-tab" data-tab="adoption">
+        <span class="cc-tab-dot is-blue"></span>Agent Adoption
+      </button>
+      <button class="cc-tab" data-tab="marketing">
+        <span class="cc-tab-dot is-amber"></span>Marketing Operations
+      </button>
+      <button class="cc-tab" data-tab="system">
+        <span class="cc-tab-dot is-red"></span>System Health
+      </button>
+    </div>
+
+    <!-- ============ EXECUTIVE PANEL ============ -->
+    <section class="cc-panel is-active" data-panel="executive">
+      <div class="cc-kpis" id="cc-exec-kpis">
+        <!-- 8 KPIs rendered here -->
+      </div>
+
+      <div class="cc-grid">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Agent Leaderboard</h3>
+              <div class="cc-card-sub">Volume, pipeline, and FUB activity</div>
+            </div>
+            <span class="cc-diag" id="cc-exec-diag-fub"><span class="cc-diag-dot is-grey"></span>FUB</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="cc-table" id="cc-exec-leaderboard">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th class="is-num">YTD Volume</th>
+                  <th class="is-num">Pipeline</th>
+                  <th class="is-num">Deals</th>
+                  <th>FUB Activity</th>
+                </tr>
+              </thead>
+              <tbody><!-- rows --></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Issues &amp; Alerts</h3>
+              <div class="cc-card-sub">Cross-system signals that need a human</div>
+            </div>
+          </div>
+          <div class="cc-alerts" id="cc-exec-alerts"></div>
+        </div>
+      </div>
+
+      <div style="height:14px;"></div>
+
+      <div class="cc-grid">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Sales Funnel</h3>
+              <div class="cc-card-sub">New leads → appointments → signed → closed</div>
+            </div>
+          </div>
+          <div id="cc-exec-funnel"></div>
+        </div>
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Production Mix</h3>
+              <div class="cc-card-sub">Buy / Sell split and listing pipeline status</div>
+            </div>
+          </div>
+          <div id="cc-exec-mix"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADOPTION PANEL ============ -->
+    <section class="cc-panel" data-panel="adoption">
+      <div class="cc-kpis" id="cc-adopt-kpis"></div>
+
+      <div class="cc-card">
+        <div class="cc-card-head">
+          <div>
+            <h3 class="cc-card-title">Agent Adoption Score</h3>
+            <div class="cc-card-sub">Hub usage · FUB compliance · training · marketing request hygiene</div>
+          </div>
+          <span class="cc-diag" id="cc-adopt-diag"><span class="cc-diag-dot is-grey"></span>Usage Log</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="cc-table" id="cc-adopt-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th class="is-num">Hub Visits</th>
+                <th>FUB Compliance</th>
+                <th>Training</th>
+                <th>MR Hygiene</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="height:14px;"></div>
+
+      <div class="cc-grid">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Cold List</h3>
+              <div class="cc-card-sub">Agents with no hub activity in 7+ days</div>
+            </div>
+          </div>
+          <div id="cc-adopt-cold"></div>
+        </div>
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Top Resources</h3>
+              <div class="cc-card-sub">Most-clicked links, training videos, and meeting replays</div>
+            </div>
+          </div>
+          <div id="cc-adopt-top"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MARKETING PANEL ============ -->
+    <section class="cc-panel" data-panel="marketing">
+      <div class="cc-kpis" id="cc-mkt-kpis"></div>
+
+      <div class="cc-grid-3">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Active Asana Requests</h3>
+              <div class="cc-card-sub">Open marketing tasks · turnaround clock running</div>
+            </div>
+            <span class="cc-diag" id="cc-mkt-diag-asana"><span class="cc-diag-dot is-grey"></span>Asana</span>
+          </div>
+          <div id="cc-mkt-asana">
+            <div class="cc-mr-row is-head">
+              <div>Task</div>
+              <div>Agent</div>
+              <div>Type</div>
+              <div>Age</div>
+              <div>Status</div>
+            </div>
+            <div id="cc-mkt-asana-rows"></div>
+          </div>
+        </div>
+
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Acuity Bookings</h3>
+              <div class="cc-card-sub">Upcoming marketing sessions</div>
+            </div>
+            <span class="cc-diag" id="cc-mkt-diag-acuity"><span class="cc-diag-dot is-grey"></span>Acuity</span>
+          </div>
+          <div id="cc-mkt-acuity"></div>
+        </div>
+
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Workload by Agent</h3>
+              <div class="cc-card-sub">Open + completed requests this period</div>
+            </div>
+          </div>
+          <div id="cc-mkt-workload"></div>
+        </div>
+      </div>
+
+      <div style="height:14px;"></div>
+
+      <div class="cc-grid">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Bottlenecks</h3>
+              <div class="cc-card-sub">Requests waiting longest, by stage</div>
+            </div>
+          </div>
+          <div id="cc-mkt-bottlenecks"></div>
+        </div>
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Turnaround Time</h3>
+              <div class="cc-card-sub">Median time intake → completion, last 30 days</div>
+            </div>
+          </div>
+          <div id="cc-mkt-turnaround"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SYSTEM PANEL ============ -->
+    <section class="cc-panel" data-panel="system">
+      <div class="cc-kpis" id="cc-sys-kpis"></div>
+
+      <div class="cc-grid">
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">Recent Releases</h3>
+              <div class="cc-card-sub">Code commits to the ASG OS repo</div>
+            </div>
+            <span class="cc-diag" id="cc-sys-diag-git"><span class="cc-diag-dot is-grey"></span>GitHub</span>
+          </div>
+          <div class="cc-feed" id="cc-sys-commits"></div>
+        </div>
+        <div class="cc-card">
+          <div class="cc-card-head">
+            <div>
+              <h3 class="cc-card-title">QA / Error Log</h3>
+              <div class="cc-card-sub">Apps Script errors, broken links, stale data, failed sends</div>
+            </div>
+          </div>
+          <div id="cc-sys-qa"></div>
+        </div>
+      </div>
+
+      <div style="height:14px;"></div>
+
+      <div class="cc-card">
+        <div class="cc-card-head">
+          <div>
+            <h3 class="cc-card-title">Ownership Map</h3>
+            <div class="cc-card-sub">Who owns what · backup · review cadence</div>
+          </div>
+        </div>
+        <div class="cc-ownership" id="cc-sys-ownership">
+          <div class="cc-ownership-head">System</div>
+          <div class="cc-ownership-head">Owner</div>
+          <div class="cc-ownership-head">Backup</div>
+          <div class="cc-ownership-head">Cadence</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------------------------------------------------------
+  // CONFIG — point these at your deployed Apps Script web apps.
+  // Defaults are baked-in so the dashboard works even if no separate
+  // window.ASG_COMMAND_CENTER_API = "..." block runs before this
+  // component (e.g. when embedded in a Squarespace Code Block).
+  // To override, set window.ASG_COMMAND_CENTER_API earlier on the
+  // page and the override wins.
+  // ---------------------------------------------------------------
+  var DEFAULT_COMMAND_CENTER_API = "https://script.google.com/macros/s/AKfycbwHnaR607SJIrKZlFFYEjyj1u3MJcQH9Q3is-piuNCLXNnRqspxFXuvH0O3VpFa4Ro5Qw/exec";
+  var DEFAULT_USAGE_LOG_API      = "https://script.google.com/macros/s/AKfycbw8Tv0hhbnXmU7Ik_tDX0Yve3aN3PC4sDFtDzUAPAZbDotaZU4wBlOxhjqeuCVdk2n3Yg/exec";
+  var DEFAULT_PIPELINE_STATS_API = "https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
+
+  var COMMAND_CENTER_API = (window.ASG_COMMAND_CENTER_API || DEFAULT_COMMAND_CENTER_API || "").trim();
+  var FUB_HUB_API        = (window.ASG_FUB_HUB_API || "").trim();
+  var PIPELINE_STATS_API = (window.ASG_PIPELINE_STATS_API || DEFAULT_PIPELINE_STATS_API).trim();
+  if (!window.ASG_USAGE_LOG_API && DEFAULT_USAGE_LOG_API) {
+    window.ASG_USAGE_LOG_API = DEFAULT_USAGE_LOG_API;
+  }
+
+  // Fallback static ownership map — same content as PROJECT-PHASES doc
+  var STATIC_OWNERSHIP = [
+    { system: "Admin Hub",        owner: "Tim",            backup: "Ellie",  cadence: "Weekly"    },
+    { system: "Agent Hubs",       owner: "Tim",            backup: "Ellie",  cadence: "Monthly"   },
+    { system: "FUB Tracker",      owner: "Ellyn",          backup: "Tim",    cadence: "Weekly"    },
+    { system: "Listing Hub",      owner: "Bridget / Tim",  backup: "Ellie",  cadence: "Weekly"    },
+    { system: "IDX Website",      owner: "Tim",            backup: "Ellie",  cadence: "Weekly"    },
+    { system: "Team Stats",       owner: "Tim",            backup: "Ellyn",  cadence: "Monthly"   },
+    { system: "Training Hub",     owner: "Tim",            backup: "Ellyn",  cadence: "Quarterly" },
+    { system: "Marketing Ops",    owner: "Tim / Ellie",    backup: "Tim",    cadence: "Weekly"    },
+    { system: "Command Center",   owner: "Tim",            backup: "Ellyn",  cadence: "Weekly"    }
+  ];
+
+  // ---------------------------------------------------------------
+  // STATE
+  // ---------------------------------------------------------------
+  var state = {
+    period: "30d",
+    activeTab: "executive",
+    payload: null,
+    lastFetched: null,
+    fetching: false
+  };
+
+  // ---------------------------------------------------------------
+  // UTILITIES
+  // ---------------------------------------------------------------
+  function $(sel, root){ return (root||document).querySelector(sel); }
+  function $$(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+  function fmtMoney(n){
+    n = Number(n) || 0;
+    if (n >= 1e6) return "$" + (n/1e6).toFixed(n >= 1e7 ? 1 : 2).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return "$" + Math.round(n/1e3) + "K";
+    return "$" + Math.round(n);
+  }
+  function fmtNum(n){
+    n = Number(n) || 0;
+    return n.toLocaleString();
+  }
+  function fmtPct(n, digits){
+    n = Number(n) || 0;
+    return (digits ? n.toFixed(digits) : Math.round(n)) + "%";
+  }
+  function relTime(iso){
+    if (!iso) return "";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    var diff = Date.now() - d.getTime();
+    var s = Math.floor(diff/1000);
+    if (s < 60) return s + "s ago";
+    var m = Math.floor(s/60);
+    if (m < 60) return m + "m ago";
+    var h = Math.floor(m/60);
+    if (h < 24) return h + "h ago";
+    var dd = Math.floor(h/24);
+    if (dd < 30) return dd + "d ago";
+    var mo = Math.floor(dd/30);
+    return mo + "mo ago";
+  }
+  function relTimeShort(iso){
+    var t = relTime(iso);
+    return t.replace(" ago", "");
+  }
+  function escapeHtml(str){
+    return String(str || "").replace(/[&<>"']/g, function(c){
+      return ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" })[c];
+    });
+  }
+  function initials(name){
+    return String(name || "?").split(/\s+/).slice(0,2).map(function(p){ return p[0] || ""; }).join("").toUpperCase() || "?";
+  }
+  function scoreBucket(pct){
+    if (pct >= 75) return "green";
+    if (pct >= 45) return "amber";
+    return "red";
+  }
+  function setDiag(el, status, label){
+    if (!el) return;
+    var dotClass = "is-grey";
+    if (status === "ok")   dotClass = "";
+    if (status === "warn") dotClass = "is-amber";
+    if (status === "down") dotClass = "is-red";
+    el.innerHTML = '<span class="cc-diag-dot ' + dotClass + '"></span>' + escapeHtml(label || "");
+  }
+
+  function fetchJson(url, opts){
+    if (!url) return Promise.reject(new Error("Endpoint not configured"));
+    return fetch(url, opts || {}).then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // PERIOD + TAB HANDLERS
+  // ---------------------------------------------------------------
+  $$("#asg-command-center .cc-period-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      $$("#asg-command-center .cc-period-btn").forEach(function(b){ b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      state.period = btn.getAttribute("data-period");
+      load();
+    });
+  });
+
+  $$("#asg-command-center .cc-tab").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      $$("#asg-command-center .cc-tab").forEach(function(b){ b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      state.activeTab = btn.getAttribute("data-tab");
+      $$("#asg-command-center .cc-panel").forEach(function(p){
+        p.classList.toggle("is-active", p.getAttribute("data-panel") === state.activeTab);
+      });
+    });
+  });
+
+  $("#cc-refresh-btn").addEventListener("click", function(){ load(true); });
+
+  // ---------------------------------------------------------------
+  // RENDERERS
+  // ---------------------------------------------------------------
+  function renderKpis(containerId, kpis){
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = kpis.map(function(k){
+      return ''
+        + '<div class="cc-kpi">'
+        +   '<div class="cc-kpi-head">'
+        +     '<span class="cc-kpi-label">' + escapeHtml(k.label) + '</span>'
+        +     (k.chip ? '<span class="cc-kpi-chip ' + (k.chipClass||"") + '">' + escapeHtml(k.chip) + '</span>' : '')
+        +   '</div>'
+        +   '<div class="cc-kpi-value">' + escapeHtml(k.value) + '</div>'
+        +   '<div class="cc-kpi-sub">' + escapeHtml(k.sub || "") + '</div>'
+        + '</div>';
+    }).join("");
+  }
+
+  function renderExecKpis(p){
+    var s = (p && p.executive && p.executive.summary) || {};
+    var fub = (p && p.executive && p.executive.fub) || {};
+    var conv = s.appointmentsSet ? Math.round((s.signedClients || 0) / s.appointmentsSet * 100) : 0;
+    renderKpis("cc-exec-kpis", [
+      { label: "YTD Volume",      value: fmtMoney(s.totalVolume), sub: fmtNum(s.totalDeals) + " transactions", chip: "Live", chipClass: "is-green" },
+      { label: "Closed Volume",   value: fmtMoney(s.closedVolume), sub: fmtNum(s.closedDeals) + " closed" },
+      { label: "Pending Volume",  value: fmtMoney(s.pendingVolume), sub: fmtNum(s.pendingDeals) + " pending", chip: "Pipeline", chipClass: "is-purple" },
+      { label: "Est. GCI",        value: fmtMoney((s.totalVolume || 0) * 0.025), sub: "@ 2.5% blended" },
+      { label: "New Leads",       value: fmtNum(fub.newLeads || 0), sub: "Last " + state.period.toUpperCase() + " · FUB" },
+      { label: "Appointments",    value: fmtNum(fub.appointments || 0), sub: "Set in period" },
+      { label: "Signed Clients",  value: fmtNum(fub.signed || s.closedDeals || 0), sub: "Buyer + seller agreements" },
+      { label: "Conversion",      value: fmtPct(conv), sub: "Appts → signed", chip: conv >= 35 ? "Healthy" : "Watch", chipClass: conv >= 35 ? "is-green" : "is-amber" }
+    ]);
+  }
+
+  function renderExecLeaderboard(p){
+    var agents = (p && p.executive && p.executive.agents) || [];
+    var fubByAgent = (p && p.executive && p.executive.fubByAgent) || {};
+    var max = agents.reduce(function(m,a){ return Math.max(m, a.grandTotal || 0); }, 0) || 1;
+    var rows = agents.slice().sort(function(a,b){ return (b.grandTotal||0) - (a.grandTotal||0); }).map(function(a){
+      var fubA = fubByAgent[a.name] || {};
+      var pct = Math.round(((a.grandTotal || 0) / max) * 100);
+      return ''
+        + '<tr>'
+        +   '<td><div class="cc-agent-cell">'
+        +     '<span class="cc-agent-avatar">' + initials(a.name) + '</span>'
+        +     '<div><div class="cc-agent-name">' + escapeHtml(a.name) + '</div>'
+        +     '<div class="cc-agent-tier">' + (a.tier || "Agent") + '</div></div>'
+        +   '</div></td>'
+        +   '<td class="is-num">'
+        +     '<div class="cc-bar"><div class="cc-bar-track"><div class="cc-bar-fill" style="width:' + pct + '%;"></div></div></div>'
+        +     '<div style="margin-top:3px;">' + fmtMoney(a.grandTotal) + '</div>'
+        +   '</td>'
+        +   '<td class="is-num">' + fmtMoney(a.pendingVolume) + '<div style="font-size:10px;color:var(--muted-2);">' + fmtNum(a.pendingDeals||0) + ' open</div></td>'
+        +   '<td class="is-num">' + fmtNum(a.totalDeals) + '</td>'
+        +   '<td>' + (fubA.notesLast7 != null
+              ? '<span class="cc-status-chip is-active">' + fmtNum(fubA.notesLast7) + ' notes · ' + fmtNum(fubA.tasksTodo||0) + ' to-do</span>'
+              : '<span class="cc-status-chip">— no FUB sync —</span>') + '</td>'
+        + '</tr>';
+    }).join("");
+    var tbody = $("#cc-exec-leaderboard tbody");
+    if (tbody) tbody.innerHTML = rows || '<tr><td colspan="5" class="cc-empty">No agent data yet.</td></tr>';
+  }
+
+  function renderExecAlerts(p){
+    var alerts = (p && p.executive && p.executive.alerts) || [];
+    var html = alerts.length ? alerts.map(function(a){
+      var sev = (a.severity || "amber").toLowerCase();
+      var icon = sev === "red" ? "!" : sev === "green" ? "✓" : "⚠";
+      return ''
+        + '<div class="cc-alert is-' + sev + '">'
+        +   '<div class="cc-alert-icon">' + icon + '</div>'
+        +   '<div class="cc-alert-body">'
+        +     '<div class="cc-alert-title">' + escapeHtml(a.title || "") + '</div>'
+        +     '<div class="cc-alert-text">' + escapeHtml(a.text || "") + '</div>'
+        +   '</div>'
+        +   (a.timestamp ? '<div class="cc-alert-time">' + relTimeShort(a.timestamp) + '</div>' : '')
+        + '</div>';
+    }).join("") : '<div class="cc-empty">All systems green. Nothing flagged.</div>';
+    $("#cc-exec-alerts").innerHTML = html;
+  }
+
+  function renderExecFunnel(p){
+    var f = (p && p.executive && p.executive.funnel) || {};
+    var stages = [
+      { label: "New Leads",      value: f.newLeads     || 0 },
+      { label: "Appts Set",      value: f.appointments || 0 },
+      { label: "Buyer Consults", value: f.buyerConsults|| 0 },
+      { label: "Seller Consults",value: f.sellerConsults || 0 },
+      { label: "Signed",         value: f.signed       || 0 },
+      { label: "Closed",         value: f.closed       || 0 }
+    ];
+    var max = Math.max.apply(null, stages.map(function(s){ return s.value; })) || 1;
+    var html = stages.map(function(s){
+      var pct = Math.round((s.value / max) * 100);
+      return ''
+        + '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-top:8px;">'
+        +   '<span style="color:var(--muted);">' + escapeHtml(s.label) + '</span>'
+        +   '<span>' + fmtNum(s.value) + '</span>'
+        + '</div>'
+        + '<div class="cc-bar-track" style="margin-top:4px;"><div class="cc-bar-fill" style="width:' + pct + '%;"></div></div>';
+    }).join("");
+    $("#cc-exec-funnel").innerHTML = html || '<div class="cc-empty">Awaiting FUB funnel data.</div>';
+  }
+
+  function renderExecMix(p){
+    var mix = (p && p.executive && p.executive.mix) || {};
+    var listing = mix.listings || {};
+    var html = ''
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">'
+      +   '<span class="cc-status-chip is-active">' + fmtNum(mix.buy || 0) + ' Buy</span>'
+      +   '<span class="cc-status-chip is-done">' + fmtNum(mix.sell || 0) + ' Sell</span>'
+      +   '<span class="cc-status-chip">' + fmtNum(mix.cash || 0) + ' Cash</span>'
+      + '</div>'
+      + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:8px 0 6px;">Listing pipeline</div>'
+      + '<div class="cc-mr-row is-head" style="grid-template-columns: 1fr 0.6fr; padding:6px 0;">'
+      +   '<div>Stage</div><div style="text-align:right;">Count</div>'
+      + '</div>';
+    var stageList = [
+      { key: "secured",   label: "Secured" },
+      { key: "media",     label: "Media booked" },
+      { key: "live",      label: "Live on MLS" },
+      { key: "underContract", label: "Under contract" },
+      { key: "closed",    label: "Closed" }
+    ];
+    html += stageList.map(function(st){
+      var v = (listing[st.key] != null) ? listing[st.key] : 0;
+      return ''
+        + '<div class="cc-mr-row" style="grid-template-columns: 1fr 0.6fr;">'
+        +   '<div>' + escapeHtml(st.label) + '</div>'
+        +   '<div style="text-align:right;font-variant-numeric:tabular-nums;font-weight:700;">' + fmtNum(v) + '</div>'
+        + '</div>';
+    }).join("");
+    $("#cc-exec-mix").innerHTML = html;
+  }
+
+  // ----- ADOPTION -----
+  function renderAdoptKpis(p){
+    var a = (p && p.adoption && p.adoption.summary) || {};
+    renderKpis("cc-adopt-kpis", [
+      { label: "Active Agents",       value: fmtNum(a.activeAgents || 0), sub: "Logged in this period", chip: "Adoption", chipClass: "is-green" },
+      { label: "Hub Page Views",      value: fmtNum(a.pageViews || 0), sub: fmtNum(a.uniqueVisitors||0) + " unique visitors" },
+      { label: "FUB Compliance",      value: fmtPct(a.fubCompliance || 0), sub: "Avg across roster" },
+      { label: "Cold (No Login)",     value: fmtNum(a.coldCount || 0), sub: "≥ 7 days no activity", chip: a.coldCount > 0 ? "Action" : "Clean", chipClass: a.coldCount > 0 ? "is-red" : "is-green" }
+    ]);
+  }
+
+  function renderAdoptTable(p){
+    var rows = (p && p.adoption && p.adoption.agents) || [];
+    var html = rows.slice().sort(function(a,b){ return (b.score||0) - (a.score||0); }).map(function(a){
+      var bucket = scoreBucket(a.score || 0);
+      return ''
+        + '<tr>'
+        +   '<td><div class="cc-agent-cell">'
+        +     '<span class="cc-agent-avatar">' + initials(a.name) + '</span>'
+        +     '<div><div class="cc-agent-name">' + escapeHtml(a.name) + '</div>'
+        +     '<div class="cc-agent-tier">' + escapeHtml(a.tier || "Agent") + '</div></div>'
+        +   '</div></td>'
+        +   '<td class="is-num">' + fmtNum(a.hubVisits || 0) + '</td>'
+        +   '<td>' + barCell(a.fubCompliance) + '</td>'
+        +   '<td>' + barCell(a.training) + '</td>'
+        +   '<td>' + barCell(a.marketingHygiene) + '</td>'
+        +   '<td><span class="cc-score is-' + bucket + '">' + (a.score || 0) + '</span></td>'
+        + '</tr>';
+    }).join("");
+    var tbody = $("#cc-adopt-table tbody");
+    if (tbody) tbody.innerHTML = html || '<tr><td colspan="6" class="cc-empty">No adoption data yet — deploy the usage log endpoint and add the beacon to hub pages.</td></tr>';
+  }
+
+  function barCell(pct){
+    if (pct == null) return '<span class="cc-status-chip">—</span>';
+    var bucket = scoreBucket(pct);
+    return ''
+      + '<div class="cc-bar">'
+      +   '<div class="cc-bar-track"><div class="cc-bar-fill is-' + bucket + '" style="width:' + Math.max(0, Math.min(100, pct)) + '%;"></div></div>'
+      +   '<span class="cc-bar-pct">' + Math.round(pct) + '%</span>'
+      + '</div>';
+  }
+
+  function renderAdoptCold(p){
+    var cold = (p && p.adoption && p.adoption.cold) || [];
+    var html = cold.length ? cold.map(function(c){
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot is-red"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(c.name) + '</div>'
+        +     '<div class="cc-feed-meta">Last seen ' + (c.lastSeen ? relTime(c.lastSeen) : "never") + '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No cold agents — everyone has logged in recently.</div>';
+    $("#cc-adopt-cold").innerHTML = html;
+  }
+
+  function renderAdoptTop(p){
+    var top = (p && p.adoption && p.adoption.topResources) || [];
+    var html = top.length ? top.map(function(t){
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot is-blue"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(t.label) + '</div>'
+        +     '<div class="cc-feed-meta">' + fmtNum(t.clicks) + ' clicks · ' + escapeHtml(t.kind || "resource") + '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No resource clicks logged yet.</div>';
+    $("#cc-adopt-top").innerHTML = html;
+  }
+
+  // ----- MARKETING -----
+  function renderMktKpis(p){
+    var m = (p && p.marketing && p.marketing.summary) || {};
+    renderKpis("cc-mkt-kpis", [
+      { label: "Open Requests",  value: fmtNum(m.openCount || 0), sub: "Asana", chip: m.openCount > 12 ? "Heavy" : "OK", chipClass: m.openCount > 12 ? "is-amber" : "is-green" },
+      { label: "Completed (30d)",value: fmtNum(m.completed30 || 0), sub: "Marketing tasks done" },
+      { label: "Avg Turnaround", value: m.avgTurnaroundDays != null ? m.avgTurnaroundDays.toFixed(1) + "d" : "—", sub: "Intake → done, last 30d" },
+      { label: "Bookings Ahead", value: fmtNum(m.upcomingBookings || 0), sub: "Acuity sessions next 14d", chip: "Acuity", chipClass: "is-purple" }
+    ]);
+  }
+
+  function renderMktAsana(p){
+    var rows = (p && p.marketing && p.marketing.asana) || [];
+    var html = rows.length ? rows.map(function(r){
+      var ageDays = r.createdAt ? Math.max(0, Math.floor((Date.now() - new Date(r.createdAt).getTime())/86400000)) : null;
+      var statusClass = "is-active";
+      if (r.status === "Review") statusClass = "is-review";
+      if (r.status === "Done")   statusClass = "is-done";
+      if (ageDays != null && ageDays > 7) statusClass = "is-late";
+      return ''
+        + '<div class="cc-mr-row">'
+        +   '<div class="cc-mr-task">' + (r.url ? '<a href="' + escapeHtml(r.url) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">' + escapeHtml(r.title) + '</a>' : escapeHtml(r.title)) + '</div>'
+        +   '<div class="cc-mr-agent">' + escapeHtml(r.agent || "—") + '</div>'
+        +   '<div>' + escapeHtml(r.type || "—") + '</div>'
+        +   '<div>' + (ageDays != null ? ageDays + "d" : "—") + '</div>'
+        +   '<div><span class="cc-status-chip ' + statusClass + '">' + escapeHtml(r.status || "Open") + '</span></div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No active Asana tasks — or Asana proxy not yet configured.</div>';
+    $("#cc-mkt-asana-rows").innerHTML = html;
+  }
+
+  function renderMktAcuity(p){
+    var rows = (p && p.marketing && p.marketing.acuity) || [];
+    var html = rows.length ? rows.slice(0, 8).map(function(r){
+      var when = r.startsAt ? new Date(r.startsAt) : null;
+      var dateStr = when ? when.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "—";
+      var timeStr = when ? when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot is-purple"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(r.title || r.type || "Booking") + '</div>'
+        +     '<div class="cc-feed-meta">' + escapeHtml(r.agent || "—") + ' · ' + dateStr + ' ' + timeStr + '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No upcoming Acuity bookings — or Acuity proxy not yet configured.</div>';
+    $("#cc-mkt-acuity").innerHTML = html;
+  }
+
+  function renderMktWorkload(p){
+    var rows = (p && p.marketing && p.marketing.workload) || [];
+    var max = rows.reduce(function(m,r){ return Math.max(m, (r.open||0) + (r.completed||0)); }, 0) || 1;
+    var html = rows.length ? rows.slice().sort(function(a,b){ return ((b.open||0)+(b.completed||0)) - ((a.open||0)+(a.completed||0)); }).map(function(r){
+      var total = (r.open||0) + (r.completed||0);
+      var pct = Math.round(total / max * 100);
+      return ''
+        + '<div style="margin-bottom:10px;">'
+        +   '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px;">'
+        +     '<span>' + escapeHtml(r.agent) + '</span>'
+        +     '<span style="color:var(--muted);font-weight:600;">' + fmtNum(r.open||0) + ' open · ' + fmtNum(r.completed||0) + ' done</span>'
+        +   '</div>'
+        +   '<div class="cc-bar-track"><div class="cc-bar-fill" style="width:' + pct + '%;"></div></div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No marketing workload data.</div>';
+    $("#cc-mkt-workload").innerHTML = html;
+  }
+
+  function renderMktBottlenecks(p){
+    var rows = (p && p.marketing && p.marketing.bottlenecks) || [];
+    var html = rows.length ? rows.map(function(r){
+      var sev = r.daysOpen > 14 ? "is-red" : r.daysOpen > 7 ? "is-amber" : "is-blue";
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot ' + sev + '"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(r.title) + '</div>'
+        +     '<div class="cc-feed-meta">' + escapeHtml(r.agent || "—") + ' · ' + fmtNum(r.daysOpen||0) + ' days in ' + escapeHtml(r.stage || "open") + '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No requests are stuck.</div>';
+    $("#cc-mkt-bottlenecks").innerHTML = html;
+  }
+
+  function renderMktTurnaround(p){
+    var t = (p && p.marketing && p.marketing.turnaround) || {};
+    var byType = t.byType || [];
+    var html = byType.length ? byType.map(function(r){
+      var goal = r.goalDays || 5;
+      var pct = Math.min(100, Math.round((r.medianDays || 0) / Math.max(goal*2, 1) * 100));
+      var bucket = (r.medianDays || 0) <= goal ? "is-green" : (r.medianDays <= goal*1.5 ? "is-amber" : "is-red");
+      return ''
+        + '<div style="margin-bottom:12px;">'
+        +   '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px;">'
+        +     '<span>' + escapeHtml(r.type) + '</span>'
+        +     '<span style="color:var(--muted);font-weight:600;">' + (r.medianDays || 0).toFixed(1) + 'd <span style="color:var(--muted-2);">/ ' + goal + 'd goal</span></span>'
+        +   '</div>'
+        +   '<div class="cc-bar-track"><div class="cc-bar-fill ' + bucket + '" style="width:' + pct + '%;"></div></div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No turnaround data yet.</div>';
+    $("#cc-mkt-turnaround").innerHTML = html;
+  }
+
+  // ----- SYSTEM -----
+  function renderSysKpis(p){
+    var s = (p && p.system && p.system.summary) || {};
+    renderKpis("cc-sys-kpis", [
+      { label: "Releases (30d)",   value: fmtNum(s.commits30 || 0), sub: "Commits to ASG OS repo", chip: "GitHub", chipClass: "is-purple" },
+      { label: "Open Issues",      value: fmtNum(s.openIssues || 0), sub: "Tracked QA items", chip: s.openIssues > 0 ? "Action" : "Clean", chipClass: s.openIssues > 0 ? "is-amber" : "is-green" },
+      { label: "Apps Script Errs", value: fmtNum(s.appsScriptErrors || 0), sub: "Last 24h" },
+      { label: "Stale Dashboards", value: fmtNum(s.staleDashboards || 0), sub: "Data > 24h old" }
+    ]);
+  }
+
+  function renderSysCommits(p){
+    var commits = (p && p.system && p.system.commits) || [];
+    var html = commits.length ? commits.slice(0, 12).map(function(c){
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot is-purple"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(c.message || "(no message)") + '</div>'
+        +     '<div class="cc-feed-meta">'
+        +       escapeHtml(c.author || "unknown")
+        +       (c.timestamp ? ' · ' + relTime(c.timestamp) : '')
+        +       (c.url ? ' · <a href="' + escapeHtml(c.url) + '" target="_blank" rel="noopener">' + (c.shortSha || "view") + '</a>' : '')
+        +     '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No commit feed available — configure GitHub token in Apps Script Properties.</div>';
+    $("#cc-sys-commits").innerHTML = html;
+  }
+
+  function renderSysQa(p){
+    var rows = (p && p.system && p.system.qa) || [];
+    var html = rows.length ? rows.map(function(r){
+      var dot = r.severity === "red" ? "is-red" : r.severity === "amber" ? "is-amber" : "is-green";
+      return ''
+        + '<div class="cc-feed-item">'
+        +   '<span class="cc-feed-dot ' + dot + '"></span>'
+        +   '<div class="cc-feed-body">'
+        +     '<div class="cc-feed-title">' + escapeHtml(r.title) + '</div>'
+        +     '<div class="cc-feed-meta">' + escapeHtml(r.kind || "issue") + (r.timestamp ? ' · ' + relTime(r.timestamp) : '') + '</div>'
+        +   '</div>'
+        + '</div>';
+    }).join("") : '<div class="cc-empty">No QA issues currently logged.</div>';
+    $("#cc-sys-qa").innerHTML = html;
+  }
+
+  function renderSysOwnership(p){
+    var rows = (p && p.system && p.system.ownership && p.system.ownership.length) ? p.system.ownership : STATIC_OWNERSHIP;
+    var head = $("#cc-sys-ownership");
+    if (!head) return;
+    head.innerHTML = ''
+      + '<div class="cc-ownership-head">System</div>'
+      + '<div class="cc-ownership-head">Owner</div>'
+      + '<div class="cc-ownership-head">Backup</div>'
+      + '<div class="cc-ownership-head">Cadence</div>'
+      + rows.map(function(r){
+        return ''
+          + '<div class="cc-ownership-row cc-ownership-name">' + escapeHtml(r.system) + '</div>'
+          + '<div class="cc-ownership-row">' + escapeHtml(r.owner) + '</div>'
+          + '<div class="cc-ownership-row">' + escapeHtml(r.backup) + '</div>'
+          + '<div class="cc-ownership-row">' + escapeHtml(r.cadence) + '</div>';
+      }).join("");
+  }
+
+  // ---------------------------------------------------------------
+  // DIAGNOSTICS — show source-by-source connection state
+  // ---------------------------------------------------------------
+  function renderDiagnostics(p){
+    var m = (p && p.meta) || {};
+    var sources = m.sources || {};
+    setDiag(document.getElementById("cc-exec-diag-fub"),   sources.fub        || "down", "FUB");
+    setDiag(document.getElementById("cc-adopt-diag"),      sources.usageLog   || "down", "Usage Log");
+    setDiag(document.getElementById("cc-mkt-diag-asana"),  sources.asana      || "down", "Asana");
+    setDiag(document.getElementById("cc-mkt-diag-acuity"), sources.acuity     || "down", "Acuity");
+    setDiag(document.getElementById("cc-sys-diag-git"),    sources.github     || "down", "GitHub");
+  }
+
+  // ---------------------------------------------------------------
+  // FETCH + RENDER ORCHESTRATION
+  // ---------------------------------------------------------------
+  function load(forceRefresh){
+    if (state.fetching) return;
+    state.fetching = true;
+    $("#cc-refresh-btn").classList.add("is-spinning");
+    $("#cc-updated-label").textContent = "Loading…";
+
+    Promise.resolve()
+      .then(function(){
+        if (COMMAND_CENTER_API) {
+          var url = COMMAND_CENTER_API + (COMMAND_CENTER_API.indexOf("?") === -1 ? "?" : "&")
+            + "view=all&period=" + encodeURIComponent(state.period)
+            + (forceRefresh ? "&refresh=1" : "");
+          return fetchJson(url).catch(function(err){
+            console.warn("[Command Center] Aggregator failed, falling back:", err);
+            return null;
+          });
+        }
+        return null;
+      })
+      .then(function(payload){
+        if (payload && payload.ok !== false) {
+          state.payload = payload;
+        } else {
+          state.payload = buildFallback();
+        }
+        return state.payload;
+      })
+      .then(function(p){
+        // If aggregator didn't return executive data but we have the standalone pipeline endpoint,
+        // top up the executive section so the page is useful out of the box.
+        if (!p.executive || !p.executive.summary) {
+          return fetchJson(PIPELINE_STATS_API).then(function(stats){
+            p.executive = mergeExecutiveFromPipeline(p.executive || {}, stats);
+            p.meta = p.meta || { sources: {} };
+            p.meta.sources = p.meta.sources || {};
+            if (stats && stats.success) p.meta.sources.pipelineStats = "ok";
+            return p;
+          }).catch(function(){ return p; });
+        }
+        return p;
+      })
+      .then(function(p){
+        state.payload = p;
+        state.lastFetched = new Date();
+        renderAll(p);
+        $("#cc-updated-label").textContent = "Synced " + state.lastFetched.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      })
+      .catch(function(err){
+        console.error("[Command Center] load failed:", err);
+        $("#cc-updated-label").textContent = "Error: " + (err.message || "load failed");
+      })
+      .then(function(){
+        state.fetching = false;
+        $("#cc-refresh-btn").classList.remove("is-spinning");
+      });
+  }
+
+  function mergeExecutiveFromPipeline(exec, stats){
+    if (!stats || !stats.success) return exec;
+    var s = stats.summary || {};
+    exec.summary = exec.summary || {};
+    exec.summary.totalVolume   = s.totalVolume   || s.grandTotal || 0;
+    exec.summary.totalDeals    = s.totalTransactions || s.totalDeals || 0;
+    exec.summary.closedVolume  = s.closedVolume  || 0;
+    exec.summary.closedDeals   = s.closedDeals   || 0;
+    exec.summary.pendingVolume = s.pendingVolume || 0;
+    exec.summary.pendingDeals  = s.pendingDeals  || 0;
+    exec.agents = stats.agents || exec.agents || [];
+    exec.fub = exec.fub || {};
+    exec.alerts = exec.alerts || [];
+    exec.funnel = exec.funnel || { closed: s.closedDeals || 0 };
+    exec.mix = exec.mix || { listings: {} };
+    exec.fubByAgent = exec.fubByAgent || {};
+    return exec;
+  }
+
+  function buildFallback(){
+    return {
+      ok: true,
+      meta: { generatedAt: new Date().toISOString(), sources: { pipelineStats: "ok" } },
+      executive: { summary: {}, agents: [], fub: {}, alerts: [
+        { severity: "amber", title: "Aggregator endpoint not deployed", text: "Command Center is showing pipeline stats only. Deploy CommandCenter.gs and set window.ASG_COMMAND_CENTER_API to light up the rest." }
+      ], funnel: {}, mix: { listings: {} }, fubByAgent: {} },
+      adoption:  { summary: {}, agents: [], cold: [], topResources: [] },
+      marketing: { summary: {}, asana: [], acuity: [], workload: [], bottlenecks: [], turnaround: { byType: [] } },
+      system:    { summary: {}, commits: [], qa: [], ownership: STATIC_OWNERSHIP }
+    };
+  }
+
+  function renderAll(p){
+    renderDiagnostics(p);
+    renderExecKpis(p);
+    renderExecLeaderboard(p);
+    renderExecAlerts(p);
+    renderExecFunnel(p);
+    renderExecMix(p);
+    renderAdoptKpis(p);
+    renderAdoptTable(p);
+    renderAdoptCold(p);
+    renderAdoptTop(p);
+    renderMktKpis(p);
+    renderMktAsana(p);
+    renderMktAcuity(p);
+    renderMktWorkload(p);
+    renderMktBottlenecks(p);
+    renderMktTurnaround(p);
+    renderSysKpis(p);
+    renderSysCommits(p);
+    renderSysQa(p);
+    renderSysOwnership(p);
+  }
+
+  // Initial paint with fallback so the user sees structure immediately,
+  // then network calls progressively replace the panels.
+  renderAll(buildFallback());
+  load();
+})();
+</script>

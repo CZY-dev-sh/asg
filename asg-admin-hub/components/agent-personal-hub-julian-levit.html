@@ -774,3 +774,83 @@
   }
 })();
 </script>
+
+<!-- ASG Usage Beacon (Command Center adoption tracking) -->
+<script>
+(function(){
+  "use strict";
+  if (window.__ASG_BEACON_INITIALIZED__) return;
+  window.__ASG_BEACON_INITIALIZED__ = true;
+
+  var DEFAULT_ENDPOINT = "https://script.google.com/macros/s/AKfycbw8Tv0hhbnXmU7Ik_tDX0Yve3aN3PC4sDFtDzUAPAZbDotaZU4wBlOxhjqeuCVdk2n3Yg/exec";
+  var ENDPOINT = (window.ASG_USAGE_LOG_API || DEFAULT_ENDPOINT || "").trim();
+  if (!ENDPOINT) return;
+
+  var PAGE = "agent-hub-julian-levit";
+  var AGENT_EMAIL = "julianlevit@compass.com";
+  var AGENT_NAME = "Julian Levit";
+
+  function getOrCreate(storage, key, gen){
+    try { var v = storage.getItem(key); if (v) return v; var n = gen(); storage.setItem(key, n); return n; }
+    catch (e) { return gen(); }
+  }
+  function uuid(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+    : "v-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,10); }
+
+  var visitorId = getOrCreate(localStorage, "asg.visitor_id", uuid);
+  var sessionId = getOrCreate(sessionStorage, "asg.session_id", uuid);
+
+  function send(payload){
+    payload.timestamp = new Date().toISOString();
+    payload.page = PAGE;
+    payload.url = location.href;
+    payload.referrer = document.referrer || "";
+    payload.user_agent = navigator.userAgent;
+    payload.visitor_id = visitorId;
+    payload.session_id = sessionId;
+    payload.agent_email = AGENT_EMAIL;
+    payload.agent_name = AGENT_NAME;
+    var body = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon && payload.type !== "view") {
+        var blob = new Blob([body], { type: "application/json" });
+        if (navigator.sendBeacon(ENDPOINT, blob)) return;
+      }
+    } catch (e1) {}
+    try {
+      fetch(ENDPOINT, {
+        method: "POST", mode: "no-cors", keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: body
+      }).catch(function(){});
+    } catch (e2) {}
+  }
+
+  function trackView(){ send({ type: "view", label: PAGE }); }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", trackView, { once: true });
+  } else {
+    trackView();
+  }
+
+  document.addEventListener("click", function(ev){
+    var el = ev.target && ev.target.closest ? ev.target.closest("[data-track], .asg-track, a[href]") : null;
+    if (!el) return;
+    var label = el.getAttribute("data-track")
+      || el.getAttribute("aria-label")
+      || (el.textContent || "").trim().slice(0, 80);
+    if (!label) return;
+    var meta = {};
+    if (el.tagName === "A" && el.href) meta.href = el.href;
+    send({ type: "click", label: label, meta: meta });
+  }, true);
+
+  window.addEventListener("pagehide", function(){
+    send({ type: "session_end", label: PAGE });
+  });
+
+  window.asgTrack = function(type, label, meta){
+    send({ type: String(type||"custom"), label: String(label||""), meta: meta || null });
+  };
+})();
+</script>

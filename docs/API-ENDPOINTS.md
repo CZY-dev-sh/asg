@@ -4,6 +4,141 @@ All backend logic runs on **Google Apps Script** web apps deployed as public end
 
 ---
 
+## Command Center Aggregator API
+
+**Apps Script Source**: `asg-admin-hub/apps-script/command-center/CommandCenter.gs`
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_COMMAND_CENTER_DEPLOYMENT/exec`
+
+**Method**: `GET`
+
+**Purpose**: Single backend that fans out to every observability source the Command Center dashboard needs (Pipeline Stats, FUB, Usage Log, Asana, Acuity, GitHub). Caches the full payload in `CacheService` for 90 seconds by default.
+
+**Query params**:
+- `?view=all` (default) | `?view=executive` | `?view=adoption` | `?view=marketing` | `?view=system`
+- `?period=7d` | `?period=30d` (default) | `?period=ytd` | `?period=all`
+- `?refresh=1` — bypass cache
+
+**Response** (abbreviated):
+```json
+{
+  "ok": true,
+  "meta": {
+    "view": "all",
+    "period": "30d",
+    "generatedAt": "2026-04-27T14:00:00.000Z",
+    "sources": {
+      "pipelineStats": "ok",
+      "fub": "ok",
+      "usageLog": "ok",
+      "asana": "down",
+      "acuity": "down",
+      "github": "ok"
+    }
+  },
+  "executive": {
+    "summary": { "totalVolume": 12500000, "totalDeals": 45, "closedVolume": 8000000, "closedDeals": 30, "pendingVolume": 4500000, "pendingDeals": 15 },
+    "agents":  [{ "name": "...", "tier": "Senior", "grandTotal": 0, "totalDeals": 0, "pendingVolume": 0, "pendingDeals": 0 }],
+    "alerts":  [{ "severity": "amber", "title": "...", "text": "..." }],
+    "fub":     { "newLeads": 0, "appointments": 0, "signed": 0, "overdueTasks": 0, "staleLeads": 0 },
+    "fubByAgent": { "Agent Name": { "notesLast7": 0, "tasksTodo": 0, "tasksOverdue": 0 } },
+    "funnel":  { "newLeads": 0, "appointments": 0, "buyerConsults": 0, "sellerConsults": 0, "signed": 0, "closed": 0 },
+    "mix":     { "buy": 0, "sell": 0, "cash": 0, "listings": { "secured": 0, "media": 0, "live": 0, "underContract": 0, "closed": 0 } }
+  },
+  "adoption": {
+    "summary": { "activeAgents": 0, "pageViews": 0, "uniqueVisitors": 0, "fubCompliance": 0, "coldCount": 0 },
+    "agents":  [{ "name": "...", "tier": "...", "hubVisits": 0, "lastSeen": "...", "fubCompliance": 0, "training": 0, "marketingHygiene": 0, "score": 0 }],
+    "cold":    [{ "name": "...", "lastSeen": null }],
+    "topResources": [{ "label": "FUB Open Tasks", "kind": "click", "clicks": 0 }]
+  },
+  "marketing": {
+    "summary": { "openCount": 0, "completed30": 0, "avgTurnaroundDays": null, "upcomingBookings": 0 },
+    "asana":   [{ "id": "...", "title": "...", "agent": "...", "type": "...", "status": "Open", "createdAt": "...", "dueOn": "...", "url": "..." }],
+    "acuity":  [{ "id": "...", "title": "...", "agent": "...", "startsAt": "...", "endsAt": "...", "clientName": "..." }],
+    "workload":[{ "agent": "...", "open": 0, "completed": 0 }],
+    "bottlenecks": [{ "title": "...", "agent": "...", "daysOpen": 0, "stage": "..." }],
+    "turnaround":  { "byType": [{ "type": "Listing Photos", "medianDays": 0, "count": 0, "goalDays": 2 }] }
+  },
+  "system": {
+    "summary": { "commits30": 0, "openIssues": 0, "appsScriptErrors": 0, "staleDashboards": 0 },
+    "commits": [{ "sha": "...", "shortSha": "...", "message": "...", "author": "...", "timestamp": "...", "url": "..." }],
+    "qa":      [{ "kind": "broken_link", "title": "...", "severity": "amber", "timestamp": "..." }],
+    "ownership": [{ "system": "...", "owner": "...", "backup": "...", "cadence": "..." }]
+  }
+}
+```
+
+**Script Properties**:
+
+| Property | Required for | Notes |
+|---|---|---|
+| `FUB_API_KEY` | FUB section | Same property used by the FUB proxy. |
+| `FUB_API_BASE_URL` | optional | Defaults to `https://api.followupboss.com/v1`. |
+| `PIPELINE_STATS_URL` | optional | Defaults to the existing TeamStats deployment. |
+| `USAGE_LOG_SHEET_ID` | Adoption + QA | Google Sheet that receives beacon events. |
+| `USAGE_LOG_TAB` | optional | Tab name (default `Events`). The aggregator also reads a tab named `QA` for the system health log. |
+| `ASANA_TOKEN` | Marketing | Asana Personal Access Token. |
+| `ASANA_WORKSPACE_GID` | Marketing | Workspace GID. |
+| `ASANA_MARKETING_PROJECT_GID` | Marketing | Project GID for marketing requests. |
+| `ACUITY_USER_ID` | Marketing | Acuity numeric user ID. |
+| `ACUITY_API_KEY` | Marketing | Acuity API key. |
+| `ACUITY_CALENDAR_IDS` | optional | Comma-separated calendar IDs to filter to marketing-team bookings. |
+| `GITHUB_TOKEN` | optional | GitHub PAT — only required for private repos. |
+| `GITHUB_REPO` | System | `owner/repo` (e.g. `tim-urmanczy/asg-admin-hub`). |
+| `COMMAND_CENTER_CACHE_TTL` | optional | Full-payload cache TTL in seconds (default 90). |
+
+**Used in**: `asg-admin-hub/components/command-center.html` via `window.ASG_COMMAND_CENTER_API`.
+
+---
+
+## Usage Log API
+
+**Apps Script Source**: `asg-admin-hub/apps-script/usage-log/UsageLog.gs`
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_USAGE_LOG_DEPLOYMENT/exec`
+
+**Method**: `POST` (event log) / `GET` (health check)
+
+**Purpose**: Receives page-view, click, and custom telemetry events from ASG hubs and appends them to a Google Sheet. The Command Center reads this sheet to compute adoption metrics.
+
+**POST body**:
+```json
+{
+  "type": "view",
+  "page": "agent-hub-sam-abadi",
+  "label": "FUB Open Tasks",
+  "url": "https://...",
+  "visitor_id": "uuid-from-localStorage",
+  "agent_email": "sam.abadi@compass.com",
+  "agent_name": "Sam Abadi",
+  "session_id": "uuid-from-sessionStorage",
+  "user_agent": "Mozilla/5.0 ...",
+  "referrer": "https://www.alexstoykovgroup.com/...",
+  "meta": { "href": "https://app.followupboss.com/..." }
+}
+```
+
+**Sheet schema** (auto-created on first valid POST):
+
+`timestamp | type | page | label | url | visitor_id | agent_email | agent_name | session_id | user_agent | referrer | meta`
+
+A second tab named `QA` may be maintained manually (or by a future Apps Script trigger) with the schema:
+
+`timestamp | kind | title | severity | status`
+
+**Script Properties**:
+
+| Property | Required | Notes |
+|---|---|---|
+| `USAGE_LOG_SHEET_ID` | yes | Google Sheet to append into. |
+| `USAGE_LOG_TAB` | no | Defaults to `Events`. |
+
+**Deployment**: Deploy as a web app with **Execute as: Me** and **Who has access: Anyone, even anonymous** so beacons can fire from any browser.
+
+**Used by**: `asg-admin-hub/shared/usage-beacon.js` (and any inline copy embedded in hub pages — see Sam Abadi's hub for the reference pattern).
+
+---
+
 ## Pipeline Stats API
 
 **URL**: `https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec`

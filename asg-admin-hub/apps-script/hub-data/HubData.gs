@@ -536,3 +536,355 @@ function _json_(obj) {
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * Headshots Mailer Integration
+ * ------------------------------------------------------------
+ * Creates previews, drafts, or sends individualized headshots emails from Directory.
+ */
+var HEADSHOTS_MAILER = {
+  SHEET_CANDIDATES: ["Directory", "Team Directory", "team_directory"],
+  HEADSHOTS_COLUMN_CANDIDATES: ["Headshots", "Headshot Folder", "Headshots Link"],
+  PHOTO_COLUMN_CANDIDATES: ["icon_photo_url", "Image URL", "Photo", "Headshot URL", "Headshot", "Profile Photo"],
+  SIGNATURE_PHONE_COLUMN_CANDIDATES: ["phone_number", "phone", "mobile", "cell", "cell_phone", "work_phone"],
+  SENT_AT_COLUMN: "Headshots Email Sent At",
+  STATUS_COLUMN: "Headshots Email Status",
+  SIGNATURE_ICON_URL: "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/2a8918dd-61d9-46db-abd1-f145bd3c2e5a/TimDetail-SS26.jpg?format=1500w",
+  TOUCH_UP_SCHEDULING_URL: "https://asgmarketing.as.me/?appointmentType=92351009",
+  SIGNATURE_NAME: "Tim Urmanczy",
+  SIGNATURE_TITLE: "Creative Director",
+  SIGNATURE_PHONE: "",
+  FROM_NAME: "ASG Marketing Team",
+  SUBJECT: "Your Spring 2026 Portraits Are Ready!",
+  TEST_EMAIL: "tim.urmanczy@compass.com",
+  CC: []
+};
+
+var HEADSHOTS_FONT_STACK = "Outfit, Arial, Helvetica, sans-serif";
+
+function sendHeadshotEmailsFromDirectory() {
+  return _hsSendHeadshotEmails_({ dryRun: false, resendSent: false });
+}
+
+function dryRunHeadshotEmailsFromDirectory() {
+  return _hsSendHeadshotEmails_({ dryRun: true, resendSent: false });
+}
+
+function resendAllHeadshotEmailsFromDirectory() {
+  return _hsSendHeadshotEmails_({ dryRun: false, resendSent: true });
+}
+
+function createHeadshotEmailDraftsFromDirectory() {
+  var data = _hsGetDirectoryData_();
+  var created = [];
+  data.rows.filter(_hsIsValidRecipient_).forEach(function(row) {
+    GmailApp.createDraft(row.email, HEADSHOTS_MAILER.SUBJECT, _hsBuildHeadshotsPlainText_(row.name, row.headshots), {
+      htmlBody: _hsBuildHeadshotsHtml_(row.name, row.headshots, row.photoUrl, data.signaturePhone),
+      name: HEADSHOTS_MAILER.FROM_NAME
+    });
+    created.push({ rowNumber: row._rowNumber, name: row.name, email: row.email });
+  });
+  return { success: true, created: created.length, rows: created };
+}
+
+function previewHeadshotEmailHtml() {
+  var data = _hsGetDirectoryData_();
+  var row = _hsFirstValidHeadshotRow_(data.rows);
+  if (!row) throw new Error("No row with Name + Email + Headshots found.");
+  var html = _hsBuildHeadshotsHtml_(row.name, row.headshots, row.photoUrl, data.signaturePhone);
+  Logger.log(html);
+  return html;
+}
+
+function previewHeadshotEmailHtmlForRow(rowNumber) {
+  var target = Number(rowNumber);
+  if (!target || target < 2) {
+    throw new Error("Pass a valid sheet row number (2+), e.g. previewHeadshotEmailHtmlForRow(12).");
+  }
+  var data = _hsGetDirectoryData_();
+  var row = null;
+  for (var i = 0; i < data.rows.length; i++) {
+    if (data.rows[i]._rowNumber === target) {
+      row = data.rows[i];
+      break;
+    }
+  }
+  if (!row) throw new Error("Row not found in directory data: " + target);
+  if (!_hsIsValidRecipient_(row)) throw new Error("Row " + target + " is missing Name, Email, or Headshots.");
+  var html = _hsBuildHeadshotsHtml_(row.name, row.headshots, row.photoUrl, data.signaturePhone);
+  Logger.log(html);
+  return html;
+}
+
+function sendHeadshotEmailTestToMe(testEmail) {
+  var email = String(testEmail || HEADSHOTS_MAILER.TEST_EMAIL || "").trim();
+  if (!email || email.indexOf("@") === -1) {
+    throw new Error("Provide a valid test email address, e.g. sendHeadshotEmailTestToMe('you@example.com').");
+  }
+  var data = _hsGetDirectoryData_();
+  var row = _hsFirstValidHeadshotRow_(data.rows);
+  if (!row) throw new Error("No row with Name + Email + Headshots found.");
+  GmailApp.sendEmail(email, "[TEST] " + HEADSHOTS_MAILER.SUBJECT, _hsBuildHeadshotsPlainText_(row.name, row.headshots), {
+    htmlBody: _hsBuildHeadshotsHtml_(row.name, row.headshots, row.photoUrl, data.signaturePhone),
+    name: HEADSHOTS_MAILER.FROM_NAME
+  });
+  return { success: true, sentTo: email, usingDirectoryRow: row._rowNumber, sourceRecipient: row.email };
+}
+
+function _hsSendHeadshotEmails_(options) {
+  var dryRun = !!(options && options.dryRun);
+  var resendSent = !!(options && options.resendSent);
+  var data = _hsGetDirectoryData_();
+  var recipients = data.rows.filter(function(row) {
+    if (!_hsIsValidRecipient_(row)) return false;
+    if (resendSent) return true;
+    return !(_hsIsTruthy_(row.sentAt) || /sent/i.test(String(row.status || "")));
+  });
+  var sent = 0;
+  var skipped = 0;
+  var output = [];
+  recipients.forEach(function(row) {
+    var summary = {
+      rowNumber: row._rowNumber,
+      name: row.name,
+      email: row.email,
+      headshots: row.headshots,
+      action: dryRun ? "would_send" : "sent"
+    };
+    if (dryRun) {
+      output.push(summary);
+      skipped++;
+      return;
+    }
+    var emailOptions = {
+      htmlBody: _hsBuildHeadshotsHtml_(row.name, row.headshots, row.photoUrl, data.signaturePhone),
+      name: HEADSHOTS_MAILER.FROM_NAME
+    };
+    if (HEADSHOTS_MAILER.CC && HEADSHOTS_MAILER.CC.length) {
+      emailOptions.cc = HEADSHOTS_MAILER.CC.join(",");
+    }
+    GmailApp.sendEmail(row.email, HEADSHOTS_MAILER.SUBJECT, _hsBuildHeadshotsPlainText_(row.name, row.headshots), emailOptions);
+    _hsMarkHeadshotsEmailSent_(data.sheet, data.headerIndex, row._rowNumber);
+    sent++;
+    output.push(summary);
+  });
+  return { success: true, sheet: data.sheet.getName(), dryRun: dryRun, total: recipients.length, sent: sent, skipped: skipped, rows: output };
+}
+
+function _hsBuildHeadshotsPlainText_(name, headshotsLink) {
+  return [
+    "Hi " + _hsFirstName_(name) + ",",
+    "",
+    "Your Spring 2026 portraits are ready for download.",
+    "Download your photos here: " + headshotsLink,
+    "",
+    "If you want any changes, please schedule an editing session with us here:",
+    HEADSHOTS_MAILER.TOUCH_UP_SCHEDULING_URL,
+    "",
+    "Best,",
+    HEADSHOTS_MAILER.SIGNATURE_NAME,
+    HEADSHOTS_MAILER.SIGNATURE_TITLE,
+    HEADSHOTS_MAILER.SIGNATURE_PHONE
+  ].join("\n");
+}
+
+function _hsBuildHeadshotsHtml_(name, headshotsLink, photoUrl, signaturePhone) {
+  var font = "font-family:" + HEADSHOTS_FONT_STACK + ";";
+  var safeName = _hsEscapeHtml_(_hsFirstName_(name));
+  var safeLink = _hsEscapeHtml_(headshotsLink);
+  var safeProfileIconUrl = _hsEscapeHtml_(_hsResolveIconUrl_(photoUrl));
+  var safeSignatureIconUrl = _hsEscapeHtml_(HEADSHOTS_MAILER.SIGNATURE_ICON_URL);
+  var safeSchedulingUrl = _hsEscapeHtml_(HEADSHOTS_MAILER.TOUCH_UP_SCHEDULING_URL);
+  var safeSignatureName = _hsEscapeHtml_(HEADSHOTS_MAILER.SIGNATURE_NAME);
+  var safeSignatureTitle = _hsEscapeHtml_(HEADSHOTS_MAILER.SIGNATURE_TITLE);
+  var safeSignaturePhone = _hsEscapeHtml_(signaturePhone || HEADSHOTS_MAILER.SIGNATURE_PHONE);
+  var signaturePhoneHtml = safeSignaturePhone
+    ? '<div style="' + font + 'font-size:13px;line-height:18px;color:#7b8392;">' + safeSignaturePhone + "</div>"
+    : "";
+
+  return (
+    '<style>@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap"); body, table, td, p, a, div, h1 { font-family: Outfit, Arial, Helvetica, sans-serif !important; }</style>' +
+    '<div style="margin:0;padding:24px;background:transparent;color-scheme:light dark;supported-color-schemes:light dark;' + font + 'color:#111111;">' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="' + font + 'max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e7e8eb;border-radius:14px;overflow:hidden;">' +
+        "<tr>" +
+          '<td style="' + font + 'padding:28px 28px 24px;background:#151515;color:#ffffff;">' +
+            '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="' + font + '"><tr>' +
+              '<td style="' + font + 'vertical-align:top;color:#ffffff;">' +
+                '<div style="' + font + 'font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#d7d7d7;">ASG Marketing</div>' +
+                '<div style="' + font + 'margin-top:5px;font-size:13px;line-height:1.35;color:#aeb4bf;">Photos - Spring 2026</div>' +
+              "</td>" +
+              '<td align="right" style="' + font + 'vertical-align:top;width:44px;">' +
+                '<img src="' + safeProfileIconUrl + '" alt="' + safeName + '" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:50%;object-fit:cover;background:#ffffff;border:2px solid rgba(255,255,255,0.7);">' +
+              "</td>" +
+            "</tr></table>" +
+            '<h1 style="' + font + 'margin:18px 0 0;font-size:30px;line-height:1.15;font-weight:800;color:#ffffff;">Spring 2026 Portraits</h1>' +
+          "</td>" +
+        "</tr>" +
+        "<tr>" +
+          '<td style="' + font + 'padding:28px;background:#ffffff;color:#111111;">' +
+            '<p style="' + font + 'margin:0 0 14px;font-size:16px;line-height:1.55;color:#111111;">Hi ' + safeName + ",</p>" +
+            '<p style="' + font + 'margin:0 0 22px;font-size:16px;line-height:1.6;color:#2d2d2d;">Your Spring 2026 portraits are ready for download. If you want any changes, please schedule an editing session with us by clicking Edit Photos.</p>' +
+            '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="' + font + 'margin:0 0 22px;"><tr>' +
+              '<td style="' + font + 'padding:0 10px 10px 0;">' +
+                '<a href="' + safeLink + '" target="_blank" rel="noopener" style="' + font + 'display:inline-block;width:148px;text-align:center;background:#121212;color:#ffffff;text-decoration:none;font-size:15px;line-height:1.2;font-weight:700;padding:14px 0;border-radius:999px;">Download</a>' +
+              "</td>" +
+              '<td style="' + font + 'padding:0 0 10px 0;">' +
+                '<a href="' + safeSchedulingUrl + '" target="_blank" rel="noopener" style="' + font + 'display:inline-block;width:148px;text-align:center;background:#2b64d8;color:#ffffff;text-decoration:none;font-size:15px;line-height:1.2;font-weight:700;padding:14px 0;border-radius:999px;">Edit Photos</a>' +
+              "</td>" +
+            "</tr></table>" +
+            '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="' + font + 'margin-top:18px;"><tr>' +
+              '<td style="' + font + 'vertical-align:top;padding-right:12px;">' +
+                '<img src="' + safeSignatureIconUrl + '" alt="' + safeSignatureName + '" width="54" height="54" style="display:block;width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid #e6e8ec;">' +
+              "</td>" +
+              '<td style="' + font + 'vertical-align:top;">' +
+                '<div style="' + font + 'font-size:14px;line-height:18px;color:#111111;font-weight:700;">' + safeSignatureName + "</div>" +
+                '<div style="' + font + 'font-size:13px;line-height:18px;color:#5a6270;">' + safeSignatureTitle + "</div>" +
+                signaturePhoneHtml +
+              "</td>" +
+            "</tr></table>" +
+          "</td>" +
+        "</tr>" +
+        "<tr>" +
+          '<td style="' + font + 'padding:16px 28px;border-top:1px solid #eceef2;background:#ffffff;color:#666e7a;font-size:12px;line-height:1.5;">Sent by ASG Marketing Team</td>' +
+        "</tr>" +
+      "</table>" +
+    "</div>"
+  );
+}
+
+function _hsGetDirectoryData_() {
+  var sheet = _hsFindSheet_(SpreadsheetApp.getActiveSpreadsheet(), HEADSHOTS_MAILER.SHEET_CANDIDATES);
+  if (!sheet) {
+    throw new Error("Could not find Directory sheet. Tried: " + HEADSHOTS_MAILER.SHEET_CANDIDATES.join(", "));
+  }
+  var table = _hsReadTable_(sheet);
+  return { sheet: sheet, headers: table.headers, headerIndex: table.headerIndex, rows: table.rows, signaturePhone: _hsFindSignaturePhone_(table.rows) };
+}
+
+function _hsReadTable_(sheet) {
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+  if (lastRow < 2 || lastCol < 1) return { headers: [], rows: [], headerIndex: {} };
+  var headers = sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0].map(function(h) {
+    return String(h || "").trim();
+  });
+  var values = sheet.getRange(2, 1, lastRow - 1, lastCol).getDisplayValues();
+  var idx = _hsBuildHeaderIndex_(headers);
+  var rows = [];
+  for (var r = 0; r < values.length; r++) {
+    var row = values[r];
+    if (_hsIsBlankRow_(row)) continue;
+    rows.push({
+      _rowNumber: r + 2,
+      name: _hsPickCell_(row, idx.name),
+      email: _hsPickCell_(row, idx.email),
+      headshots: _hsPickCell_(row, idx.headshots),
+      photoUrl: _hsPickCell_(row, idx.photo),
+      signaturePhone: _hsPickCell_(row, idx.signaturePhone),
+      sentAt: _hsPickCell_(row, idx.sentAt),
+      status: _hsPickCell_(row, idx.status)
+    });
+  }
+  return { headers: headers, rows: rows, headerIndex: idx };
+}
+
+function _hsBuildHeaderIndex_(headers) {
+  var normalized = headers.map(function(h) { return _hsNormalizeHeader_(h); });
+  var idx = {
+    name: _hsFindFirstIndex_(normalized, ["name", "display_name", "agent_name"]),
+    email: _hsFindFirstIndex_(normalized, ["email", "agent_email"]),
+    headshots: _hsFindFirstIndex_(normalized, HEADSHOTS_MAILER.HEADSHOTS_COLUMN_CANDIDATES.map(_hsNormalizeHeader_)),
+    photo: _hsFindFirstIndex_(normalized, HEADSHOTS_MAILER.PHOTO_COLUMN_CANDIDATES.map(_hsNormalizeHeader_)),
+    signaturePhone: _hsFindFirstIndex_(normalized, HEADSHOTS_MAILER.SIGNATURE_PHONE_COLUMN_CANDIDATES.map(_hsNormalizeHeader_)),
+    sentAt: normalized.indexOf(_hsNormalizeHeader_(HEADSHOTS_MAILER.SENT_AT_COLUMN)),
+    status: normalized.indexOf(_hsNormalizeHeader_(HEADSHOTS_MAILER.STATUS_COLUMN))
+  };
+  if (idx.name === -1 || idx.email === -1 || idx.headshots === -1) {
+    throw new Error("Missing required columns. Need Name, Email, and Headshots. Found headers: " + headers.join(", "));
+  }
+  return idx;
+}
+
+function _hsMarkHeadshotsEmailSent_(sheet, headerIndex, rowNumber) {
+  if (headerIndex.sentAt !== -1) sheet.getRange(rowNumber, headerIndex.sentAt + 1).setValue(new Date());
+  if (headerIndex.status !== -1) sheet.getRange(rowNumber, headerIndex.status + 1).setValue("Sent");
+}
+
+function _hsFirstValidHeadshotRow_(rows) {
+  for (var i = 0; i < rows.length; i++) {
+    if (_hsIsValidRecipient_(rows[i])) return rows[i];
+  }
+  return null;
+}
+
+function _hsIsValidRecipient_(row) {
+  return !!(row && row.name && row.email && row.headshots);
+}
+
+function _hsFindFirstIndex_(list, candidates) {
+  for (var i = 0; i < candidates.length; i++) {
+    var idx = list.indexOf(candidates[i]);
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function _hsFindSheet_(ss, names) {
+  for (var i = 0; i < names.length; i++) {
+    var sheet = ss.getSheetByName(names[i]);
+    if (sheet) return sheet;
+  }
+  return null;
+}
+
+function _hsPickCell_(row, idx) {
+  if (idx < 0 || idx >= row.length) return "";
+  return String(row[idx] || "").trim();
+}
+
+function _hsIsBlankRow_(row) {
+  for (var i = 0; i < row.length; i++) {
+    if (String(row[i] || "").trim() !== "") return false;
+  }
+  return true;
+}
+
+function _hsNormalizeHeader_(raw) {
+  return String(raw || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function _hsIsTruthy_(value) {
+  if (value === true || value === 1) return true;
+  var s = String(value || "").trim().toLowerCase();
+  return s === "true" || s === "yes" || s === "1" || s === "sent";
+}
+
+function _hsEscapeHtml_(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function _hsResolveIconUrl_(raw) {
+  var url = String(raw || "").trim();
+  if (/^https?:\/\//i.test(url)) return url;
+  return HEADSHOTS_MAILER.SIGNATURE_ICON_URL;
+}
+
+function _hsFindSignaturePhone_(rows) {
+  var signatureName = _hsNormalizeHeader_(HEADSHOTS_MAILER.SIGNATURE_NAME);
+  for (var i = 0; i < rows.length; i++) {
+    if (_hsNormalizeHeader_(rows[i].name) === signatureName && rows[i].signaturePhone) {
+      return rows[i].signaturePhone;
+    }
+  }
+  return HEADSHOTS_MAILER.SIGNATURE_PHONE;
+}
+
+function _hsFirstName_(name) {
+  var parts = String(name || "").trim().split(/\s+/);
+  return parts[0] || "";
+}
