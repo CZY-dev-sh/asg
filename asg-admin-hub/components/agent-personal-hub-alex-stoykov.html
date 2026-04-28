@@ -28,6 +28,7 @@
     display:grid;
     grid-template-columns:1.2fr .8fr;
     gap:16px;
+    align-items:start;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-card{
     background:var(--asg-ph-card);
@@ -83,6 +84,66 @@
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
+  }
+  /* Top row: one 3×2 bento so Personal Stats fits the Marketing Actions column height */
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-bento{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:8px;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-stats-bento .asg-ph-kpis,
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-stats-bento .asg-ph-team-stats{
+    display:contents;
+    margin-top:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-stats-head{
+    flex-shrink:0;
+    margin-bottom:10px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-stats-head .asg-ph-label{
+    margin-bottom:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-kpi{
+    padding:10px 11px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-kpi-value{
+    font-size:21px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-kpi-sub{
+    margin-top:4px;
+    font-size:11px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-team-stat{
+    padding:9px 11px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-team-stat-value{
+    font-size:21px;
+    margin-top:4px;
+    letter-spacing:-.02em;
+    line-height:1.05;
+    font-weight:800;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-actions{
+    align-self:start;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-actions .asg-ph-label{
+    margin-bottom:8px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-actions .asg-ph-actions{
+    flex:0 0 auto;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-team-stat{
     border:1px solid var(--asg-ph-border);
@@ -228,9 +289,22 @@
   #asg-agent-personal-hub-alex-stoykov .asg-ph-download-label{line-height:1.2}
   #asg-agent-personal-hub-alex-stoykov .asg-ph-download-label-wrap{
     display:flex;
+    align-items:flex-start;
+    gap:8px;
+    min-width:0;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-label-main{
+    display:flex;
     align-items:center;
     gap:8px;
     min-width:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-meta{
+    font-size:10px;
+    line-height:1.25;
+    color:rgba(17,17,17,.5);
+    font-weight:600;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-drive-logo{
     width:18px;
@@ -243,6 +317,7 @@
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-download-btn{
     height:30px;
+    width:74px;
     padding:0 12px;
     border-radius:999px;
     background:#111;
@@ -257,6 +332,46 @@
     letter-spacing:.02em;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-download-btn:hover{opacity:.86}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-btn.is-disabled{
+    background:#e5e7eb;
+    border-color:#e5e7eb;
+    color:rgba(17,17,17,.45);
+    cursor:not-allowed;
+    pointer-events:none;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row.is-cta{
+    margin-top:2px;
+    background:rgba(59,130,246,.10);
+    border-color:rgba(59,130,246,.35);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row.is-cta .asg-ph-download-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:rgba(17,17,17,.62);
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row.is-cta .asg-ph-download-btn{
+    background:#111;
+    border-color:#111;
+    color:#fff;
+    min-width:0;
+    justify-content:center;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row.is-cta .asg-ph-download-btn:hover{
+    opacity:.86;
+    background:#111;
+    border-color:#111;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-branding-bento.asg-ph-bento-fixed{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-branding-bento .asg-ph-bento-body{
+    overflow:visible;
+    padding-right:0;
+    margin-right:0;
+  }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-main{
     margin-top:16px;
     display:grid;
@@ -264,19 +379,20 @@
     gap:16px;
     align-items:stretch;
   }
-  /* Let grid rows respect bento max-height so the card chrome scrolls internally, not the whole page */
   #asg-agent-personal-hub-alex-stoykov .asg-ph-main > .asg-ph-dt-bento{
+    grid-column:1;
+    grid-row:1;
     min-height:0;
   }
-  /* Deal Tracker: label + search stay pinned to top of the scrollable bento body */
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-main > .asg-ph-main-listings{
+    grid-column:2;
+    grid-row:1;
+  }
+  /* Deal Tracker: title row + summary stay fixed; only .asg-ph-dt-scroll scrolls */
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-bento-top{
-    position:sticky;
-    top:0;
-    z-index:12;
     flex:0 0 auto;
-    background:var(--asg-ph-card);
-    padding-bottom:8px;
-    margin:0 0 4px;
+    padding-bottom:6px;
+    margin:0 0 2px;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-bento-top .asg-ph-bento-head{
     margin-bottom:0;
@@ -306,23 +422,33 @@
   #asg-agent-personal-hub-alex-stoykov .asg-ph-listing{
     border:1px solid var(--asg-ph-border);
     border-radius:12px;
-    padding:8px 10px;
+    padding:7px 9px;
     display:grid;
-    gap:6px;
+    gap:5px;
     background:#fff;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-top{
-    display:flex;align-items:flex-start;gap:8px;
+    display:grid;
+    grid-template-columns:78px 1fr;
+    align-items:start;
+    gap:8px;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-cover{
-    width:64px;height:48px;border-radius:6px !important;background:#e6ebf1;object-fit:cover;flex:0 0 64px;
+    width:78px;height:58px;border-radius:8px !important;background:#e6ebf1;object-fit:cover;flex:0 0 78px;
     clip-path: inset(0 round 6px);
   }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-main{
+    min-width:0;
+    display:grid;
+    gap:4px;
+    align-content:start;
+  }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-title{font-size:13px;font-weight:700;line-height:1.2;margin:0}
-  #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-meta{margin-top:2px;font-size:10.5px;color:var(--asg-ph-muted);line-height:1.3}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-meta{margin-top:1px;font-size:10.5px;color:var(--asg-ph-muted);line-height:1.25}
   #asg-agent-personal-hub-alex-stoykov .asg-ph-badge{
-    margin-left:auto;white-space:nowrap;align-self:flex-start;
-    border-radius:999px;padding:3px 7px;font-size:9.5px;font-weight:700;border:1px solid transparent;
+    margin-left:0;white-space:nowrap;justify-self:start;align-self:start;
+    border-radius:999px;padding:0 8px;height:20px;line-height:20px;
+    font-size:10px;font-weight:700;border:1px solid transparent;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-badge.is-active{background:rgba(34,197,94,.1);color:#0f8a3a;border-color:rgba(34,197,94,.22)}
   #asg-agent-personal-hub-alex-stoykov .asg-ph-badge.is-closed{background:rgba(59,130,246,.1);color:#275cc5;border-color:rgba(59,130,246,.22)}
@@ -513,14 +639,13 @@
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-line{
     margin:0;
+    padding-bottom:.12em;
     font-size:clamp(32px,4.2vw,48px);
-    line-height:1.08;
+    line-height:1.22;
     font-weight:800;
     letter-spacing:-.03em;
     color:#000;
     white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-greet,
   #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-name{
@@ -591,9 +716,21 @@
   #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu .asg-ph-bento-body{
     display:flex;flex-direction:column;
   }
-  #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu > .asg-ph-bento-head:first-of-type{margin-bottom:6px}
-  #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu > .asg-ph-bento-head.asg-ph-bento-head--eu-sub{margin-bottom:8px;align-items:center}
-  #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu .asg-ph-bento-head.asg-ph-bento-head--eu-sub .asg-ph-note{font-size:11px;line-height:1.35}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu > .asg-ph-bento-head--eu{
+    margin-bottom:4px;
+    align-items:center;
+    gap:12px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu > .asg-ph-bento-head--eu .asg-ph-tabs{
+    flex:0 0 auto;
+    margin-top:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-eu-note{
+    margin:0 0 8px;
+    font-size:11px;
+    line-height:1.35;
+    color:var(--asg-ph-muted);
+  }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-body::-webkit-scrollbar{width:6px;height:6px}
   #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-body::-webkit-scrollbar-thumb{
     background:rgba(17,17,17,.10);border-radius:999px;
@@ -631,13 +768,20 @@
   /* =========================================================
      DEAL TRACKER (left, bigger) — small bento cards in a grid
      ========================================================= */
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary-host:empty{display:none}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary-host:not(:empty){
+    flex:0 0 auto;
+    padding:0 0 10px;
+    margin:0 0 8px;
+    border-bottom:1px solid rgba(17,17,17,.06);
+  }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary{
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:10px;
-    margin:0 0 12px;
-    padding:0 0 12px;
-    border-bottom:1px solid rgba(17,17,17,.06);
+    margin:0;
+    padding:0;
+    border:0;
     flex:0 0 auto;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary-stat{
@@ -746,16 +890,32 @@
     from{opacity:1}
     to  {opacity:0}
   }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-bento > .asg-ph-bento-body{
+    overflow:hidden;
+  }
   #asg-agent-personal-hub-alex-stoykov #asgPhDtBody{
     display:flex;
     flex-direction:column;
   }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-scroll{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    padding-right:4px;
+    margin-right:-4px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-scroll::-webkit-scrollbar{width:6px;height:6px}
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-scroll::-webkit-scrollbar-thumb{
+    background:rgba(17,17,17,.10);border-radius:999px;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-scroll::-webkit-scrollbar-thumb:hover{background:rgba(17,17,17,.18)}
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-stage{
     position:relative;
     display:flex;
     flex-direction:column;
-    flex:1 1 auto;
-    min-height:0;
+    min-height:100%;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-detail-panel:not([hidden]){
     flex:1 1 auto;
@@ -1047,9 +1207,23 @@
     align-items:stretch;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-bottom-row .asg-ph-bento-fixed{
-    min-height:340px;
-    max-height:420px;
-    height:min(48vh,400px);
+    min-height:0;
+    max-height:none;
+    height:auto;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-branding-bento.asg-ph-bento-fixed{
+    min-height:0;
+    max-height:none;
+    height:auto;
+    align-self:start;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-bottom-row .asg-ph-bento-eu .asg-ph-bento-body{
+    overflow:visible;
+    padding-right:0;
+    margin-right:0;
+  }
+  #asg-agent-personal-hub-alex-stoykov .asg-ph-resources-bento .asg-ph-bento-body{
+    overflow-y:auto;
   }
 
   /* Events & Updates panel (design lifted from Sam's hub) */
@@ -1068,7 +1242,7 @@
     height:min(28vh,140px);min-height:100px;flex:0 0 auto;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-eu-events-single .asg-ph-ev-feature-body{
-    flex:1;padding:14px 16px 16px;gap:8px;display:flex;flex-direction:column;
+    flex:0 0 auto;padding:14px 16px 16px;gap:8px;display:flex;flex-direction:column;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-ev-feature{
     border:1px solid rgba(17,17,17,.06);
@@ -1102,11 +1276,11 @@
     font-size:11px;color:rgba(17,17,17,.6);line-height:1.35;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-ev-actions{
-    display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px;
+    display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;padding-top:0;
   }
   #asg-agent-personal-hub-alex-stoykov .asg-ph-ev-btn{
     display:inline-flex;align-items:center;gap:5px;
-    height:26px;padding:0 11px;font-size:11px;font-weight:700;
+    height:30px;padding:0 11px;font-size:11px;font-weight:700;
     text-decoration:none;border-radius:999px;line-height:1;
     transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
     white-space:nowrap;
@@ -1207,6 +1381,17 @@
   @media (max-width:1080px){
     #asg-agent-personal-hub-alex-stoykov .asg-ph-grid,
     #asg-agent-personal-hub-alex-stoykov .asg-ph-main{grid-template-columns:1fr}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-main > .asg-ph-dt-bento,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-main > .asg-ph-main-listings{
+      grid-column:auto;
+      grid-row:auto;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-bento{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-rows:none;
+      flex:none;
+      overflow-y:visible;
+    }
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bottom-row{grid-template-columns:1fr}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-fixed{height:auto;min-height:360px;max-height:none}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bottom-row .asg-ph-bento-fixed{height:auto;min-height:300px;max-height:none}
@@ -1218,13 +1403,14 @@
     #asg-agent-personal-hub-alex-stoykov .asg-ph-grid,
     #asg-agent-personal-hub-alex-stoykov .asg-ph-main,
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bottom-row{gap:12px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-photo{width:72px;height:72px;flex-basis:72px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet{margin-bottom:12px;justify-content:center;text-align:center;gap:14px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-body{justify-content:center}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-line{font-size:clamp(26px,7vw,36px);text-align:center}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-photo{width:56px;height:56px;flex-basis:56px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet{margin-bottom:8px;justify-content:flex-start;text-align:left;gap:10px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-body{justify-content:flex-start}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-greet-line{font-size:clamp(22px,7vw,34px);text-align:left}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-search{height:32px;max-width:none}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-head{flex-direction:column;align-items:stretch;gap:10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-head .asg-ph-label{margin-bottom:2px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-bento-eu > .asg-ph-bento-head--eu .asg-ph-tabs{align-self:flex-start}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary-stat{padding:8px 10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-dt-summary-value{font-size:16px}
@@ -1242,22 +1428,123 @@
       grid-template-columns:repeat(6,minmax(0,1fr));
       gap:4px 6px;
     }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card{padding:12px 14px;border-radius:16px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-head{align-items:flex-start}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-head .asg-ph-label{align-self:flex-start}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed .asg-ph-stats-tabs{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed .asg-ph-stats-bento{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed .asg-ph-actions{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-bento-head:not(:first-of-type),
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-note,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-bento-body{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type .asg-ph-tabs{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type .asg-ph-bento-search{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-bento-search{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-summary-host,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-scroll{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-bento-fixed.is-mobile-collapsed{
+      min-height:0 !important;
+      height:auto !important;
+      max-height:none !important;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed .asg-ph-stats-head,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top{
+      margin-bottom:0;
+      min-height:28px;
+      display:flex;
+      align-items:center;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top{
+      padding-bottom:0;
+      margin:0;
+      width:100%;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-bento-head{
+      justify-content:flex-start;
+      width:100%;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-label{
+      flex:1 1 auto;
+      width:100%;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-card--top-actions.is-mobile-collapsed > .asg-ph-label{
+      margin-bottom:0;
+      min-height:28px;
+      display:flex;
+      align-items:center;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-toggle{
+      position:relative;
+      padding-right:22px;
+      cursor:pointer;
+      user-select:none;
+      width:100%;
+      flex:1 1 auto;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-toggle:focus,
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-toggle:focus-visible{
+      outline:none;
+      box-shadow:none;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.is-mobile-collapsed .asg-ph-mobile-collapse-toggle{
+      flex:1 1 auto;
+      width:100% !important;
+      max-width:none;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card.asg-ph-dt-bento .asg-ph-dt-bento-top .asg-ph-mobile-collapse-toggle{
+      flex:1 1 auto;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-toggle .asg-ph-label-dot{display:none}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon{
+      width:20px;height:20px;border-radius:7px;
+      display:grid;place-items:center;
+      margin-right:10px;flex:0 0 20px;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon svg{
+      width:12px;height:12px;display:block;
+      stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-stats{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-actions{background:rgba(139,92,246,.14);color:#7c3aed}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-deals{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-listings{background:rgba(17,17,17,.08);color:#111}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-events{background:rgba(34,197,94,.16);color:#16a34a}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-branding{background:rgba(249,115,22,.16);color:#ea580c}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-icon.is-resources{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-mobile-collapse-toggle::after{
+      content:"";
+      position:absolute;
+      right:2px;
+      top:50%;
+      width:7px;height:7px;
+      border-right:1.8px solid rgba(17,17,17,.52);
+      border-bottom:1.8px solid rgba(17,17,17,.52);
+      transform:translateY(-62%) rotate(45deg);
+      transition:transform .16s ease;
+    }
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card:not(.is-mobile-collapsed) .asg-ph-mobile-collapse-toggle::after{
+      transform:translateY(-35%) rotate(225deg);
+    }
     #asg-agent-personal-hub-alex-stoykov .asg-ph-ql-grid{grid-template-columns:1fr;gap:6px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-card{padding:16px;border-radius:18px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-head{flex-direction:column;gap:12px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-stats-tabs{align-self:flex-start;margin-bottom:6px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-kpi{padding:10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-kpi-value{font-size:20px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-card--top-stats .asg-ph-team-stat-value{font-size:20px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-team-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-actions{gap:8px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-action{padding:11px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-list-head{flex-direction:column;align-items:flex-start;gap:10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-tabs{align-self:flex-start}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-list{max-height:440px;gap:8px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing{padding:8px;gap:6px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-top{display:grid;grid-template-columns:64px 1fr;align-items:start;gap:8px}
-    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-cover{width:64px;height:48px;flex:0 0 64px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing{padding:7px;gap:5px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-top{display:grid;grid-template-columns:74px 1fr;align-items:start;gap:8px}
+    #asg-agent-personal-hub-alex-stoykov .asg-ph-listing-cover{width:74px;height:54px;flex:0 0 74px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-assets{gap:4px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-download-row{padding:9px 10px}
     #asg-agent-personal-hub-alex-stoykov .asg-ph-fub-summary{grid-template-columns:1fr;gap:0;padding-bottom:0}
@@ -1303,6 +1590,17 @@
     {label:"Listing Presentation",href:'https://drive.google.com/drive/search?q=%22Listing%20Presentation%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'},
     {label:"Business Card",href:'https://drive.google.com/drive/search?q=%22Business%20Card%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'}
   ];
+  const BRANDING_ASSET_KEYS=["marketing_drive","buyer_guide","seller_guide","listing_presentation","business_card"];
+  let dynamicBrandingMaterials=DOWNLOADABLES.map(function(item,idx){
+    return {
+      key:BRANDING_ASSET_KEYS[idx]||("asset_"+idx),
+      label:item.label,
+      href:item.href,
+      logo:item.logo||"",
+      updated_at_display:"",
+      updated_at_iso:""
+    };
+  });
 
   /** Resources / Useful Links — mirrors Sam Abadi's hub QUICK_LINKS for design parity. */
   const QUICK_LINKS=[
@@ -1483,6 +1781,17 @@
     if(h<21)return "Good evening,";
     return "Good evening,";
   }
+  function mobileTimeGreeting(){
+    const h=new Date().getHours();
+    if(h<5)return "Hey,";
+    if(h<12)return "Morning,";
+    if(h<17)return "Hi,";
+    if(h<21)return "Hello,";
+    return "Hey,";
+  }
+  function greetingForViewport(){
+    return window.innerWidth<=760?mobileTimeGreeting():timeOfDayGreeting();
+  }
   function firstNameOf(full){
     return String(full||"").trim().split(/\s+/)[0]||"there";
   }
@@ -1493,13 +1802,13 @@
         <img class="asg-ph-greet-photo" id="asgPhGreetPhoto" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
           <div class="asg-ph-greet-body">
             <h1 class="asg-ph-greet-line">
-              <span class="asg-ph-greet-greet">${esc(timeOfDayGreeting())}</span><span class="asg-ph-greet-name">${esc(firstNameOf(AGENT_PROFILE.name))}</span>
+              <span class="asg-ph-greet-greet">${esc(greetingForViewport())}</span><span class="asg-ph-greet-name">${esc(firstNameOf(AGENT_PROFILE.name))}</span>
             </h1>
           </div>
         </div>
         <div class="asg-ph-shell">
           <div class="asg-ph-grid">
-        <section class="asg-ph-card">
+        <section class="asg-ph-card asg-ph-card--top-stats">
           <div class="asg-ph-stats-head">
             <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Personal Stats</div>
             <div class="asg-ph-stats-tabs">
@@ -1507,16 +1816,18 @@
               <button class="asg-ph-stats-tab is-on" data-period="ytd2026">2026</button>
             </div>
           </div>
-          <div class="asg-ph-kpis" id="asgPhKpis">
-            ${kpiSkeleton("2026")}
-          </div>
-          <div class="asg-ph-team-stats" id="asgPhTeamTop">
-            <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>
-            <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>
+          <div class="asg-ph-stats-bento">
+            <div class="asg-ph-kpis" id="asgPhKpis">
+              ${kpiSkeleton("2026")}
+            </div>
+            <div class="asg-ph-team-stats" id="asgPhTeamTop">
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>
+              <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>
+            </div>
           </div>
         </section>
 
-        <section class="asg-ph-card">
+        <section class="asg-ph-card asg-ph-card--top-actions">
           <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-purple)"></span>Marketing Actions</div>
           <div class="asg-ph-actions">
             ${actionLink("Book a Shoot","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
@@ -1538,16 +1849,19 @@
                 </label>
               </div>
             </div>
-            <div class="asg-ph-dt-stage" id="asgPhDtStage">
-              <div class="asg-ph-dt-grid-wrap" id="asgPhDtGridWrap">
-                <div class="asg-ph-empty">Loading deal pipeline\u2026</div>
+            <div class="asg-ph-dt-summary-host" id="asgPhDtSummary"></div>
+            <div class="asg-ph-dt-scroll">
+              <div class="asg-ph-dt-stage" id="asgPhDtStage">
+                <div class="asg-ph-dt-grid-wrap" id="asgPhDtGridWrap">
+                  <div class="asg-ph-empty">Loading deal pipeline\u2026</div>
+                </div>
+                <div class="asg-ph-dt-detail-panel" id="asgPhDtDetailPanel" hidden></div>
               </div>
-              <div class="asg-ph-dt-detail-panel" id="asgPhDtDetailPanel" hidden></div>
             </div>
           </div>
         </section>
 
-        <section class="asg-ph-card asg-ph-bento-fixed">
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-main-listings">
           <div class="asg-ph-bento-head">
             <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-dark)"></span>My Listing Assets</div>
             <label class="asg-ph-bento-search" aria-label="Search listings">
@@ -1568,24 +1882,19 @@
             </div>
           </div>
         </section>
+
       </div>
 
       <div class="asg-ph-bottom-row">
         <section class="asg-ph-card asg-ph-bento-fixed asg-ph-bento-eu">
-          <div class="asg-ph-bento-head">
+          <div class="asg-ph-bento-head asg-ph-bento-head--eu">
             <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-green)"></span>Events &amp; Updates</div>
-            <label class="asg-ph-bento-search" aria-label="Search events and updates">
-              ${searchIcon}
-              <input id="asgPhEvSearch" type="search" autocomplete="off" placeholder="Search event\u2026" aria-label="Search events and updates" />
-            </label>
-          </div>
-          <div class="asg-ph-bento-head asg-ph-bento-head--eu-sub">
-            <p class="asg-ph-note" style="margin:0">Next event or company updates.</p>
             <div class="asg-ph-tabs" id="asgPhEuTabs">
               <button type="button" class="asg-ph-tab is-on" data-eu-mode="events">Events</button>
               <button type="button" class="asg-ph-tab" data-eu-mode="updates">Updates</button>
             </div>
           </div>
+          <p class="asg-ph-note asg-ph-eu-note">Next event or company updates.</p>
           <div class="asg-ph-bento-body">
             <div class="asg-ph-eu-panel" id="asgPhEventsPanel">
               <div class="asg-ph-empty">Loading events &amp; updates\u2026</div>
@@ -1593,20 +1902,16 @@
           </div>
         </section>
 
-        <section class="asg-ph-card asg-ph-bento-fixed">
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-branding-bento">
           <div class="asg-ph-bento-head">
-            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
-            <label class="asg-ph-bento-search" aria-label="Search materials">
-              ${searchIcon}
-              <input id="asgPhMmSearch" type="search" autocomplete="off" placeholder="Search materials\u2026" aria-label="Search materials" />
-            </label>
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Agent Branding</div>
           </div>
           <div class="asg-ph-bento-body">
             <div class="asg-ph-downloads" id="asgPhDownloads"></div>
           </div>
         </section>
 
-        <section class="asg-ph-card asg-ph-bento-fixed">
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-resources-bento">
           <div class="asg-ph-bento-head">
             <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Resources</div>
             <label class="asg-ph-bento-search" aria-label="Search resources">
@@ -1629,6 +1934,7 @@
   const teamTop=root.querySelector("#asgPhTeamTop");
   const listWrap=root.querySelector("#asgPhListings");
   const dtBodyWrap=root.querySelector("#asgPhDtBody");
+  const dtSummaryWrap=root.querySelector("#asgPhDtSummary");
   const dtGridWrap=root.querySelector("#asgPhDtGridWrap");
   const dtDetailPanel=root.querySelector("#asgPhDtDetailPanel");
   const downloadsWrap=root.querySelector("#asgPhDownloads");
@@ -1637,13 +1943,130 @@
   const tabs=root.querySelectorAll("#asgPhListingTabs .asg-ph-tab");
   const euTabs=root.querySelectorAll("#asgPhEuTabs .asg-ph-tab");
   const statsTabs=root.querySelectorAll(".asg-ph-stats-tab");
+  const bottomBrandingCard=root.querySelector(".asg-ph-bottom-row .asg-ph-branding-bento");
+  const bottomEventsCard=root.querySelector(".asg-ph-bottom-row .asg-ph-bento-eu");
+  const bottomResourcesCard=root.querySelector(".asg-ph-bottom-row .asg-ph-resources-bento");
+  const mobileCollapseCards=Array.prototype.slice.call(root.querySelectorAll(".asg-ph-shell section.asg-ph-card"));
   const copyToast=root.querySelector("#asgPhCopyToast");
   const dtSearchInput=root.querySelector("#asgPhDtSearch");
   const listSearchInput=root.querySelector("#asgPhListSearch");
-  const evSearchInput=root.querySelector("#asgPhEvSearch");
-  const mmSearchInput=root.querySelector("#asgPhMmSearch");
   const qlSearchInput=root.querySelector("#asgPhQlSearch");
+  const topStatsCard=root.querySelector(".asg-ph-card--top-stats");
+  const topActionsCard=root.querySelector(".asg-ph-card--top-actions");
+  const greetGreetEl=root.querySelector(".asg-ph-greet-greet");
   let copyToastTimer=null;
+
+  function syncTopStatsToMarketingHeight(){
+    if(!topStatsCard||!topActionsCard)return;
+    if(window.innerWidth<=1080){
+      topStatsCard.style.height="";
+      return;
+    }
+    var h=topActionsCard.offsetHeight;
+    if(h>0)topStatsCard.style.height=h+"px";
+  }
+  function syncBottomBentoHeights(){
+    if(!bottomBrandingCard)return;
+    if(window.innerWidth<=1080){
+      if(bottomEventsCard)bottomEventsCard.style.height="";
+      if(bottomResourcesCard)bottomResourcesCard.style.height="";
+      bottomBrandingCard.style.height="";
+      return;
+    }
+    bottomBrandingCard.style.height="auto";
+    var brandingHeight=bottomBrandingCard.offsetHeight||0;
+    if(brandingHeight>0){
+      if(bottomEventsCard)bottomEventsCard.style.height=brandingHeight+"px";
+      if(bottomResourcesCard)bottomResourcesCard.style.height=brandingHeight+"px";
+    }
+  }
+  function syncGreetingForViewport(){
+    if(!greetGreetEl)return;
+    greetGreetEl.textContent=greetingForViewport();
+  }
+  function setupMobileCardCollapse(){
+    function iconKindForCard(card){
+      if(card.classList.contains("asg-ph-card--top-stats"))return "stats";
+      if(card.classList.contains("asg-ph-card--top-actions"))return "actions";
+      if(card.classList.contains("asg-ph-dt-bento"))return "deals";
+      if(card.classList.contains("asg-ph-main-listings"))return "listings";
+      if(card.classList.contains("asg-ph-bento-eu"))return "events";
+      if(card.classList.contains("asg-ph-branding-bento"))return "branding";
+      if(card.classList.contains("asg-ph-resources-bento"))return "resources";
+      return "resources";
+    }
+    function iconSvg(kind){
+      if(kind==="stats")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="2.4" width="4.2" height="4.2"/><rect x="9.4" y="2.4" width="4.2" height="4.2"/><rect x="2.4" y="9.4" width="4.2" height="4.2"/><rect x="9.4" y="9.4" width="4.2" height="4.2"/></svg>';
+      if(kind==="actions")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.3v11.4M2.3 8h11.4"/></svg>';
+      if(kind==="deals")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.8 4.6c-.5-.5-1.2-.8-2-.8-1.2 0-2.1.7-2.1 1.7 0 2.5 4.7 1.4 4.7 4 0 1.2-1.1 2-2.6 2-1 0-1.9-.3-2.5-.9"/><path d="M8 2.6v10.8"/></svg>';
+      if(kind==="listings")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.3" y="3" width="11.4" height="10" rx="1.8"/><circle cx="5.4" cy="6.2" r="1.1"/><path d="M3.7 11l3.2-2.7 1.7 1.4 1.8-1.7 1.9 3"/></svg>';
+      if(kind==="events")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.6" y="3.6" width="10.8" height="9.8" rx="1.8"/><path d="M5.2 2.6v2M10.8 2.6v2M2.6 6.2h10.8"/></svg>';
+      if(kind==="branding")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6l1.5 3.1 3.4.5-2.5 2.4.6 3.4L8 10.4 5 12l.6-3.4L3.1 6.2l3.4-.5z"/></svg>';
+      return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4a4.2 4.2 0 0 0-2.8 7.4c.5.45.85 1 1 1.6h3.6c.14-.6.49-1.15 1-1.6A4.2 4.2 0 0 0 8 2.4Z"/><path d="M6.2 13h3.6M6.7 14.6h2.6"/></svg>';
+    }
+    mobileCollapseCards.forEach(function(card){
+      if(card.getAttribute("data-mobile-collapse-init")==="1")return;
+      var toggleLabel=
+        card.querySelector(".asg-ph-stats-head .asg-ph-label") ||
+        card.querySelector(":scope > .asg-ph-bento-head .asg-ph-label") ||
+        card.querySelector(".asg-ph-dt-bento-top .asg-ph-label") ||
+        card.querySelector(":scope > .asg-ph-label") ||
+        card.querySelector(".asg-ph-label");
+      if(!toggleLabel)return;
+      card.setAttribute("data-mobile-collapse-init","1");
+      toggleLabel.classList.add("asg-ph-mobile-collapse-toggle");
+      if(!toggleLabel.querySelector(".asg-ph-mobile-collapse-icon")){
+        var kind=iconKindForCard(card);
+        var icon=document.createElement("span");
+        icon.className="asg-ph-mobile-collapse-icon is-"+kind;
+        icon.setAttribute("aria-hidden","true");
+        icon.innerHTML=iconSvg(kind);
+        toggleLabel.insertBefore(icon,toggleLabel.firstChild);
+      }
+      toggleLabel.setAttribute("role","button");
+      toggleLabel.setAttribute("tabindex","0");
+      card.classList.add("is-mobile-collapsed");
+      toggleLabel.addEventListener("click",function(ev){
+        if(window.innerWidth>760)return;
+        ev.preventDefault();
+        card.classList.toggle("is-mobile-collapsed");
+      });
+      toggleLabel.addEventListener("keydown",function(ev){
+        if(window.innerWidth>760)return;
+        if(ev.key==="Enter"||ev.key===" "){
+          ev.preventDefault();
+          card.classList.toggle("is-mobile-collapsed");
+        }
+      });
+    });
+  }
+  function syncMobileCollapseMode(){
+    var isMobile=window.innerWidth<=760;
+    mobileCollapseCards.forEach(function(card){
+      if(!isMobile){
+        card.classList.remove("is-mobile-collapsed");
+      }else if(!card.classList.contains("is-mobile-collapsed")){
+        card.classList.add("is-mobile-collapsed");
+      }
+    });
+  }
+  setupMobileCardCollapse();
+  syncMobileCollapseMode();
+  syncGreetingForViewport();
+  if(topStatsCard&&topActionsCard&&"ResizeObserver" in window){
+    (new ResizeObserver(syncTopStatsToMarketingHeight)).observe(topActionsCard);
+  }
+  if(bottomBrandingCard&&"ResizeObserver" in window){
+    (new ResizeObserver(syncBottomBentoHeights)).observe(bottomBrandingCard);
+  }
+  window.addEventListener("resize",syncTopStatsToMarketingHeight);
+  window.addEventListener("resize",syncBottomBentoHeights);
+  window.addEventListener("resize",syncMobileCollapseMode);
+  window.addEventListener("resize",syncGreetingForViewport);
+  requestAnimationFrame(syncTopStatsToMarketingHeight);
+  requestAnimationFrame(syncBottomBentoHeights);
+  requestAnimationFrame(syncMobileCollapseMode);
+  requestAnimationFrame(syncGreetingForViewport);
 
   renderQuickLinksGrid();
   renderDownloadsList("");
@@ -1664,25 +2087,17 @@
     });
   });
 
-  function syncEvSearchUi(){
-    if(!evSearchInput)return;
-    const q=String(evSearchInput.value||"").trim().toLowerCase();
-    if(currentEuMode==="updates"){
-      evSearchInput.placeholder="Search updates\u2026";
-      evSearchInput.setAttribute("aria-label","Search updates");
-    }else{
-      evSearchInput.placeholder="Search event\u2026";
-      evSearchInput.setAttribute("aria-label","Search event");
-    }
-    renderEventsPanel(eventsState.events||{},eventsState.updates||{},q);
+  function refreshEuPanel(){
+    renderEventsPanel(eventsState.events||{},eventsState.updates||{},"");
+    var euBody=root.querySelector(".asg-ph-bento-eu .asg-ph-bento-body");
+    if(euBody)applyBentoSearch(euBody,"");
   }
   euTabs.forEach(btn=>{
     btn.addEventListener("click",function(){
       const mode=this.getAttribute("data-eu-mode")==="updates"?"updates":"events";
       currentEuMode=mode;
       euTabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
-      syncEvSearchUi();
-      applyBentoSearch(bentoBodyOf(evSearchInput),String(evSearchInput&&evSearchInput.value||"").trim().toLowerCase());
+      refreshEuPanel();
     });
   });
 
@@ -1714,20 +2129,6 @@
       applyBentoSearch(bentoBodyOf(listSearchInput),currentListSearch);
     });
   }
-  if(evSearchInput){
-    evSearchInput.addEventListener("input",function(){
-      const q=String(this.value||"").trim().toLowerCase();
-      renderEventsPanel(eventsState.events||{},eventsState.updates||{},q);
-      applyBentoSearch(bentoBodyOf(evSearchInput),q);
-    });
-  }
-  if(mmSearchInput){
-    mmSearchInput.addEventListener("input",function(){
-      const q=String(this.value||"").trim().toLowerCase();
-      renderDownloadsList(q);
-      applyBentoSearch(bentoBodyOf(mmSearchInput),q);
-    });
-  }
   if(qlSearchInput){
     qlSearchInput.addEventListener("input",function(){
       const q=String(this.value||"").trim().toLowerCase();
@@ -1741,7 +2142,7 @@
     if(ev.key==="Escape"&&dtDetailOpenId)closeDtDetail();
   });
 
-  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings(),loadFubHubData(),loadEventsAndUpdates()]).then(function(){ renderListings(); });
+  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings(),loadFubHubData(),loadEventsAndUpdates()]).then(function(){ renderListings(); syncTopStatsToMarketingHeight(); syncBottomBentoHeights(); });
 
   function loadStats(period){
     const targetPeriod=period||"ytd2026";
@@ -1783,7 +2184,8 @@
       })
       .catch(()=>{
         kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to load '+esc(periodLabel)+' stats right now.</div>';
-      });
+      })
+      .finally(function(){ syncTopStatsToMarketingHeight(); });
   }
 
   function loadListings(){
@@ -1838,15 +2240,18 @@
           `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>`,
           `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>`
         ].join("");
-      });
+      })
+      .finally(function(){ syncTopStatsToMarketingHeight(); });
   }
 
   function loadFubHubData(){
     if(!dtGridWrap)return Promise.resolve();
     if(!FUB_HUB_API||FUB_HUB_API.indexOf("REPLACE_WITH_FUB_HUB_DEPLOYMENT")!==-1){
+      if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
       dtGridWrap.innerHTML='<div class="asg-ph-empty">Follow Up Boss endpoint not configured yet.</div>';
       return Promise.resolve();
     }
+    if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
     dtGridWrap.innerHTML='<div class="asg-ph-empty">Loading deal pipeline\u2026</div>';
     const params=[
       "smartListId=172",
@@ -1865,6 +2270,7 @@
         renderDtGrid();
       })
       .catch(()=>{
+        if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
         dtGridWrap.innerHTML='<div class="asg-ph-error">Unable to load deal pipeline right now.</div>';
       });
   }
@@ -1909,6 +2315,7 @@
     const cards=Array.isArray(dtCardsState)?dtCardsState:[];
     const summary=summarizeFubDealCards(cards);
     if(!cards.length){
+      if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
       dtGridWrap.innerHTML='<div class="asg-ph-empty">No current deals found in your Follow Up Boss pipeline.</div>';
       return;
     }
@@ -1921,11 +2328,12 @@
         <div class="asg-ph-dt-summary-stat"><div class="asg-ph-dt-summary-label">Done tasks</div><div class="asg-ph-dt-summary-value">${esc(String(summary.taskDone||0))}</div></div>
       </div>
     `;
+    if(dtSummaryWrap)dtSummaryWrap.innerHTML=summaryHtml;
     if(!visible.length){
-      dtGridWrap.innerHTML=summaryHtml+'<div class="asg-ph-empty">No deals match your search.</div>';
+      dtGridWrap.innerHTML='<div class="asg-ph-empty">No deals match your search.</div>';
       return;
     }
-    dtGridWrap.innerHTML=summaryHtml+'<div class="asg-ph-dt-grid">'+visible.map(renderDtMiniCard).join("")+'</div>';
+    dtGridWrap.innerHTML='<div class="asg-ph-dt-grid">'+visible.map(renderDtMiniCard).join("")+'</div>';
     dtGridWrap.querySelectorAll(".asg-ph-dt-card[data-dt-card-id]").forEach(function(btn){
       btn.addEventListener("click",function(){
         const id=this.getAttribute("data-dt-card-id");
@@ -2179,8 +2587,9 @@
       dtDetailPanel.classList.remove("is-out");
       // force reflow so the entry animation re-runs
       void dtDetailPanel.offsetWidth;
-      // Scroll deal tracker area to top; long detail content scrolls inside the panel
-      if(dtBodyWrap)dtBodyWrap.scrollTop=0;
+      // Scroll deal list region to top; long detail content scrolls inside the panel
+      var dtScrollEl=dtBodyWrap&&dtBodyWrap.querySelector(".asg-ph-dt-scroll");
+      if(dtScrollEl)dtScrollEl.scrollTop=0;
       if(dtDetailPanel)dtDetailPanel.scrollTop=0;
     },200);
   }
@@ -2196,7 +2605,8 @@
       dtGridWrap.hidden=false;
       // restart grid entrance
       void dtGridWrap.offsetWidth;
-      if(dtBodyWrap)dtBodyWrap.scrollTop=0;
+      var dtScrollEl2=dtBodyWrap&&dtBodyWrap.querySelector(".asg-ph-dt-scroll");
+      if(dtScrollEl2)dtScrollEl2.scrollTop=0;
       if(dtDetailPanel)dtDetailPanel.scrollTop=0;
       // Re-apply per-bento highlight in case search is still active
       if(currentDtSearch){applyBentoSearch(dtBodyWrap,currentDtSearch);}
@@ -2228,11 +2638,11 @@
         <article class="asg-ph-listing" data-srch data-srch-text="${esc(blob)}">
           <div class="asg-ph-listing-top">
             ${cover?`<img class="asg-ph-listing-cover" src="${esc(cover)}" alt="${esc(item.address||'Listing')}" loading="lazy" onerror="this.style.opacity=.2">`:'<div class="asg-ph-listing-cover"></div>'}
-            <div style="min-width:0">
+            <div class="asg-ph-listing-main">
               <h3 class="asg-ph-listing-title">${esc(item.address||"Untitled Listing")}</h3>
               <div class="asg-ph-listing-meta">${esc(meta||statusLabel(item.status||status))}</div>
+              <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
             </div>
-            <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
           </div>
           <div class="asg-ph-assets">
             ${assetLink("Photos",item.photos)}
@@ -2317,7 +2727,7 @@
     }
     return "";
   }
-  function eventOnlineUrl(ev){return pickFirst(ev,["join_online","join_online_link","join_link","online_url","join_url","meeting_url","zoom_url","video_url","webinar_url"]);}
+  function eventOnlineUrl(ev){return pickFirst(ev,["join_online_link","join_link","join_online","online_url","join_url","meeting_url","zoom_url","video_url","webinar_url"]);}
   function pad2(n){return (n<10?"0":"")+n;}
   function gcalDateTime(d){return d.getUTCFullYear()+pad2(d.getUTCMonth()+1)+pad2(d.getUTCDate())+"T"+pad2(d.getUTCHours())+pad2(d.getUTCMinutes())+pad2(d.getUTCSeconds())+"Z";}
   function eventStartDate(ev){
@@ -2461,6 +2871,7 @@
       .then(function(payload){
         if(!payload||!payload.success||!payload.data)throw new Error("Bad hub payload");
         applyDirectoryPhoto(payload.data.directory);
+        applyDirectoryBranding(payload.data.directory);
         if(eventsPanel){
           renderEventsPanel(payload.data.events||{},payload.data.updates||{},"");
         }
@@ -2470,11 +2881,9 @@
       });
   }
 
-  /* Pulls icon_photo_url for this agent from the Team Directory sheet
-     and updates the greeting hero photo + tier in place. */
-  function applyDirectoryPhoto(directory){
+  function findDirectoryAgentRow(directory){
     var rows=directory&&Array.isArray(directory.rows)?directory.rows:[];
-    if(!rows.length)return;
+    if(!rows.length)return null;
     var targetEmail=String(AGENT_PROFILE.email||"").toLowerCase().trim();
     var targetName=normalize(AGENT_PROFILE.name);
     var match=rows.find(function(r){
@@ -2487,6 +2896,13 @@
         return targetName&&name===targetName;
       });
     }
+    return match||null;
+  }
+
+  /* Pulls icon_photo_url for this agent from the Team Directory sheet
+     and updates the greeting hero photo + tier in place. */
+  function applyDirectoryPhoto(directory){
+    var match=findDirectoryAgentRow(directory);
     if(!match)return;
     var photo=String(match.icon_photo_url||match.image_url||match.photo||match.headshot_url||"").trim();
     var photoEl=root.querySelector("#asgPhGreetPhoto");
@@ -2495,6 +2911,25 @@
       photoEl.style.opacity="";
       AGENT_PROFILE.photo=photo;
     }
+  }
+  function applyDirectoryBranding(directory){
+    var match=findDirectoryAgentRow(directory);
+    if(!match)return;
+    var fromSheet=Array.isArray(match.computed_branding_materials)?match.computed_branding_materials:[];
+    if(!fromSheet.length)return;
+    dynamicBrandingMaterials=DOWNLOADABLES.map(function(base,idx){
+      var key=BRANDING_ASSET_KEYS[idx]||("asset_"+idx);
+      var mapped=fromSheet.find(function(x){return String((x&&x.key)||"")===key;})||{};
+      return {
+        key:key,
+        label:base.label,
+        href:String(mapped.href||"").trim(),
+        logo:base.logo||"",
+        updated_at_display:String(mapped.updated_at_display||"").trim(),
+        updated_at_iso:String(mapped.updated_at_iso||"").trim()
+      };
+    });
+    renderDownloadsList();
   }
 
   /* ----- Resources / Quick Links ----- */
@@ -2522,24 +2957,37 @@
     }).join("");
   }
 
-  /* ----- Marketing Materials list (with internal search) ----- */
-  function downloadSearchBlob(d){return String(d.label||"").toLowerCase();}
-  function renderDownloadsList(query){
+  /* ----- Agent Branding materials list + design meeting CTA ----- */
+  function renderDownloadsList(){
     if(!downloadsWrap)return;
-    var q=String(query||"").trim().toLowerCase();
-    var items=q?DOWNLOADABLES.filter(d=>downloadSearchBlob(d).indexOf(q)>=0):DOWNLOADABLES;
+    var items=Array.isArray(dynamicBrandingMaterials)?dynamicBrandingMaterials:[];
     if(!items.length){
-      downloadsWrap.innerHTML='<div class="asg-ph-empty">No materials match your search.</div>';
+      downloadsWrap.innerHTML='<div class="asg-ph-empty">No branding materials available right now.</div>';
       return;
     }
-    downloadsWrap.innerHTML=items.map(function(link){
-      var blob=downloadSearchBlob(link);
+    var rows=items.map(function(link){
       var logoHtml=link.logo?'<img class="asg-ph-drive-logo" src="'+esc(link.logo)+'" alt="Google Drive" loading="lazy">':"";
-      return '<div class="asg-ph-download-row" data-srch data-srch-text="'+esc(blob)+'">'+
-        '<span class="asg-ph-download-label-wrap">'+logoHtml+'<span class="asg-ph-download-label">'+esc(link.label)+'</span></span>'+
-        '<a class="asg-ph-download-btn" href="'+esc(safeHref(link.href))+'" target="_blank" rel="noopener" aria-label="Access '+esc(link.label)+'">Access</a>'+
+      var href=safeHref(link.href);
+      var isDead=href==="#";
+      var updatedLabel=String(link.updated_at_display||"").trim();
+      var updatedHtml=String(link.key||"")==="marketing_drive"
+        ?''
+        :'<span class="asg-ph-download-meta">'+esc(updatedLabel?("Updated "+updatedLabel):"Last updated: not tracked yet")+'</span>';
+      return '<div class="asg-ph-download-row">'+
+        '<span class="asg-ph-download-label-wrap"><span class="asg-ph-download-label-main">'+logoHtml+'<span class="asg-ph-download-label">'+esc(link.label)+'</span></span>'+updatedHtml+'</span>'+
+        (isDead
+          ?'<span class="asg-ph-download-btn is-disabled" aria-disabled="true">Access</span>'
+          :'<a class="asg-ph-download-btn" href="'+esc(href)+'" target="_blank" rel="noopener" aria-label="Access '+esc(link.label)+'">Access</a>')+
       '</div>';
-    }).join("");
+    });
+    rows.push(
+      '<div class="asg-ph-download-row is-cta">'+
+      '<span class="asg-ph-download-label-wrap"><span class="asg-ph-download-label">Update Your Materials</span></span>'+
+      '<a class="asg-ph-download-btn" href="https://asgmarketing.as.me/?appointmentType=85904162" target="_blank" rel="noopener" aria-label="Schedule a design meeting">Book</a>'+
+      '</div>'
+    );
+    downloadsWrap.innerHTML=rows.join("");
+    syncBottomBentoHeights();
   }
 
   /* ----- Per-bento search highlight engine -----

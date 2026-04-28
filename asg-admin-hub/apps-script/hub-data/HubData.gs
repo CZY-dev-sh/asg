@@ -25,6 +25,38 @@ var HUB_TAB_CANDIDATES = {
   events: ["Events", "events"],
   updates: ["Updates", "updates"]
 };
+var DIRECTORY_BRANDING_ASSETS = [
+  {
+    key: "marketing_drive",
+    label: "Marketing Drive Folder",
+    linkKeys: ["marketing_drive_url", "marketing_drive_link", "marketing_drive"],
+    updatedKeys: ["marketing_drive_updated_at", "marketing_drive_last_updated", "marketing_drive_updated_on", "marketing_drive_date"]
+  },
+  {
+    key: "buyer_guide",
+    label: "Buyer Guide",
+    linkKeys: ["buyer_guide_url", "buyer_guide_link", "buyer_guide"],
+    updatedKeys: ["buyer_guide_updated_at", "buyer_guide_last_updated", "buyer_guide_updated_on", "buyer_guide_date"]
+  },
+  {
+    key: "seller_guide",
+    label: "Seller Guide",
+    linkKeys: ["seller_guide_url", "seller_guide_link", "seller_guide"],
+    updatedKeys: ["seller_guide_updated_at", "seller_guide_last_updated", "seller_guide_updated_on", "seller_guide_date"]
+  },
+  {
+    key: "listing_presentation",
+    label: "Listing Presentation",
+    linkKeys: ["listing_presentation_url", "listing_presentation_link", "listing_presentation"],
+    updatedKeys: ["listing_presentation_updated_at", "listing_presentation_last_updated", "listing_presentation_updated_on", "listing_presentation_date"]
+  },
+  {
+    key: "business_card",
+    label: "Business Card",
+    linkKeys: ["business_card_url", "business_card_link", "business_card"],
+    updatedKeys: ["business_card_updated_at", "business_card_last_updated", "business_card_updated_on", "business_card_date"]
+  }
+];
 
 function doGet(e) {
   try {
@@ -65,10 +97,65 @@ function doGet(e) {
   }
 }
 
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var range = e.range;
+    var sheet = range.getSheet();
+    if (!sheet || !_isDirectorySheetName_(sheet.getName())) return;
+    if (range.getRow() < 2 || range.getNumRows() !== 1 || range.getNumColumns() !== 1) return;
+
+    var lastCol = sheet.getLastColumn();
+    if (lastCol < 1) return;
+    var headers = sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
+    var editedCol = range.getColumn();
+    if (editedCol < 1 || editedCol > headers.length) return;
+
+    var editedKey = _toKey_(headers[editedCol - 1]);
+    if (!editedKey) return;
+
+    var asset = null;
+    for (var i = 0; i < DIRECTORY_BRANDING_ASSETS.length; i++) {
+      var cfg = DIRECTORY_BRANDING_ASSETS[i];
+      if ((cfg.linkKeys || []).indexOf(editedKey) !== -1) {
+        asset = cfg;
+        break;
+      }
+    }
+    if (!asset) return;
+
+    var headerKeys = headers.map(function(h) { return _toKey_(h); });
+    var updatedCol = -1;
+    for (var j = 0; j < (asset.updatedKeys || []).length; j++) {
+      var idx = headerKeys.indexOf(asset.updatedKeys[j]);
+      if (idx !== -1) {
+        updatedCol = idx + 1;
+        break;
+      }
+    }
+
+    if (updatedCol === -1) {
+      updatedCol = sheet.getLastColumn() + 1;
+      sheet.getRange(1, updatedCol).setValue(asset.updatedKeys[0]);
+    }
+    sheet.getRange(range.getRow(), updatedCol).setValue(new Date());
+  } catch (err) {
+    Logger.log("onEdit branding timestamp error: " + (err && err.message ? err.message : String(err)));
+  }
+}
+
 function _resolveView_(raw) {
   var view = String(raw || "").trim().toLowerCase();
   if (view === "directory" || view === "events" || view === "updates") return view;
   return "all";
+}
+
+function _isDirectorySheetName_(name) {
+  var n = String(name || "").trim().toLowerCase();
+  for (var i = 0; i < HUB_TAB_CANDIDATES.directory.length; i++) {
+    if (n === String(HUB_TAB_CANDIDATES.directory[i]).trim().toLowerCase()) return true;
+  }
+  return false;
 }
 
 function _readDirectoryPayload_(ss) {
@@ -153,6 +240,7 @@ function _readTable_(sheet) {
 
   var values = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   var display = sheet.getRange(2, 1, lastRow - 1, lastCol).getDisplayValues();
+  var richText = sheet.getRange(2, 1, lastRow - 1, lastCol).getRichTextValues();
   var rows = [];
 
   for (var r = 0; r < values.length; r++) {
@@ -168,6 +256,8 @@ function _readTable_(sheet) {
       if (!key) continue;
       obj[key] = rawRow[c];
       obj[key + "_display"] = display[r][c];
+      var linkUrl = _richTextLinkUrl_(richText[r][c]);
+      if (linkUrl) obj[key + "_link"] = linkUrl;
     }
     rows.push(obj);
   }
@@ -176,6 +266,21 @@ function _readTable_(sheet) {
     headers: headers,
     rows: rows
   };
+}
+
+function _richTextLinkUrl_(richTextValue) {
+  if (!richTextValue || typeof richTextValue.getLinkUrl !== "function") return "";
+  var whole = richTextValue.getLinkUrl();
+  if (whole) return String(whole).trim();
+  if (typeof richTextValue.getRuns !== "function") return "";
+  var runs = richTextValue.getRuns() || [];
+  for (var i = 0; i < runs.length; i++) {
+    var run = runs[i];
+    if (!run || typeof run.getLinkUrl !== "function") continue;
+    var runUrl = run.getLinkUrl();
+    if (runUrl) return String(runUrl).trim();
+  }
+  return "";
 }
 
 function _enrichDirectoryRows_(rows) {
@@ -222,6 +327,8 @@ function _enrichDirectoryRows_(rows) {
     row.computed_birthday_iso = birthdayDate ? _toIsoDate_(birthdayDate) : "";
     row.computed_next_birthday_iso = nextBirthday ? _toIsoDate_(nextBirthday.date) : "";
     row.computed_days_until_birthday = nextBirthday ? nextBirthday.daysUntil : null;
+    row.computed_branding_materials = _buildBrandingMaterials_(row);
+    row.computed_branding_last_updated_iso = _latestBrandingUpdateIso_(row.computed_branding_materials);
     return row;
   });
 
@@ -296,6 +403,41 @@ function _enrichDirectoryRows_(rows) {
       }
     }
   };
+}
+
+function _buildBrandingMaterials_(row) {
+  return DIRECTORY_BRANDING_ASSETS.map(function(asset) {
+    var link = _pickAny_(row, asset.linkKeys);
+    var updatedRaw = _pickAny_(row, asset.updatedKeys);
+    var updatedDate = _parseDate_(updatedRaw);
+    var updatedIso = updatedDate ? _toIsoDate_(updatedDate) : "";
+    var updatedDisplay = "";
+    if (updatedDate) {
+      updatedDisplay = Utilities.formatDate(updatedDate, Session.getScriptTimeZone(), "MMM d, yyyy");
+    } else if (updatedRaw) {
+      updatedDisplay = String(updatedRaw).trim();
+    }
+    return {
+      key: asset.key,
+      label: asset.label,
+      href: String(link || "").trim(),
+      updated_at_iso: updatedIso,
+      updated_at_display: updatedDisplay
+    };
+  });
+}
+
+function _latestBrandingUpdateIso_(materials) {
+  var list = Array.isArray(materials) ? materials : [];
+  var latest = null;
+  for (var i = 0; i < list.length; i++) {
+    var iso = list[i] && list[i].updated_at_iso ? String(list[i].updated_at_iso) : "";
+    if (!iso) continue;
+    var d = _parseDate_(iso);
+    if (!d) continue;
+    if (!latest || d.getTime() > latest.getTime()) latest = d;
+  }
+  return latest ? _toIsoDate_(latest) : "";
 }
 
 function _seniorityListByTier_(rows, tier) {
@@ -499,6 +641,19 @@ function _pick_(obj, keys) {
     var key = keys[i];
     if (obj.hasOwnProperty(key) && obj[key] !== "" && obj[key] !== null && obj[key] !== undefined) {
       return obj[key];
+    }
+  }
+  return "";
+}
+
+function _pickAny_(obj, keys) {
+  var value = _pick_(obj, keys || []);
+  if (value !== "" && value !== null && value !== undefined) return value;
+  for (var i = 0; i < (keys || []).length; i++) {
+    var key = keys[i];
+    var displayKey = key + "_display";
+    if (obj && obj.hasOwnProperty(displayKey) && obj[displayKey] !== "" && obj[displayKey] !== null && obj[displayKey] !== undefined) {
+      return obj[displayKey];
     }
   }
   return "";

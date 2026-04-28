@@ -17,8 +17,8 @@
   }
   #asg-agent-personal-hub-matthew-clevenger *{box-sizing:border-box}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-shell{
-    max-width:1260px;
-    margin:0 auto;
+    max-width:none;
+    margin:0;
     background:var(--asg-ph-bg);
     border:1px solid var(--asg-ph-border);
     border-radius:30px;
@@ -28,6 +28,7 @@
     display:grid;
     grid-template-columns:1.2fr .8fr;
     gap:16px;
+    align-items:start;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-card{
     background:var(--asg-ph-card);
@@ -37,82 +38,132 @@
     min-width:0;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-label{
-    font-size:11px;
-    letter-spacing:.1em;
+    font-size:13px;
+    letter-spacing:.09em;
     text-transform:uppercase;
-    font-weight:700;
+    font-weight:800;
     color:var(--asg-ph-muted);
     margin-bottom:10px;
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:9px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-mock-chip{
+    display:inline-flex;
+    align-items:center;
+    margin-left:8px;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:10px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#b91c1c;
+    background:rgba(239,68,68,.14);
+    border:1px solid rgba(239,68,68,.32);
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-label-dot{
-    width:8px;height:8px;border-radius:50%;
-  }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-profile{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin-bottom:14px;
+    width:9px;height:9px;border-radius:50%;
+    flex-shrink:0;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-head{
     display:flex;
-    align-items:flex-start;
+    align-items:center;
     justify-content:space-between;
     gap:10px;
-  }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-avatar{
-    width:66px;height:66px;border-radius:20px;object-fit:cover;border:1px solid var(--asg-ph-border);background:#eaeef3;
-  }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-name{
-    font-size:26px;
-    line-height:1.05;
-    font-weight:800;
-    margin:0;
-  }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-sub{
-    margin:4px 0 0;
-    font-size:13px;
-    color:var(--asg-ph-muted);
-    font-weight:500;
+    margin-bottom:14px;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpis{
     display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi{
     border:1px solid var(--asg-ph-border);
     border-radius:16px;
-    padding:12px;
+    padding:14px;
     background:#fff;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi-label{
     font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--asg-ph-muted);margin-bottom:6px;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi-value{
-    font-size:24px;line-height:1.05;font-weight:800;
+    font-size:26px;line-height:1.05;font-weight:800;letter-spacing:-.02em;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi-sub{
     margin-top:6px;font-size:12px;color:var(--asg-ph-muted);
   }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-strip{
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-stats{
     margin-top:10px;
-    border:1px solid var(--asg-ph-border);
-    border-radius:16px;
-    padding:10px;
-    background:#fff;
-  }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-top{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  /* Top row: one 3×2 bento so Personal Stats fits the Marketing Actions column height */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-bento{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
     gap:8px;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-stats-bento .asg-ph-kpis,
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-stats-bento .asg-ph-team-stats{
+    display:contents;
+    margin-top:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-stats-head{
+    flex-shrink:0;
+    margin-bottom:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-stats-head .asg-ph-label{
+    margin-bottom:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-kpi{
+    padding:10px 11px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-kpi-value{
+    font-size:21px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-kpi-sub{
+    margin-top:4px;
+    font-size:11px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-team-stat{
+    padding:9px 11px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-team-stat-value{
+    font-size:21px;
+    margin-top:4px;
+    letter-spacing:-.02em;
+    line-height:1.05;
+    font-weight:800;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-actions{
+    align-self:start;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-actions .asg-ph-label{
+    margin-bottom:8px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-actions .asg-ph-actions{
+    flex:0 0 auto;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-stat{
     border:1px solid var(--asg-ph-border);
-    border-radius:12px;
-    padding:9px 10px;
+    border-radius:14px;
+    padding:11px 13px;
     background:#fff;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-stat-label{
@@ -253,9 +304,22 @@
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-label{line-height:1.2}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-label-wrap{
     display:flex;
+    align-items:flex-start;
+    gap:8px;
+    min-width:0;
+    flex-direction:column;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-label-main{
+    display:flex;
     align-items:center;
     gap:8px;
     min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-meta{
+    font-size:10px;
+    line-height:1.25;
+    color:rgba(17,17,17,.5);
+    font-weight:600;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-drive-logo{
     width:18px;
@@ -268,6 +332,7 @@
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-btn{
     height:30px;
+    width:74px;
     padding:0 12px;
     border-radius:999px;
     background:#111;
@@ -282,11 +347,70 @@
     letter-spacing:.02em;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-btn:hover{opacity:.86}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-btn.is-disabled{
+    background:#e5e7eb;
+    border-color:#e5e7eb;
+    color:rgba(17,17,17,.45);
+    cursor:not-allowed;
+    pointer-events:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-row.is-cta{
+    margin-top:2px;
+    background:rgba(59,130,246,.10);
+    border-color:rgba(59,130,246,.35);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-row.is-cta .asg-ph-download-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:rgba(17,17,17,.62);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-row.is-cta .asg-ph-download-btn{
+    background:#111;
+    border-color:#111;
+    color:#fff;
+    min-width:0;
+    justify-content:center;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-row.is-cta .asg-ph-download-btn:hover{
+    opacity:.86;
+    background:#111;
+    border-color:#111;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-branding-bento.asg-ph-bento-fixed{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-branding-bento .asg-ph-bento-body{
+    overflow:visible;
+    padding-right:0;
+    margin-right:0;
+  }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-main{
     margin-top:16px;
     display:grid;
     grid-template-columns:1.2fr .8fr;
     gap:16px;
+    align-items:stretch;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-main > .asg-ph-dt-bento{
+    grid-column:1;
+    grid-row:1;
+    min-height:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-main > .asg-ph-main-listings{
+    grid-column:2;
+    grid-row:1;
+  }
+  /* Deal Tracker: title row + summary stay fixed; only .asg-ph-dt-scroll scrolls */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-bento-top{
+    flex:0 0 auto;
+    padding-bottom:6px;
+    margin:0 0 2px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-bento-top .asg-ph-bento-head{
+    margin-bottom:0;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-list-head{
     display:flex;
@@ -308,39 +432,55 @@
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-tab.is-on{background:#fff;color:#111;border:1px solid var(--asg-ph-border)}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-list{
-    max-height:560px;overflow:auto;display:grid;gap:10px;padding-right:4px;
+    max-height:560px;overflow:auto;display:grid;gap:7px;padding-right:4px;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing{
     border:1px solid var(--asg-ph-border);
-    border-radius:16px;
-    padding:12px;
+    border-radius:12px;
+    padding:7px 9px;
     display:grid;
-    gap:10px;
+    gap:5px;
     background:#fff;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-top{
-    display:flex;align-items:flex-start;gap:10px;
+    display:grid;
+    grid-template-columns:78px 1fr;
+    align-items:start;
+    gap:8px;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-cover{
     width:78px;height:58px;border-radius:8px !important;background:#e6ebf1;object-fit:cover;flex:0 0 78px;
-    clip-path: inset(0 round 8px);
+    clip-path: inset(0 round 6px);
   }
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-title{font-size:15px;font-weight:700;line-height:1.25;margin:0}
-  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-meta{margin-top:3px;font-size:12px;color:var(--asg-ph-muted)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-main{
+    min-width:0;
+    display:grid;
+    gap:4px;
+    align-content:start;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-title{font-size:13px;font-weight:700;line-height:1.2;margin:0}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-meta{margin-top:1px;font-size:10.5px;color:var(--asg-ph-muted);line-height:1.25}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-badge{
-    margin-left:auto;white-space:nowrap;
-    border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;border:1px solid transparent;
+    margin-left:0;white-space:nowrap;justify-self:start;align-self:start;
+    border-radius:999px;padding:0 8px;height:20px;line-height:20px;
+    font-size:10px;font-weight:700;border:1px solid transparent;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-badge.is-active{background:rgba(34,197,94,.1);color:#0f8a3a;border-color:rgba(34,197,94,.22)}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-badge.is-closed{background:rgba(59,130,246,.1);color:#275cc5;border-color:rgba(59,130,246,.22)}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-assets{
-    display:flex;flex-wrap:wrap;gap:6px;
+    display:flex;flex-wrap:nowrap;align-items:center;gap:4px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    padding-bottom:1px;
   }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-assets::-webkit-scrollbar{height:3px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-assets::-webkit-scrollbar-thumb{background:rgba(17,17,17,.12);border-radius:999px}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-asset{
     display:inline-flex;align-items:center;justify-content:center;
     border:1px solid var(--asg-ph-border);border-radius:999px;
-    padding:6px 10px;
-    font-size:11px;font-weight:700;color:#111;text-decoration:none;background:#fff;
+    padding:3px 7px;
+    font-size:9.5px;font-weight:700;color:#111;text-decoration:none;background:#fff;
+    white-space:nowrap;flex:0 0 auto;line-height:1.2;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-asset.is-off{
     color:rgba(17,17,17,.35);
@@ -361,35 +501,1135 @@
     text-align:center;
   }
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-error{color:#9f1d1d;border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.04)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-panel-stack{display:grid;gap:14px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-panel-divider{height:1px;background:var(--asg-ph-border)}
+  /* Follow Up Boss — minimal “Apple retail” density: system font, airy spacing, no nested boxes */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-wrap{
+    display:grid;
+    gap:16px;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Helvetica,sans-serif;
+    --asg-fub-text:#1d1d1f;
+    --asg-fub-dim:#6e6e73;
+    --asg-fub-line:rgba(0,0,0,.06);
+    --asg-fub-surface:#fafafa;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-summary{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0;
+    padding:14px 0 2px;
+    border-bottom:1px solid var(--asg-fub-line);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat{
+    padding:0 16px 14px 0;
+    border:none;
+    background:transparent;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat:last-child{padding-right:0}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat-label{
+    font-size:12px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+    color:var(--asg-fub-dim);
+    line-height:1.3;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat-value{
+    margin-top:2px;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:-0.02em;
+    color:var(--asg-fub-text);
+    line-height:1.15;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-bento{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-card{
+    border:1px solid var(--asg-fub-line);
+    border-radius:12px;
+    padding:16px 18px 17px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+    display:grid;
+    gap:0;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-addr{
+    margin:0;
+    font-size:17px;
+    font-weight:600;
+    letter-spacing:-0.022em;
+    line-height:1.25;
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge{
+    flex-shrink:0;
+    white-space:nowrap;
+    max-width:46%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    border-radius:100px;
+    padding:5px 11px;
+    border:1px solid transparent;
+    line-height:1.2;
+    background:var(--asg-fub-surface);
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge.is-open{background:#f5f5f7;color:#1d1d1f;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge.is-won{background:#eefbf3;color:#1d7a3d;border-color:rgba(52,199,89,.2)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge.is-lost{background:#fef2f2;color:#b42318;border-color:rgba(255,59,48,.15)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge.is-archived{background:#f5f5f7;color:#6e6e73;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-badge.is-unknown{background:#f5f5f7;color:#6e6e73;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-line{
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:-0.01em;
+    line-height:1.45;
+    color:var(--asg-fub-dim);
+    margin:0 0 12px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-line strong{
+    font-weight:600;
+    color:var(--asg-fub-text);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-foot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding-top:12px;
+    margin-top:2px;
+    border-top:1px solid var(--asg-fub-line);
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    color:var(--asg-fub-dim);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-deal-foot b{
+    font-weight:600;
+    color:var(--asg-fub-text);
+  }
+
+  /* =========================================================
+     PAGE — greeting row (photo + headline share same left edge as shell)
+     ========================================================= */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-page{
+    max-width:1260px;
+    margin:0 auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-photo{
+    width:88px;height:88px;border-radius:50%;object-fit:cover;
+    background:#eaeef3;
+    box-shadow:0 6px 18px rgba(15,23,42,.10), 0 0 0 1px rgba(15,23,42,.06);
+    display:block;
+    flex:0 0 88px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet{
+    margin:0 0 16px;
+    padding:0;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:none;
+    border:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-body{
+    flex:1 1 auto;
+    min-width:0;
+    display:flex;
+    align-items:center;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-line{
+    margin:0;
+    padding-bottom:.12em;
+    font-size:clamp(32px,4.2vw,48px);
+    line-height:1.22;
+    font-weight:800;
+    letter-spacing:-.03em;
+    color:#000;
+    white-space:nowrap;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-greet,
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-name{
+    font-weight:800;
+    color:#000;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-greet{margin-right:.22em}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-quick-actions{
+    display:none;
+    margin:0 0 14px;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-quick-btn{
+    border:1px solid rgba(17,17,17,.12);
+    background:#fff;
+    color:#111;
+    border-radius:14px;
+    min-height:50px;
+    padding:11px 12px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    font-weight:700;
+    line-height:1.2;
+    box-shadow:0 8px 18px rgba(15,23,42,.06);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-quick-btn svg{
+    width:16px;height:16px;flex:0 0 16px;
+  }
+
+  /* =========================================================
+     PER-BENTO MATCH HIGHLIGHT — pulse glow on matches, dim others
+     (scoped to the bento body that owns the search input)
+     ========================================================= */
+  @keyframes asg-ph-hl-pulse{
+    0%   { box-shadow:0 0 0 0 rgba(99,102,241,.30), 0 8px 22px rgba(99,102,241,.20); }
+    60%  { box-shadow:0 0 0 6px rgba(99,102,241,.04), 0 14px 32px rgba(99,102,241,.18); }
+    100% { box-shadow:0 0 0 0 rgba(99,102,241,0), 0 8px 22px rgba(99,102,241,.10); }
+  }
+  #asg-agent-personal-hub-matthew-clevenger [data-srch]{
+    transition:opacity .25s ease, filter .25s ease, transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body.is-searching [data-srch]:not(.is-srch-match){
+    opacity:.22;
+    filter:saturate(.55);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body.is-searching [data-srch].is-srch-match{
+    border-color:rgba(99,102,241,.55) !important;
+    animation:asg-ph-hl-pulse 1.6s ease-in-out infinite;
+    z-index:1;
+  }
+  #asg-agent-personal-hub-matthew-clevenger mark.asg-ph-mark{
+    background:linear-gradient(180deg, rgba(255,237,100,.9), rgba(255,213,79,.9));
+    color:inherit;
+    border-radius:4px;
+    padding:0 2px;
+    box-shadow:0 0 0 1px rgba(234,179,8,.32);
+  }
+
+  /* =========================================================
+     FIXED-HEIGHT BENTO + INTERNAL SCROLL
+     (used by Deal Tracker, Listings, and bottom-row bentos)
+     ========================================================= */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-fixed{
+    height:min(60vh,540px);
+    min-height:440px;
+    max-height:560px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+    flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-head .asg-ph-label{margin-bottom:0;flex:0 0 auto}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-right:4px;
+    margin-right:-4px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-eu .asg-ph-bento-body{
+    display:flex;flex-direction:column;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-eu > .asg-ph-bento-head--eu{
+    margin-bottom:4px;
+    align-items:center;
+    gap:12px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-eu > .asg-ph-bento-head--eu .asg-ph-tabs{
+    flex:0 0 auto;
+    margin-top:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-note{
+    margin:0 0 8px;
+    font-size:11px;
+    line-height:1.35;
+    color:var(--asg-ph-muted);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body::-webkit-scrollbar{width:6px;height:6px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body::-webkit-scrollbar-thumb{
+    background:rgba(17,17,17,.10);border-radius:999px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-body::-webkit-scrollbar-thumb:hover{background:rgba(17,17,17,.18)}
+
+  /* Per-bento search input */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(17,17,17,.08);
+    background:#fafafa;
+    flex:1 1 auto;
+    min-width:0;
+    max-width:280px;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search:focus-within{
+    background:#fff;
+    border-color:rgba(17,17,17,.18);
+    box-shadow:0 0 0 4px rgba(17,17,17,.04);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search svg{width:13px;height:13px;flex:0 0 13px;color:rgba(17,17,17,.42)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search input{
+    flex:1 1 auto;border:0;background:transparent;outline:none;font:inherit;
+    font-size:12px;font-weight:500;color:#111;min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search input::placeholder{color:rgba(17,17,17,.42)}
+
+  /* =========================================================
+     DEAL TRACKER (left, bigger) — small bento cards in a grid
+     ========================================================= */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-host:empty{display:none}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-host:not(:empty){
+    flex:0 0 auto;
+    padding:0 0 10px;
+    margin:0 0 8px;
+    border-bottom:1px solid rgba(17,17,17,.06);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin:0;
+    padding:0;
+    border:0;
+    flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-stat{
+    border:1px solid rgba(17,17,17,.06);
+    border-radius:14px;
+    padding:10px 12px;
+    background:#fff;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-label{
+    font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+    font-weight:700;color:rgba(17,17,17,.52);line-height:1.05;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-value{
+    margin-top:4px;font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:#111;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card{
+    border:1px solid rgba(17,17,17,.06);
+    border-radius:18px;
+    padding:14px;
+    background:#fff;
+    display:flex;flex-direction:column;gap:8px;
+    cursor:pointer;
+    text-align:left;
+    font:inherit;color:inherit;
+    width:100%;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+    -webkit-tap-highlight-color:transparent;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card:hover{
+    transform:translateY(-1px);
+    border-color:rgba(17,17,17,.14);
+    box-shadow:0 12px 26px rgba(15,23,42,.08);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-top{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-addr{
+    margin:0;font-size:14px;font-weight:800;letter-spacing:-.02em;line-height:1.25;color:#111;
+    flex:1 1 auto;min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip{
+    flex:0 0 auto;
+    padding:3px 9px;border-radius:999px;
+    font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1.15;
+    border:1px solid transparent;
+    white-space:nowrap;
+    max-width:55%;overflow:hidden;text-overflow:ellipsis;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip.is-open{background:rgba(59,130,246,.10);color:#1d4ed8;border-color:rgba(59,130,246,.22)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip.is-won{background:rgba(34,197,94,.10);color:#15803d;border-color:rgba(34,197,94,.22)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip.is-lost{background:rgba(239,68,68,.10);color:#b91c1c;border-color:rgba(239,68,68,.22)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip.is-archived,
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-chip.is-unknown{background:#f5f5f7;color:#6e6e73;border-color:rgba(0,0,0,.06)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-meta{
+    display:flex;flex-wrap:wrap;gap:4px 12px;
+    font-size:11.5px;color:rgba(17,17,17,.62);font-weight:500;line-height:1.35;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-meta strong{font-weight:700;color:#111}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-progress{
+    margin-top:2px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-progress-bar{
+    height:4px;border-radius:999px;background:rgba(17,17,17,.07);overflow:hidden;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-progress-fill{
+    height:100%;min-width:0;
+    background:var(--asg-ph-green);border-radius:inherit;
+    transition:width .28s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding-top:8px;
+    border-top:1px solid rgba(17,17,17,.06);
+    font-size:11px;color:rgba(17,17,17,.55);font-weight:600;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-foot b{color:#111;font-weight:700}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-arrow{
+    width:18px;height:18px;border-radius:999px;background:#111;color:#fff;
+    display:grid;place-items:center;flex:0 0 18px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card-arrow svg{width:9px;height:9px}
+
+  /* =========================================================
+     IN-PLACE DEAL DETAIL — slides in inside the Deal Tracker bento
+     ========================================================= */
+  @keyframes asg-ph-dt-grid-out{
+    from{opacity:1;transform:translateX(0) scale(1)}
+    to  {opacity:0;transform:translateX(-14px) scale(.985)}
+  }
+  @keyframes asg-ph-dt-grid-in{
+    from{opacity:0;transform:translateX(-14px) scale(.985)}
+    to  {opacity:1;transform:translateX(0) scale(1)}
+  }
+  /* Opacity only — transform on this panel would break position:sticky inside the deal card */
+  @keyframes asg-ph-dt-detail-in{
+    from{opacity:0}
+    to  {opacity:1}
+  }
+  @keyframes asg-ph-dt-detail-out{
+    from{opacity:1}
+    to  {opacity:0}
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-bento > .asg-ph-bento-body{
+    overflow:hidden;
+  }
+  #asg-agent-personal-hub-matthew-clevenger #asgPhDtBody{
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    border-radius:inherit;
+    overflow:hidden;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-scroll{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    padding-right:4px;
+    margin-right:-4px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-scroll::-webkit-scrollbar{width:6px;height:6px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-scroll::-webkit-scrollbar-thumb{
+    background:rgba(17,17,17,.10);border-radius:999px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-scroll::-webkit-scrollbar-thumb:hover{background:rgba(17,17,17,.18)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-stage{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    min-height:100%;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay{
+    position:absolute;
+    inset:0;
+    z-index:9;
+    border-radius:inherit;
+    background:rgba(255,255,255,.20);
+    border:1px solid rgba(255,255,255,.35);
+    box-shadow:0 18px 40px rgba(15,23,42,.18);
+    backdrop-filter:blur(14px) saturate(1.15);
+    -webkit-backdrop-filter:blur(14px) saturate(1.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:left;
+    padding:20px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay[hidden]{display:none}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-inner{
+    width:min(520px,100%);
+    display:grid;
+    gap:8px;
+    background:rgba(255,255,255,.62);
+    border:1px solid rgba(255,255,255,.68);
+    border-radius:16px;
+    padding:14px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#2563eb}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-title{margin:0;font-size:21px;line-height:1.2;letter-spacing:-.01em}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-copy{margin:0;color:#1f2937;font-size:12px;line-height:1.42}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-list{margin:0;padding-left:18px;color:#111;font-size:11px;line-height:1.4;display:grid;gap:2px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-btn{border:1px solid rgba(17,17,17,.12);background:#fff;color:#111;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;line-height:1;cursor:pointer}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-overlay-btn.is-primary{background:#111;color:#fff;border-color:#111}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-stage.is-readonly-preview .asg-ph-dt-card{pointer-events:none}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-panel:not([hidden]){
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-grid-wrap{
+    animation:asg-ph-dt-grid-in .28s cubic-bezier(.2,.9,.3,1.2) both;
+    will-change:opacity,transform;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-grid-wrap.is-out{
+    animation:asg-ph-dt-grid-out .22s cubic-bezier(.4,0,.6,1) both;
+    pointer-events:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-panel{
+    animation:asg-ph-dt-detail-in .3s cubic-bezier(.2,.9,.3,1.2) both;
+    will-change:opacity;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-panel.is-out{
+    animation:asg-ph-dt-detail-out .22s cubic-bezier(.4,0,.6,1) both;
+    pointer-events:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail{
+    position:relative;
+    border-radius:16px;
+    border:1px solid rgba(17,17,17,.06);
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.82));
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    backdrop-filter:blur(22px) saturate(180%);
+    box-shadow:0 12px 32px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.85);
+    padding:0;
+    overflow:visible;
+  }
+  /* Stays pinned while the bento body scrolls (address · close · task progress) */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-sticky{
+    position:sticky;
+    top:0;
+    z-index:6;
+    padding:12px 16px 10px;
+    margin:0;
+    border-radius:15px 15px 0 0;
+    background:rgba(255,255,255,.98);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-sticky-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-body{
+    padding:10px 16px 14px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-body > .asg-ph-dt-detail-eyebrow{margin:0 0 2px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-body > .asg-ph-dt-detail-chiprow{margin-top:4px;margin-bottom:10px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-close{
+    width:30px;height:30px;border-radius:999px;
+    background:#111;color:#fff;border:0;cursor:pointer;
+    display:grid;place-items:center;flex:0 0 30px;
+    box-shadow:0 6px 14px rgba(15,23,42,.18);
+    transition:transform .15s ease, background .15s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-close:hover{background:#000;transform:scale(1.06)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-close svg{width:12px;height:12px;color:#fff}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-eyebrow{
+    font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:rgba(17,17,17,.46);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-addr{
+    margin:0;
+    flex:1 1 auto;
+    min-width:0;
+    font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.18;color:#111;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-chiprow{
+    display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;align-items:center;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-chiprow .asg-ph-dt-chip{font-size:10.5px;padding:3px 8px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-sticky .asg-ph-dt-detail-progress{
+    margin-top:8px;display:flex;align-items:center;gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-progress-bar{
+    flex:1 1 auto;height:5px;border-radius:999px;background:rgba(17,17,17,.06);overflow:hidden;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-progress-fill{
+    height:100%;background:var(--asg-ph-green);border-radius:inherit;
+    transition:width .3s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-progress-text{
+    font-size:10.5px;font-weight:700;color:rgba(17,17,17,.6);white-space:nowrap;
+  }
+
+  /* ROADMAP — focal point of the deal detail */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-card{
+    margin:0 -2px;
+    padding:14px 14px 12px;
+    border-radius:16px;
+    border:1px solid rgba(17,17,17,.06);
+    background:#f8f9fb;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin-bottom:12px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-title{
+    font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:#111;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-stage{
+    font-size:11px;font-weight:700;color:rgba(17,17,17,.55);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%;
+  }
+  /* Track spans dot-centers: col 1 center = 1/12 width, col 6 = 11/12 */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap{
+    --rm-fill:0;
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px 8px;position:relative;
+    padding-top:2px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap::before{
+    content:"";position:absolute;left:calc(100%/12);top:13.5px;width:calc(100%*5/6);height:3px;
+    background:rgba(17,17,17,.1);border-radius:3px;z-index:0;pointer-events:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-progress{
+    position:absolute;left:calc(100%/12);top:13.5px;height:3px;width:calc(100%*5/6*var(--rm-fill));
+    max-width:calc(100%*5/6);
+    background:var(--asg-ph-green);
+    border-radius:3px;z-index:0;pointer-events:none;
+    transition:width .35s cubic-bezier(.2,.9,.2,1);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-step{
+    position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-dot{
+    width:26px;height:26px;border-radius:999px;
+    background:#fff;border:2px solid rgba(17,17,17,.16);
+    display:grid;place-items:center;
+    color:rgba(17,17,17,.4);font-size:10px;font-weight:800;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-step.is-done .asg-ph-dt-rm-dot{
+    background:#111;border-color:#111;color:#fff;
+  }
+  @keyframes asg-ph-rm-pulse{
+    0%,100%{ box-shadow:0 0 0 2px #fff, 0 0 0 4px rgba(34,197,94,.4); }
+    50%{ box-shadow:0 0 0 2px #fff, 0 0 0 10px rgba(34,197,94,.12); }
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-step.is-current .asg-ph-dt-rm-dot{
+    background:var(--asg-ph-green);
+    border-color:#15803d;
+    color:#fff;
+    animation:asg-ph-rm-pulse 2s ease-in-out infinite;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-label{
+    font-size:9px;font-weight:700;color:rgba(17,17,17,.48);text-transform:uppercase;letter-spacing:.07em;line-height:1.15;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-step.is-current .asg-ph-dt-rm-label{color:#111;font-weight:800}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-step.is-done .asg-ph-dt-rm-label{color:rgba(17,17,17,.72)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-rm-date{
+    font-size:9px;font-weight:700;color:rgba(17,17,17,.5);line-height:1.1;
+  }
+
+  /* Compact info grid (price / close / stage etc) */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-meta{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-meta-cell{
+    border:1px solid rgba(17,17,17,.06);border-radius:8px;
+    padding:4px 8px 5px;background:rgba(255,255,255,.65);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-meta-label{
+    font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:rgba(17,17,17,.48);font-weight:700;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-meta-value{
+    margin-top:1px;font-size:11px;font-weight:700;letter-spacing:-.01em;color:#111;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-em{
+    margin-top:6px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    flex-wrap:wrap;
+    padding:5px 10px;
+    border-radius:8px;
+    border:1px solid rgba(17,17,17,.06);
+    background:rgba(255,255,255,.55);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-em-label{
+    font-size:8px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:rgba(17,17,17,.48);
+    flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-em-value{
+    font-size:11px;font-weight:700;color:#111;text-align:right;
+    min-width:0;flex:1 1 auto;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  /* Section spacing — tighter to fit more in view */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-section{
+    margin-top:12px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-section.is-roadmap{margin-top:0}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-section-label{
+    font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;color:rgba(17,17,17,.5);margin-bottom:6px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+
+  /* People — one row, compact */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-people{
+    display:grid;grid-template-columns:1fr 1fr;gap:5px;
+    align-items:stretch;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-person{
+    border:1px solid rgba(17,17,17,.06);border-radius:8px;
+    padding:5px 8px;background:rgba(255,255,255,.65);
+    min-height:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-person-label{
+    font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:rgba(17,17,17,.48);font-weight:700;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-person-value{
+    margin-top:1px;font-size:11px;font-weight:700;letter-spacing:-.01em;color:#111;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-person-sub{
+    margin-top:2px;font-size:10px;color:rgba(17,17,17,.52);font-weight:500;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25;
+  }
+
+  /* Tasks/checklist */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-tasks{display:grid;gap:4px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 10px;
+    border:1px solid rgba(17,17,17,.05);border-radius:9px;
+    background:rgba(255,255,255,.6);
+    font-size:11.5px;line-height:1.35;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task.is-done{opacity:.5}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task.is-done .asg-ph-dt-detail-task-text{text-decoration:line-through}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task-dot{
+    width:11px;height:11px;border-radius:999px;
+    border:1.5px solid rgba(17,17,17,.22);background:#fff;
+    flex:0 0 11px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task.is-done .asg-ph-dt-detail-task-dot{
+    background:#111;border-color:#111;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task-text{flex:1 1 auto;min-width:0;color:#111;font-weight:500;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-task-meta{
+    flex:0 0 auto;font-size:10px;color:rgba(17,17,17,.46);font-weight:600;white-space:nowrap;
+  }
+
+  /* Footer */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-foot{
+    margin-top:12px;
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    height:28px;padding:0 11px;border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:.01em;text-decoration:none;
+    border:1px solid rgba(17,17,17,.12);background:#fff;color:#111;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-btn.is-primary{
+    background:#111;color:#fff;border-color:#111;box-shadow:0 6px 14px rgba(17,17,17,.18);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-btn:hover{transform:translateY(-1px)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-btn svg{width:11px;height:11px}
+
+  /* =========================================================
+     LISTING ASSETS (right, smaller) — search-aware list
+     ========================================================= */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-fixed .asg-ph-list{
+    max-height:none;overflow:visible;padding-right:0;display:grid;gap:10px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-meta-tail{
+    margin-top:3px;
+    font-size:10.5px;color:rgba(17,17,17,.45);
+    font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  }
+
+  /* =========================================================
+     BOTTOM ROW — 3 equal bentos with internal search + scroll
+     ========================================================= */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+    align-items:stretch;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row .asg-ph-bento-fixed{
+    min-height:0;
+    max-height:none;
+    height:auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-branding-bento.asg-ph-bento-fixed{
+    min-height:0;
+    max-height:none;
+    height:auto;
+    align-self:start;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row .asg-ph-bento-eu .asg-ph-bento-body{
+    overflow:visible;
+    padding-right:0;
+    margin-right:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-resources-bento .asg-ph-bento-body{
+    overflow-y:auto;
+  }
+
+  /* Events & Updates panel (shared design baseline) */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-panel{
+    display:flex;flex-direction:column;gap:8px;
+    flex:1;min-height:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-events-single{
+    flex:1;min-height:0;display:flex;flex-direction:column;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-events-single .asg-ph-ev-feature{
+    flex:1;display:flex;flex-direction:column;min-height:0;
+    border-radius:16px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-events-single .asg-ph-ev-feature-media{
+    height:min(28vh,140px);min-height:100px;flex:0 0 auto;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-events-single .asg-ph-ev-feature-body{
+    flex:0 0 auto;padding:14px 16px 16px;gap:8px;display:flex;flex-direction:column;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature{
+    border:1px solid rgba(17,17,17,.06);
+    border-radius:18px;overflow:hidden;background:#fff;
+    display:flex;flex-direction:column;
+    box-shadow:0 1px 2px rgba(15,23,42,.04), 0 6px 16px rgba(15,23,42,.06);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-media{
+    height:80px;flex:0 0 80px;
+    background:linear-gradient(135deg,#edf2f7,#f8fafc);
+    position:relative;overflow:hidden;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-media::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,0), rgba(0,0,0,.10));
+    pointer-events:none;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-img{
+    width:100%;height:100%;object-fit:cover;object-position:center 34%;display:block;
+    border:0 !important;border-radius:0 !important;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-eyebrow{
+    font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(17,17,17,.46);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-title{
+    margin:0;font-size:15px;font-weight:800;line-height:1.2;letter-spacing:-.025em;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-eu-events-single .asg-ph-ev-feature-title{font-size:16px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-feature-meta{
+    font-size:11px;color:rgba(17,17,17,.6);line-height:1.35;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-actions{
+    display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;padding-top:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    height:30px;padding:0 11px;font-size:11px;font-weight:700;
+    text-decoration:none;border-radius:999px;line-height:1;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn svg{width:11px;height:11px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn.is-primary{background:#111;color:#fff;border:1px solid #111;box-shadow:0 6px 14px rgba(17,17,17,.16)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn.is-primary:hover{transform:translateY(-1px)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn.is-secondary{background:#fff;color:#111;border:1px solid rgba(17,17,17,.12)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-btn.is-secondary:hover{border-color:rgba(17,17,17,.22);background:rgba(17,17,17,.03)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-mini{
+    border:1px solid rgba(17,17,17,.06);border-radius:16px;
+    padding:12px 14px;background:#fff;display:grid;gap:5px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-mini-title{
+    margin:0;font-size:13px;font-weight:800;line-height:1.2;letter-spacing:-.02em;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ev-mini-meta{
+    font-size:11px;color:rgba(17,17,17,.55);line-height:1.35;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-row{
+    border:1px solid rgba(17,17,17,.06);border-radius:14px;
+    padding:10px 12px;background:#fff;display:grid;gap:5px;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-top{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-title{
+    margin:0;font-size:13px;font-weight:800;line-height:1.2;letter-spacing:-.02em;
+    flex:1 1 auto;min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-pill{
+    flex:0 0 auto;font-size:9.5px;font-weight:700;
+    padding:3px 7px;border-radius:999px;line-height:1.1;
+    border:1px solid transparent;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-pill.is-alert{background:rgba(239,68,68,.08);color:#b91c1c;border-color:rgba(239,68,68,.2)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-pill.is-training{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-pill.is-reminder{background:rgba(234,179,8,.12);color:#a16207;border-color:rgba(234,179,8,.25)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-pill.is-notice{background:rgba(59,130,246,.1);color:#1d4ed8;border-color:rgba(59,130,246,.2)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-meta{font-size:10.5px;color:rgba(17,17,17,.5)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-msg{margin:0;font-size:11.5px;color:rgba(17,17,17,.68);line-height:1.45}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-link{
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    justify-self:start;width:max-content;max-width:100%;
+    margin-top:4px;
+    height:24px;padding:0 10px;border-radius:999px;
+    background:#111;color:#fff;border:1px solid #111;
+    font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;
+    box-shadow:0 4px 12px rgba(17,17,17,.14);
+    transition:transform .15s ease;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-link:hover{transform:translateY(-1px)}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-up-link svg{width:10px;height:10px}
+
+  /* Resources / Quick Links cards */
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-card{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;
+    border:1px solid rgba(17,17,17,.06);
+    border-radius:14px;
+    background:#fff;
+    text-decoration:none;color:inherit;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    min-width:0;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-card:hover{
+    transform:translateY(-1px);border-color:rgba(17,17,17,.14);
+    box-shadow:0 8px 20px rgba(15,23,42,.06);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-logo{
+    width:30px;height:30px;flex:0 0 30px;
+    object-fit:contain;border-radius:8px;background:#fff;
+    box-shadow:inset 0 0 0 1px rgba(17,17,17,.05);
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-logo-fallback{
+    width:30px;height:30px;flex:0 0 30px;border-radius:8px;
+    background:linear-gradient(135deg,#111,#374151);color:#fff;
+    font-size:10px;font-weight:800;display:grid;place-items:center;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-text{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:1px}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-title{
+    font-size:12px;font-weight:800;letter-spacing:-.015em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-sub{
+    font-size:10.5px;color:rgba(17,17,17,.5);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+
   @media (max-width:1080px){
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-grid,
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-main{grid-template-columns:1fr}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-main > .asg-ph-dt-bento,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-main > .asg-ph-main-listings{
+      grid-column:auto;
+      grid-row:auto;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-bento{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-rows:none;
+      flex:none;
+      overflow-y:visible;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row{grid-template-columns:1fr}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-fixed{height:auto;min-height:360px;max-height:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row .asg-ph-bento-fixed{height:auto;min-height:300px;max-height:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   }
   @media (max-width:760px){
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-shell{padding:12px;border-radius:22px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-grid,
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-main{gap:12px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card{padding:16px;border-radius:18px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-main,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bottom-row{gap:12px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-photo{width:56px;height:56px;flex-basis:56px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet{margin-bottom:12px;justify-content:flex-start;text-align:left;gap:10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-body{justify-content:flex-start}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-greet-line{font-size:clamp(22px,7vw,34px);text-align:left}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-quick-actions{display:grid}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-search{height:32px;max-width:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-head{flex-direction:column;align-items:stretch;gap:10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-head .asg-ph-label{margin-bottom:2px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-bento-eu > .asg-ph-bento-head--eu .asg-ph-tabs{align-self:flex-start}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-stat{padding:8px 10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-summary-value{font-size:16px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-grid{grid-template-columns:1fr;gap:8px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-card{padding:12px;border-radius:16px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail{padding:14px;border-radius:16px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-detail-people{grid-template-columns:1fr 1fr;gap:5px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap-card{
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      margin-left:-6px;margin-right:-6px;padding-left:16px;padding-right:16px;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-dt-roadmap{
+      min-width:520px;
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:4px 6px;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card{padding:12px 14px;border-radius:16px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-head{align-items:flex-start}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-head .asg-ph-label{align-self:flex-start}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed .asg-ph-stats-tabs{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed .asg-ph-stats-bento{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed .asg-ph-actions{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-bento-head:not(:first-of-type),
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-note,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed:not(.asg-ph-dt-bento) > .asg-ph-bento-body{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type .asg-ph-tabs{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type .asg-ph-bento-search{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-bento-search{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-summary-host,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-scroll,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-overlay{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-bento-fixed.is-mobile-collapsed{
+      min-height:0 !important;
+      height:auto !important;
+      max-height:none !important;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed .asg-ph-stats-head,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed > .asg-ph-bento-head:first-of-type,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top{
+      margin-bottom:0;
+      min-height:28px;
+      display:flex;
+      align-items:center;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top{
+      padding-bottom:0;
+      margin:0;
+      width:100%;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-bento-head{
+      justify-content:flex-start;
+      width:100%;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento.is-mobile-collapsed .asg-ph-dt-bento-top .asg-ph-label{
+      flex:1 1 auto;
+      width:100%;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-card--top-actions.is-mobile-collapsed > .asg-ph-label{
+      margin-bottom:0;
+      min-height:28px;
+      display:flex;
+      align-items:center;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-toggle{
+      position:relative;
+      padding-right:22px;
+      cursor:pointer;
+      user-select:none;
+      width:100%;
+      flex:1 1 auto;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-toggle:focus,
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-toggle:focus-visible{
+      outline:none;
+      box-shadow:none;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.is-mobile-collapsed .asg-ph-mobile-collapse-toggle{
+      flex:1 1 auto;
+      width:100% !important;
+      max-width:none;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card.asg-ph-dt-bento .asg-ph-dt-bento-top .asg-ph-mobile-collapse-toggle{
+      flex:1 1 auto;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-toggle .asg-ph-label-dot{display:none}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon{
+      width:20px;height:20px;border-radius:7px;
+      display:grid;place-items:center;
+      margin-right:10px;flex:0 0 20px;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon svg{
+      width:12px;height:12px;display:block;
+      stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-stats{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-actions{background:rgba(139,92,246,.14);color:#7c3aed}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-deals{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-listings{background:rgba(17,17,17,.08);color:#111}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-events{background:rgba(34,197,94,.16);color:#16a34a}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-branding{background:rgba(249,115,22,.16);color:#ea580c}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-icon.is-resources{background:rgba(59,130,246,.14);color:#2563eb}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-mobile-collapse-toggle::after{
+      content:"";
+      position:absolute;
+      right:2px;
+      top:50%;
+      width:7px;height:7px;
+      border-right:1.8px solid rgba(17,17,17,.52);
+      border-bottom:1.8px solid rgba(17,17,17,.52);
+      transform:translateY(-62%) rotate(45deg);
+      transition:transform .16s ease;
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card:not(.is-mobile-collapsed) .asg-ph-mobile-collapse-toggle::after{
+      transform:translateY(-35%) rotate(225deg);
+    }
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-ql-grid{grid-template-columns:1fr;gap:6px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-head{flex-direction:column;gap:12px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-stats-tabs{align-self:flex-start;margin-bottom:6px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-profile{gap:10px;margin-bottom:12px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-avatar{width:56px;height:56px;border-radius:14px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-name{font-size:22px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-sub{font-size:12px;line-height:1.35}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi{padding:10px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-kpi-value{font-size:20px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-top{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-strip{margin-top:10px;padding:10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-card--top-stats .asg-ph-team-stat-value{font-size:20px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-team-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-actions{gap:8px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-action{padding:11px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-list-head{flex-direction:column;align-items:flex-start;gap:10px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-tabs{align-self:flex-start}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-list{max-height:440px;gap:8px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing{padding:10px;gap:8px}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-top{display:grid;grid-template-columns:78px 1fr;align-items:start}
-    #asg-agent-personal-hub-matthew-clevenger .asg-ph-assets{gap:8px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing{padding:7px;gap:5px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-top{display:grid;grid-template-columns:74px 1fr;align-items:start;gap:8px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-cover{width:74px;height:54px;flex:0 0 74px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-assets{gap:4px}
     #asg-agent-personal-hub-matthew-clevenger .asg-ph-download-row{padding:9px 10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-summary{grid-template-columns:1fr;gap:0;padding-bottom:0}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat{padding:0 0 14px;border-bottom:1px solid var(--asg-fub-line)}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-stat:last-child{border-bottom:none;padding-bottom:10px}
+    #asg-agent-personal-hub-matthew-clevenger .asg-ph-fub-bento{grid-template-columns:1fr;gap:10px}
   }
 </style>
 
@@ -403,6 +1643,11 @@
   */
   const STATS_API="https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  const FUB_HUB_API="https://script.google.com/macros/s/AKfycbxxcap5FOy3ooT2O_m9O5RMvLhsTtAk7hRXxN_bclGAh0lANCY_kV13W7P920nmYCQNgg/exec";
+  const HUB_DATA_API="https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec";
+  const FUB_AGENT_NAME="Matthew Clevenger";
+  const ASG_UPDATES_FALLBACK_URL="https://www.alexstoykovgroup.com/updatecenter";
+  const DEAL_TRACKER_URL="https://www.alexstoykovgroup.com/dealtracker";
 
   const AGENT_PROFILE={
     name:"Matthew Clevenger",
@@ -424,11 +1669,39 @@
     {label:"Listing Presentation",href:'https://drive.google.com/drive/search?q=%22Listing%20Presentation%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'},
     {label:"Business Card",href:'https://drive.google.com/drive/search?q=%22Business%20Card%22%20and%20%221XKM1925Y1Kt_EPEABPm051Eb4VQCAReA%22%20in%20parents'}
   ];
+  const BRANDING_ASSET_KEYS=["marketing_drive","buyer_guide","seller_guide","listing_presentation","business_card"];
+  let dynamicBrandingMaterials=DOWNLOADABLES.map(function(item,idx){
+    return {
+      key:BRANDING_ASSET_KEYS[idx]||("asset_"+idx),
+      label:item.label,
+      href:item.href,
+      logo:item.logo||"",
+      updated_at_display:"",
+      updated_at_iso:""
+    };
+  });
+
+  /** Resources / Useful Links — shared QUICK_LINKS baseline for design parity. */
+  const QUICK_LINKS=[
+    {title:"Zillow",sub:"Agent showcase",href:"https://www.zillow.com/agents/showcase/",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d74e0ab4-5262-477e-9d43-50ab11765fbf/zillow.png?format=1500w",fallback:"ZIL"},
+    {title:"Matterport",sub:"3D tours",href:"https://my.matterport.com/models?organization=vuif7isneoC",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5e673f77-41c4-4f1e-8d63-db31ed6ca649/matterport_logo.jpeg?format=1500w",fallback:"3D"},
+    {title:"Follow Up Boss",sub:"CRM dashboard",href:"https://login.followupboss.com/login?start_url=/2/admin/overview&subdomain=compass219",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/12e8f92a-f49f-47c4-b107-ade6947e4baf/FUB+Logo+Mark+RGB_Fub+Logo+Mark+Main.png?format=1500w",fallback:"FUB"},
+    {title:"MLS",sub:"MRED Log In",href:"https://connectmls-api.mredllc.com/oid/login",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/d6559bd8-bdf9-4351-95fe-f6c848022aa3/2025-R-MLS-Cobrand-BLACK-Transparent.png?format=1500w",fallback:"MLS"},
+    {title:"Compass",sub:"Compass app",href:"https://www.compass.com/app/home/",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/a14ff933-25b2-4439-aa1b-580c869f24fb/compass.png?format=1500w",fallback:"CP"},
+    {title:"Blog",sub:"ASG website",href:"https://www.alexstoykovgroup.com/blog",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Team Resources",sub:"ASG website",href:"https://www.alexstoykovgroup.com/resources",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Senior Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/seniorhubhome",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Junior Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/juniorhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Team Updates",sub:"ASG website",href:"https://www.alexstoykovgroup.com/updatecenter",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Senior Meetings",sub:"ASG website",href:"https://www.alexstoykovgroup.com/seniorteammeetings",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"},
+    {title:"Admin Hub",sub:"ASG website",href:"https://www.alexstoykovgroup.com/adminhub",logo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w",fallback:"ASG"}
+  ];
 
   const root=document.getElementById("asg-agent-personal-hub-matthew-clevenger");
   if(!root){return;}
 
   const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const clip=(s,max)=>{const t=String(s||"").trim();if(!max||t.length<=max)return t;return t.slice(0,Math.max(0,max-1)).trim()+"\u2026";};
   const normalize=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"").trim();
   const firstName=s=>String(s||"").trim().split(/\s+/)[0]||"";
   const fmt=n=>{const val=Number(n)||0;if(val>=1e6)return "$"+(val/1e6).toFixed(1)+"M";if(val>=1e3)return "$"+Math.round(val/1e3)+"K";return "$"+val.toLocaleString();};
@@ -439,6 +1712,112 @@
     return "#";
   };
   const statusLabel=s=>{const raw=String(s||"").trim();if(!raw)return"Unknown";return raw.toLowerCase().split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");};
+  /** Pilot-only: hide these contacts from the FUB bento grid (display names as shown in FUB). */
+  const FUB_UI_OMIT_CONTACT_KEYS=new Set([
+    "samshiu",
+    "jaychen",
+    "seangolinski",
+    "samanthaappelhans",
+    "arielthanos",
+    "josephfisher",
+    "allysonacosta",
+    "marcschnepper"
+  ]);
+  function fubContactKey(name){return normalize(name);}
+  function isFubContactOmitted(contact){
+    const key=fubContactKey(contact&&contact.name);
+    if(FUB_UI_OMIT_CONTACT_KEYS.has(key))return true;
+    if(key.includes("sam")&&key.includes("shiu"))return true;
+    return false;
+  }
+  /** Treat pipeline stages / statuses as closed so they drop out of the active-only view. */
+  function isFubDealClosed(deal){
+    if(!deal)return true;
+    const status=String(deal.status||"").toLowerCase().trim();
+    const stage=String(deal.stage||deal.stageName||"").toLowerCase().trim();
+    const title=String(deal.title||"").toLowerCase().trim();
+    if(status==="won"||status==="lost"||status==="archived")return true;
+    if(status==="closed")return true;
+    const blob=stage+" "+title+" "+status;
+    if(/\bclosed\b/.test(blob))return true;
+    if(/\bclosing\b/.test(stage)&&/\bcomplete\b/.test(blob))return true;
+    return false;
+  }
+  /**
+   * Hard-coded presentation overrides (pilot / demo polish only). Keys are normalize(contact.name).
+   * uiHeadlineStatus / uiBadgeClass drive the card header chip; stage + closeDate feed the KPI row.
+   */
+  const FUB_DEAL_UI_OVERRIDES={
+    samhwang:{
+      title:"3035 W Belmont Ave, #2E",
+      stage:"Under contract",
+      status:"open",
+      value:undefined,
+      closeDate:"Apr 23, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    },
+    laceybundy:{
+      title:"1705 N Clybourn Ave, #E",
+      stage:"Listed — selling the unit",
+      status:"open",
+      value:699000,
+      closeDate:undefined,
+      uiHeadlineStatus:"Listed · $699,000",
+      uiBadgeClass:"open"
+    },
+    yaritza:{
+      title:"200 W Grand Ave, #1504",
+      stage:"Under contract — purchase",
+      status:"open",
+      value:475000,
+      closeDate:"Apr 24, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    },
+    williamrfahey:{
+      title:"437 W Webster Ave",
+      stage:"Under contract — purchase",
+      status:"open",
+      value:3200000,
+      closeDate:"May 15, 2026",
+      uiHeadlineStatus:"Under contract",
+      uiBadgeClass:"open"
+    }
+  };
+  function fubOverrideKeyForContact(name){
+    const k=fubContactKey(name);
+    if(FUB_DEAL_UI_OVERRIDES[k])return k;
+    if(/^yaritza/.test(k))return"yaritza";
+    if(/^sam/.test(k)&&/hwang/.test(k))return"samhwang";
+    if(/^lacey/.test(k)&&/bundy/.test(k))return"laceybundy";
+    if(/^william/.test(k)&&/fahey/.test(k))return"williamrfahey";
+    return null;
+  }
+  function applyFubDealUiOverride(contact, deal){
+    const key=fubOverrideKeyForContact(contact&&contact.name);
+    const o=key?FUB_DEAL_UI_OVERRIDES[key]:null;
+    if(!o)return Object.assign({},deal);
+    const base=Object.assign({},deal);
+    return Object.assign(base,o);
+  }
+  function filterFubContactsForUi(contacts){
+    return (Array.isArray(contacts)?contacts:[])
+      .filter(c=>c&&!isFubContactOmitted(c))
+      .map(function(c){
+        const deals=(Array.isArray(c.deals)?c.deals:[]).filter(d=>d&&!isFubDealClosed(d)).map(d=>applyFubDealUiOverride(c,d));
+        return Object.assign({},c,{deals:deals});
+      })
+      .filter(c=>Array.isArray(c.deals)&&c.deals.length);
+  }
+  function summarizeFubDealCards(cards){
+    let todo=0,done=0;
+    cards.forEach(card=>{
+      todo+=Number(card.todoCount)||0;
+      done+=Number(card.doneCount)||0;
+    });
+    return{dealCount:cards.length,taskTodo:todo,taskDone:done};
+  }
   const resolveDriveImageUrl=url=>{
     const raw=String(url||"").trim();
     if(!raw)return "";
@@ -454,43 +1833,88 @@
   const calendarIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="3" stroke="#16a34a" stroke-width="1.6"/><path d="M3 8h14" stroke="#16a34a" stroke-width="1.6"/><path d="M7 2.8v2.8M13 2.8v2.8" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const designIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 14.5L14.2 4.3a1.6 1.6 0 0 1 2.3 0l.2.2a1.6 1.6 0 0 1 0 2.3L6.5 17H4v-2.5Z" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.6 5.9l1.5 1.5" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const landingIcon='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3.2 3.2 8.8v7h4.7v-4.1h4.2v4.1h4.7v-7L10 3.2Z" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  const searchIcon='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const arrowIcon='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const closeIcon='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const asgIconJoin='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.6 4.4h7v7.2h-7z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.6 7l3.8-1.9v5.8L9.6 9z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  const asgIconCal='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="3.4" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 6.4h11" stroke="currentColor" stroke-width="1.4"/><path d="M5.4 2.2v2.4M10.6 2.2v2.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+  const asgIconLink='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.6 6.4 14 2M14 2H10.5M14 2v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 9v3.5A1.5 1.5 0 0 1 11.5 14h-8A1.5 1.5 0 0 1 2 12.5v-8A1.5 1.5 0 0 1 3.5 3H7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
 
   let currentListingView="active";
-  let currentStatsPeriod="allTime";
+  let currentStatsPeriod="ytd2026";
+  let currentListSearch="";
+  let currentDtSearch="";
   let listings={active:[],closed:[]};
+  let dtCardsState=[];
+  let eventsState={events:null,updates:null};
+  let currentEuMode="events";
+  let updatesAll=[];
+  let eventsAll=[];
+  let dtDetailOpenId=null;
+  // Easy toggle: set false to remove overlay + mock preview.
+  const DT_PREVIEW_LOCK_ENABLED=true;
+  const DT_PREVIEW_USE_MOCK_DATA=true;
+
+  function timeOfDayGreeting(){
+    const h=new Date().getHours();
+    if(h<5)return "Working late,";
+    if(h<12)return "Good morning,";
+    if(h<17)return "Good afternoon,";
+    if(h<21)return "Good evening,";
+    return "Good evening,";
+  }
+  function mobileTimeGreeting(){
+    return "Hello,";
+  }
+  function greetingForViewport(){
+    return window.innerWidth<=760?mobileTimeGreeting():timeOfDayGreeting();
+  }
+  function firstNameOf(full){
+    return String(full||"").trim().split(/\s+/)[0]||"there";
+  }
 
   root.innerHTML=`
-    <div class="asg-ph-shell">
-      <div class="asg-ph-grid">
-        <section class="asg-ph-card">
+    <div class="asg-ph-page">
+        <div class="asg-ph-greet" data-track="greeting-card">
+        <img class="asg-ph-greet-photo" id="asgPhGreetPhoto" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
+          <div class="asg-ph-greet-body">
+            <h1 class="asg-ph-greet-line">
+              <span class="asg-ph-greet-greet">${esc(greetingForViewport())}</span><span class="asg-ph-greet-name">${esc(firstNameOf(AGENT_PROFILE.name))}</span>
+            </h1>
+          </div>
+        </div>
+        <div class="asg-ph-mobile-quick-actions" aria-label="Quick marketing actions">
+          <a class="asg-ph-mobile-quick-btn" href="${esc(safeHref(AGENT_PROFILE.book))}">
+            ${calendarIcon}
+            <span>Book Marketing</span>
+          </a>
+          <a class="asg-ph-mobile-quick-btn" href="${esc(safeHref(AGENT_PROFILE.book))}" target="_blank" rel="noopener">
+            ${designIcon}
+            <span>Marketing Request</span>
+          </a>
+        </div>
+        <div class="asg-ph-shell">
+          <div class="asg-ph-grid">
+        <section class="asg-ph-card asg-ph-card--top-stats">
           <div class="asg-ph-stats-head">
-            <div>
-              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Personal Stats</div>
-              <div class="asg-ph-profile">
-                <img class="asg-ph-avatar" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
-                <div>
-                  <h2 class="asg-ph-name">${esc(AGENT_PROFILE.name)}</h2>
-                  <p class="asg-ph-sub">${esc(AGENT_PROFILE.tier)}</p>
-                </div>
-              </div>
-            </div>
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Personal Stats</div>
             <div class="asg-ph-stats-tabs">
-              <button class="asg-ph-stats-tab is-on" data-period="allTime">All Time</button>
-              <button class="asg-ph-stats-tab" data-period="ytd2026">2026</button>
+              <button class="asg-ph-stats-tab" data-period="allTime">All Time</button>
+              <button class="asg-ph-stats-tab is-on" data-period="ytd2026">2026</button>
             </div>
           </div>
-          <div class="asg-ph-kpis" id="asgPhKpis">
-            ${kpiSkeleton()}
-          </div>
-          <div class="asg-ph-team-strip">
-            <div class="asg-ph-team-top" id="asgPhTeamTop">
+          <div class="asg-ph-stats-bento">
+            <div class="asg-ph-kpis" id="asgPhKpis">
+              ${kpiSkeleton("2026")}
+            </div>
+            <div class="asg-ph-team-stats" id="asgPhTeamTop">
               <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>
               <div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>
             </div>
           </div>
         </section>
 
-        <section class="asg-ph-card">
+        <section class="asg-ph-card asg-ph-card--top-actions">
           <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-purple)"></span>Marketing Actions</div>
           <div class="asg-ph-actions">
             ${actionLink("Book a Shoot","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
@@ -501,41 +1925,325 @@
       </div>
 
       <div class="asg-ph-main">
-        <section class="asg-ph-card">
-          <div class="asg-ph-list-head">
-            <div>
-              <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-dark)"></span>My Listing Assets</div>
-              <p class="asg-ph-note">Filtered to ${esc(AGENT_PROFILE.name)}. Quick access to photos, 3D, floor plans, and collateral.</p>
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-dt-bento">
+          <div class="asg-ph-bento-body" id="asgPhDtBody">
+            <div class="asg-ph-dt-bento-top">
+              <div class="asg-ph-bento-head">
+                <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Deal Tracker <span class="asg-ph-mock-chip">Mock Data</span></div>
+                <label class="asg-ph-bento-search" aria-label="Search deals">
+                  ${searchIcon}
+                  <input id="asgPhDtSearch" type="search" autocomplete="off" placeholder="Search address, client\u2026" aria-label="Search deals" />
+                </label>
+              </div>
             </div>
-            <div class="asg-ph-tabs">
-              <button class="asg-ph-tab is-on" data-view="active">Active</button>
-              <button class="asg-ph-tab" data-view="closed">Closed</button>
+            <div class="asg-ph-dt-summary-host" id="asgPhDtSummary"></div>
+            <div class="asg-ph-dt-scroll">
+              <div class="asg-ph-dt-stage" id="asgPhDtStage">
+                <div class="asg-ph-dt-grid-wrap" id="asgPhDtGridWrap">
+                  <div class="asg-ph-empty">Loading deal pipeline\u2026</div>
+                </div>
+                <div class="asg-ph-dt-detail-panel" id="asgPhDtDetailPanel" hidden></div>
+              </div>
             </div>
-          </div>
-          <div class="asg-ph-list" id="asgPhListings">
-            <div class="asg-ph-empty">Loading listings...</div>
+            <div class="asg-ph-dt-overlay" id="asgPhDtOverlay" hidden>
+              <div class="asg-ph-dt-overlay-inner">
+                <div class="asg-ph-dt-overlay-eyebrow">Deal Tracker Preview</div>
+                <h3 class="asg-ph-dt-overlay-title">Coming Soon</h3>
+                <p class="asg-ph-dt-overlay-copy">Track every deal at a glance - current status, exact stage, and what comes next.</p>
+                <div class="asg-ph-dt-overlay-actions">
+                  <button type="button" class="asg-ph-dt-overlay-btn is-primary" id="asgPhDtPreviewBtn">Preview ony</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section class="asg-ph-card">
-          <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Marketing Materials</div>
-          <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-main-listings">
+          <div class="asg-ph-bento-head">
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-dark)"></span>My Listing Assets</div>
+            <label class="asg-ph-bento-search" aria-label="Search listings">
+              ${searchIcon}
+              <input id="asgPhListSearch" type="search" autocomplete="off" placeholder="Search address\u2026" aria-label="Search listings" />
+            </label>
+          </div>
+          <div class="asg-ph-bento-head" style="margin-bottom:10px">
+            <p class="asg-ph-note" style="margin:0">Newest first \u00b7 photos, 3D, floor plans, collateral.</p>
+            <div class="asg-ph-tabs" id="asgPhListingTabs">
+              <button type="button" class="asg-ph-tab is-on" data-view="active">Active</button>
+              <button type="button" class="asg-ph-tab" data-view="closed">Closed</button>
+            </div>
+          </div>
+          <div class="asg-ph-bento-body">
+            <div class="asg-ph-list" id="asgPhListings">
+              <div class="asg-ph-empty">Loading listings\u2026</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="asg-ph-bottom-row">
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-bento-eu">
+          <div class="asg-ph-bento-head asg-ph-bento-head--eu">
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-green)"></span>Events &amp; Updates</div>
+            <div class="asg-ph-tabs" id="asgPhEuTabs">
+              <button type="button" class="asg-ph-tab is-on" data-eu-mode="events">Events</button>
+              <button type="button" class="asg-ph-tab" data-eu-mode="updates">Updates</button>
+            </div>
+          </div>
+          <p class="asg-ph-note asg-ph-eu-note">Next event or company updates.</p>
+          <div class="asg-ph-bento-body">
+            <div class="asg-ph-eu-panel" id="asgPhEventsPanel">
+              <div class="asg-ph-empty">Loading events &amp; updates\u2026</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-branding-bento">
+          <div class="asg-ph-bento-head">
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-orange)"></span>Agent Branding</div>
+          </div>
+          <div class="asg-ph-bento-body">
+            <div class="asg-ph-downloads" id="asgPhDownloads"></div>
+          </div>
+        </section>
+
+        <section class="asg-ph-card asg-ph-bento-fixed asg-ph-resources-bento">
+          <div class="asg-ph-bento-head">
+            <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-blue)"></span>Resources</div>
+            <label class="asg-ph-bento-search" aria-label="Search resources">
+              ${searchIcon}
+              <input id="asgPhQlSearch" type="search" autocomplete="off" placeholder="Search links\u2026" aria-label="Search resources" />
+            </label>
+          </div>
+          <div class="asg-ph-bento-body">
+            <div class="asg-ph-ql-grid" id="asgPhQuickLinks"></div>
+          </div>
         </section>
       </div>
     </div>
+    </div>
+
     <div class="asg-ph-copy-toast" id="asgPhCopyToast">Copied URL</div>
   `;
 
   const kpiWrap=root.querySelector("#asgPhKpis");
   const teamTop=root.querySelector("#asgPhTeamTop");
   const listWrap=root.querySelector("#asgPhListings");
+  const dtBodyWrap=root.querySelector("#asgPhDtBody");
+  const dtStageWrap=root.querySelector("#asgPhDtStage");
+  const dtSummaryWrap=root.querySelector("#asgPhDtSummary");
+  const dtGridWrap=root.querySelector("#asgPhDtGridWrap");
+  const dtDetailPanel=root.querySelector("#asgPhDtDetailPanel");
+  const dtOverlay=root.querySelector("#asgPhDtOverlay");
+  const dtPreviewBtn=root.querySelector("#asgPhDtPreviewBtn");
   const downloadsWrap=root.querySelector("#asgPhDownloads");
-  const tabs=root.querySelectorAll(".asg-ph-tab");
+  const eventsPanel=root.querySelector("#asgPhEventsPanel");
+  const quickLinksWrap=root.querySelector("#asgPhQuickLinks");
+  const tabs=root.querySelectorAll("#asgPhListingTabs .asg-ph-tab");
+  const euTabs=root.querySelectorAll("#asgPhEuTabs .asg-ph-tab");
   const statsTabs=root.querySelectorAll(".asg-ph-stats-tab");
+  const bottomBrandingCard=root.querySelector(".asg-ph-bottom-row .asg-ph-branding-bento");
+  const bottomEventsCard=root.querySelector(".asg-ph-bottom-row .asg-ph-bento-eu");
+  const bottomResourcesCard=root.querySelector(".asg-ph-bottom-row .asg-ph-resources-bento");
+  const mobileCollapseCards=Array.prototype.slice.call(root.querySelectorAll(".asg-ph-shell section.asg-ph-card"));
   const copyToast=root.querySelector("#asgPhCopyToast");
+  const dtSearchInput=root.querySelector("#asgPhDtSearch");
+  const listSearchInput=root.querySelector("#asgPhListSearch");
+  const qlSearchInput=root.querySelector("#asgPhQlSearch");
+  const topStatsCard=root.querySelector(".asg-ph-card--top-stats");
+  const topActionsCard=root.querySelector(".asg-ph-card--top-actions");
+  const greetGreetEl=root.querySelector(".asg-ph-greet-greet");
   let copyToastTimer=null;
+  let dtPreviewLocked=DT_PREVIEW_LOCK_ENABLED;
 
-  downloadsWrap.innerHTML=DOWNLOADABLES.map(link=>downloadRow(link.label,link.href,link.logo)).join("");
+  function setDtOverlayVisible(isVisible){
+    if(!dtOverlay)return;
+    dtOverlay.hidden=!isVisible;
+  }
+  if(dtPreviewLocked&&dtStageWrap){
+    dtStageWrap.classList.add("is-readonly-preview");
+  }
+  if(dtPreviewLocked&&dtSearchInput){
+    dtSearchInput.disabled=true;
+    dtSearchInput.placeholder="Preview mode enabled";
+  }
+  if(dtPreviewLocked&&dtPreviewBtn){
+    setDtOverlayVisible(true);
+    dtPreviewBtn.addEventListener("click",function(){
+      dtPreviewLocked=false;
+      setDtOverlayVisible(false);
+      if(dtStageWrap)dtStageWrap.classList.remove("is-readonly-preview");
+      if(dtSearchInput){
+        dtSearchInput.disabled=false;
+        dtSearchInput.placeholder="Search address, client…";
+      }
+    });
+  }
+
+  function buildMatthewMockDealCards(){
+    return [
+      {
+        id:"mock-sam-1",
+        deal:{id:"mock-sam-1",title:"1847 N Damen Ave, #3",stage:"Under contract",status:"open",value:835000,closeDate:"May 21, 2026",uiHeadlineStatus:"Under contract",uiBadgeClass:"open"},
+        contact:{name:"Jordan Patel",email:"jordan@example.com",phone:"312-555-0198"},
+        tasks:[
+          {name:"Attorney review completed",completed:true,dueDate:"Apr 12, 2026"},
+          {name:"Inspection response finalized",completed:true,dueDate:"Apr 16, 2026"},
+          {name:"Appraisal ordered",completed:true,dueDate:"Apr 22, 2026"},
+          {name:"Loan commitment",completed:false,dueDate:"May 3, 2026"},
+          {name:"Final walkthrough",completed:false,dueDate:"May 19, 2026"},
+          {name:"Closing package review",completed:false,dueDate:"May 20, 2026"}
+        ]
+      },
+      {
+        id:"mock-sam-2",
+        deal:{id:"mock-sam-2",title:"912 W Armitage Ave",stage:"Inspection",status:"open",value:1245000,closeDate:"Jun 10, 2026",uiHeadlineStatus:"Inspection period",uiBadgeClass:"open"},
+        contact:{name:"Mia Hernandez",email:"mia@example.com",phone:"773-555-0144"},
+        tasks:[
+          {name:"Offer accepted",completed:true,dueDate:"Apr 25, 2026"},
+          {name:"Earnest money sent",completed:true,dueDate:"Apr 26, 2026"},
+          {name:"Inspection scheduled",completed:true,dueDate:"Apr 28, 2026"},
+          {name:"Inspection report review",completed:false,dueDate:"May 1, 2026"},
+          {name:"Attorney modification requests",completed:false,dueDate:"May 2, 2026"},
+          {name:"Mortgage docs submitted",completed:false,dueDate:"May 6, 2026"}
+        ]
+      },
+      {
+        id:"mock-sam-3",
+        deal:{id:"mock-sam-3",title:"451 E Grand Ave, #4305",stage:"Mortgage",status:"open",value:679000,closeDate:"May 30, 2026",uiHeadlineStatus:"Financing",uiBadgeClass:"open"},
+        contact:{name:"Noah Kim",email:"noah@example.com",phone:"847-555-0181"},
+        tasks:[
+          {name:"Contract signed",completed:true,dueDate:"Apr 1, 2026"},
+          {name:"Inspection complete",completed:true,dueDate:"Apr 7, 2026"},
+          {name:"Attorney review complete",completed:true,dueDate:"Apr 10, 2026"},
+          {name:"Appraisal received",completed:true,dueDate:"Apr 21, 2026"},
+          {name:"Conditional approval",completed:false,dueDate:"May 2, 2026"},
+          {name:"Clear to close",completed:false,dueDate:"May 24, 2026"}
+        ]
+      }
+    ].map(function(card){
+      var tasks=Array.isArray(card.tasks)?card.tasks:[];
+      var done=tasks.filter(function(t){return !!t.completed;}).length;
+      return Object.assign({},card,{doneCount:done,todoCount:Math.max(0,tasks.length-done)});
+    });
+  }
+
+  function syncTopStatsToMarketingHeight(){
+    if(!topStatsCard||!topActionsCard)return;
+    if(window.innerWidth<=1080){
+      topStatsCard.style.height="";
+      return;
+    }
+    var h=topActionsCard.offsetHeight;
+    if(h>0)topStatsCard.style.height=h+"px";
+  }
+  function syncBottomBentoHeights(){
+    if(!bottomBrandingCard)return;
+    if(window.innerWidth<=1080){
+      if(bottomEventsCard)bottomEventsCard.style.height="";
+      if(bottomResourcesCard)bottomResourcesCard.style.height="";
+      bottomBrandingCard.style.height="";
+      return;
+    }
+    bottomBrandingCard.style.height="auto";
+    var brandingHeight=bottomBrandingCard.offsetHeight||0;
+    if(brandingHeight>0){
+      if(bottomEventsCard)bottomEventsCard.style.height=brandingHeight+"px";
+      if(bottomResourcesCard)bottomResourcesCard.style.height=brandingHeight+"px";
+    }
+  }
+  function syncGreetingForViewport(){
+    if(!greetGreetEl)return;
+    greetGreetEl.textContent=greetingForViewport();
+  }
+  function setupMobileCardCollapse(){
+    function iconKindForCard(card){
+      if(card.classList.contains("asg-ph-card--top-stats"))return "stats";
+      if(card.classList.contains("asg-ph-card--top-actions"))return "actions";
+      if(card.classList.contains("asg-ph-dt-bento"))return "deals";
+      if(card.classList.contains("asg-ph-main-listings"))return "listings";
+      if(card.classList.contains("asg-ph-bento-eu"))return "events";
+      if(card.classList.contains("asg-ph-branding-bento"))return "branding";
+      if(card.classList.contains("asg-ph-resources-bento"))return "resources";
+      return "resources";
+    }
+    function iconSvg(kind){
+      if(kind==="stats")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="2.4" width="4.2" height="4.2"/><rect x="9.4" y="2.4" width="4.2" height="4.2"/><rect x="2.4" y="9.4" width="4.2" height="4.2"/><rect x="9.4" y="9.4" width="4.2" height="4.2"/></svg>';
+      if(kind==="actions")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.3v11.4M2.3 8h11.4"/></svg>';
+      if(kind==="deals")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.8 4.6c-.5-.5-1.2-.8-2-.8-1.2 0-2.1.7-2.1 1.7 0 2.5 4.7 1.4 4.7 4 0 1.2-1.1 2-2.6 2-1 0-1.9-.3-2.5-.9"/><path d="M8 2.6v10.8"/></svg>';
+      if(kind==="listings")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.3" y="3" width="11.4" height="10" rx="1.8"/><circle cx="5.4" cy="6.2" r="1.1"/><path d="M3.7 11l3.2-2.7 1.7 1.4 1.8-1.7 1.9 3"/></svg>';
+      if(kind==="events")return '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.6" y="3.6" width="10.8" height="9.8" rx="1.8"/><path d="M5.2 2.6v2M10.8 2.6v2M2.6 6.2h10.8"/></svg>';
+      if(kind==="branding")return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6l1.5 3.1 3.4.5-2.5 2.4.6 3.4L8 10.4 5 12l.6-3.4L3.1 6.2l3.4-.5z"/></svg>';
+      return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4a4.2 4.2 0 0 0-2.8 7.4c.5.45.85 1 1 1.6h3.6c.14-.6.49-1.15 1-1.6A4.2 4.2 0 0 0 8 2.4Z"/><path d="M6.2 13h3.6M6.7 14.6h2.6"/></svg>';
+    }
+    mobileCollapseCards.forEach(function(card){
+      if(card.getAttribute("data-mobile-collapse-init")==="1")return;
+      var toggleLabel=
+        card.querySelector(".asg-ph-stats-head .asg-ph-label") ||
+        card.querySelector(":scope > .asg-ph-bento-head .asg-ph-label") ||
+        card.querySelector(".asg-ph-dt-bento-top .asg-ph-label") ||
+        card.querySelector(":scope > .asg-ph-label") ||
+        card.querySelector(".asg-ph-label");
+      if(!toggleLabel)return;
+      card.setAttribute("data-mobile-collapse-init","1");
+      toggleLabel.classList.add("asg-ph-mobile-collapse-toggle");
+      if(!toggleLabel.querySelector(".asg-ph-mobile-collapse-icon")){
+        var kind=iconKindForCard(card);
+        var icon=document.createElement("span");
+        icon.className="asg-ph-mobile-collapse-icon is-"+kind;
+        icon.setAttribute("aria-hidden","true");
+        icon.innerHTML=iconSvg(kind);
+        toggleLabel.insertBefore(icon,toggleLabel.firstChild);
+      }
+      toggleLabel.setAttribute("role","button");
+      toggleLabel.setAttribute("tabindex","0");
+      card.classList.add("is-mobile-collapsed");
+      toggleLabel.addEventListener("click",function(ev){
+        if(window.innerWidth>760)return;
+        ev.preventDefault();
+        card.classList.toggle("is-mobile-collapsed");
+      });
+      toggleLabel.addEventListener("keydown",function(ev){
+        if(window.innerWidth>760)return;
+        if(ev.key==="Enter"||ev.key===" "){
+          ev.preventDefault();
+          card.classList.toggle("is-mobile-collapsed");
+        }
+      });
+    });
+  }
+  function syncMobileCollapseMode(){
+    var isMobile=window.innerWidth<=760;
+    mobileCollapseCards.forEach(function(card){
+      if(!isMobile){
+        card.classList.remove("is-mobile-collapsed");
+      }else if(!card.classList.contains("is-mobile-collapsed")){
+        card.classList.add("is-mobile-collapsed");
+      }
+    });
+  }
+  setupMobileCardCollapse();
+  syncMobileCollapseMode();
+  syncGreetingForViewport();
+  if(topStatsCard&&topActionsCard&&"ResizeObserver" in window){
+    (new ResizeObserver(syncTopStatsToMarketingHeight)).observe(topActionsCard);
+  }
+  if(bottomBrandingCard&&"ResizeObserver" in window){
+    (new ResizeObserver(syncBottomBentoHeights)).observe(bottomBrandingCard);
+  }
+  window.addEventListener("resize",syncTopStatsToMarketingHeight);
+  window.addEventListener("resize",syncBottomBentoHeights);
+  window.addEventListener("resize",syncMobileCollapseMode);
+  window.addEventListener("resize",syncGreetingForViewport);
+  requestAnimationFrame(syncTopStatsToMarketingHeight);
+  requestAnimationFrame(syncBottomBentoHeights);
+  requestAnimationFrame(syncMobileCollapseMode);
+  requestAnimationFrame(syncGreetingForViewport);
+
+  renderQuickLinksGrid();
+  renderDownloadsList("");
+
   root.querySelectorAll(".asg-ph-action-circle[data-copy]").forEach(function(btn){
     btn.addEventListener("click",function(e){
       e.preventDefault();
@@ -552,6 +2260,20 @@
     });
   });
 
+  function refreshEuPanel(){
+    renderEventsPanel(eventsState.events||{},eventsState.updates||{},"");
+    var euBody=root.querySelector(".asg-ph-bento-eu .asg-ph-bento-body");
+    if(euBody)applyBentoSearch(euBody,"");
+  }
+  euTabs.forEach(btn=>{
+    btn.addEventListener("click",function(){
+      const mode=this.getAttribute("data-eu-mode")==="updates"?"updates":"events";
+      currentEuMode=mode;
+      euTabs.forEach(tab=>tab.classList.toggle("is-on",tab===this));
+      refreshEuPanel();
+    });
+  });
+
   statsTabs.forEach(btn=>{
     btn.addEventListener("click",function(){
       const period=this.getAttribute("data-period")==="ytd2026"?"ytd2026":"allTime";
@@ -561,7 +2283,39 @@
     });
   });
 
-  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings()]).then(function(){ renderListings(); });
+  // Per-bento search wiring — re-renders the bento and applies in-bento highlight
+  function bentoBodyOf(input){
+    return input&&input.closest?input.closest(".asg-ph-card").querySelector(".asg-ph-bento-body"):null;
+  }
+  if(dtSearchInput){
+    dtSearchInput.addEventListener("input",function(){
+      currentDtSearch=String(this.value||"").trim().toLowerCase();
+      if(dtDetailOpenId){closeDtDetail({skipFocus:true});}
+      renderDtGrid();
+      applyBentoSearch(bentoBodyOf(dtSearchInput),currentDtSearch);
+    });
+  }
+  if(listSearchInput){
+    listSearchInput.addEventListener("input",function(){
+      currentListSearch=String(this.value||"").trim().toLowerCase();
+      renderListings();
+      applyBentoSearch(bentoBodyOf(listSearchInput),currentListSearch);
+    });
+  }
+  if(qlSearchInput){
+    qlSearchInput.addEventListener("input",function(){
+      const q=String(this.value||"").trim().toLowerCase();
+      renderQuickLinksGrid(q);
+      applyBentoSearch(bentoBodyOf(qlSearchInput),q);
+    });
+  }
+
+  // Esc closes deal detail
+  document.addEventListener("keydown",function(ev){
+    if(ev.key==="Escape"&&dtDetailOpenId)closeDtDetail();
+  });
+
+  Promise.allSettled([loadStats(currentStatsPeriod),loadTeamYtd(),loadListings(),loadFubHubData(),loadEventsAndUpdates()]).then(function(){ renderListings(); syncTopStatsToMarketingHeight(); syncBottomBentoHeights(); });
 
   function loadStats(period){
     const targetPeriod=period||"ytd2026";
@@ -573,7 +2327,7 @@
         if(!data||!data.success||!Array.isArray(data.agents))throw new Error("Bad stats payload");
         const agent=findBestAgentMatch(data.agents,AGENT_PROFILE.name);
         if(!agent){
-          kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to find '+esc(AGENT_PROFILE.name)+' in '+esc(periodLabel)+' stats.</div>';
+          kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">No activity yet.</div>';
           return;
         }
         const totalVolume=Number(agent.grandTotal)||0;
@@ -603,7 +2357,8 @@
       })
       .catch(()=>{
         kpiWrap.innerHTML='<div class="asg-ph-error" style="grid-column:1/-1">Unable to load '+esc(periodLabel)+' stats right now.</div>';
-      });
+      })
+      .finally(function(){ syncTopStatsToMarketingHeight(); });
   }
 
   function loadListings(){
@@ -658,28 +2413,415 @@
           `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Total Volume (2026)</div><div class="asg-ph-team-stat-value">—</div></div>`,
           `<div class="asg-ph-team-stat"><div class="asg-ph-team-stat-label">Team Transactions</div><div class="asg-ph-team-stat-value">—</div></div>`
         ].join("");
+      })
+      .finally(function(){ syncTopStatsToMarketingHeight(); });
+  }
+
+  function loadFubHubData(){
+    if(!dtGridWrap)return Promise.resolve();
+    if(DT_PREVIEW_USE_MOCK_DATA){
+      dtCardsState=buildMatthewMockDealCards();
+      renderDtGrid();
+      return Promise.resolve();
+    }
+    if(!FUB_HUB_API||FUB_HUB_API.indexOf("REPLACE_WITH_FUB_HUB_DEPLOYMENT")!==-1){
+      if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
+      dtGridWrap.innerHTML='<div class="asg-ph-empty">Follow Up Boss endpoint not configured yet.</div>';
+      return Promise.resolve();
+    }
+    if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
+    dtGridWrap.innerHTML='<div class="asg-ph-empty">Loading deal pipeline\u2026</div>';
+    const params=[
+      "smartListId=172",
+      "smartListName="+encodeURIComponent("Current Deals"),
+      "agentEmail="+encodeURIComponent(AGENT_PROFILE.email||""),
+      "agentName="+encodeURIComponent(FUB_AGENT_NAME),
+      "limit=100"
+    ].join("&");
+    return fetch(FUB_HUB_API+"?"+params,{method:"GET",cache:"no-store"})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||data.ok!==true)throw new Error((data&&data.errorMessage)||"Bad Follow Up Boss payload");
+        const rawContacts=Array.isArray(data&&data.contacts)?data.contacts:[];
+        const contacts=filterFubContactsForUi(rawContacts);
+        dtCardsState=buildFubDealCards(contacts);
+        renderDtGrid();
+      })
+      .catch(()=>{
+        if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
+        dtGridWrap.innerHTML='<div class="asg-ph-error">Unable to load deal pipeline right now.</div>';
       });
   }
 
+  function buildFubDealCards(contacts){
+    const cards=[];
+    contacts.forEach(contact=>{
+      const deals=Array.isArray(contact&&contact.deals)?contact.deals:[];
+      if(!deals.length)return;
+      const allTasks=Array.isArray(contact&&contact.dealTasks&&contact.dealTasks.tasks)?contact.dealTasks.tasks:[];
+      const todoTasks=allTasks.filter(task=>!task.completed);
+      const doneCount=allTasks.length-todoTasks.length;
+      deals.forEach((deal,idx)=>{
+        cards.push({
+          id:String((deal&&deal.id)||("deal-"+idx+"-"+(contact&&contact.id||""))),
+          deal:deal||{},
+          contact:contact||{},
+          todoCount:todoTasks.length,
+          doneCount:doneCount,
+          tasks:allTasks
+        });
+      });
+    });
+    return cards;
+  }
+
+  function dealCardSearchBlob(card){
+    const deal=card.deal||{};
+    const contact=card.contact||{};
+    return [
+      deal.title,
+      deal.stage,
+      deal.uiHeadlineStatus,
+      contact.name,
+      contact.email,
+      contact.phone
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+
+  function renderDtGrid(){
+    if(!dtGridWrap)return;
+    const cards=Array.isArray(dtCardsState)?dtCardsState:[];
+    const summary=summarizeFubDealCards(cards);
+    if(!cards.length){
+      if(dtSummaryWrap)dtSummaryWrap.innerHTML="";
+      dtGridWrap.innerHTML='<div class="asg-ph-empty">No current deals found in your Follow Up Boss pipeline.</div>';
+      return;
+    }
+    const q=currentDtSearch||"";
+    const visible=q?cards.filter(c=>dealCardSearchBlob(c).indexOf(q)>=0):cards;
+    const summaryHtml=`
+      <div class="asg-ph-dt-summary">
+        <div class="asg-ph-dt-summary-stat"><div class="asg-ph-dt-summary-label">Active deals</div><div class="asg-ph-dt-summary-value">${esc(String(summary.dealCount||0))}</div></div>
+        <div class="asg-ph-dt-summary-stat"><div class="asg-ph-dt-summary-label">Open tasks</div><div class="asg-ph-dt-summary-value">${esc(String(summary.taskTodo||0))}</div></div>
+        <div class="asg-ph-dt-summary-stat"><div class="asg-ph-dt-summary-label">Done tasks</div><div class="asg-ph-dt-summary-value">${esc(String(summary.taskDone||0))}</div></div>
+      </div>
+    `;
+    if(dtSummaryWrap)dtSummaryWrap.innerHTML=summaryHtml;
+    if(!visible.length){
+      dtGridWrap.innerHTML='<div class="asg-ph-empty">No deals match your search.</div>';
+      return;
+    }
+    dtGridWrap.innerHTML='<div class="asg-ph-dt-grid">'+visible.map(renderDtMiniCard).join("")+'</div>';
+    dtGridWrap.querySelectorAll(".asg-ph-dt-card[data-dt-card-id]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        if(dtPreviewLocked)return;
+        const id=this.getAttribute("data-dt-card-id");
+        openDtDetail(id);
+      });
+    });
+  }
+
+  function renderDtMiniCard(card){
+    const deal=card.deal||{};
+    const contact=card.contact||{};
+    const status=String(deal.status||"unknown").toLowerCase();
+    const chipClass=deal.uiBadgeClass
+      ?String(deal.uiBadgeClass).toLowerCase()
+      :((status==="open"||status==="won"||status==="lost"||status==="archived")?status:"unknown");
+    const chipText=deal.uiHeadlineStatus?String(deal.uiHeadlineStatus):statusLabel(status);
+    const priceStr=deal.value?fmt(deal.value):"";
+    const nameStr=String(contact.name||"").trim();
+    const closeStr=deal.closeDate?String(deal.closeDate):"";
+    const todo=Number(card.todoCount)||0;
+    const taskStr=todo===0?"All tasks done":(todo===1?"1 open task":todo+" open tasks");
+    const prog=dealProgressFromTasks(card);
+    const pct=Math.max(0,Math.min(100,Number(prog.pct)||0));
+    const blob=dealCardSearchBlob(card);
+    return `
+      <button class="asg-ph-dt-card" type="button" data-srch data-srch-text="${esc(blob)}" data-dt-card-id="${esc(card.id)}" title="${esc(String(prog.done))}/${esc(String(prog.total))} tasks complete">
+        <div class="asg-ph-dt-card-top">
+          <h3 class="asg-ph-dt-card-addr">${esc(deal.title||"Address unavailable")}</h3>
+          <span class="asg-ph-dt-chip is-${esc(chipClass)}">${esc(chipText)}</span>
+        </div>
+        <div class="asg-ph-dt-card-meta">
+          ${priceStr?'<span><strong>'+esc(priceStr)+'</strong></span>':''}
+          ${nameStr?'<span>'+esc(nameStr)+'</span>':''}
+          ${closeStr?'<span>Closes '+esc(closeStr)+'</span>':''}
+        </div>
+        <div class="asg-ph-dt-card-progress" aria-hidden="true">
+          <div class="asg-ph-dt-card-progress-bar"><div class="asg-ph-dt-card-progress-fill" style="width:${esc(String(pct))}%"></div></div>
+        </div>
+        <div class="asg-ph-dt-card-foot">
+          <span>${esc(taskStr)}</span>
+          <span class="asg-ph-dt-card-arrow">${arrowIcon}</span>
+        </div>
+      </button>
+    `;
+  }
+
+  /* Roadmap inference: maps a deal stage (FUB) to a 6-step pipeline modeled after deal-tracker.html.
+     Stages we recognize (case-insensitive substrings):
+       Lead / Prospect → 0
+       Contract / Under Contract / Active → 1
+       Inspection → 2
+       Attorney / Review → 3
+       Appraisal / Mortgage / Loan / Commitment → 4
+       Clear to Close / Closing → 5
+     Status "won" or "closed" → 6 (post-close)
+  */
+  const DT_ROADMAP_STEPS=[
+    {key:"lead",        label:"Lead"},
+    {key:"contract",    label:"Contract"},
+    {key:"inspection",  label:"Inspection"},
+    {key:"attorney",    label:"Attorney"},
+    {key:"mortgage",    label:"Mortgage"},
+    {key:"closing",     label:"Closing"}
+  ];
+  function formatEarnestMoneyStatus(deal, tasks){
+    var d=deal||{};
+    var em=d.earnest;
+    if(em&&typeof em==="object"){
+      var ini=em.initial||{};
+      var bal=em.balance||{};
+      var bits=[];
+      if(ini.receipt||(ini.sent&&ini.toLender))bits.push("Initial deposited");
+      else if(ini.sent)bits.push("Initial sent");
+      else if(ini.amount)bits.push("Initial pending");
+      if(bal.receipt||(bal.sent&&bal.toLender))bits.push("Balance deposited");
+      else if(bal.sent)bits.push("Balance sent");
+      else if(bal.amount)bits.push("Balance pending");
+      if(bits.length)return bits.join(" · ");
+    }
+    var arr=(tasks||[]).filter(function(t){
+      var n=String((t&&t.name)||(t&&t.title)||"").toLowerCase();
+      return /\bearnest\b|\bemd\b|\bdeposit\b/.test(n);
+    });
+    if(!arr.length)return "\u2014";
+    var done=arr.filter(function(t){return !!t.completed;}).length;
+    if(done===arr.length)return "Complete \u00b7 "+done+"/"+arr.length+" tasks";
+    return "In progress \u00b7 "+done+"/"+arr.length+" tasks";
+  }
+  function inferRoadmapStep(deal){
+    const stage=String(deal&&(deal.stage||deal.stageName)||"").toLowerCase();
+    const status=String(deal&&deal.status||"").toLowerCase();
+    if(status==="won"||/closed|sold|complete/.test(stage))return 6;
+    if(/clear to close|closing/.test(stage))return 5;
+    if(/mortgage|appraisal|loan|commitment|underwrit/.test(stage))return 4;
+    if(/attorney|review|legal/.test(stage))return 3;
+    if(/inspection/.test(stage))return 2;
+    if(/contract|under contract|pending|active|ratified/.test(stage))return 1;
+    if(/lead|prospect|nurture/.test(stage))return 0;
+    return 1;
+  }
+  function buildRoadmap(deal){
+    const current=inferRoadmapStep(deal);
+    const closeStr=deal&&deal.closeDate?String(deal.closeDate):"";
+    const checkSvg='<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.6 6.2l2.3 2.3L9.4 3.7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return DT_ROADMAP_STEPS.map(function(step,i){
+      let cls="asg-ph-dt-rm-step";
+      if(i<current)cls+=" is-done";
+      else if(i===current)cls+=" is-current";
+      const dateStr=(i===5&&closeStr)?closeStr:"";
+      const dotInner=i<current?checkSvg:"";
+      return '<div class="'+cls+'">'+
+        '<div class="asg-ph-dt-rm-dot">'+dotInner+'</div>'+
+        '<div class="asg-ph-dt-rm-label">'+esc(step.label)+'</div>'+
+        (dateStr?'<div class="asg-ph-dt-rm-date">'+esc(dateStr)+'</div>':'')+
+        '</div>';
+    }).join("");
+  }
+  function dealProgressFromTasks(card){
+    const tasks=Array.isArray(card.tasks)?card.tasks:[];
+    const total=tasks.length;
+    const done=tasks.filter(function(t){return !!t.completed;}).length;
+    const pct=total?Math.round((done/total)*100):0;
+    return {done:done,total:total,pct:pct};
+  }
+
+  function openDtDetail(id){
+    const card=dtCardsState.find(c=>String(c.id)===String(id));
+    if(!card||!dtGridWrap||!dtDetailPanel)return;
+    dtDetailOpenId=String(id);
+    const deal=card.deal||{};
+    const contact=card.contact||{};
+    const status=String(deal.status||"unknown").toLowerCase();
+    const chipClass=deal.uiBadgeClass
+      ?String(deal.uiBadgeClass).toLowerCase()
+      :((status==="open"||status==="won"||status==="lost"||status==="archived")?status:"unknown");
+    const chipText=deal.uiHeadlineStatus?String(deal.uiHeadlineStatus):statusLabel(status);
+    const priceStr=deal.value?fmt(deal.value):"";
+    const stageStr=deal.stage||deal.stageName||"\u2014";
+    const closeStr=deal.closeDate||"\u2014";
+    const nameStr=String(contact.name||"").trim()||"\u2014";
+    const phoneStr=String(contact.phone||"").trim();
+    const emailStr=String(contact.email||"").trim();
+    const tasks=Array.isArray(card.tasks)?card.tasks:[];
+    const prog=dealProgressFromTasks(card);
+    const roadmapHtml=buildRoadmap(deal);
+    const earnestLine=formatEarnestMoneyStatus(deal, tasks);
+    const contactBits=[phoneStr,emailStr].filter(Boolean);
+    const contactSubStr=contactBits.length?contactBits.map(function(s){return esc(s);}).join(" \u00b7 "):"";
+    const taskHtml=tasks.length
+      ?tasks.map(function(t){
+          const done=!!t.completed;
+          const due=t.dueDate?String(t.dueDate):"";
+          return '<div class="asg-ph-dt-detail-task'+(done?' is-done':'')+'">'+
+            '<span class="asg-ph-dt-detail-task-dot" aria-hidden="true"></span>'+
+            '<span class="asg-ph-dt-detail-task-text">'+esc(t.name||t.title||"Task")+'</span>'+
+            (due?'<span class="asg-ph-dt-detail-task-meta">'+esc(due)+'</span>':'')+
+            '</div>';
+        }).join("")
+      :'<div class="asg-ph-empty" style="padding:10px">No tasks tracked for this deal.</div>';
+    const fubLink=deal.id?('https://app.followupboss.com/2/deals/'+encodeURIComponent(String(deal.id).replace(/^fub-/,''))) :"";
+
+    const stepIdx=inferRoadmapStep(deal);
+    const totalSteps=DT_ROADMAP_STEPS.length;
+    const roadmapFill=totalSteps>1?Math.max(0,Math.min(1,(Math.min(stepIdx,totalSteps-1)/(totalSteps-1)))):0;
+    dtDetailPanel.innerHTML=`
+      <div class="asg-ph-dt-detail">
+        <div class="asg-ph-dt-detail-sticky">
+          <div class="asg-ph-dt-detail-sticky-row">
+            <h3 class="asg-ph-dt-detail-addr">${esc(deal.title||"Address unavailable")}</h3>
+            <button type="button" class="asg-ph-dt-detail-close" data-dt-detail-close aria-label="Close detail">${closeIcon}</button>
+          </div>
+          <div class="asg-ph-dt-detail-progress" title="Tasks ${esc(String(prog.done))}/${esc(String(prog.total))}">
+            <div class="asg-ph-dt-detail-progress-bar"><div class="asg-ph-dt-detail-progress-fill" style="width:${esc(String(prog.pct))}%"></div></div>
+            <div class="asg-ph-dt-detail-progress-text">${esc(String(prog.done))}/${esc(String(prog.total))} \u00b7 ${esc(String(prog.pct))}%</div>
+          </div>
+        </div>
+        <div class="asg-ph-dt-detail-body">
+          <div class="asg-ph-dt-detail-eyebrow">Deal Detail</div>
+          <div class="asg-ph-dt-detail-chiprow">
+            <span class="asg-ph-dt-chip is-${esc(chipClass)}">${esc(chipText)}</span>
+            ${stageStr&&stageStr!=="\u2014"?'<span class="asg-ph-dt-chip" style="background:rgba(17,17,17,.06);color:#111">'+esc(stageStr)+'</span>':''}
+          </div>
+
+        <div class="asg-ph-dt-detail-section is-roadmap">
+          <div class="asg-ph-dt-roadmap-card">
+            <div class="asg-ph-dt-roadmap-head">
+              <div class="asg-ph-dt-roadmap-title">Roadmap</div>
+              <div class="asg-ph-dt-roadmap-stage">Stage \u2192 ${esc(stageStr)}</div>
+            </div>
+            <div class="asg-ph-dt-roadmap" style="--rm-fill:${roadmapFill}">
+              <div class="asg-ph-dt-roadmap-progress" aria-hidden="true"></div>
+              ${roadmapHtml}
+            </div>
+          </div>
+        </div>
+
+        <div class="asg-ph-dt-detail-section">
+          <div class="asg-ph-dt-detail-meta">
+            <div class="asg-ph-dt-detail-meta-cell"><div class="asg-ph-dt-detail-meta-label">Price</div><div class="asg-ph-dt-detail-meta-value">${esc(priceStr||"\u2014")}</div></div>
+            <div class="asg-ph-dt-detail-meta-cell"><div class="asg-ph-dt-detail-meta-label">Close</div><div class="asg-ph-dt-detail-meta-value">${esc(closeStr)}</div></div>
+            <div class="asg-ph-dt-detail-meta-cell"><div class="asg-ph-dt-detail-meta-label">Stage</div><div class="asg-ph-dt-detail-meta-value">${esc(stageStr)}</div></div>
+            <div class="asg-ph-dt-detail-meta-cell"><div class="asg-ph-dt-detail-meta-label">Tasks</div><div class="asg-ph-dt-detail-meta-value">${esc(String(prog.done))}/${esc(String(prog.total))}</div></div>
+          </div>
+          <div class="asg-ph-dt-detail-em">
+            <span class="asg-ph-dt-detail-em-label">Earnest money</span>
+            <span class="asg-ph-dt-detail-em-value">${esc(earnestLine)}</span>
+          </div>
+        </div>
+
+        <div class="asg-ph-dt-detail-section">
+          <div class="asg-ph-dt-detail-section-label">People</div>
+          <div class="asg-ph-dt-detail-people">
+            <div class="asg-ph-dt-detail-person">
+              <div class="asg-ph-dt-detail-person-label">Client</div>
+              <div class="asg-ph-dt-detail-person-value">${esc(nameStr)}</div>
+              ${contactSubStr?'<div class="asg-ph-dt-detail-person-sub">'+contactSubStr+'</div>':''}
+            </div>
+            <div class="asg-ph-dt-detail-person">
+              <div class="asg-ph-dt-detail-person-label">Agent</div>
+              <div class="asg-ph-dt-detail-person-value">${esc(AGENT_PROFILE.name)}</div>
+              <div class="asg-ph-dt-detail-person-sub">Compass \u00b7 ASG</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asg-ph-dt-detail-section">
+          <div class="asg-ph-dt-detail-section-label"><span>Tasks &amp; Checklist</span><span style="font-size:10px;font-weight:700;color:rgba(17,17,17,.5)">${esc(String(tasks.length))} total</span></div>
+          <div class="asg-ph-dt-detail-tasks">${taskHtml}</div>
+        </div>
+
+        <div class="asg-ph-dt-detail-foot">
+          <a class="asg-ph-dt-detail-btn" href="${esc(safeHref(DEAL_TRACKER_URL))}" target="_blank" rel="noopener">${asgIconLink}<span>Full Deal Tracker</span></a>
+          ${fubLink?'<a class="asg-ph-dt-detail-btn is-primary" href="'+esc(fubLink)+'" target="_blank" rel="noopener">'+asgIconLink+'<span>Open in FUB</span></a>':''}
+        </div>
+        </div>
+      </div>
+    `;
+
+    dtDetailPanel.querySelectorAll("[data-dt-detail-close]").forEach(function(btn){
+      btn.addEventListener("click",function(){closeDtDetail();});
+    });
+
+    // Animate: fade grid out, then slide detail in
+    dtGridWrap.classList.remove("is-out");
+    dtGridWrap.classList.add("is-out");
+    setTimeout(function(){
+      dtGridWrap.hidden=true;
+      dtGridWrap.classList.remove("is-out");
+      dtDetailPanel.hidden=false;
+      // restart entry animation
+      dtDetailPanel.classList.remove("is-out");
+      // force reflow so the entry animation re-runs
+      void dtDetailPanel.offsetWidth;
+      // Scroll deal list region to top; long detail content scrolls inside the panel
+      var dtScrollEl=dtBodyWrap&&dtBodyWrap.querySelector(".asg-ph-dt-scroll");
+      if(dtScrollEl)dtScrollEl.scrollTop=0;
+      if(dtDetailPanel)dtDetailPanel.scrollTop=0;
+    },200);
+  }
+
+  function closeDtDetail(opts){
+    if(!dtDetailOpenId||!dtDetailPanel||!dtGridWrap)return;
+    dtDetailOpenId=null;
+    dtDetailPanel.classList.add("is-out");
+    setTimeout(function(){
+      dtDetailPanel.hidden=true;
+      dtDetailPanel.classList.remove("is-out");
+      dtDetailPanel.innerHTML="";
+      dtGridWrap.hidden=false;
+      // restart grid entrance
+      void dtGridWrap.offsetWidth;
+      var dtScrollEl2=dtBodyWrap&&dtBodyWrap.querySelector(".asg-ph-dt-scroll");
+      if(dtScrollEl2)dtScrollEl2.scrollTop=0;
+      if(dtDetailPanel)dtDetailPanel.scrollTop=0;
+      // Re-apply per-bento highlight in case search is still active
+      if(currentDtSearch){applyBentoSearch(dtBodyWrap,currentDtSearch);}
+    },200);
+  }
+
+  function listingSearchBlob(item){
+    return [item.address,item.neighborhood,item.listingType,item.status].filter(Boolean).join(" ").toLowerCase();
+  }
+
   function renderListings(){
-    const items=listings[currentListingView]||[];
-    if(!items.length){
+    const all=listings[currentListingView]||[];
+    if(!all.length){
       listWrap.innerHTML='<div class="asg-ph-empty">No '+esc(currentListingView)+' listings found for '+esc(AGENT_PROFILE.name)+'.</div>';
+      return;
+    }
+    const q=currentListSearch||"";
+    const items=q?all.filter(item=>listingSearchBlob(item).indexOf(q)>=0):all;
+    if(!items.length){
+      listWrap.innerHTML='<div class="asg-ph-empty">No listings match your search.</div>';
       return;
     }
     listWrap.innerHTML=items.map(item=>{
       const cover=resolveDriveImageUrl(item.coverImage);
       const status=(currentListingView==="closed")?"Closed":"Active";
-      const meta=[item.neighborhood,item.listingType].filter(Boolean).join(" - ");
+      const meta=[item.neighborhood,item.listingType].filter(Boolean).join(" \u2022 ");
+      const blob=listingSearchBlob(item);
       return `
-        <article class="asg-ph-listing">
+        <article class="asg-ph-listing" data-srch data-srch-text="${esc(blob)}">
           <div class="asg-ph-listing-top">
             ${cover?`<img class="asg-ph-listing-cover" src="${esc(cover)}" alt="${esc(item.address||'Listing')}" loading="lazy" onerror="this.style.opacity=.2">`:'<div class="asg-ph-listing-cover"></div>'}
-            <div style="min-width:0">
+            <div class="asg-ph-listing-main">
               <h3 class="asg-ph-listing-title">${esc(item.address||"Untitled Listing")}</h3>
               <div class="asg-ph-listing-meta">${esc(meta||statusLabel(item.status||status))}</div>
+              <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
             </div>
-            <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
           </div>
           <div class="asg-ph-assets">
             ${assetLink("Photos",item.photos)}
@@ -695,7 +2837,7 @@
   }
 
   function kpiSkeleton(periodLabel){
-    const safeLabel=periodLabel||"All-Time";
+    const safeLabel=periodLabel||"2026";
     return [
       kpiCard(safeLabel+" Volume","-","Loading..."),
       kpiCard("Closed Volume","-","Loading..."),
@@ -756,6 +2898,304 @@
       copyToast.classList.remove("show");
     },1200);
   }
+  /* ----- Events & Updates (Hub Data API) ----- */
+  function pickFirst(obj,keys){
+    for(var i=0;i<keys.length;i++){
+      var k=keys[i];
+      if(obj&&obj[k]!==undefined&&obj[k]!==null&&String(obj[k]).trim()!=="")return String(obj[k]).trim();
+    }
+    return "";
+  }
+  function eventOnlineUrl(ev){return pickFirst(ev,["join_online_link","join_link","join_online","online_url","join_url","meeting_url","zoom_url","video_url","webinar_url"]);}
+  function pad2(n){return (n<10?"0":"")+n;}
+  function gcalDateTime(d){return d.getUTCFullYear()+pad2(d.getUTCMonth()+1)+pad2(d.getUTCDate())+"T"+pad2(d.getUTCHours())+pad2(d.getUTCMinutes())+pad2(d.getUTCSeconds())+"Z";}
+  function eventStartDate(ev){
+    var iso=ev&&ev.computed_event_datetime_iso||"";
+    if(iso){var d=new Date(iso);if(!isNaN(d.getTime()))return d;}
+    var raw=((ev&&ev.start_date_display)||"")+" "+((ev&&ev.start_time_display)||"");
+    var d2=new Date(raw.trim());
+    return isNaN(d2.getTime())?null:d2;
+  }
+  function buildAddToCalendarUrl(ev){
+    var start=eventStartDate(ev);
+    if(!start)return "";
+    var endIso=pickFirst(ev,["end_datetime_iso","computed_event_end_iso"]);
+    var end=endIso?new Date(endIso):null;
+    if(!end||isNaN(end.getTime())){end=new Date(start.getTime()+60*60*1000);}
+    var details=[ev.description,ev.details_url,eventOnlineUrl(ev)].filter(Boolean).join("\n\n");
+    var params=[
+      "action=TEMPLATE",
+      "text="+encodeURIComponent(ev.title||"ASG Event"),
+      "dates="+gcalDateTime(start)+"/"+gcalDateTime(end),
+      "details="+encodeURIComponent(details),
+      "location="+encodeURIComponent(ev.location_name||ev.location_address||"")
+    ];
+    return "https://calendar.google.com/calendar/render?"+params.join("&");
+  }
+  function eventActions(ev){
+    var btns=[];
+    var join=eventOnlineUrl(ev);
+    if(join)btns.push('<a class="asg-ph-ev-btn is-primary" href="'+esc(safeHref(join))+'" target="_blank" rel="noopener">'+asgIconJoin+'<span>Join Online</span></a>');
+    var cal=buildAddToCalendarUrl(ev);
+    if(cal){var calCls=join?"is-secondary":"is-primary";btns.push('<a class="asg-ph-ev-btn '+calCls+'" href="'+esc(cal)+'" target="_blank" rel="noopener">'+asgIconCal+'<span>Add to Calendar</span></a>');}
+    if(ev.details_url)btns.push('<a class="asg-ph-ev-btn is-secondary" href="'+esc(safeHref(ev.details_url))+'" target="_blank" rel="noopener">'+asgIconLink+'<span>Details</span></a>');
+    return btns.length?'<div class="asg-ph-ev-actions">'+btns.join("")+"</div>":"";
+  }
+  function eventSearchBlob(ev){
+    return [ev.title,ev.start_date_display,ev.start_time_display,ev.location_name,ev.location_address,ev.description].filter(Boolean).join(" ").toLowerCase();
+  }
+  function updateSearchBlob(up){
+    return [up.title,up.category,up.message_short,up.publish_date_display].filter(Boolean).join(" ").toLowerCase();
+  }
+  function buildEventFeature(ev){
+    var coverUrl=ev.cover_image_url||"";
+    var coverInner=coverUrl?'<img class="asg-ph-ev-feature-img" src="'+esc(coverUrl)+'" alt="" loading="lazy">':"";
+    var cover='<div class="asg-ph-ev-feature-media">'+coverInner+"</div>";
+    var meta=[ev.start_date_display,ev.start_time_display,ev.location_name].filter(Boolean).join(" \u00b7 ");
+    var blob=eventSearchBlob(ev);
+    return '<div class="asg-ph-ev-feature" data-srch data-srch-text="'+esc(blob)+'">'+cover+
+      '<div class="asg-ph-ev-feature-body">'+
+        '<span class="asg-ph-ev-feature-eyebrow">Next Up</span>'+
+        '<h3 class="asg-ph-ev-feature-title">'+esc(ev.title||"")+"</h3>"+
+        '<div class="asg-ph-ev-feature-meta">'+esc(meta)+"</div>"+
+        (ev.attire_display?'<div class="asg-ph-ev-feature-meta">Attire: '+esc(ev.attire_display)+"</div>":"")+
+        eventActions(ev)+
+      "</div></div>";
+  }
+  function buildEventMini(ev){
+    var meta=[ev.start_date_display,ev.start_time_display].filter(Boolean).join(" \u00b7 ");
+    var blob=eventSearchBlob(ev);
+    return '<div class="asg-ph-ev-mini" data-srch data-srch-text="'+esc(blob)+'">'+
+      '<h4 class="asg-ph-ev-mini-title">'+esc(ev.title||"")+"</h4>"+
+      '<div class="asg-ph-ev-mini-meta">'+esc(meta)+"</div>"+
+      (ev.location_name?'<div class="asg-ph-ev-mini-meta">'+esc(ev.location_name)+"</div>":"")+
+      eventActions(ev)+
+    "</div>";
+  }
+  function categoryClass(cat){
+    var c=String(cat||"").toLowerCase();
+    if(c==="training")return "is-training";
+    if(c==="alert"||c==="urgent")return "is-alert";
+    if(c==="reminder")return "is-reminder";
+    return "is-notice";
+  }
+  function updateReadMoreUrl(up){return pickFirst(up,["post_url","read_more_url","link","url"])||ASG_UPDATES_FALLBACK_URL;}
+  function buildUpdateRow(up){
+    var cat=up.category||"";
+    var pillCls=cat?" "+categoryClass(cat):"";
+    var href=updateReadMoreUrl(up);
+    var blob=updateSearchBlob(up);
+    return '<div class="asg-ph-up-row" data-srch data-srch-text="'+esc(blob)+'">'+
+      '<div class="asg-ph-up-top"><h4 class="asg-ph-up-title">'+esc(up.title||"")+"</h4>"+
+        (cat?'<span class="asg-ph-up-pill'+pillCls+'">'+esc(cat)+"</span>":"")+
+      "</div>"+
+      '<div class="asg-ph-up-meta">'+esc(up.publish_date_display||"")+"</div>"+
+      '<p class="asg-ph-up-msg">'+esc(clip(up.message_short,140))+"</p>"+
+      '<a class="asg-ph-up-link" href="'+esc(safeHref(href))+'" target="_blank" rel="noopener">Read more'+asgIconLink+'</a>'+
+      "</div>";
+  }
+
+  function flattenEvents(eventsData){
+    var ev=eventsData||{};
+    var list=[];
+    if(ev.nextUp)list.push(ev.nextUp);
+    if(Array.isArray(ev.upcoming))ev.upcoming.forEach(function(e){if(!ev.nextUp||e._rowNumber!==ev.nextUp._rowNumber)list.push(e);});
+    if(Array.isArray(ev.future))list=list.concat(ev.future);
+    return list;
+  }
+  function flattenUpdates(updatesData){
+    var up=updatesData||{};
+    if(Array.isArray(up.ordered))return up.ordered.slice();
+    if(up.latest)return [up.latest];
+    return [];
+  }
+
+  function nextEventFromData(eventsData){
+    var ev=eventsData||{};
+    if(ev.nextUp)return ev.nextUp;
+    var list=flattenEvents(eventsData);
+    return list.length?list[0]:null;
+  }
+  function renderEventsPanel(eventsData,updatesData,query){
+    if(!eventsPanel)return;
+    eventsState.events=eventsData;
+    eventsState.updates=updatesData;
+    var allEvents=flattenEvents(eventsData);
+    var allUpdates=flattenUpdates(updatesData);
+    eventsAll=allEvents;
+    updatesAll=allUpdates;
+    var q=String(query||"").trim().toLowerCase();
+    if(currentEuMode==="updates"){
+      var up=q?allUpdates.filter(function(u){return updateSearchBlob(u).indexOf(q)>=0;}):allUpdates;
+      if(!up.length){
+        eventsPanel.innerHTML='<div class="asg-ph-empty">'+(q?'No updates match your search.':'No updates posted yet.')+'</div>';
+        return;
+      }
+      eventsPanel.innerHTML=up.map(function(u){return buildUpdateRow(u);}).join("");
+      return;
+    }
+    var nextEv=nextEventFromData(eventsData);
+    if(q&&nextEv&&eventSearchBlob(nextEv).indexOf(q)<0)nextEv=null;
+    if(!nextEv){
+      eventsPanel.innerHTML='<div class="asg-ph-empty">'+(q?'No upcoming event matches your search.':'No upcoming events scheduled.')+'</div>';
+      return;
+    }
+    eventsPanel.innerHTML='<div class="asg-ph-eu-events-single">'+buildEventFeature(nextEv)+"</div>";
+  }
+
+  function loadEventsAndUpdates(){
+    if(!eventsPanel&&!root.querySelector("#asgPhGreetPhoto"))return Promise.resolve();
+    return fetch(HUB_DATA_API+"?view=all",{method:"GET",cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(payload){
+        if(!payload||!payload.success||!payload.data)throw new Error("Bad hub payload");
+        applyDirectoryPhoto(payload.data.directory);
+        applyDirectoryBranding(payload.data.directory);
+        if(eventsPanel){
+          renderEventsPanel(payload.data.events||{},payload.data.updates||{},"");
+        }
+      })
+      .catch(function(){
+        if(eventsPanel)eventsPanel.innerHTML='<div class="asg-ph-error">Unable to load events &amp; updates right now.</div>';
+      });
+  }
+
+  function findDirectoryAgentRow(directory){
+    var rows=directory&&Array.isArray(directory.rows)?directory.rows:[];
+    if(!rows.length)return null;
+    var targetEmail=String(AGENT_PROFILE.email||"").toLowerCase().trim();
+    var targetName=normalize(AGENT_PROFILE.name);
+    var match=rows.find(function(r){
+      var email=String(r&&r.email||"").toLowerCase().trim();
+      return targetEmail&&email===targetEmail;
+    });
+    if(!match){
+      match=rows.find(function(r){
+        var name=normalize(r&&(r.name||r.display_name)||"");
+        return targetName&&name===targetName;
+      });
+    }
+    return match||null;
+  }
+
+  /* Pulls icon_photo_url for this agent from the Team Directory sheet
+     and updates the greeting hero photo + tier in place. */
+  function applyDirectoryPhoto(directory){
+    var match=findDirectoryAgentRow(directory);
+    if(!match)return;
+    var photo=String(match.icon_photo_url||match.image_url||match.photo||match.headshot_url||"").trim();
+    var photoEl=root.querySelector("#asgPhGreetPhoto");
+    if(photo&&photoEl){
+      photoEl.src=photo;
+      photoEl.style.opacity="";
+      AGENT_PROFILE.photo=photo;
+    }
+  }
+  function applyDirectoryBranding(directory){
+    var match=findDirectoryAgentRow(directory);
+    if(!match)return;
+    var fromSheet=Array.isArray(match.computed_branding_materials)?match.computed_branding_materials:[];
+    if(!fromSheet.length)return;
+    dynamicBrandingMaterials=DOWNLOADABLES.map(function(base,idx){
+      var key=BRANDING_ASSET_KEYS[idx]||("asset_"+idx);
+      var mapped=fromSheet.find(function(x){return String((x&&x.key)||"")===key;})||{};
+      return {
+        key:key,
+        label:base.label,
+        href:String(mapped.href||"").trim(),
+        logo:base.logo||"",
+        updated_at_display:String(mapped.updated_at_display||"").trim(),
+        updated_at_iso:String(mapped.updated_at_iso||"").trim()
+      };
+    });
+    renderDownloadsList();
+  }
+
+  /* ----- Resources / Quick Links ----- */
+  function quickLinkSearchBlob(link){return [link.title,link.sub,link.fallback].filter(Boolean).join(" ").toLowerCase();}
+  function renderQuickLinksGrid(query){
+    if(!quickLinksWrap)return;
+    var q=String(query||"").trim().toLowerCase();
+    var items=q?QUICK_LINKS.filter(l=>quickLinkSearchBlob(l).indexOf(q)>=0):QUICK_LINKS;
+    if(!items.length){
+      quickLinksWrap.innerHTML='<div class="asg-ph-empty" style="grid-column:1/-1">No links match your search.</div>';
+      return;
+    }
+    quickLinksWrap.innerHTML=items.map(function(link){
+      var href=safeHref(link.href);
+      var isDead=!/^https?:\/\//i.test(href);
+      var fb=link.fallback?esc(link.fallback):esc(link.title.slice(0,3).toUpperCase());
+      var logo=link.logo
+        ?'<img class="asg-ph-ql-logo" src="'+esc(link.logo)+'" alt="" loading="lazy">'
+        :'<div class="asg-ph-ql-logo-fallback">'+fb+"</div>";
+      var blob=quickLinkSearchBlob(link);
+      return '<a class="asg-ph-ql-card" data-srch data-srch-text="'+esc(blob)+'" href="'+esc(href)+'"'+(isDead?' onclick="return false" style="opacity:.68"':' target="_blank" rel="noopener"')+">"+
+        logo+
+        '<span class="asg-ph-ql-text"><span class="asg-ph-ql-title">'+esc(link.title)+'</span><span class="asg-ph-ql-sub">'+esc(link.sub||"Quick access")+'</span></span>'+
+      "</a>";
+    }).join("");
+  }
+
+  /* ----- Agent Branding materials list + design meeting CTA ----- */
+  function renderDownloadsList(){
+    if(!downloadsWrap)return;
+    var items=Array.isArray(dynamicBrandingMaterials)?dynamicBrandingMaterials:[];
+    if(!items.length){
+      downloadsWrap.innerHTML='<div class="asg-ph-empty">No branding materials available right now.</div>';
+      return;
+    }
+    var rows=items.map(function(link){
+      var logoHtml=link.logo?'<img class="asg-ph-drive-logo" src="'+esc(link.logo)+'" alt="Google Drive" loading="lazy">':"";
+      var href=safeHref(link.href);
+      var isDead=href==="#";
+      var updatedLabel=String(link.updated_at_display||"").trim();
+      var updatedHtml=String(link.key||"")==="marketing_drive"
+        ?''
+        :'<span class="asg-ph-download-meta">'+esc(updatedLabel?("Updated "+updatedLabel):"Last updated: not tracked yet")+'</span>';
+      return '<div class="asg-ph-download-row">'+
+        '<span class="asg-ph-download-label-wrap"><span class="asg-ph-download-label-main">'+logoHtml+'<span class="asg-ph-download-label">'+esc(link.label)+'</span></span>'+updatedHtml+'</span>'+
+        (isDead
+          ?'<span class="asg-ph-download-btn is-disabled" aria-disabled="true">Access</span>'
+          :'<a class="asg-ph-download-btn" href="'+esc(href)+'" target="_blank" rel="noopener" aria-label="Access '+esc(link.label)+'">Access</a>')+
+      '</div>';
+    });
+    rows.push(
+      '<div class="asg-ph-download-row is-cta">'+
+      '<span class="asg-ph-download-label-wrap"><span class="asg-ph-download-label">Update Your Materials</span></span>'+
+      '<a class="asg-ph-download-btn" href="https://asgmarketing.as.me/?appointmentType=85904162" target="_blank" rel="noopener" aria-label="Schedule a design meeting">Book</a>'+
+      '</div>'
+    );
+    downloadsWrap.innerHTML=rows.join("");
+    syncBottomBentoHeights();
+  }
+
+  /* ----- Per-bento search highlight engine -----
+     Scoped to the bento body that owns the search input.
+     Toggles `.is-searching` on the bento body, applies `.is-srch-match`
+     to children that contain the query, and dims the rest. */
+  function applyBentoSearch(scopeEl,value){
+    if(!scopeEl)return;
+    var q=String(value||"").trim().toLowerCase();
+    var hasQ=q.length>0;
+    var targets=scopeEl.querySelectorAll("[data-srch]");
+    targets.forEach(function(el){
+      var blob=String(el.getAttribute("data-srch-text")||"").toLowerCase();
+      if(!blob)blob=(el.textContent||"").toLowerCase();
+      var hit=hasQ&&blob.indexOf(q)>=0;
+      el.classList.toggle("is-srch-match",hit);
+    });
+    scopeEl.classList.toggle("is-searching",hasQ);
+    if(hasQ){
+      var first=scopeEl.querySelector("[data-srch].is-srch-match");
+      if(first&&typeof first.scrollIntoView==="function"){
+        try{
+          // Gently scroll within the bento body; nearest avoids page-scroll jumps.
+          first.scrollIntoView({behavior:"smooth",block:"nearest"});
+        }catch(e){}
+      }
+    }
+  }
+
   function findBestAgentMatch(agents,targetName){
     const targetNorm=normalize(targetName);
     const targetFirst=normalize(firstName(targetName));
