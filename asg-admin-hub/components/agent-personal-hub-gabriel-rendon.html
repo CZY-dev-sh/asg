@@ -635,8 +635,16 @@
     background:#eaeef3;
     box-shadow:0 6px 18px rgba(15,23,42,.10), 0 0 0 1px rgba(15,23,42,.06);
     display:block;
+    position:relative;
+    z-index:1;
     flex:0 0 88px;
+    opacity:0;
+    transition:opacity .2s ease;
   }
+  #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo.is-loaded{opacity:1}
+  #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo-wrap{position:relative;width:88px;height:88px;flex:0 0 88px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
+  #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo-wrap.is-loaded .asg-ph-greet-initials{opacity:0}
+  #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-initials{position:absolute;inset:0;z-index:2;display:grid;place-items:center;font-size:28px;font-weight:800;letter-spacing:.02em;color:rgba(17,17,17,.62);background:linear-gradient(135deg,#eef2f6,#e5eaf1);transition:opacity .2s ease}
   #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet{
     margin:0 0 16px;
     padding:0;
@@ -1481,6 +1489,9 @@
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-main,
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-bottom-row{gap:12px}
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo{width:56px;height:56px;flex-basis:56px}
+    #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo-wrap{width:56px;height:56px;flex-basis:56px}
+    #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-initials{font-size:18px}
+    #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-photo.is-loaded{opacity:1}
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet{margin-bottom:12px;justify-content:flex-start;text-align:left;gap:10px}
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-body{justify-content:flex-start}
     #asg-agent-personal-hub-gabriel-rendon .asg-ph-greet-line{font-size:clamp(22px,7vw,34px);text-align:left}
@@ -1699,6 +1710,26 @@
 
   const root=document.getElementById("asg-agent-personal-hub-gabriel-rendon");
   if(!root){return;}
+  function primeHeadshotPreload(url){
+    var u=String(url||"").trim();
+    if(!u||!/^https:\/\//i.test(u))return;
+    try{
+      var pre=document.createElement("link");
+      pre.rel="preload";
+      pre.as="image";
+      pre.href=u;
+      if("fetchPriority" in pre)pre.fetchPriority="high";
+      document.head.appendChild(pre);
+    }catch(_p){}
+    try{
+      var warm=new Image();
+      if("fetchPriority" in warm)warm.fetchPriority="high";
+      warm.src=u;
+    }catch(_w){}
+  }
+  primeHeadshotPreload(AGENT_PROFILE.photo);
+  var hubDataPromise=fetch(HUB_DATA_API+"?view=all",{method:"GET",cache:"no-store"}).then(function(r){return r.json();});
+
 
   const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const clip=(s,max)=>{const t=String(s||"").trim();if(!max||t.length<=max)return t;return t.slice(0,Math.max(0,max-1)).trim()+"\u2026";};
@@ -1872,11 +1903,52 @@
   function firstNameOf(full){
     return String(full||"").trim().split(/\s+/)[0]||"there";
   }
+  function initialsOf(full){
+    var parts=String(full||"").trim().split(/\s+/).filter(Boolean);
+    if(!parts.length)return "--";
+    var first=(parts[0]||"").charAt(0);
+    var last=(parts.length>1?(parts[parts.length-1]||"").charAt(0):"");
+    return (first+last).toUpperCase();
+  }
+  var greetPhotoDefault=AGENT_PROFILE.photo;
+  function setGreetPhoto(src){
+    var wrap=root&&root.querySelector?root.querySelector(".asg-ph-greet-photo-wrap"):null;
+    var photoEl=root&&root.querySelector?root.querySelector("#asgPhGreetPhoto"):null;
+    if(!wrap||!photoEl)return;
+    wrap.classList.remove("is-loaded");
+    photoEl.classList.remove("is-loaded");
+    var next=String(src||"").trim();
+    if(!next){
+      photoEl.removeAttribute("src");
+      return;
+    }
+    function reveal(){
+      photoEl.classList.add("is-loaded");
+      wrap.classList.add("is-loaded");
+    }
+    var loader=new Image();
+    if("fetchPriority" in loader)loader.fetchPriority="high";
+    loader.onload=function(){
+      photoEl.src=next;
+      if("fetchPriority" in photoEl)photoEl.fetchPriority="high";
+      if(photoEl.decode){
+        photoEl.decode().then(reveal).catch(reveal);
+      }else{
+        reveal();
+      }
+    };
+    loader.onerror=function(){
+      photoEl.removeAttribute("src");
+      photoEl.classList.remove("is-loaded");
+      wrap.classList.remove("is-loaded");
+    };
+    loader.src=next;
+  }
 
   root.innerHTML=`
     <div class="asg-ph-page">
         <div class="asg-ph-greet" data-track="greeting-card">
-        <img class="asg-ph-greet-photo" id="asgPhGreetPhoto" src="${esc(AGENT_PROFILE.photo)}" alt="${esc(AGENT_PROFILE.name)}" onerror="this.style.opacity=.3">
+        <div class="asg-ph-greet-photo-wrap" aria-hidden="true"><span class="asg-ph-greet-initials">${esc(initialsOf(AGENT_PROFILE.name))}</span><img class="asg-ph-greet-photo" id="asgPhGreetPhoto" alt="${esc(AGENT_PROFILE.name)}"></div>
           <div class="asg-ph-greet-body">
             <h1 class="asg-ph-greet-line">
               <span class="asg-ph-greet-greet">${esc(greetingForViewport())}</span><span class="asg-ph-greet-name">${esc(firstNameOf(AGENT_PROFILE.name))}</span>
@@ -3045,8 +3117,7 @@
 
   function loadEventsAndUpdates(){
     if(!eventsPanel&&!root.querySelector("#asgPhGreetPhoto"))return Promise.resolve();
-    return fetch(HUB_DATA_API+"?view=all",{method:"GET",cache:"no-store"})
-      .then(function(r){return r.json();})
+    return hubDataPromise
       .then(function(payload){
         if(!payload||!payload.success||!payload.data)throw new Error("Bad hub payload");
         applyDirectoryPhoto(payload.data.directory);
@@ -3056,6 +3127,8 @@
         }
       })
       .catch(function(){
+        var u=String(greetPhotoDefault||"").trim();
+        if(u)setGreetPhoto(u);
         if(eventsPanel)eventsPanel.innerHTML='<div class="asg-ph-error">Unable to load events &amp; updates right now.</div>';
       });
   }
@@ -3082,14 +3155,14 @@
      and updates the greeting hero photo + tier in place. */
   function applyDirectoryPhoto(directory){
     var match=findDirectoryAgentRow(directory);
-    if(!match)return;
-    var photo=String(match.icon_photo_url||match.image_url||match.photo||match.headshot_url||"").trim();
-    var photoEl=root.querySelector("#asgPhGreetPhoto");
-    if(photo&&photoEl){
-      photoEl.src=photo;
-      photoEl.style.opacity="";
-      AGENT_PROFILE.photo=photo;
+    var fromSheet="";
+    if(match){
+      fromSheet=String(match.icon_photo_url||match.image_url||match.photo||match.headshot_url||"").trim();
     }
+    var url=fromSheet||String(greetPhotoDefault||"").trim();
+    if(!url)return;
+    if(fromSheet) AGENT_PROFILE.photo=fromSheet;
+    setGreetPhoto(url);
   }
   function applyDirectoryBranding(directory){
     var match=findDirectoryAgentRow(directory);
