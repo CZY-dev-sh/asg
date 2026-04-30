@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start Buying — Alex Stoykov Group</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+@font-face{font-family:'Outfit';src:url('fonts/Outfit-VariableFont_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Regular.otf') format('opentype');font-weight:400;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Medium.otf') format('opentype');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Bold.otf') format('opentype');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Black.otf') format('opentype');font-weight:900;font-display:swap;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;-webkit-font-smoothing:antialiased;}
+body{font-family:'Satoshi','Outfit',system-ui,sans-serif;background:#f6f6f3;color:#111;}
+
+:root{
+  --bg:#f6f6f3;--surface:#fff;--text:#111;--muted:rgba(17,17,17,.55);
+  --line:rgba(17,17,17,.08);--line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 44px rgba(17,17,17,.11);
+}
+
+/* Slide transition */
+.slide-enter{animation:slideIn .38s cubic-bezier(.16,1,.3,1) both;}
+.slide-exit{animation:slideOut .25s cubic-bezier(.4,0,1,1) both;}
+.slide-enter-back{animation:slideInBack .38s cubic-bezier(.16,1,.3,1) both;}
+.slide-exit-back{animation:slideOutBack .25s cubic-bezier(.4,0,1,1) both;}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(-30px);}}
+@keyframes slideInBack{from{opacity:0;transform:translateX(-40px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideOutBack{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(30px);}}
+
+/* Input styles */
+.inp{width:100%;min-height:52px;border-radius:16px;border:1px solid rgba(17,17,17,.1);background:#fafaf9;padding:0 16px;font-family:'Outfit',sans-serif;font-size:.97rem;color:#111;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;}
+.inp:focus{border-color:rgba(17,17,17,.28);box-shadow:0 0 0 3px rgba(17,17,17,.05);}
+.inp::placeholder{color:rgba(17,17,17,.38);}
+select.inp{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;}
+textarea.inp{min-height:auto;padding:14px 16px;resize:none;line-height:1.55;}
+
+/* Pill option button */
+.pill-opt{border:1.5px solid rgba(17,17,17,.12);border-radius:999px;padding:11px 18px;background:#fff;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;color:#111;cursor:pointer;transition:all .18s ease;white-space:nowrap;}
+.pill-opt:hover{border-color:rgba(17,17,17,.3);background:#f9f9f7;}
+.pill-opt.selected{border-color:#111;background:#111;color:#fff;}
+
+/* Card option */
+.card-opt{border:1.5px solid rgba(17,17,17,.1);border-radius:20px;padding:16px 14px;background:#fff;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .22s ease;text-align:left;display:flex;flex-direction:column;gap:7px;}
+.card-opt:hover{border-color:rgba(17,17,17,.24);box-shadow:0 6px 20px rgba(17,17,17,.07);transform:translateY(-2px);}
+.card-opt.selected{border-color:#111;background:#f9f9f8;box-shadow:0 6px 20px rgba(17,17,17,.1);}
+
+/* Agent card */
+.agent-card{border:1.5px solid rgba(17,17,17,.1);border-radius:28px;padding:24px 20px;background:#fff;cursor:pointer;transition:all .22s ease;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;box-shadow:var(--shadow-card);}
+.agent-card:hover{border-color:rgba(17,17,17,.24);box-shadow:var(--shadow-hover);transform:translateY(-3px);}
+.agent-card.selected{border-color:#111;box-shadow:0 12px 36px rgba(17,17,17,.14);}
+
+/* Btn */
+.btn-primary{appearance:none;border:none;border-radius:999px;padding:14px 32px;background:#111;color:#fff;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:transform .18s ease,opacity .18s ease;}
+.btn-primary:hover{transform:translateY(-1px);opacity:.9;}
+.btn-primary:active{transform:scale(.97);}
+.btn-primary:disabled{opacity:.38;cursor:not-allowed;transform:none;}
+.btn-secondary{appearance:none;border:1.5px solid rgba(17,17,17,.18);border-radius:999px;padding:13px 24px;background:#fff;color:#111;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;transition:all .18s ease;}
+.btn-secondary:hover{border-color:rgba(17,17,17,.36);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ─── Data ───────────────────────────────────────────────── */
+const AGENTS = [
+  { id:'alex', name:'Alex Stoykov', role:'Team Lead · Senior Agent', specialties:['Luxury Sales','Negotiation','Portfolio Strategy'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w' },
+  { id:'sam', name:'Sam Abadi', role:'Senior Agent', specialties:['First-time Buyers','Investment','West Loop'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w' },
+  { id:'shelly', name:'Shelly Channey', role:'Senior Agent', specialties:['Relocation','Family Homes','Lincoln Park'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ec680d50-9548-4fcc-b29f-6780ec1a3e86/Shelly.jpg?format=500w' },
+  { id:'nicolas', name:'Nicolas Gamboa Wills', role:'Senior Agent', specialties:['Gold Coast','Condos','Investor Advisory'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=500w' },
+  { id:'julian', name:'Julian Levit', role:'Senior Agent', specialties:['Wicker Park','Townhomes','Buyer Roadmap'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21a6ba8a-39f9-4a98-acf7-4047f7a0f8cd/Julian+5mb.jpeg?format=500w' },
+  { id:'mino', name:'Mino Conenna', role:'Senior Agent', specialties:['Negotiation','Buyer Roadmap','Hands-on Service'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/20b29b84-587a-4b96-8ec9-f5184687e29d/Black+Jacket.jpeg?format=500w' },
+  { id:'angela', name:'Angela Engelbrecht', role:'Senior Agent', specialties:['Lakeview','New Construction','Luxury Buyers'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/197eb36b-0a4c-40de-b5de-4a9c93a33879/DSC09944.jpg?format=500w' },
+  { id:'layne', name:'Layne Zagorin', role:'Senior Agent', specialties:['Bucktown','Multi-family','Strategic Search'], img:'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5016d411-0889-4558-a8d9-146070d08181/Photo-18+%284%29.jpg?format=500w' },
+];
+
+/* ─── SVG Icons ──────────────────────────────────────────── */
+const icons = {
+  name: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="14" r="7" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M6 34c0-7.732 6.268-14 14-14s14 6.268 14 14" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  contact: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <rect x="6" y="10" width="28" height="20" rx="5" stroke="#111" strokeWidth="2"/>
+      <path d="M6 15l14 9 14-9" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  location: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <path d="M20 6C14.477 6 10 10.477 10 16c0 8.75 10 18 10 18s10-9.25 10-18c0-5.523-4.477-10-10-10z" stroke="#111" strokeWidth="2"/>
+      <circle cx="20" cy="16" r="4" stroke="#111" strokeWidth="2"/>
+    </svg>
+  ),
+  budget: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="14" stroke="#111" strokeWidth="2"/>
+      <path d="M20 10v2M20 28v2" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M15 16.5c0-1.933 2.239-3.5 5-3.5s5 1.567 5 3.5S22.761 20 20 20s-5 1.567-5 3.5S17.239 27 20 27s5-1.567 5-3.5" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  home: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <path d="M7 20L20 8l13 12" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M11 16.5V32h7v-8h4v8h7V16.5" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  bed: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <path d="M6 28V16" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M34 28V20" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M6 20h28v8" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="13" y="14" width="14" height="6" rx="2" stroke="#111" strokeWidth="2"/>
+      <path d="M6 32h28" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  finance: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <rect x="8" y="8" width="24" height="28" rx="4" stroke="#111" strokeWidth="2"/>
+      <path d="M14 16h12M14 22h12M14 28h8" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  situation: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <rect x="8" y="10" width="24" height="24" rx="4" stroke="#111" strokeWidth="2"/>
+      <path d="M8 16h24" stroke="#111" strokeWidth="2"/>
+      <path d="M15 8v4M25 8v4" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="15" cy="24" r="2" fill="#111"/>
+      <circle cx="25" cy="24" r="2" fill="#111"/>
+    </svg>
+  ),
+  star: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <path d="M20 6l3.5 10.5H34l-8.5 6.5 3.5 10.5L20 27l-9 6.5 3.5-10.5L6 16.5h10.5z" stroke="#111" strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  ),
+  notes: (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <rect x="8" y="8" width="24" height="28" rx="4" stroke="#111" strokeWidth="2"/>
+      <path d="M14 16h12M14 22h9" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M26 29l4-4-3-3-4 4v3h3z" stroke="#111" strokeWidth="1.8" strokeLinejoin="round"/>
+    </svg>
+  ),
+};
+
+/* ─── Questions ──────────────────────────────────────────── */
+const QUESTIONS = [
+  {
+    id:'full_name', icon:'name',
+    title:'What\'s your name?', subtitle:'So we can make this personal.',
+    type:'text', placeholder:'Your full name',
+  },
+  {
+    id:'contact', icon:'contact',
+    title:'How can we reach you?', subtitle:'Share your best contact details.',
+    type:'contact_fields',
+  },
+  {
+    id:'locations', icon:'location',
+    title:'Where do you want to buy?', subtitle:'Neighborhoods, streets, or just a vibe — tell us.',
+    type:'text', placeholder:'e.g. Lincoln Park, Gold Coast, West Loop…',
+  },
+  {
+    id:'budget_max', icon:'budget',
+    title:'What\'s your maximum budget?', subtitle:'We\'ll focus your search within a range that works.',
+    type:'budget_slider',
+  },
+  {
+    id:'property_type', icon:'home',
+    title:'What type of property?', subtitle:'Select all that apply.',
+    type:'multi_pill',
+    options:['Single Family','Condo / Co-op','Townhome','Multi-family','New Construction','Any'],
+  },
+  {
+    id:'bedrooms', icon:'bed',
+    title:'How many bedrooms?', subtitle:'Minimum you\'d consider.',
+    type:'single_pill',
+    options:['Studio','1+','2+','3+','4+','5+'],
+  },
+  {
+    id:'financing_status', icon:'finance',
+    title:'Where are you with financing?', subtitle:'No judgment — just helps us move at the right pace.',
+    type:'single_card',
+    options:[
+      { label:'Pre-approved', desc:'I have a pre-approval letter ready.' },
+      { label:'In progress', desc:'Working with a lender right now.' },
+      { label:'Not started yet', desc:'I haven\'t spoken to a lender.' },
+      { label:'Cash buyer', desc:'No financing needed.' },
+    ],
+  },
+  {
+    id:'current_situation', icon:'situation',
+    title:'What\'s your current situation?', subtitle:'This shapes our timeline recommendation.',
+    type:'single_card',
+    options:[
+      { label:'Renting month-to-month', desc:'Flexible and ready to move.' },
+      { label:'Lease ending soon', desc:'Within the next 1–3 months.' },
+      { label:'Own a home to sell first', desc:'Need to coordinate a sale.' },
+      { label:'Just exploring', desc:'No urgent timeline.' },
+    ],
+  },
+  {
+    id:'must_haves', icon:'star',
+    title:'What are your must-haves?', subtitle:'The things you absolutely can\'t live without.',
+    type:'multi_pill',
+    options:['Outdoor space','Parking','Home office','Open floor plan','High ceilings','Updated kitchen','In-unit laundry','Rooftop','Garage','Pet-friendly'],
+  },
+  {
+    id:'notes', icon:'notes',
+    title:'Anything else?', subtitle:'Any context that would help us find the right home faster.',
+    type:'textarea', placeholder:'Share anything on your mind…',
+  },
+];
+
+/* ─── Budget fmt ─────────────────────────────────────────── */
+function fmtBudget(v) {
+  if (v >= 1000000) return `$${(v/1000000).toFixed(1).replace(/\.0$/, '')}M`;
+  return `$${Math.round(v/1000)}K`;
+}
+
+/* ─── Progress dots ──────────────────────────────────────── */
+function ProgressDots({ total, current }) {
+  return (
+    <div style={{ display:'flex', gap:6, alignItems:'center', justifyContent:'center' }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div key={i} style={{
+          width: i === current ? 22 : 8,
+          height: 8,
+          borderRadius: 999,
+          background: i === current ? '#111' : i < current ? 'rgba(17,17,17,.35)' : 'rgba(17,17,17,.12)',
+          transition: 'all .35s cubic-bezier(.16,1,.3,1)',
+        }} />
+      ))}
+    </div>
+  );
+}
+
+/* ─── Agent Sidebar ──────────────────────────────────────── */
+function AgentSidebar({ agent, onChange }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+      <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+        <div style={{ width:60, height:60, borderRadius:'50%', overflow:'hidden', background:'#e4e4df', border:'1px solid rgba(17,17,17,.08)', flexShrink:0 }}>
+          <img src={agent.img} alt={agent.name} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'top' }} />
+        </div>
+        <div>
+          <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.98rem', marginBottom:2 }}>{agent.name}</p>
+          <p style={{ color:'rgba(17,17,17,.5)', fontSize:'.8rem' }}>{agent.role}</p>
+        </div>
+      </div>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {agent.specialties.map(s => (
+          <span key={s} style={{ fontSize:'.75rem', fontWeight:600, color:'rgba(17,17,17,.6)', background:'#f2f2f0', border:'1px solid rgba(17,17,17,.08)', borderRadius:999, padding:'4px 10px' }}>{s}</span>
+        ))}
+      </div>
+      <button onClick={onChange} style={{ appearance:'none', border:'1.5px solid rgba(17,17,17,.18)', borderRadius:999, padding:'9px 16px', background:'#fff', color:'#111', fontFamily:"'Outfit',sans-serif", fontSize:'.84rem', fontWeight:600, cursor:'pointer', alignSelf:'flex-start', transition:'border-color .18s' }}>
+        Change Agent
+      </button>
+    </div>
+  );
+}
+
+/* ─── Question Card ──────────────────────────────────────── */
+function QuestionCard({ q, answer, setAnswer, direction }) {
+  const [budget, setBudget] = useState(answer?.budget || 1500000);
+  const cls = direction === 'forward' ? 'slide-enter' : 'slide-enter-back';
+
+  function toggle(val, multi) {
+    if (!multi) { setAnswer(val); return; }
+    const arr = Array.isArray(answer) ? answer : [];
+    setAnswer(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
+  }
+
+  const icon = icons[q.icon];
+
+  return (
+    <div className={cls} style={{ display:'flex', flexDirection:'column', gap:28 }}>
+      {/* Icon */}
+      <div style={{ display:'flex', justifyContent:'center' }}>
+        <div style={{ width:80, height:80, borderRadius:24, background:'#f6f6f3', border:'1px solid rgba(17,17,17,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          {icon}
+        </div>
+      </div>
+
+      {/* Heading */}
+      <div style={{ textAlign:'center' }}>
+        <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.55rem', letterSpacing:'-.03em', lineHeight:1.1, marginBottom:8 }}>{q.title}</h2>
+        <p style={{ color:'rgba(17,17,17,.55)', fontSize:'.94rem', lineHeight:1.5 }}>{q.subtitle}</p>
+      </div>
+
+      {/* Input */}
+      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+        {q.type === 'text' && (
+          <input className="inp" autoFocus type="text" placeholder={q.placeholder} value={answer || ''} onChange={e => setAnswer(e.target.value)} />
+        )}
+        {q.type === 'textarea' && (
+          <textarea className="inp" autoFocus rows={5} placeholder={q.placeholder} value={answer || ''} onChange={e => setAnswer(e.target.value)} />
+        )}
+        {q.type === 'contact_fields' && (
+          <>
+            <input className="inp" type="email" placeholder="Email address" value={answer?.email || ''} onChange={e => setAnswer(a => ({...(a||{}), email:e.target.value}))} />
+            <input className="inp" type="tel" placeholder="Phone number" value={answer?.phone || ''} onChange={e => setAnswer(a => ({...(a||{}), phone:e.target.value}))} />
+            <select className="inp" value={answer?.preferred || ''} onChange={e => setAnswer(a => ({...(a||{}), preferred:e.target.value}))}>
+              <option value="">Preferred contact method</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone call</option>
+              <option value="text">Text message</option>
+            </select>
+          </>
+        )}
+        {q.type === 'budget_slider' && (
+          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <span style={{ fontSize:'.85rem', color:'rgba(17,17,17,.5)', fontWeight:600 }}>Maximum budget</span>
+              <span style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.4rem', letterSpacing:'-.03em' }}>{fmtBudget(budget)}</span>
+            </div>
+            <input type="range" min={300000} max={8000000} step={50000} value={budget} onChange={e => { setBudget(+e.target.value); setAnswer(+e.target.value); }} style={{ width:'100%', height:6, borderRadius:999, background:`linear-gradient(to right, #111 0%, #111 ${((budget-300000)/(8000000-300000))*100}%, #e4e4df ${((budget-300000)/(8000000-300000))*100}%, #e4e4df 100%)`, accentColor:'#111', outline:'none', appearance:'none', cursor:'pointer' }} />
+            <div style={{ display:'flex', justifyContent:'space-between' }}>
+              <span style={{ fontSize:'.76rem', color:'rgba(17,17,17,.38)', fontWeight:600 }}>$300K</span>
+              <span style={{ fontSize:'.76rem', color:'rgba(17,17,17,.38)', fontWeight:600 }}>$8M+</span>
+            </div>
+          </div>
+        )}
+        {q.type === 'single_pill' && (
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, justifyContent:'center' }}>
+            {q.options.map(opt => (
+              <button key={opt} className={`pill-opt${answer === opt ? ' selected' : ''}`} onClick={() => setAnswer(opt)}>{opt}</button>
+            ))}
+          </div>
+        )}
+        {q.type === 'multi_pill' && (
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, justifyContent:'center' }}>
+            {q.options.map(opt => {
+              const sel = Array.isArray(answer) && answer.includes(opt);
+              return <button key={opt} className={`pill-opt${sel ? ' selected' : ''}`} onClick={() => toggle(opt, true)}>{opt}</button>;
+            })}
+          </div>
+        )}
+        {q.type === 'single_card' && (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            {q.options.map(opt => (
+              <button key={opt.label} className={`card-opt${answer === opt.label ? ' selected' : ''}`} onClick={() => setAnswer(opt.label)}>
+                <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.94rem', letterSpacing:'-.01em', color:'#111' }}>{opt.label}</p>
+                <p style={{ color:'rgba(17,17,17,.5)', fontSize:'.82rem', lineHeight:1.45 }}>{opt.desc}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Success ────────────────────────────────────────────── */
+function Success({ agent, answers }) {
+  const name = answers['full_name'] || 'there';
+  return (
+    <div className="slide-enter" style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:24, textAlign:'center', padding:'16px 0' }}>
+      <div style={{ width:80, height:80, borderRadius:24, background:'#f6f6f3', border:'1px solid rgba(17,17,17,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <circle cx="19" cy="19" r="14" stroke="#111" strokeWidth="2"/>
+          <path d="M12 19l5 5 9-9" stroke="#111" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.55rem', letterSpacing:'-.03em', marginBottom:8 }}>You're all set, {name.split(' ')[0]}.</h2>
+        <p style={{ color:'rgba(17,17,17,.56)', fontSize:'.95rem', lineHeight:1.6, maxWidth:'40ch', margin:'0 auto' }}>{agent.name} will review your preferences and reach out within one business day to begin your search.</p>
+      </div>
+      <div style={{ background:'#fff', border:'1px solid rgba(17,17,17,.08)', borderRadius:20, padding:'16px 20px', display:'flex', gap:12, alignItems:'center', width:'100%', maxWidth:340 }}>
+        <div style={{ width:50, height:50, borderRadius:'50%', overflow:'hidden', background:'#e4e4df', flexShrink:0 }}>
+          <img src={agent.img} alt={agent.name} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'top' }} />
+        </div>
+        <div style={{ textAlign:'left' }}>
+          <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.92rem', marginBottom:2 }}>{agent.name}</p>
+          <p style={{ color:'rgba(17,17,17,.5)', fontSize:'.8rem' }}>Will follow up soon</p>
+        </div>
+      </div>
+      <a href="index.html" style={{ textDecoration:'none' }}>
+        <button className="btn-secondary">Back to Homepage</button>
+      </a>
+    </div>
+  );
+}
+
+/* ─── Onboarding Flow ────────────────────────────────────── */
+function Onboarding({ agent, onChangeAgent }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [direction, setDirection] = useState('forward');
+  const [animKey, setAnimKey] = useState(0);
+  const [done, setDone] = useState(false);
+
+  const q = QUESTIONS[step];
+  const isLast = step === QUESTIONS.length - 1;
+  const answer = answers[q?.id];
+
+  function canContinue() {
+    if (!q) return false;
+    if (q.type === 'text' || q.type === 'textarea') return (answer || '').trim().length > 0;
+    if (q.type === 'contact_fields') return (answer?.email || '').trim().length > 0;
+    if (q.type === 'budget_slider') return true;
+    if (q.type === 'single_pill' || q.type === 'single_card') return !!answer;
+    if (q.type === 'multi_pill') return Array.isArray(answer) && answer.length > 0;
+    return false;
+  }
+
+  function next() {
+    if (isLast) { setDone(true); return; }
+    setDirection('forward');
+    setStep(s => s + 1);
+    setAnimKey(k => k + 1);
+  }
+
+  function back() {
+    if (step === 0) { onChangeAgent(); return; }
+    setDirection('back');
+    setStep(s => s - 1);
+    setAnimKey(k => k + 1);
+  }
+
+  function setAnswer(val) {
+    setAnswers(a => ({ ...a, [q.id]: typeof val === 'function' ? val(a[q.id]) : val }));
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && canContinue() && q.type !== 'textarea') next();
+  }
+
+  return (
+    <div style={{ display:'flex', gap:0, minHeight:'100vh', background:'var(--bg)' }} onKeyDown={handleKeyDown}>
+
+      {/* Left sidebar */}
+      <div style={{ width:260, flexShrink:0, borderRight:'1px solid rgba(17,17,17,.08)', padding:'32px 24px', display:'flex', flexDirection:'column', gap:24, background:'#fff' }}>
+        <a href="index.html" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ width:30, height:30, borderRadius:'50%', background:'#111', display:'inline-flex', alignItems:'center', justifyContent:'center' }}>
+            <img src="assets/Logo.png" alt="ASG" style={{ width:22, height:22, filter:'invert(1)', display:'block' }} />
+          </span>
+          <span style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'.88rem', color:'#111' }}>Alex Stoykov Group</span>
+        </a>
+
+        <div style={{ borderTop:'1px solid rgba(17,17,17,.06)', paddingTop:20 }}>
+          <p style={{ fontSize:'.72rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'rgba(17,17,17,.38)', marginBottom:12 }}>Your Agent</p>
+          <AgentSidebar agent={agent} onChange={onChangeAgent} />
+        </div>
+
+        {/* Progress */}
+        {!done && (
+          <div style={{ marginTop:'auto', borderTop:'1px solid rgba(17,17,17,.06)', paddingTop:16 }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {QUESTIONS.map((q2, i) => (
+                <div key={q2.id} style={{ display:'flex', gap:8, alignItems:'center' }}>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background: i < step ? '#111' : i === step ? '#111' : 'rgba(17,17,17,.15)', flexShrink:0, transition:'background .2s' }}></div>
+                  <p style={{ fontSize:'.78rem', color: i <= step ? '#111' : 'rgba(17,17,17,.35)', fontWeight: i === step ? 600 : 400, transition:'color .2s' }}>{q2.title.replace(/\?$/, '').replace(/What's your /i, '').replace(/How can we /i, 'Contact').slice(0,28)}{q2.title.length > 30 ? '…' : ''}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Main content */}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 40px', minHeight:'100vh' }}>
+        <div style={{ width:'100%', maxWidth:560 }}>
+
+          {!done && (
+            <div style={{ marginBottom:28 }}>
+              <ProgressDots total={QUESTIONS.length} current={step} />
+              <p style={{ textAlign:'center', color:'rgba(17,17,17,.35)', fontSize:'.78rem', fontWeight:600, marginTop:8 }}>{step + 1} of {QUESTIONS.length}</p>
+            </div>
+          )}
+
+          <div key={animKey} style={{ background:'#fff', border:'1px solid rgba(17,17,17,.08)', borderRadius:28, padding:'36px 32px', boxShadow:'0 12px 40px rgba(17,17,17,.07)' }}>
+            {done
+              ? <Success agent={agent} answers={answers} />
+              : <QuestionCard q={q} answer={answer} setAnswer={setAnswer} direction={direction} />
+            }
+          </div>
+
+          {!done && (
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:18, padding:'0 4px' }}>
+              <button className="btn-secondary" onClick={back}>{step === 0 ? 'Change Agent' : 'Back'}</button>
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                {(q.type === 'multi_pill' || q.type === 'textarea' || q.type === 'notes') && (
+                  <button onClick={next} style={{ appearance:'none', border:'none', background:'none', color:'rgba(17,17,17,.44)', fontFamily:"'Outfit',sans-serif", fontSize:'.88rem', fontWeight:600, cursor:'pointer' }}>Skip</button>
+                )}
+                <button className="btn-primary" onClick={next} disabled={!canContinue()}>
+                  {isLast ? 'Submit' : 'Continue'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Agent Selection ────────────────────────────────────── */
+function AgentSelection({ onSelect }) {
+  const [selected, setSelected] = useState(null);
+  return (
+    <div style={{ minHeight:'100vh', background:'var(--bg)', display:'flex', flexDirection:'column' }}>
+
+      {/* Nav */}
+      <div style={{ padding:'20px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(17,17,17,.06)', background:'rgba(255,255,255,.85)', backdropFilter:'blur(12px)', position:'sticky', top:0, zIndex:10 }}>
+        <a href="index.html" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:9 }}>
+          <span style={{ width:32, height:32, borderRadius:'50%', background:'#111', display:'inline-flex', alignItems:'center', justifyContent:'center' }}>
+            <img src="assets/Logo.png" alt="ASG" style={{ width:24, height:24, filter:'invert(1)', display:'block' }} />
+          </span>
+          <span style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'.95rem', color:'#111' }}>Alex Stoykov Group</span>
+        </a>
+        <a href="index.html" style={{ textDecoration:'none' }}>
+          <button style={{ appearance:'none', border:'1.5px solid rgba(17,17,17,.15)', borderRadius:999, padding:'9px 18px', background:'transparent', color:'rgba(17,17,17,.6)', fontFamily:"'Outfit',sans-serif", fontSize:'.86rem', fontWeight:600, cursor:'pointer' }}>← Back to site</button>
+        </a>
+      </div>
+
+      {/* Hero text */}
+      <div style={{ textAlign:'center', padding:'52px 20px 36px' }}>
+        <span style={{ display:'inline-flex', border:'1px solid rgba(17,17,17,.1)', borderRadius:999, padding:'7px 14px', background:'#f2f2f0', fontSize:'.74rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.55)', marginBottom:16 }}>Step 1 of 2</span>
+        <h1 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'clamp(1.8rem,3.5vw,2.8rem)', letterSpacing:'-.045em', lineHeight:.95, marginBottom:14 }}>Choose your agent.</h1>
+        <p style={{ color:'rgba(17,17,17,.56)', fontSize:'1rem', lineHeight:1.6, maxWidth:'46ch', margin:'0 auto' }}>Each agent specializes in different areas and buyer profiles. Select the one that feels right, or continue with our recommendation.</p>
+      </div>
+
+      {/* Agent grid */}
+      <div style={{ maxWidth:1100, margin:'0 auto', padding:'0 24px 60px', width:'100%' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+          {AGENTS.map(a => (
+            <div key={a.id} className={`agent-card${selected === a.id ? ' selected' : ''}`} onClick={() => setSelected(a.id)}>
+              <div style={{ width:80, height:80, borderRadius:'50%', overflow:'hidden', background:'#e4e4df', border:'1.5px solid rgba(17,17,17,.08)', flexShrink:0 }}>
+                <img src={a.img} alt={a.name} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'top', display:'block' }} loading="lazy" />
+              </div>
+              <div>
+                <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.98rem', letterSpacing:'-.01em', marginBottom:3 }}>{a.name}</p>
+                <p style={{ color:'rgba(17,17,17,.5)', fontSize:'.8rem', fontWeight:500 }}>{a.role}</p>
+              </div>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:5, justifyContent:'center' }}>
+                {a.specialties.slice(0,2).map(s => (
+                  <span key={s} style={{ fontSize:'.72rem', fontWeight:600, color:'rgba(17,17,17,.55)', background:'#f2f2f0', border:'1px solid rgba(17,17,17,.08)', borderRadius:999, padding:'3px 9px' }}>{s}</span>
+                ))}
+              </div>
+              {selected === a.id && (
+                <div style={{ width:22, height:22, borderRadius:'50%', background:'#111', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Continue btn */}
+        <div style={{ display:'flex', justifyContent:'center', marginTop:32 }}>
+          <button className="btn-primary" disabled={!selected} onClick={() => onSelect(AGENTS.find(a => a.id === selected))} style={{ fontSize:'1rem', padding:'15px 40px' }}>
+            Continue with {selected ? AGENTS.find(a => a.id === selected)?.name.split(' ')[0] : 'Agent'} →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── App ────────────────────────────────────────────────── */
+function App() {
+  const [agent, setAgent] = useState(null);
+
+  if (!agent) return <AgentSelection onSelect={setAgent} />;
+  return <Onboarding agent={agent} onChangeAgent={() => setAgent(null)} />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

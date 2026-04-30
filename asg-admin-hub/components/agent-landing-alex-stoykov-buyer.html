@@ -1,0 +1,66 @@
+<section id="asg-landing-alex-buyer"></section>
+<style>
+  #asg-landing-alex-buyer{--bg:#f5f5f7;--card:#fff;--text:#111;--muted:#6e6e73;--line:rgba(17,17,17,.09);max-width:1180px;margin:0 auto;padding:34px 18px 52px;background:var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  #asg-landing-alex-buyer *{box-sizing:border-box}
+  #asg-landing-alex-buyer .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 8px 24px rgba(17,17,17,.05)}
+  #asg-landing-alex-buyer .grid{display:grid;gap:14px}
+  #asg-landing-alex-buyer .metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #asg-landing-alex-buyer .metric{background:#fafafb;border:1px solid var(--line);border-radius:16px;padding:12px}
+  #asg-landing-alex-buyer .metric .v{font-size:26px;font-weight:700;letter-spacing:-.03em}
+  #asg-landing-alex-buyer .metric .l{font-size:12px;color:var(--muted)}
+  #asg-landing-alex-buyer h2{font-size:clamp(30px,5vw,52px);margin:0;line-height:1.03}
+  #asg-landing-alex-buyer p{color:var(--muted)}
+  #asg-landing-alex-buyer .timeline{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #asg-landing-alex-buyer .reviews{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #asg-landing-alex-buyer .idx{min-height:110px}
+  #asg-landing-alex-buyer .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid #000;padding:11px 17px;font-size:14px;font-weight:600;text-decoration:none;background:#111;color:#fff}
+  #asg-landing-alex-buyer .btn.alt{background:#fff;color:#111}
+  #asg-landing-alex-buyer .btnRow{display:flex;gap:10px;flex-wrap:wrap}
+  #asg-landing-alex-buyer .empty{padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+  @media (max-width:980px){#asg-landing-alex-buyer .metrics,#asg-landing-alex-buyer .timeline,#asg-landing-alex-buyer .reviews{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:680px){#asg-landing-alex-buyer{padding:20px 12px 38px}#asg-landing-alex-buyer .metrics,#asg-landing-alex-buyer .timeline,#asg-landing-alex-buyer .reviews{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+  var root=document.getElementById("asg-landing-alex-buyer");
+  if(!root) return;
+  var API=window.ASG_LANDING_API||"";
+  function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function safe(v){var s=String(v||"").trim();return /^https?:\/\//i.test(s)||/^mailto:/i.test(s)||/^tel:/i.test(s)?s:"#";}
+  function mountIdx(blob){
+    var slot=root.querySelector("[data-idx]");
+    if(!slot) return;
+    var scriptBlob=String(blob||"").trim();
+    if(!scriptBlob){slot.innerHTML='<div class="empty">Buyer-focused IDX widget will render here once configured.</div>';return;}
+    var src=scriptBlob.match(/src=['"]([^'"]+)['"]/i);
+    if(src&&src[1]){var s=document.createElement("script");s.src=src[1];s.async=true;slot.innerHTML="";slot.appendChild(s);return;}
+    slot.innerHTML=scriptBlob;
+  }
+  function render(data){
+    var agent=(data.agent&&data.agent.item)||{};
+    var stats=(Array.isArray(data.stats)?data.stats:[]).slice(0,4);
+    var reviews=(Array.isArray(data.reviews)?data.reviews:[]).filter(function(r){return (r.persona||"").toLowerCase()==="buyer"||!r.persona||r.persona==="all";}).slice(0,6);
+    root.innerHTML=[
+      '<div class="card"><h2>Buy with clarity in every market cycle</h2><p>A buyer-first process built around strategic search, underwriting confidence, and winning offer execution.</p><div class="grid metrics">',
+      (stats.length?stats.map(function(m){return '<div class="metric"><div class="v">'+esc(m.value)+'</div><div class="l">'+esc(m.label+" · "+(m.subtext||""))+'</div></div>';}).join(""):
+      '<div class="metric"><div class="v">260+</div><div class="l">Total transactions guided</div></div><div class="metric"><div class="v">20+ yrs</div><div class="l">Market experience</div></div><div class="metric"><div class="v">5.0</div><div class="l">Average client rating</div></div><div class="metric"><div class="v">24hr</div><div class="l">Response standard</div></div>'),
+      '</div></div>',
+      '<div class="card"><h3 style="margin:0 0 12px;font-size:32px">Buyer Workflow</h3><div class="grid timeline">',
+      '<div class="card"><h4 style="margin:0 0 6px">1. Strategy</h4><p>Define goals, neighborhoods, budget, and financing game plan.</p></div>',
+      '<div class="card"><h4 style="margin:0 0 6px">2. Search & Tour</h4><p>Track on-market and off-market inventory with curated tour planning.</p></div>',
+      '<div class="card"><h4 style="margin:0 0 6px">3. Offer & Close</h4><p>Price-positioned offers, negotiation, and closing coordination.</p></div>',
+      '</div></div>',
+      '<div class="card"><h3 style="margin:0 0 12px;font-size:32px">Live Buyer Listings</h3><div class="idx" data-idx></div></div>',
+      '<div class="card"><h3 style="margin:0 0 12px;font-size:32px">Buyer Reviews</h3><div class="grid reviews">',
+      (reviews.length?reviews.map(function(r){
+        return '<article class="card"><div style="font-size:11px;font-weight:600;color:#0a66ff">'+esc(String(r.source||"review").toUpperCase())+'</div><p style="margin:8px 0 10px;line-height:1.55">"'+esc(r.quote||"Alex helped us secure the right home with strong guidance.")+'"</p><div style="font-size:12px;color:#6e6e73">'+esc(r.reviewerName||"Buyer Client")+'</div></article>';
+      }).join(""):'<div class="empty">Add buyer reviews in the Reviews tab with persona = buyer.</div>'),
+      '</div></div>',
+      '<div class="card" style="text-align:center"><h3 style="margin:0;font-size:32px">Ready to start your search?</h3><p>Get a personalized buying strategy and curated listing plan.</p><div class="btnRow" style="justify-content:center"><a class="btn" href="'+esc(safe((agent.ctas&&agent.ctas.primary&&agent.ctas.primary.url)||"#"))+'">Book Buyer Consultation</a><a class="btn alt" href="'+esc(safe("mailto:"+(agent.email||"alex.stoykov@compass.com")))+'">Email Alex</a></div></div>'
+    ].join("");
+    mountIdx(data.idx&&data.idx.items&&data.idx.items[0]?data.idx.items[0].embedScript:"");
+  }
+  if(!API){root.innerHTML='<div class="card"><div class="empty">Set window.ASG_LANDING_API before this embed.</div></div>';return;}
+  fetch(API+"?view=agent&slug=alex-stoykov&page=buyer",{method:"GET",cache:"no-store"}).then(function(r){return r.json();}).then(function(p){if(!p||!p.success||!p.data)throw new Error("bad");render(p.data);}).catch(function(){root.innerHTML='<div class="card"><div class="empty">Unable to load buyer page data right now.</div></div>';});
+})();
+</script>

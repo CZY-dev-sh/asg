@@ -22,6 +22,8 @@
 
 var HUB_TAB_CANDIDATES = {
   directory: ["Directory", "Team Directory", "team_directory"],
+  agentContent: ["AgentContent", "agent_content", "agentcontent"],
+  reviews: ["Reviews", "reviews"],
   events: ["Events", "events"],
   updates: ["Updates", "updates"]
 };
@@ -61,11 +63,27 @@ var DIRECTORY_BRANDING_ASSETS = [
 function doGet(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var view = _resolveView_(e && e.parameter ? e.parameter.view : "");
+    var params = e && e.parameter ? e.parameter : {};
+    var view = _resolveView_(params.view);
 
     var directory = null;
     var events = null;
     var updates = null;
+    var landing = null;
+
+    if (view === "landing") {
+      landing = _readLandingPayload_(ss, params);
+      return _json_({
+        success: true,
+        meta: {
+          view: view,
+          generatedAt: new Date().toISOString()
+        },
+        data: {
+          landing: landing
+        }
+      });
+    }
 
     if (view === "all" || view === "directory") {
       directory = _readDirectoryPayload_(ss);
@@ -146,8 +164,209 @@ function onEdit(e) {
 
 function _resolveView_(raw) {
   var view = String(raw || "").trim().toLowerCase();
-  if (view === "directory" || view === "events" || view === "updates") return view;
+  if (view === "directory" || view === "events" || view === "updates" || view === "landing") return view;
   return "all";
+}
+
+function _readLandingPayload_(ss, params) {
+  var slug = _slugify_(_pick_(params || {}, ["slug", "agent_slug", "agent"]));
+  if (!slug) {
+    return { success: false, error: "Missing required query param: slug" };
+  }
+
+  var directoryRows = _readRowsFromSheetCandidates_(ss, HUB_TAB_CANDIDATES.directory);
+  var contentRows = _readRowsFromSheetCandidates_(ss, HUB_TAB_CANDIDATES.agentContent);
+  var reviewRows = _readRowsFromSheetCandidates_(ss, HUB_TAB_CANDIDATES.reviews);
+
+  var directoryRow = _findAgentRowBySlug_(directoryRows, slug);
+  var contentRow = _findAgentRowBySlug_(contentRows, slug);
+
+  var baseAgent = _buildLandingAgentFromDirectory_(directoryRow, slug);
+  var overrideAgent = _buildLandingAgentFromContent_(contentRow, slug);
+  var mergedAgent = _mergeLandingAgent_(baseAgent, overrideAgent);
+
+  var reviews = (reviewRows || [])
+    .filter(function(row) {
+      return _findSlugForRow_(row) === slug && _isTruthy_(row.active, true);
+    })
+    .sort(function(a, b) {
+      return _num_(b.featured, 0) - _num_(a.featured, 0) ||
+        _num_(a.sort_order, 9999) - _num_(b.sort_order, 9999);
+    })
+    .map(function(row) {
+      return {
+        source: String(_pickAny_(row, ["source"]) || "").trim().toLowerCase(),
+        persona: String(_pickAny_(row, ["persona"]) || "all").trim().toLowerCase(),
+        reviewerName: String(_pickAny_(row, ["reviewer_name", "name"]) || "").trim(),
+        rating: _num_(row.rating, 5),
+        quote: String(_pickAny_(row, ["quote", "review"]) || "").trim(),
+        sourceUrl: String(_pickAny_(row, ["source_url", "url"]) || "").trim(),
+        featured: _num_(row.featured, 0) === 1
+      };
+    });
+
+  return {
+    success: !!(directoryRow || contentRow),
+    slug: slug,
+    agent: { success: true, item: mergedAgent },
+    stats: [],
+    reviews: reviews,
+    sections: [],
+    idx: { items: [] },
+    listings: []
+  };
+}
+
+function _readRowsFromSheetCandidates_(ss, candidates) {
+  var sheet = _findSheet_(ss, candidates || []);
+  if (!sheet) return [];
+  return _readTable_(sheet).rows || [];
+}
+
+function _findAgentRowBySlug_(rows, slug) {
+  for (var i = 0; i < (rows || []).length; i++) {
+    var row = rows[i];
+    if (_findSlugForRow_(row) === slug) return row;
+  }
+  return null;
+}
+
+function _findSlugForRow_(row) {
+  var explicit = _pickAny_(row || {}, ["agent_slug", "slug"]);
+  if (String(explicit || "").trim()) return _slugify_(explicit);
+  var email = String(_pickAny_(row || {}, ["email", "agent_email"]) || "").trim();
+  if (email && email.indexOf("@") > 0) return _slugify_(email.split("@")[0]);
+  return _slugify_(_pickAny_(row || {}, ["name", "display_name", "agent_name"]));
+}
+
+function _buildLandingAgentFromDirectory_(row, slug) {
+  row = row || {};
+  return {
+    slug: slug,
+    name: String(_pickAny_(row, ["name", "display_name", "agent_name"]) || "").trim(),
+    title: String(_pickAny_(row, ["title", "role_group", "tier"]) || "").trim(),
+    bioShort: String(_pickAny_(row, ["bio_short", "bio", "about"]) || "").trim(),
+    bioLong: String(_pickAny_(row, ["bio_long", "about_long"]) || "").trim(),
+    headshotUrl: String(_pickAny_(row, ["image_url", "photo", "headshot_url", "icon_photo_url"]) || "").trim(),
+    phone: String(_pickAny_(row, ["phone_number", "phone", "mobile", "cell", "cell_phone", "work_phone"]) || "").trim(),
+    email: String(_pickAny_(row, ["email", "agent_email"]) || "").trim(),
+    socials: {
+      instagram: String(_pickAny_(row, ["instagram_url", "instagram", "ig_url"]) || "").trim(),
+      facebook: String(_pickAny_(row, ["facebook_url", "facebook", "fb_url"]) || "").trim(),
+      linkedin: String(_pickAny_(row, ["linkedin_url", "linkedin", "linkedin_profile"]) || "").trim()
+    },
+    markets: {
+      primary: String(_pickAny_(row, ["primary_market", "market", "market_area"]) || "").trim(),
+      secondary: _splitCsv_(_pickAny_(row, ["secondary_markets", "markets"]))
+    },
+    ctas: {
+      primary: {
+        label: String(_pickAny_(row, ["cta_primary_label", "ds_primary_label"]) || "").trim(),
+        url: String(_pickAny_(row, ["cta_primary_url", "ds_primary_url"]) || "").trim()
+      },
+      secondary: {
+        label: String(_pickAny_(row, ["cta_secondary_label", "ds_secondary_label"]) || "").trim(),
+        url: String(_pickAny_(row, ["cta_secondary_url", "ds_secondary_url"]) || "").trim()
+      }
+    }
+  };
+}
+
+function _buildLandingAgentFromContent_(row, slug) {
+  row = row || {};
+  return {
+    slug: slug,
+    name: String(_pickAny_(row, ["name", "display_name", "agent_name"]) || "").trim(),
+    title: String(_pickAny_(row, ["title", "role"]) || "").trim(),
+    bioShort: String(_pickAny_(row, ["bio_short"]) || "").trim(),
+    bioLong: String(_pickAny_(row, ["bio_long"]) || "").trim(),
+    headshotUrl: String(_pickAny_(row, ["headshot_url", "image_url", "photo"]) || "").trim(),
+    phone: String(_pickAny_(row, ["phone", "phone_number"]) || "").trim(),
+    email: String(_pickAny_(row, ["email", "agent_email"]) || "").trim(),
+    socials: {
+      instagram: String(_pickAny_(row, ["instagram_url", "instagram"]) || "").trim(),
+      facebook: String(_pickAny_(row, ["facebook_url", "facebook"]) || "").trim(),
+      linkedin: String(_pickAny_(row, ["linkedin_url", "linkedin"]) || "").trim()
+    },
+    markets: {
+      primary: String(_pickAny_(row, ["primary_market"]) || "").trim(),
+      secondary: _splitCsv_(_pickAny_(row, ["secondary_markets"]))
+    },
+    ctas: {
+      primary: {
+        label: String(_pickAny_(row, ["cta_primary_label", "ds_primary_label"]) || "").trim(),
+        url: String(_pickAny_(row, ["cta_primary_url", "ds_primary_url"]) || "").trim()
+      },
+      secondary: {
+        label: String(_pickAny_(row, ["cta_secondary_label", "ds_secondary_label"]) || "").trim(),
+        url: String(_pickAny_(row, ["cta_secondary_url", "ds_secondary_url"]) || "").trim()
+      }
+    }
+  };
+}
+
+function _mergeLandingAgent_(base, override) {
+  function first(a, b) { return String(a || "").trim() ? a : b; }
+  var merged = {
+    slug: first(override.slug, base.slug),
+    name: first(override.name, base.name),
+    title: first(override.title, base.title),
+    bioShort: first(override.bioShort, base.bioShort),
+    bioLong: first(override.bioLong, base.bioLong),
+    headshotUrl: first(override.headshotUrl, base.headshotUrl),
+    phone: first(override.phone, base.phone),
+    email: first(override.email, base.email),
+    socials: {
+      instagram: first(override.socials && override.socials.instagram, base.socials && base.socials.instagram),
+      facebook: first(override.socials && override.socials.facebook, base.socials && base.socials.facebook),
+      linkedin: first(override.socials && override.socials.linkedin, base.socials && base.socials.linkedin)
+    },
+    markets: {
+      primary: first(override.markets && override.markets.primary, base.markets && base.markets.primary),
+      secondary: (override.markets && override.markets.secondary && override.markets.secondary.length)
+        ? override.markets.secondary
+        : (base.markets && base.markets.secondary ? base.markets.secondary : [])
+    },
+    ctas: {
+      primary: {
+        label: first(override.ctas && override.ctas.primary && override.ctas.primary.label, base.ctas && base.ctas.primary && base.ctas.primary.label),
+        url: first(override.ctas && override.ctas.primary && override.ctas.primary.url, base.ctas && base.ctas.primary && base.ctas.primary.url)
+      },
+      secondary: {
+        label: first(override.ctas && override.ctas.secondary && override.ctas.secondary.label, base.ctas && base.ctas.secondary && base.ctas.secondary.label),
+        url: first(override.ctas && override.ctas.secondary && override.ctas.secondary.url, base.ctas && base.ctas.secondary && base.ctas.secondary.url)
+      }
+    }
+  };
+  return merged;
+}
+
+function _slugify_(s) {
+  return String(s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function _splitCsv_(s) {
+  return String(s || "")
+    .split(",")
+    .map(function(part) { return String(part || "").trim(); })
+    .filter(function(part) { return !!part; });
+}
+
+function _isTruthy_(raw, fallback) {
+  var v = String(raw === undefined || raw === null ? "" : raw).trim().toLowerCase();
+  if (!v) return fallback;
+  if (v === "1" || v === "true" || v === "yes" || v === "y") return true;
+  if (v === "0" || v === "false" || v === "no" || v === "n") return false;
+  return fallback;
+}
+
+function _num_(raw, fallback) {
+  var n = Number(raw);
+  return isNaN(n) ? fallback : n;
 }
 
 function _isDirectorySheetName_(name) {

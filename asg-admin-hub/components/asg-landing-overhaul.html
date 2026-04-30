@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex Stoykov Group — Chicago Luxury Real Estate</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+@font-face{font-family:'Outfit';src:url('fonts/Outfit-VariableFont_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Regular.otf') format('opentype');font-weight:400;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Medium.otf') format('opentype');font-weight:500;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Bold.otf') format('opentype');font-weight:700;font-display:swap;}
+@font-face{font-family:'Satoshi';src:url('fonts/Satoshi-Black.otf') format('opentype');font-weight:900;font-display:swap;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Satoshi','Outfit',system-ui,sans-serif;background:#fff;color:#111;-webkit-font-smoothing:antialiased;}
+
+:root{
+  --bg:#fff;--surface:#fff;--text:#111;--muted:rgba(17,17,17,.58);
+  --line:rgba(17,17,17,.08);--line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --r-shell:34px;--r-card:28px;--r-listing:22px;--r-btn:999px;
+}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-d1{transition-delay:.08s;}
+.reveal-d2{transition-delay:.16s;}
+.reveal-d3{transition-delay:.24s;}
+.reveal-d4{transition-delay:.32s;}
+.reveal-d5{transition-delay:.40s;}
+.reveal-d6{transition-delay:.48s;}
+
+/* Hero word reveal */
+.word-mask{display:inline-block;overflow:hidden;vertical-align:bottom;padding-right:.05em;}
+.word-inner{display:inline-block;transform:translateY(110%);animation:wordUp .9s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes wordUp{to{transform:translateY(0);}}
+
+/* Hero fade */
+.hero-fade{opacity:0;transform:translateY(16px);animation:heroFade .8s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes heroFade{to{opacity:1;transform:translateY(0);}}
+
+/* Hover card lift */
+.card-lift{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;}
+.card-lift:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);}
+
+/* Button hover */
+.btn-dark{appearance:none;border:1px solid #111;border-radius:999px;padding:13px 24px;background:#111;color:#fff;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:transform .18s ease,opacity .18s ease;white-space:nowrap;}
+.btn-dark:hover{transform:translateY(-1px);opacity:.9;}
+.btn-dark:active{transform:scale(.97);}
+.btn-light{appearance:none;border:1px solid rgba(17,17,17,.2);border-radius:999px;padding:13px 24px;background:#fff;color:#111;font-family:'Outfit',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:transform .18s ease,border-color .18s ease;white-space:nowrap;}
+.btn-light:hover{transform:translateY(-1px);border-color:rgba(17,17,17,.4);}
+.btn-light:active{transform:scale(.97);}
+
+/* Input */
+.inp{width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(17,17,17,.1);background:#fafaf9;padding:0 14px;font-family:'Outfit',sans-serif;font-size:.95rem;color:#111;outline:none;transition:border-color .18s;}
+.inp:focus{border-color:rgba(17,17,17,.3);}
+
+/* Nav link */
+.nav-link{border:1px solid transparent;border-radius:999px;padding:8px 14px;font-size:.95rem;color:rgba(17,17,17,.62);font-weight:600;background:transparent;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .18s ease;}
+.nav-link:hover{color:#111;background:rgba(17,17,17,.04);border-color:rgba(17,17,17,.08);}
+.nav-link.active{color:#111;background:#fff;border-color:rgba(17,17,17,.12);}
+
+/* Listing img hover */
+.listing-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.16,1,.3,1);}
+.listing-wrap:hover .listing-img{transform:scale(1.04);}
+
+/* Range slider */
+input[type=range]{width:100%;height:5px;border-radius:999px;background:#e4e4df;accent-color:#111;outline:none;appearance:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:#111;cursor:pointer;}
+
+/* Stat counter */
+.stat-val{font-family:'Outfit',sans-serif;font-weight:800;font-size:2.2rem;letter-spacing:-.04em;line-height:1;}
+
+/* IDX showcase scoped reset + layout */
+.asg-idx-shell,.asg-idx-shell *,.asg-idx-shell *::before,.asg-idx-shell *::after{box-sizing:border-box!important;}
+.asg-idx-shell{width:100%;isolation:isolate;}
+.asg-idx-shell img{border-radius:0!important;max-width:100%!important;height:auto!important;display:block;}
+.asg-idx-shell ul,.asg-idx-shell ol{list-style:none!important;margin:0!important;padding:0!important;}
+.asg-idx-shell a{text-decoration:none!important;color:inherit!important;}
+.asg-idx-shell .asg-idx-cards{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;}
+.asg-idx-shell .asg-idx-cards > *{min-width:0!important;}
+
+/* Force IDX widget to match landing card design */
+.asg-idx-shell #IDX-showcaseGallery-33467{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;margin:0!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseRow{display:contents!important;width:auto!important;margin:0!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseCell{display:block!important;width:auto!important;min-width:0!important;padding:0!important;margin:0!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseCell:nth-child(n+4){display:none!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseContainer{
+  background:#f6f6f3!important;border:1px solid var(--line)!important;border-radius:22px!important;
+  box-shadow:none!important;padding:0!important;overflow:hidden!important;opacity:1!important;filter:none!important;
+  display:flex!important;flex-direction:column!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseLink{
+  display:block!important;position:relative!important;padding-top:50%!important;background:#e9e9e4!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .asg-idx-status-chip{
+  position:absolute!important;top:10px!important;left:10px!important;z-index:2!important;
+  border-radius:999px!important;border:1px solid rgba(17,17,17,.1)!important;
+  padding:5px 10px!important;font-size:.72rem!important;font-weight:700!important;
+  background:rgba(255,255,255,.95)!important;color:#111!important;line-height:1.1!important;
+  font-family:'Outfit',sans-serif!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcasePhoto{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseListingID,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseCityStateZip,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseFull,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcasePartial,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseRemarks,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseStatus{display:none!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseAddress,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcasePrice{
+  display:block!important;padding:0 16px!important;opacity:1!important;color:#111!important;background:transparent!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseLink{order:1!important;}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcasePrice{
+  font-family:'Outfit',sans-serif!important;font-size:1.42rem!important;font-weight:800!important;letter-spacing:-.028em!important;
+  line-height:1!important;margin-top:12px!important;order:2!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseAddress{
+  font-family:'Satoshi',sans-serif!important;font-size:.95rem!important;font-weight:600!important;line-height:1.2!important;
+  margin-top:5px!important;order:3!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseBeds,
+.asg-idx-shell #IDX-showcaseGallery-33467 .IDX-showcaseBaths{
+  display:none!important;
+}
+.asg-idx-shell #IDX-showcaseGallery-33467 .asg-idx-meta{
+  display:block!important;padding:0 16px 12px!important;opacity:1!important;color:var(--muted)!important;background:transparent!important;
+  font-family:'Satoshi',sans-serif!important;font-size:.84rem!important;line-height:1.24!important;order:4!important;margin-top:5px!important;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+const ASG_LOGO_URL = "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w";
+const STATS_API = String(window.ASG_STATS_API || "https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec").trim();
+const HUB_DATA_API = String(window.ASG_HUB_DATA_API || "https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
+
+/* ─── Data ───────────────────────────────────────────────── */
+const LISTINGS = [
+  { status:"Just Listed", price:"$2,190,000", address:"1912 N Orchard St", sub:"Lincoln Park · 5 Bed · 4.5 Bath · 4,200 sqft", img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80" },
+  { status:"Open Sun", price:"$1,485,000", address:"820 W Armitage Ave #3E", sub:"Bucktown · 3 Bed · 3 Bath · 2,150 sqft", img:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80" },
+  { status:"New", price:"$3,050,000", address:"59 E Elm St", sub:"Gold Coast · 6 Bed · 5 Bath · 5,030 sqft", img:"https://images.unsplash.com/photo-1600566753052-3f4510d4f2ad?auto=format&fit=crop&w=900&q=80" },
+  { status:"Price Reduced", price:"$975,000", address:"2143 W Division St #2N", sub:"Wicker Park · 2 Bed · 2 Bath · 1,600 sqft", img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=900&q=80" },
+  { status:"New", price:"$4,200,000", address:"1448 N Lake Shore Dr #18", sub:"Gold Coast · 4 Bed · 4 Bath · 3,900 sqft", img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80" },
+  { status:"Open Sat", price:"$689,000", address:"837 N Hermitage Ave", sub:"Ukrainian Village · 3 Bed · 2.5 Bath", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80" },
+];
+
+const TEAM = [
+  { name:"Alex Stoykov", role:"Team Lead · Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w" },
+  { name:"Sam Abadi", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w" },
+  { name:"Shelly Channey", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ec680d50-9548-4fcc-b29f-6780ec1a3e86/Shelly.jpg?format=500w" },
+  { name:"Nicolas Gamboa Wills", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=500w" },
+  { name:"Julian Levit", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21a6ba8a-39f9-4a98-acf7-4047f7a0f8cd/Julian+5mb.jpeg?format=500w" },
+  { name:"Mino Conenna", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/20b29b84-587a-4b96-8ec9-f5184687e29d/Black+Jacket.jpeg?format=500w" },
+  { name:"Angela Engelbrecht", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/197eb36b-0a4c-40de-b5de-4a9c93a33879/DSC09944.jpg?format=500w" },
+  { name:"Layne Zagorin", role:"Senior Agent", img:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5016d411-0889-4558-a8d9-146070d08181/Photo-18+%284%29.jpg?format=500w" },
+];
+
+const NEIGHBORHOODS = [
+  { name:"Lincoln Park", desc:"Tree-lined streets, top schools, lake access.", img:"https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=700&q=80" },
+  { name:"Gold Coast", desc:"Historic architecture, prime lakefront living.", img:"https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=700&q=80" },
+  { name:"West Loop", desc:"Vibrant dining scene, modern loft conversions.", img:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=700&q=80" },
+  { name:"Wicker Park", desc:"Creative energy, boutique retail, strong appreciation.", img:"https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=700&q=80" },
+];
+
+const TESTIMONIALS = [
+  { quote:"We sold over asking in six days with zero stress. Strategy, staging direction, and communication were flawless.", author:"The Delgado Family", location:"Lincoln Park" },
+  { quote:"Our relocation purchase felt effortless. Every home was curated to exactly what we wanted, and the negotiation was sharp.", author:"M. Patel", location:"Gold Coast" },
+  { quote:"The marketing quality looked like a luxury campaign. Photos, video, and launch timing made all the difference.", author:"K. Thompson", location:"West Loop" },
+];
+
+const STEPS = [
+  { n:"01", title:"Strategy Session", body:"Define timing, priorities, and market position with a custom plan built around your goals." },
+  { n:"02", title:"Preparation", body:"Elevate your home's presentation with staging guidance, premium media, and a launch timeline." },
+  { n:"03", title:"Negotiation", body:"Navigate every offer with data-backed recommendations and disciplined leverage." },
+  { n:"04", title:"Close & Beyond", body:"Coordinate every detail through closing and stay with you through your next chapter." },
+];
+
+/* ─── Scroll Reveal Hook ─────────────────────────────────── */
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  });
+}
+
+/* ─── Counter ────────────────────────────────────────────── */
+function CountUp({ end, suffix = '', prefix = '', duration = 1600, isLoading = false, loadingEnd = 0, step = 1, tickMs = 70, useLinearFinish = false }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  const valRef = useRef(0);
+
+  useEffect(() => {
+    valRef.current = val;
+  }, [val]);
+
+  useEffect(() => {
+    if (isLoading) {
+      const target = Math.max(0, Number(loadingEnd) || 0);
+      const stepSize = Math.max(1, Number(step) || 1);
+      const timer = setInterval(() => {
+        setVal((prev) => {
+          if (prev >= target) return target;
+          return Math.min(target, prev + stepSize);
+        });
+      }, tickMs);
+      return () => clearInterval(timer);
+    }
+
+    if (useLinearFinish) {
+      const target = Math.max(0, Number(end) || 0);
+      const stepSize = Math.max(1, Number(step) || 1);
+      const timer = setInterval(() => {
+        setVal((prev) => {
+          if (prev >= target) return target;
+          return Math.min(target, prev + stepSize);
+        });
+      }, tickMs);
+      return () => clearInterval(timer);
+    }
+
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        io.disconnect();
+        const startVal = valRef.current;
+        const start = Date.now();
+        const tick = () => {
+          const p = Math.min((Date.now() - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          setVal(Math.round(startVal + (end - startVal) * ease));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.5 });
+    if (ref.current) io.observe(ref.current);
+    return () => io.disconnect();
+  }, [end, duration, isLoading, loadingEnd, step, tickMs, useLinearFinish]);
+  return <span ref={ref}>{prefix}{val.toLocaleString()}{suffix}</span>;
+}
+
+/* ─── Nav ────────────────────────────────────────────────── */
+function Nav({ page, setPage }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollBlend, setScrollBlend] = useState(0);
+  useEffect(() => {
+    const fn = () => {
+      const y = window.scrollY || 0;
+      setScrolled(y > 20);
+      setScrollBlend(Math.min(y / 220, 1));
+    };
+    fn();
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  const links = [
+    { label:'Listings', id:'listings' },
+    { label:'How We Work', id:'process' },
+    { label:'Team', id:'team' },
+    { label:'Neighborhoods', id:'neighborhoods' },
+    { label:'Testimonials', id:'testimonials' },
+  ];
+  function scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 90; window.scrollTo({ top: y, behavior: 'smooth' }); }
+  }
+  return (
+    <>
+      <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:90, pointerEvents:'none' }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width:'100%',
+            height:150,
+            borderRadius:0,
+            overflow:'visible',
+            backdropFilter: `blur(${(10 + 10 * scrollBlend).toFixed(2)}px) saturate(${(106 + 16 * scrollBlend).toFixed(0)}%)`,
+            WebkitBackdropFilter: `blur(${(10 + 10 * scrollBlend).toFixed(2)}px) saturate(${(106 + 16 * scrollBlend).toFixed(0)}%)`,
+            background: `linear-gradient(to bottom,
+              rgba(255,255,255,${(0.72 + 0.16 * scrollBlend).toFixed(3)}) 0%,
+              rgba(255,255,255,${(0.54 + 0.16 * scrollBlend).toFixed(3)}) 36%,
+              rgba(255,255,255,${(0.24 + 0.16 * scrollBlend).toFixed(3)}) 64%,
+              rgba(255,255,255,${(0.06 + 0.12 * scrollBlend).toFixed(3)}) 84%,
+              rgba(255,255,255,0) 100%)`,
+            maskImage:'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,.92) 38%, rgba(0,0,0,.60) 62%, rgba(0,0,0,.24) 82%, rgba(0,0,0,0) 100%), linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.9) 6%, rgba(0,0,0,.9) 94%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage:'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,.92) 38%, rgba(0,0,0,.60) 62%, rgba(0,0,0,.24) 82%, rgba(0,0,0,0) 100%), linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.9) 6%, rgba(0,0,0,.9) 94%, rgba(0,0,0,0) 100%)',
+            maskComposite:'intersect',
+            WebkitMaskComposite:'source-in',
+            transition:'backdrop-filter .18s linear, -webkit-backdrop-filter .18s linear, background .18s linear'
+          }}
+        />
+      </div>
+      <div style={{ position:'fixed', top:20, left:0, right:0, zIndex:100, padding:'0 20px' }}>
+        <div style={{ maxWidth:1480, margin:'0 auto' }}>
+        <nav style={{ background:'#fff', backdropFilter:'none', border:'1px solid rgba(17,17,17,.08)', borderRadius:999, minHeight:56, padding:'6px 12px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, boxShadow: scrolled ? '0 6px 24px rgba(17,17,17,.08)' : '0 2px 8px rgba(17,17,17,.04)', transition:'all .3s ease' }}>
+          <button onClick={() => window.scrollTo({ top:0, behavior:'smooth' })} style={{ display:'flex', alignItems:'center', gap:9, fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'.98rem', letterSpacing:'-.01em', background:'none', border:'none', cursor:'pointer', color:'#111', padding:'0 2px', flexShrink:0 }}>
+            <img src={ASG_LOGO_URL} alt="Alex Stoykov Group" style={{ width:58, maxWidth:'14vw', height:'auto', display:'block' }} />
+          </button>
+          <div style={{ display:'flex', alignItems:'center', gap:2 }}>
+            {links.map(l => (
+              <button key={l.id} className="nav-link" onClick={() => scrollTo(l.id)}>{l.label}</button>
+            ))}
+          </div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', flexShrink:0 }}>
+            <a href="buy.html" style={{ textDecoration:'none' }}>
+              <button className="btn-light" style={{ padding:'10px 18px', fontSize:'.88rem', fontWeight:600 }}>I'm Buying</button>
+            </a>
+            <button className="btn-dark" style={{ padding:'10px 18px', fontSize:'.88rem', fontWeight:600 }} onClick={() => scrollTo('contact')}>I'm Selling</button>
+          </div>
+        </nav>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── Hero ───────────────────────────────────────────────── */
+function Hero({ heroStats, statsLoading }) {
+  const words = ["Find", "your", "next", "move", "with", "confidence."];
+  return (
+    <section style={{ minHeight:'auto', display:'flex', alignItems:'flex-start', padding:'72px 20px 28px', background:'var(--bg)' }}>
+      <div style={{ maxWidth:1480, margin:'0 auto', width:'100%' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1.1fr .9fr', gap:20, alignItems:'center' }}>
+
+          {/* Left */}
+          <div style={{ display:'flex', flexDirection:'column', gap:28 }}>
+            <div className="hero-fade" style={{ animationDelay:'.1s' }}>
+              <span style={{ display:'inline-flex', alignItems:'center', gap:7, border:'1px solid rgba(17,17,17,.1)', borderRadius:999, padding:'7px 13px', background:'#f2f2f0', fontSize:'.74rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.58)' }}>
+                Chicago Luxury Real Estate
+              </span>
+            </div>
+
+            <h1 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'clamp(3rem,5.5vw,5.2rem)', lineHeight:.93, letterSpacing:'-.048em', color:'#111' }}>
+              {words.map((w, i) => (
+                <React.Fragment key={i}>
+                  <span className="word-mask"><span className="word-inner" style={{ animationDelay:`${.2 + i * .08}s` }}>{w}</span></span>
+                  {i < words.length - 1 ? ' ' : ''}
+                </React.Fragment>
+              ))}
+            </h1>
+
+            <p className="hero-fade" style={{ animationDelay:'.82s', fontFamily:"'Satoshi',sans-serif", fontSize:'1.08rem', lineHeight:1.6, color:'rgba(17,17,17,.62)', maxWidth:'50ch' }}>
+              A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance from first showing to final close.
+            </p>
+
+            <div className="hero-fade" style={{ animationDelay:'1s', display:'flex', gap:10 }}>
+              <a href="buy.html" style={{ textDecoration:'none' }}>
+                <button className="btn-dark" style={{ fontSize:'.95rem', padding:'14px 28px' }}>I'm Buying</button>
+              </a>
+              <button className="btn-light" style={{ fontSize:'.95rem', padding:'14px 28px' }} onClick={() => { const el = document.getElementById('contact'); if(el){ const y = el.getBoundingClientRect().top + window.scrollY - 90; window.scrollTo({top:y,behavior:'smooth'}); } }}>I'm Selling</button>
+            </div>
+
+            <div className="hero-fade" style={{ animationDelay:'1.15s', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+              {heroStats.map((stat) => (
+                <div key={stat.label} className="card-lift" style={{ background:'#fff', border:'1px solid var(--line)', borderRadius:20, padding:'14px 16px', boxShadow:'var(--shadow-card)' }}>
+                  <p style={{ fontSize:'.72rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'rgba(17,17,17,.45)', marginBottom:6 }}>{stat.label}</p>
+                  <p className="stat-val"><CountUp end={stat.end} prefix={stat.prefix} suffix={stat.suffix} isLoading={statsLoading} loadingEnd={stat.loadingEnd} step={stat.step} tickMs={stat.tickMs} useLinearFinish={stat.useLinearFinish} /></p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — property image */}
+          <div className="hero-fade" style={{ animationDelay:'.5s' }}>
+            <div style={{ borderRadius:34, overflow:'hidden', border:'1px solid var(--line)', boxShadow:'0 24px 60px rgba(17,17,17,.1)', position:'relative', aspectRatio:'4/5' }}>
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85" alt="Featured property" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(17,17,17,.55) 0%, transparent 50%)' }}></div>
+              <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'24px 22px' }}>
+                <p style={{ color:'rgba(255,255,255,.65)', fontSize:'.73rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>Just Listed</p>
+                <p style={{ color:'#fff', fontSize:'1.5rem', fontWeight:800, letterSpacing:'-.03em', lineHeight:1 }}>$2,190,000</p>
+                <p style={{ color:'rgba(255,255,255,.72)', fontSize:'.88rem', marginTop:4 }}>1912 N Orchard St, Lincoln Park</p>
+                <a href="buy.html" style={{ textDecoration:'none' }}>
+                  <button style={{ marginTop:12, borderRadius:999, background:'rgba(255,255,255,.15)', backdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,.3)', color:'#fff', fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.86rem', padding:'10px 18px', cursor:'pointer', transition:'background .2s' }}>
+                    Start Your Search
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Listings ───────────────────────────────────────────── */
+function Listings() {
+  const visible = LISTINGS.slice(0, 3);
+  const idxHostRef = useRef(null);
+  const [idxReady, setIdxReady] = useState(false);
+
+  useEffect(() => {
+    const host = idxHostRef.current;
+    if (!host) return;
+
+    host.innerHTML = '';
+    const injectedIds = [];
+    function injectScript({ id, src }) {
+      return new Promise((resolve, reject) => {
+        const existing = id ? document.getElementById(id) : null;
+        if (existing) {
+          resolve(existing);
+          return;
+        }
+        const el = document.createElement('script');
+        el.charset = 'UTF-8';
+        el.type = 'text/javascript';
+        if (id) el.id = id;
+        el.src = src;
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error(`Failed to load ${src}`));
+        document.head.appendChild(el);
+        if (id) injectedIds.push(id);
+      });
+    }
+
+    injectScript({
+      id: 'idx_jquery_include_tag',
+      src: 'https://middleware.idxbroker.com/graphical/javascript/jqwidx.js?commitCacheBreaker=0954cf5973ebd92cae81c71096e6b04ffb0a2bb5'
+    })
+      .then(() => injectScript({
+        id: 'idxwidgetsrc-33467',
+        src: 'https://search.alexstoykovgroup.com/idx/customshowcasejs.php?widgetid=33467'
+      }))
+      .catch(() => {
+        // keep static fallback if vendor scripts fail
+      });
+
+    let attempts = 0;
+    const maxAttempts = 36; // ~9 seconds
+    const timer = setInterval(() => {
+      attempts += 1;
+      const gallery = document.getElementById('IDX-showcaseGallery-33467');
+      const hasGallery = !!gallery;
+      const hasCells = gallery ? gallery.querySelectorAll('.IDX-showcaseCell').length >= 1 : false;
+      if (hasGallery && hasCells) {
+        setIdxReady(true);
+        clearInterval(timer);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(timer);
+      }
+    }, 250);
+
+    return () => {
+      clearInterval(timer);
+      host.innerHTML = '';
+      injectedIds.forEach((id) => {
+        const script = document.getElementById(id);
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+      });
+    };
+  }, []);
+
+  return (
+    <section id="listings" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'#fff', border:'1px solid var(--line)', borderRadius:'var(--r-shell)', padding:28 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:22 }}>
+          <div>
+            <p style={{ fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.44)', marginBottom:6 }}>Properties</p>
+            <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.65rem', letterSpacing:'-.035em' }}>Featured Listings</h2>
+          </div>
+          <a href="https://search.alexstoykovgroup.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none' }}>
+            <button className="btn-light" style={{ fontSize:'.86rem', padding:'9px 18px' }}>View All Listings</button>
+          </a>
+        </div>
+        <div className="asg-idx-shell" ref={idxHostRef} style={{ display: idxReady ? 'block' : 'none' }} />
+        <div style={{ display: idxReady ? 'none' : 'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+          {visible.map((l, i) => (
+            <article key={i} className={`card-lift reveal reveal-d${(i%3)+1}`} style={{ background:'#f6f6f3', border:'1px solid var(--line)', borderRadius:'var(--r-listing)', overflow:'hidden' }}>
+              <div className="listing-wrap" style={{ position:'relative', aspectRatio:'16/10', overflow:'hidden', background:'#e9e9e4' }}>
+                <span style={{ position:'absolute', top:10, left:10, borderRadius:999, border:'1px solid rgba(17,17,17,.1)', padding:'5px 10px', fontSize:'.72rem', fontWeight:700, background:'rgba(255,255,255,.95)', zIndex:1 }}>{l.status}</span>
+                <img className="listing-img" src={l.img} alt={l.address} loading="lazy" />
+              </div>
+              <div style={{ padding:'14px 16px 16px', display:'flex', flexDirection:'column' }}>
+                <p style={{ fontFamily:"'Outfit',sans-serif", fontSize:'1.42rem', fontWeight:800, letterSpacing:'-.028em', lineHeight:1 }}>{l.price}</p>
+                <p style={{ fontWeight:600, fontSize:'.95rem', lineHeight:1.2, marginTop:5 }}>{l.address}</p>
+                <p style={{ color:'var(--muted)', fontSize:'.84rem', lineHeight:1.24, marginTop:5 }}>{l.sub}</p>
+                <a href="buy.html" style={{ textDecoration:'none', marginTop:14 }}>
+                  <button className="btn-dark" style={{ width:'100%', fontSize:'.86rem', padding:'11px 0' }}>View Details</button>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Process ────────────────────────────────────────────── */
+function Process() {
+  return (
+    <section id="process" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'var(--bg)', border:'1px solid var(--line)', borderRadius:'var(--r-shell)', padding:28 }}>
+        <div style={{ marginBottom:22 }}>
+          <p className="reveal" style={{ fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.44)', marginBottom:6 }}>How We Work</p>
+          <h2 className="reveal reveal-d1" style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.65rem', letterSpacing:'-.035em' }}>Your Next Move, Step by Step</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+          {STEPS.map((s, i) => (
+            <div key={i} className={`card-lift reveal reveal-d${i+1}`} style={{ background:'#fff', border:'1px solid var(--line)', borderRadius:24, padding:'20px 18px', boxShadow:'var(--shadow-card)' }}>
+              <div style={{ width:36, height:36, borderRadius:'50%', background:'#111', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Outfit',sans-serif", fontSize:'.8rem', fontWeight:800, marginBottom:14 }}>{s.n}</div>
+              <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.04rem', letterSpacing:'-.02em', marginBottom:7 }}>{s.title}</p>
+              <p style={{ color:'var(--muted)', fontSize:'.88rem', lineHeight:1.55 }}>{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Team ───────────────────────────────────────────────── */
+function Team() {
+  return (
+    <section id="team" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'#fff', border:'1px solid var(--line)', borderRadius:'var(--r-shell)', padding:28 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:22 }}>
+          <div>
+            <p style={{ fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.44)', marginBottom:6 }}>The Specialists</p>
+            <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.65rem', letterSpacing:'-.035em' }}>Meet the Team</h2>
+          </div>
+          <a href="buy.html" style={{ textDecoration:'none' }}>
+            <button className="btn-light" style={{ fontSize:'.86rem', padding:'9px 18px' }}>Work With an Agent</button>
+          </a>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+          {TEAM.map((a, i) => (
+            <div key={i} className={`card-lift reveal reveal-d${(i%4)+1}`} style={{ background:'#f6f6f3', border:'1px solid var(--line)', borderRadius:'var(--r-card)', padding:20, display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:12 }}>
+              <div style={{ width:76, height:76, borderRadius:'50%', overflow:'hidden', background:'#e4e4df', border:'1px solid var(--line)', flexShrink:0 }}>
+                <img src={a.img} alt={a.name} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'top', display:'block' }} loading="lazy" />
+              </div>
+              <div>
+                <p style={{ fontFamily:"'Satoshi',sans-serif", fontWeight:700, fontSize:'1rem', letterSpacing:'-.01em', marginBottom:3 }}>{a.name}</p>
+                <p style={{ color:'var(--muted)', fontSize:'.8rem', fontWeight:500 }}>{a.role}</p>
+              </div>
+              <a href="buy.html" style={{ textDecoration:'none', width:'100%' }}>
+                <button className="btn-dark" style={{ width:'100%', fontSize:'.83rem', padding:'10px 0' }}>Work Together</button>
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Neighborhoods ──────────────────────────────────────── */
+function Neighborhoods() {
+  return (
+    <section id="neighborhoods" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'var(--bg)', border:'1px solid var(--line)', borderRadius:'var(--r-shell)', padding:28 }}>
+        <div style={{ marginBottom:22 }}>
+          <p style={{ fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.44)', marginBottom:6 }}>Local Expertise</p>
+          <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.65rem', letterSpacing:'-.035em' }}>Neighborhood Guides</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+          {NEIGHBORHOODS.map((n, i) => (
+            <div key={i} className={`card-lift reveal reveal-d${i+1}`} style={{ background:'#fff', border:'1px solid var(--line)', borderRadius:22, overflow:'hidden', boxShadow:'var(--shadow-card)' }}>
+              <div style={{ position:'relative', aspectRatio:'4/3', overflow:'hidden', background:'#e9e9e4' }}>
+                <div className="listing-wrap" style={{ width:'100%', height:'100%' }}>
+                  <img className="listing-img" src={n.img} alt={n.name} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} loading="lazy" />
+                </div>
+              </div>
+              <div style={{ padding:'12px 14px 16px' }}>
+                <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'.98rem', letterSpacing:'-.02em', marginBottom:4 }}>{n.name}</p>
+                <p style={{ color:'var(--muted)', fontSize:'.82rem', lineHeight:1.5 }}>{n.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Testimonials ───────────────────────────────────────── */
+function Testimonials() {
+  return (
+    <section id="testimonials" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'#fff', border:'1px solid var(--line)', borderRadius:'var(--r-shell)', padding:28 }}>
+        <div style={{ marginBottom:22 }}>
+          <p style={{ fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'rgba(17,17,17,.44)', marginBottom:6 }}>Client Experiences</p>
+          <h2 style={{ fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'1.65rem', letterSpacing:'-.035em' }}>Real Results, Real Stories</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className={`card-lift reveal reveal-d${i+1}`} style={{ background:'#f6f6f3', border:'1px solid var(--line)', borderRadius:24, padding:22 }}>
+              <div style={{ display:'flex', gap:3, marginBottom:14 }}>
+                {[...Array(5)].map((_, j) => (
+                  <svg key={j} width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+                ))}
+              </div>
+              <p style={{ fontFamily:"'Satoshi',sans-serif", fontSize:'.94rem', lineHeight:1.62, color:'#111', marginBottom:14 }}>"{t.quote}"</p>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <p style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.85rem' }}>{t.author}</p>
+                <span style={{ fontSize:'.76rem', fontWeight:600, color:'var(--muted)', background:'#fff', border:'1px solid var(--line)', borderRadius:999, padding:'4px 10px' }}>{t.location}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Contact CTA ────────────────────────────────────────── */
+function ContactCTA() {
+  const [form, setForm] = useState({ name:'', email:'', phone:'' });
+  const [sent, setSent] = useState(false);
+  function submit(e) { e.preventDefault(); setSent(true); }
+  return (
+    <section id="contact" style={{ margin:'0 auto 20px', padding:'0 20px' }}>
+      <div className="reveal" style={{ maxWidth:1480, margin:'0 auto', background:'linear-gradient(140deg,#101010,#1b1b1b)', borderRadius:'var(--r-shell)', padding:'36px 32px', display:'grid', gridTemplateColumns:'1.2fr .8fr', gap:28, alignItems:'start' }}>
+        <div>
+          <p style={{ color:'rgba(255,255,255,.45)', fontSize:'.76rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:14 }}>Get Started</p>
+          <h2 style={{ color:'#fff', fontFamily:"'Outfit',sans-serif", fontWeight:800, fontSize:'clamp(1.8rem,2.8vw,2.8rem)', letterSpacing:'-.04em', lineHeight:.95, marginBottom:16 }}>Let's Build Your Real Estate Plan.</h2>
+          <p style={{ color:'rgba(255,255,255,.62)', fontSize:'1rem', lineHeight:1.6, maxWidth:'50ch', marginBottom:28 }}>Whether you're preparing to sell, searching for your next home, or evaluating options — we'll create a clear strategy and walk with you through every step.</p>
+          <div style={{ display:'flex', gap:10 }}>
+            <a href="buy.html" style={{ textDecoration:'none' }}>
+              <button style={{ appearance:'none', border:'1px solid rgba(255,255,255,.2)', borderRadius:999, padding:'12px 22px', background:'rgba(255,255,255,.1)', backdropFilter:'blur(8px)', color:'#fff', fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.92rem', cursor:'pointer', transition:'background .2s' }}>
+                Start Buying
+              </button>
+            </a>
+            <button style={{ appearance:'none', border:'1px solid rgba(255,255,255,.2)', borderRadius:999, padding:'12px 22px', background:'#fff', color:'#111', fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.92rem', cursor:'pointer', transition:'opacity .2s' }}
+              onClick={() => { const el = document.getElementById('sell-form'); if(el) el.focus(); }}>
+              List My Home
+            </button>
+          </div>
+        </div>
+        <div style={{ background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.12)', borderRadius:24, padding:20 }}>
+          {sent ? (
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:200, gap:12, textAlign:'center' }}>
+              <div style={{ width:52, height:52, borderRadius:'50%', background:'rgba(255,255,255,.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-9" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+              <p style={{ color:'#fff', fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'1.1rem' }}>Request Received</p>
+              <p style={{ color:'rgba(255,255,255,.55)', fontSize:'.88rem', lineHeight:1.5 }}>We'll be in touch within one business day.</p>
+            </div>
+          ) : (
+            <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:9 }}>
+              <p style={{ color:'rgba(255,255,255,.55)', fontSize:'.8rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:4 }}>Request a Consultation</p>
+              {[['name','Full name','text'],['email','Email address','email'],['phone','Phone number','tel']].map(([k,ph,type]) => (
+                <input id={k==='name'?'sell-form':undefined} key={k} type={type} required placeholder={ph} value={form[k]} onChange={e => setForm(f => ({...f,[k]:e.target.value}))} style={{ width:'100%', minHeight:46, borderRadius:14, border:'1px solid rgba(255,255,255,.16)', background:'rgba(255,255,255,.09)', color:'#fff', padding:'0 13px', fontFamily:"'Outfit',sans-serif", fontSize:'.92rem', outline:'none' }} />
+              ))}
+              <button type="submit" className="btn-dark" style={{ background:'#fff', color:'#111', border:'none', marginTop:4, padding:'13px 0', fontSize:'.93rem' }}>Request Consultation</button>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer style={{ maxWidth:1480, margin:'0 auto', padding:'0 20px 28px' }}>
+      <div style={{ borderTop:'1px solid var(--line)', paddingTop:24, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+          <span style={{ width:28, height:28, borderRadius:'50%', background:'#111', display:'inline-flex', alignItems:'center', justifyContent:'center' }}>
+            <img src="assets/Logo.png" alt="ASG" style={{ width:20, height:20, filter:'invert(1)', display:'block' }} />
+          </span>
+          <span style={{ fontFamily:"'Outfit',sans-serif", fontWeight:700, fontSize:'.9rem' }}>Alex Stoykov Group</span>
+          <span style={{ color:'var(--muted)', fontSize:'.82rem' }}>Brokered by Compass</span>
+        </div>
+        <p style={{ color:'var(--muted)', fontSize:'.82rem' }}>© 2026 Alex Stoykov Group. All rights reserved.</p>
+        <div style={{ display:'flex', gap:14 }}>
+          {['Privacy', 'Terms', 'Accessibility'].map(l => (
+            <a key={l} href="#" style={{ color:'var(--muted)', fontSize:'.82rem', textDecoration:'none', fontWeight:500 }}>{l}</a>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── App ────────────────────────────────────────────────── */
+function App() {
+  useReveal();
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [heroStats, setHeroStats] = useState([
+    { label:'Career Volume', end:659, loadingEnd:659, prefix:'$', suffix:'M+', step:6, tickMs:70, useLinearFinish:false },
+    { label:'Avg. Days on Market', end:18, loadingEnd:18, prefix:'', suffix:'', step:1, tickMs:80, useLinearFinish:false },
+    { label:'Total Agents', end:28, loadingEnd:28, prefix:'', suffix:'', step:1, tickMs:220, useLinearFinish:true }
+  ]);
+
+  useEffect(() => {
+    const imgRadiusGuard = document.createElement('style');
+    imgRadiusGuard.id = 'asg-landing-image-radius-guard';
+    imgRadiusGuard.textContent = `#root img{border-radius:0 !important;}`;
+    document.head.appendChild(imgRadiusGuard);
+
+    document.documentElement.style.background = '#fff';
+    const selectors = [
+      '#header', 'header', '#footer', 'footer', '#headerSpacer', '#header-spacer', '.header-spacer',
+      '.Header', '.Footer', '.site-header', '.site-footer', '.sqs-announcement-bar-dropzone',
+      '.header-announcement-bar-wrapper', '.Header-announcement-bar-wrapper'
+    ];
+    const hiddenEls = [];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        if (el && !el.closest('#root')) {
+          hiddenEls.push({
+            el,
+            display: el.style.display,
+            visibility: el.style.visibility,
+            height: el.style.height,
+            minHeight: el.style.minHeight,
+            margin: el.style.margin,
+            padding: el.style.padding
+          });
+          el.style.display = 'none';
+          el.style.visibility = 'hidden';
+          el.style.height = '0';
+          el.style.minHeight = '0';
+          el.style.margin = '0';
+          el.style.padding = '0';
+        }
+      });
+    });
+
+    const bodyPrevBg = document.body.style.background;
+    const bodyPrevMargin = document.body.style.marginTop;
+    const bodyPrevPadding = document.body.style.paddingTop;
+    document.body.style.background = '#fff';
+    document.body.style.marginTop = '0';
+    document.body.style.paddingTop = '0';
+
+    return () => {
+      if (imgRadiusGuard.parentNode) imgRadiusGuard.parentNode.removeChild(imgRadiusGuard);
+      hiddenEls.forEach(({ el, display, visibility, height, minHeight, margin, padding }) => {
+        el.style.display = display;
+        el.style.visibility = visibility;
+        el.style.height = height;
+        el.style.minHeight = minHeight;
+        el.style.margin = margin;
+        el.style.padding = padding;
+      });
+      document.body.style.background = bodyPrevBg;
+      document.body.style.marginTop = bodyPrevMargin;
+      document.body.style.paddingTop = bodyPrevPadding;
+    };
+  }, []);
+
+  useEffect(() => {
+    const nextStats = [
+      { label:'Career Volume', end:659, loadingEnd:659, prefix:'$', suffix:'M+', step:6, tickMs:70, useLinearFinish:false },
+      { label:'Avg. Days on Market', end:18, loadingEnd:18, prefix:'', suffix:'', step:1, tickMs:80, useLinearFinish:false },
+      { label:'Total Agents', end:28, loadingEnd:28, prefix:'', suffix:'', step:1, tickMs:220, useLinearFinish:true }
+    ];
+
+    const requests = [];
+    if (STATS_API) requests.push(fetch(STATS_API + "?period=allTime", { cache: "no-store" }).then((r) => r.json()).catch(() => null));
+    if (HUB_DATA_API) requests.push(fetch(HUB_DATA_API + "?view=directory", { cache: "no-store" }).then((r) => r.json()).catch(() => null));
+
+    if (!requests.length) return;
+
+    Promise.all(requests)
+      .then((results) => {
+        results.forEach((result) => {
+          if (!result || !result.success) return;
+
+          if (result.summary) {
+            const gross = Number(result.summary.grandTotal || result.summary.totalVolume || 0);
+            if (gross > 0) {
+              nextStats[0].end = Math.max(1, Math.round(gross / 1000000));
+            }
+            const dom = Number(result.summary.avgDaysOnMarket || result.summary.averageDaysOnMarket || result.summary.daysOnMarket || 0);
+            if (dom > 0) {
+              nextStats[1].end = Math.round(dom);
+            }
+          }
+
+          const totalAgents = Number(result?.data?.directory?.summary?.total || result?.summary?.total || 0);
+          if (totalAgents > 0) {
+            nextStats[2].end = Math.max(totalAgents, nextStats[2].loadingEnd);
+          }
+        });
+        setHeroStats(nextStats);
+      })
+      .finally(() => {
+        setStatsLoading(false);
+      });
+  }, []);
+
+  return (
+    <div style={{ minHeight:'100vh', background:'var(--bg)' }}>
+      <Nav />
+      <Hero heroStats={heroStats} statsLoading={statsLoading} />
+      <Listings />
+      <Process />
+      <Team />
+      <Neighborhoods />
+      <Testimonials />
+      <ContactCTA />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

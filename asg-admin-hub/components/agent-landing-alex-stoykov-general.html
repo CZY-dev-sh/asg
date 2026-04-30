@@ -1,0 +1,196 @@
+<section id="asg-landing-alex-general"></section>
+<style>
+  #asg-landing-alex-general{--bg:#f5f5f7;--card:#ffffff;--text:#111111;--muted:#6e6e73;--line:rgba(17,17,17,.08);--accent:#111111;--chip:#f0f0f2;max-width:1180px;margin:0 auto;padding:34px 18px 52px;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  #asg-landing-alex-general *{box-sizing:border-box}
+  #asg-landing-alex-general .asg-grid{display:grid;gap:16px}
+  #asg-landing-alex-general .asg-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 8px 28px rgba(17,17,17,.05)}
+  #asg-landing-alex-general .asg-hero h2{font-size:clamp(30px,5vw,56px);line-height:1.02;margin:0}
+  #asg-landing-alex-general .asg-hero p{margin:10px 0 0;color:var(--muted);font-size:16px}
+  #asg-landing-alex-general .asg-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+  #asg-landing-alex-general .asg-metric{background:#fafafb;border:1px solid var(--line);border-radius:16px;padding:12px}
+  #asg-landing-alex-general .asg-metric .v{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  #asg-landing-alex-general .asg-metric .l{font-size:12px;color:var(--muted)}
+  #asg-landing-alex-general .asg-bio{grid-template-columns:320px 1fr;align-items:stretch}
+  #asg-landing-alex-general .asg-headshot{width:100%;height:100%;min-height:280px;object-fit:cover;border-radius:18px}
+  #asg-landing-alex-general .asg-chip-row{display:flex;gap:8px;flex-wrap:wrap}
+  #asg-landing-alex-general .asg-chip{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:600;text-decoration:none;color:var(--text)}
+  #asg-landing-alex-general .asg-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  #asg-landing-alex-general .asg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;border:1px solid #000;padding:11px 17px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:#111}
+  #asg-landing-alex-general .asg-btn.alt{background:#fff;color:#111}
+  #asg-landing-alex-general .asg-pathway{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #asg-landing-alex-general .asg-pathway a{display:block;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+  #asg-landing-alex-general .asg-pathway h4{margin:0 0 8px;font-size:17px}
+  #asg-landing-alex-general .asg-pathway p{margin:0;color:var(--muted);font-size:14px}
+  #asg-landing-alex-general .asg-reviews{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #asg-landing-alex-general .asg-review .src{display:inline-flex;padding:4px 9px;border-radius:999px;background:#f2f7ff;font-size:11px;font-weight:600;margin-bottom:10px}
+  #asg-landing-alex-general .asg-review .quote{font-size:15px;line-height:1.55;margin:0 0 10px}
+  #asg-landing-alex-general .asg-review .meta{font-size:12px;color:var(--muted)}
+  #asg-landing-alex-general .asg-listings{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #asg-landing-alex-general .asg-listing img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:12px}
+  #asg-landing-alex-general .asg-listing .adr{margin:9px 0 3px;font-weight:600}
+  #asg-landing-alex-general .asg-listing .price{margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-.03em}
+  #asg-landing-alex-general .asg-listing .facts{font-size:12px;color:var(--muted)}
+  #asg-landing-alex-general .asg-idx{min-height:110px}
+  #asg-landing-alex-general .asg-cta{text-align:center;padding:26px}
+  #asg-landing-alex-general .asg-cta h3{margin:0;font-size:32px}
+  #asg-landing-alex-general .asg-cta p{margin:8px 0 0;color:var(--muted)}
+  #asg-landing-alex-general .asg-empty{padding:14px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:14px}
+  @media (max-width:980px){
+    #asg-landing-alex-general .asg-metrics,#asg-landing-alex-general .asg-pathway,#asg-landing-alex-general .asg-reviews,#asg-landing-alex-general .asg-listings{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #asg-landing-alex-general .asg-bio{grid-template-columns:1fr}
+  }
+  @media (max-width:680px){
+    #asg-landing-alex-general{padding:20px 12px 38px}
+    #asg-landing-alex-general .asg-metrics,#asg-landing-alex-general .asg-pathway,#asg-landing-alex-general .asg-reviews,#asg-landing-alex-general .asg-listings{grid-template-columns:1fr}
+  }
+</style>
+<script>
+(function(){
+  var root=document.getElementById("asg-landing-alex-general");
+  if(!root) return;
+  var API=window.ASG_HUB_DATA_API||window.ASG_LANDING_API||"";
+  var STATS_API=window.ASG_STATS_API||"https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
+  var SLUG="alex-stoykov";
+  var PAGE="general";
+
+  function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function safeUrl(v){var s=String(v||"").trim();return /^https?:\/\//i.test(s)||/^mailto:/i.test(s)||/^tel:/i.test(s)?s:"#";}
+  function fmtRating(n){var x=Number(n)||0;return x?x.toFixed(1):"5.0";}
+  function star(r){var full=Math.max(0,Math.min(5,Math.round(Number(r)||0)));return "★★★★★".slice(0,full)+"☆☆☆☆☆".slice(0,5-full);}
+  function mapMetric(label,fallbackVal,fallbackSub){
+    return '<div class="asg-metric"><div class="v">'+esc(fallbackVal)+'</div><div class="l">'+esc(label+(fallbackSub?' · '+fallbackSub:''))+'</div></div>';
+  }
+  function mountIdxScript(idxItems){
+    var slot=root.querySelector("[data-asg-idx]");
+    if(!slot) return;
+    if(!idxItems||!idxItems.length){slot.innerHTML='<div class="asg-empty">IDX widget will appear here once configured.</div>';return;}
+    var scriptBlob=String(idxItems[0].embedScript||"").trim();
+    if(!scriptBlob){slot.innerHTML='<div class="asg-empty">'+esc(idxItems[0].fallbackText||"IDX is being connected.")+"</div>";return;}
+    var srcMatch=scriptBlob.match(/src=['"]([^'"]+)['"]/i);
+    if(srcMatch&&srcMatch[1]){
+      var tag=document.createElement("script");
+      tag.src=srcMatch[1];
+      tag.async=true;
+      slot.innerHTML="";
+      slot.appendChild(tag);
+      return;
+    }
+    var wrap=document.createElement("div");
+    wrap.innerHTML=scriptBlob;
+    slot.innerHTML="";
+    slot.appendChild(wrap);
+  }
+
+  function normalize(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"").trim();}
+  function loadStats(){
+    if(!STATS_API) return Promise.resolve([]);
+    return fetch(STATS_API+"?period=allTime",{method:"GET",cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(!data||!data.success||!Array.isArray(data.agents)) return [];
+        var target=data.agents.find(function(a){return normalize(a.name)===normalize("Alex Stoykov");});
+        if(!target) return [];
+        var totalVolume=Number(target.grandTotal)||0;
+        var totalDeals=Number(target.totalDeals)||0;
+        var buyPct=Math.round(Number(target.buyPct)||0);
+        var sellPct=Math.max(0,100-buyPct);
+        return [
+          {label:"Career Volume",value:(totalVolume>=1e6?("$"+(totalVolume/1e6).toFixed(1)+"M"):("$"+totalVolume.toLocaleString())),subtext:"Closed and pending"},
+          {label:"Transactions",value:String(totalDeals||0),subtext:"Homes represented"},
+          {label:"Seller Side Mix",value:String(sellPct)+"%",subtext:"Buy side "+String(buyPct)+"%"},
+          {label:"Review Count",value:String(Number(target.totalZillow)||0),subtext:"Zillow reviews"}
+        ];
+      })
+      .catch(function(){return [];});
+  }
+
+  function render(data){
+    var agent=(data.agent&&data.agent.item)||{};
+    var stats=Array.isArray(data.stats)?data.stats:[];
+    var reviews=Array.isArray(data.reviews)?data.reviews.slice(0,6):[];
+    var sections=Array.isArray(data.sections)?data.sections:[];
+    var listings=Array.isArray(data.listings)?data.listings.slice(0,6):[];
+    var reviewCount=reviews.length;
+    var avgRating=reviews.length?reviews.reduce(function(a,b){return a+(Number(b.rating)||0);},0)/reviews.length:5;
+    var social=agent.socials||{};
+    var sectionLookup={};
+    sections.forEach(function(s){sectionLookup[s.key]=s;});
+
+    root.innerHTML=[
+      '<div class="asg-card asg-hero">',
+      '<h2>'+esc((sectionLookup.hero&&sectionLookup.hero.headline)||"$180M+ of trusted Chicago real estate guidance")+'</h2>',
+      '<p>'+esc((sectionLookup.hero&&sectionLookup.hero.body)||"A modern, client-first experience for buyers, sellers, and investors who value strategy and execution.")+'</p>',
+      '<div class="asg-metrics">',
+      (stats.length?stats.slice(0,4).map(function(m){return mapMetric(m.label,m.value,m.subtext);}).join(""):[
+        mapMetric("Career Volume","$180M+","Closed and pending"),
+        mapMetric("Transactions","260+","Homes represented"),
+        mapMetric("Average Days On Market","29","Seller performance"),
+        mapMetric("Review Rating",fmtRating(avgRating),String(reviewCount)+" combined reviews")
+      ].join("")),
+      '</div></div>',
+
+      '<div class="asg-grid asg-bio">',
+      '<div class="asg-card"><img class="asg-headshot" src="'+esc(agent.headshotUrl||"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=1000w")+'" alt="'+esc(agent.name||"Alex Stoykov")+'"></div>',
+      '<div class="asg-card">',
+      '<div class="asg-chip-row"><span class="asg-chip">'+esc(agent.title||"Principal Broker")+'</span><span class="asg-chip">'+esc((agent.markets&&agent.markets.primary)||"Chicago")+'</span><span class="asg-chip">Client-first strategy</span></div>',
+      '<h3 style="font-size:42px;line-height:1.04;margin:14px 0 12px">'+esc(agent.name||"Alex Stoykov")+'</h3>',
+      '<p style="margin:0;color:var(--muted);line-height:1.7">'+esc(agent.bioLong||agent.bioShort||"With over two decades of market experience, Alex combines strategic negotiation, high-touch service, and modern marketing to help clients win in every market cycle.")+'</p>',
+      '<div class="asg-btn-row">',
+      '<a class="asg-btn" href="'+esc(safeUrl("tel:"+(agent.phone||"3125933110").replace(/[^0-9+]/g,"")))+'">Call</a>',
+      '<a class="asg-btn alt" href="'+esc(safeUrl("mailto:"+(agent.email||"alex.stoykov@compass.com")))+'">Email</a>',
+      '<a class="asg-btn alt" href="'+esc(safeUrl(social.instagram||"https://www.instagram.com/alexstoykovgroup"))+'" target="_blank" rel="noopener">Instagram</a>',
+      '</div></div></div>',
+
+      '<div class="asg-grid asg-pathway" id="asg-audience-pathways">',
+      '<a href="/alexstoykov-buyer"><h4>Buyer</h4><p>Find on-market and off-market opportunities with a clear offer strategy.</p></a>',
+      '<a href="/alexstoykov-seller"><h4>Seller</h4><p>Price, position, and market your home for the strongest possible outcome.</p></a>',
+      '<a href="#asg-investor"><h4>Investor</h4><p>Evaluate ROI, rental assumptions, and acquisition strategy with confidence.</p></a>',
+      '</div>',
+
+      '<div class="asg-card"><h3 style="margin:0 0 12px;font-size:34px">Client Reviews</h3><div class="asg-grid asg-reviews">',
+      (reviews.length?reviews.map(function(r){
+        return '<article class="asg-card asg-review"><span class="src">'+esc(String(r.source||"review").toUpperCase())+'</span><p class="quote">"'+esc(r.quote||"Alex made the process seamless and strategic from day one.")+'"</p><div class="meta">'+esc(r.reviewerName||"Verified Client")+' · '+esc(star(r.rating))+' · '+esc((r.persona||"client").toUpperCase())+'</div></article>';
+      }).join(""):'<div class="asg-empty">Add Zillow and Google reviews in the Reviews tab to populate this section.</div>'),
+      '</div></div>',
+
+      '<div class="asg-card"><h3 style="margin:0 0 12px;font-size:34px">Current Listings</h3><div class="asg-idx" data-asg-idx></div></div>',
+
+      '<div class="asg-card"><h3 style="margin:0 0 12px;font-size:34px">Past Transactions</h3><div class="asg-grid asg-listings">',
+      (listings.length?listings.map(function(l){
+        return '<article class="asg-card asg-listing"><img src="'+esc(l.imageUrl||"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/80cb7038-7f58-421f-b973-a99d3fc74b39/IMG_7625.jpg?format=1000w")+'" alt="'+esc(l.address||"Property")+'"><p class="adr">'+esc(l.address||"Featured transaction")+'</p><p class="price">'+esc(l.price||"$3,000,000")+'</p><p class="facts">'+esc((l.beds||"3")+" bed · "+(l.baths||"3")+" bath")+' · '+esc(l.status||"Closed")+'</p></article>';
+      }).join(""):'<div class="asg-empty">Populate ListingsCurated tab for the Past Transactions cards.</div>'),
+      '</div></div>',
+
+      '<div class="asg-card asg-cta">',
+      '<h3>Start your next move with Alex</h3><p>Choose a guided pathway built around your goals and timeline.</p>',
+      '<div class="asg-btn-row" style="justify-content:center;margin-top:14px">',
+      '<a class="asg-btn" href="'+esc(safeUrl((agent.ctas&&agent.ctas.primary&&agent.ctas.primary.url)||"#"))+'">'+esc((agent.ctas&&agent.ctas.primary&&agent.ctas.primary.label)||"Book Consultation")+'</a>',
+      '<a class="asg-btn alt" href="'+esc(safeUrl((agent.ctas&&agent.ctas.secondary&&agent.ctas.secondary.url)||"/alexstoykov-seller"))+'">'+esc((agent.ctas&&agent.ctas.secondary&&agent.ctas.secondary.label)||"Get Home Value")+'</a>',
+      '</div></div>'
+    ].join("");
+    mountIdxScript(data.idx&&data.idx.items?data.idx.items:[]);
+  }
+
+  if(!API){
+    root.innerHTML='<div class="asg-card"><div class="asg-empty">Set window.ASG_HUB_DATA_API before this embed block.</div></div>';
+    return;
+  }
+  Promise.all([
+    fetch(API+"?view=landing&slug="+encodeURIComponent(SLUG)+"&page="+encodeURIComponent(PAGE),{method:"GET",cache:"no-store"}).then(function(r){return r.json();}),
+    loadStats()
+  ])
+    .then(function(results){
+      var payload=results[0]||{};
+      var stats=results[1]||[];
+      if(!payload||payload.success!==true||!payload.data) throw new Error("Bad landing payload");
+      var landing=(payload.data&&payload.data.landing)||payload.data||{};
+      if((!Array.isArray(landing.stats)||!landing.stats.length)&&Array.isArray(stats)&&stats.length){
+        landing.stats=stats;
+      }
+      render(landing);
+    })
+    .catch(function(){
+      root.innerHTML='<div class="asg-card"><div class="asg-empty">Unable to load landing content right now. Please verify the Hub Data API deployment and sheet rows for alex-stoykov.</div></div>';
+    });
+})();
+</script>

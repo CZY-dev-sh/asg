@@ -1,0 +1,1206 @@
+<section id="asg-buyer-fullspread">
+  <div class="asg-page">
+    <header class="asg-hero">
+      <p class="asg-kicker">Buy With Alex Stoykov Group</p>
+      <h1>Find the right home with a clear strategy.</h1>
+      <p class="asg-sub">Choose your senior agent, complete a guided onboarding flow, and we will contact you quickly to launch your search.</p>
+    </header>
+
+    <section class="asg-roadmap">
+      <h2>How the process works</h2>
+      <p>
+        Consultation -> Pre-Approval -> Search & Showings -> Offer Strategy -> Under Contract -> Contingencies
+        (inspection, attorney review, mortgage, appraisal) -> Clear to Close -> Final Walkthrough -> Closing.
+      </p>
+      <p class="asg-roadmap-note">Typical timeline is ~3 weeks to 2 months depending on financing and contract terms.</p>
+    </section>
+
+    <section class="asg-bento" id="asg-main-bento">
+      <!-- STEP 1 -->
+      <div id="asg-step1" class="asg-screen is-active">
+        <div class="asg-screen-head">
+          <span>Step 1</span>
+          <h3>Select your senior agent</h3>
+          <p>Hover a profile to preview stats. Click to select and begin onboarding.</p>
+        </div>
+        <div id="asg-agent-circles" class="asg-agent-circles"></div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div id="asg-step2" class="asg-screen asg-screen-journey">
+        <aside class="asg-agent-rail">
+          <div class="asg-rail-top">
+            <img id="asg-rail-photo" alt="Selected agent" />
+            <div>
+              <h4 id="asg-rail-name"></h4>
+              <p id="asg-rail-role"></p>
+            </div>
+          </div>
+          <p id="asg-rail-stats" class="asg-rail-stats"></p>
+          <button type="button" class="asg-btn-light" id="asg-change-agent">Change Agent</button>
+        </aside>
+
+        <div class="asg-flow-panel">
+          <div class="asg-flow-head">
+            <div class="asg-dots" id="asg-dots"></div>
+            <div class="asg-icon-wrap" id="asg-q-icon-wrap"><span id="asg-q-icon">👤</span></div>
+            <h3 id="asg-q-title">Your name</h3>
+            <p id="asg-q-sub">Let's start with who we are helping.</p>
+          </div>
+
+          <div class="asg-q-card" id="asg-question-card"></div>
+
+          <div class="asg-card-actions">
+            <button type="button" class="asg-btn-light" id="asg-prev-btn">Back</button>
+            <button type="button" class="asg-btn-dark" id="asg-next-btn">Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div id="asg-step3" class="asg-screen">
+        <div class="asg-screen-head">
+          <span>Step 3</span>
+          <h3>Quick review</h3>
+          <p>Tap any detail in Step 2 to update, then begin your search.</p>
+        </div>
+
+        <div class="asg-review-top">
+          <img id="asg-review-photo" alt="Selected agent" />
+          <div>
+            <h4 id="asg-review-agent-name"></h4>
+            <p id="asg-review-agent-role"></p>
+          </div>
+          <button type="button" class="asg-btn-light" id="asg-edit-intake">Edit Answers</button>
+        </div>
+
+        <div id="asg-review-grid" class="asg-review-grid"></div>
+
+        <div class="asg-final-actions">
+          <button type="button" id="asg-submit-final" class="asg-btn-dark">Begin Your Search</button>
+          <p id="asg-submit-msg"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<style>
+  #asg-buyer-fullspread{width:100vw;position:relative;left:50%;margin-left:-50vw;background:#f6f6f8;color:#111;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  #asg-buyer-fullspread *{box-sizing:border-box}
+  #asg-buyer-fullspread .asg-page{max-width:1400px;margin:0 auto;padding:64px 28px 88px}
+  #asg-buyer-fullspread .asg-kicker{margin:0;color:#6e6e73;font-size:12px;text-transform:uppercase;letter-spacing:.13em}
+  #asg-buyer-fullspread h1{font-size:clamp(42px,7.2vw,84px);line-height:.97;letter-spacing:-.03em;margin:10px 0 14px;max-width:980px}
+  #asg-buyer-fullspread .asg-sub{font-size:20px;color:#595960;line-height:1.5;margin:0;max-width:800px}
+  #asg-buyer-fullspread .asg-roadmap{margin-top:22px;background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:26px;padding:24px}
+  #asg-buyer-fullspread .asg-roadmap h2{margin:0 0 8px;font-size:28px}
+  #asg-buyer-fullspread .asg-roadmap p{margin:0;color:#323238;line-height:1.56}
+  #asg-buyer-fullspread .asg-roadmap-note{margin-top:8px!important;color:#6e6e73!important;font-size:14px}
+
+  #asg-buyer-fullspread .asg-bento{margin-top:22px;background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:30px;min-height:700px;overflow:hidden}
+  #asg-buyer-fullspread .asg-screen{display:none;padding:30px}
+  #asg-buyer-fullspread .asg-screen.is-active{display:block;animation:asgFade .28s ease}
+  @keyframes asgFade{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+  #asg-buyer-fullspread .asg-screen-head span{font-size:12px;color:#6e6e73;text-transform:uppercase;letter-spacing:.12em}
+  #asg-buyer-fullspread .asg-screen-head h3{margin:8px 0 8px;font-size:38px;line-height:1.05;letter-spacing:-.02em}
+  #asg-buyer-fullspread .asg-screen-head p{margin:0;color:#6e6e73}
+
+  /* Step 1 - 2 rows of 5 circles */
+  #asg-buyer-fullspread .asg-agent-circles{margin-top:22px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px 16px}
+  #asg-buyer-fullspread .asg-agent-node{display:flex;justify-content:center;position:relative}
+  #asg-buyer-fullspread .asg-agent-btn{
+    width:132px;height:132px;border:none;border-radius:50%;padding:0;background:#ececf0;cursor:pointer;position:relative;
+    box-shadow:0 12px 26px rgba(0,0,0,.12);overflow:hidden;transition:transform .24s ease, box-shadow .24s ease
+  }
+  #asg-buyer-fullspread .asg-agent-btn img{width:100%;height:100%;object-fit:cover;transition:transform .24s ease}
+  #asg-buyer-fullspread .asg-agent-btn:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 18px 34px rgba(0,0,0,.18)}
+  #asg-buyer-fullspread .asg-agent-btn:hover img{transform:scale(1.08)}
+  #asg-buyer-fullspread .asg-agent-label{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:12px;color:#666;white-space:nowrap}
+  #asg-buyer-fullspread .asg-hover-pop{
+    position:absolute;left:50%;top:146px;transform:translateX(-50%) translateY(6px);width:260px;background:#101113;color:#fff;border-radius:14px;padding:12px;
+    opacity:0;pointer-events:none;transition:.2s ease;z-index:8;box-shadow:0 16px 30px rgba(0,0,0,.25)
+  }
+  #asg-buyer-fullspread .asg-agent-node:hover .asg-hover-pop{opacity:1;transform:translateX(-50%) translateY(0)}
+  #asg-buyer-fullspread .asg-hover-pop h4{margin:0 0 4px;font-size:16px}
+  #asg-buyer-fullspread .asg-hover-pop p{margin:0 0 8px;color:#c8c8cf;font-size:12px;line-height:1.5}
+  #asg-buyer-fullspread .asg-hover-pop ul{margin:0;padding-left:16px;font-size:12px;color:#d8d8df}
+
+  /* Step 2 */
+  #asg-buyer-fullspread .asg-screen-journey{padding:0;display:none;grid-template-columns:300px 1fr;min-height:700px}
+  #asg-buyer-fullspread .asg-screen-journey.is-active{display:grid}
+  #asg-buyer-fullspread .asg-agent-rail{border-right:1px solid rgba(17,17,17,.08);background:#fafafb;padding:24px;display:flex;flex-direction:column;gap:12px}
+  #asg-buyer-fullspread .asg-rail-top{display:flex;gap:12px;align-items:center}
+  #asg-buyer-fullspread .asg-rail-top img{width:90px;height:90px;border-radius:50%;object-fit:cover}
+  #asg-buyer-fullspread .asg-rail-top h4{margin:0;font-size:24px;line-height:1.05}
+  #asg-buyer-fullspread .asg-rail-top p{margin:0;color:#6e6e73}
+  #asg-buyer-fullspread .asg-rail-stats{margin:0;color:#4e4e56;font-size:13px;line-height:1.6}
+
+  #asg-buyer-fullspread .asg-flow-panel{padding:30px;display:flex;flex-direction:column;justify-content:space-between}
+  #asg-buyer-fullspread .asg-flow-head{text-align:center}
+  #asg-buyer-fullspread .asg-dots{display:flex;justify-content:center;gap:7px;margin-bottom:14px}
+  #asg-buyer-fullspread .asg-dot{width:8px;height:8px;border-radius:99px;background:#d7d9e0;transition:.2s ease}
+  #asg-buyer-fullspread .asg-dot.active{width:24px;background:#4f8df6}
+  #asg-buyer-fullspread .asg-icon-wrap{width:94px;height:94px;border-radius:50%;margin:0 auto 14px;border:1px solid #e3e8f8;background:#f2f6ff;display:flex;align-items:center;justify-content:center}
+  #asg-buyer-fullspread .asg-icon-wrap span{font-size:34px}
+  #asg-buyer-fullspread #asg-q-title{margin:0;font-size:42px;line-height:1.05;letter-spacing:-.02em}
+  #asg-buyer-fullspread #asg-q-sub{margin:10px 0 0;color:#6e6e73}
+  #asg-buyer-fullspread .asg-q-card{margin-top:20px;border:1px solid rgba(17,17,17,.08);border-radius:18px;background:#fff;padding:18px;min-height:210px;display:flex;align-items:center}
+  #asg-buyer-fullspread .asg-q-input-wrap{width:100%}
+  #asg-buyer-fullspread .asg-q-input-wrap input,
+  #asg-buyer-fullspread .asg-q-input-wrap select,
+  #asg-buyer-fullspread .asg-q-input-wrap textarea{
+    width:100%;padding:14px;border-radius:12px;border:1px solid rgba(17,17,17,.14);font:inherit
+  }
+  #asg-buyer-fullspread .asg-q-input-wrap input:focus,
+  #asg-buyer-fullspread .asg-q-input-wrap select:focus,
+  #asg-buyer-fullspread .asg-q-input-wrap textarea:focus{outline:none;border-color:#111}
+  #asg-buyer-fullspread .asg-contact-grid{display:grid;gap:10px}
+  #asg-buyer-fullspread .asg-card-actions{margin-top:16px;display:flex;justify-content:space-between}
+
+  /* Step 3 */
+  #asg-buyer-fullspread .asg-review-top{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  #asg-buyer-fullspread .asg-review-top img{width:76px;height:76px;border-radius:50%;object-fit:cover}
+  #asg-buyer-fullspread .asg-review-top h4{margin:0;font-size:24px}
+  #asg-buyer-fullspread .asg-review-top p{margin:0;color:#6e6e73}
+  #asg-buyer-fullspread .asg-review-grid{margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  #asg-buyer-fullspread .asg-review-grid .item{background:#f8f9fc;border:1px solid rgba(17,17,17,.08);border-radius:12px;padding:12px}
+  #asg-buyer-fullspread .asg-review-grid strong{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6e6e73}
+  #asg-buyer-fullspread .asg-review-grid span{display:block;margin-top:4px;font-size:15px}
+  #asg-buyer-fullspread .asg-final-actions{margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  #asg-buyer-fullspread #asg-submit-msg{margin:0;color:#6e6e73}
+
+  #asg-buyer-fullspread .asg-btn-dark{border:1px solid #111;background:#111;color:#fff;border-radius:999px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  #asg-buyer-fullspread .asg-btn-light{border:1px solid rgba(17,17,17,.15);background:#fff;color:#111;border-radius:999px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+
+  @media (max-width:1260px){#asg-buyer-fullspread .asg-agent-circles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media (max-width:1020px){
+    #asg-buyer-fullspread .asg-screen-journey.is-active{grid-template-columns:1fr}
+    #asg-buyer-fullspread .asg-agent-rail{border-right:none;border-bottom:1px solid rgba(17,17,17,.08)}
+    #asg-buyer-fullspread .asg-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:760px){
+    #asg-buyer-fullspread .asg-page{padding:40px 14px 56px}
+    #asg-buyer-fullspread h1{font-size:46px}
+    #asg-buyer-fullspread .asg-agent-circles{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 14px}
+    #asg-buyer-fullspread .asg-agent-btn{width:118px;height:118px}
+    #asg-buyer-fullspread .asg-hover-pop{display:none}
+    #asg-buyer-fullspread #asg-q-title{font-size:34px}
+    #asg-buyer-fullspread .asg-review-grid{grid-template-columns:1fr}
+  }
+</style>
+
+<script>
+  (function(){
+    var WEBHOOK_URL = ""; // Optional webhook URL. Leave blank to use email fallback.
+
+    var agents = [
+      { id:"sam-abadi", name:"Sam Abadi", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w", email:"sam.abadi@compass.com", stats:["Buyer planning specialist","Strong negotiator","Highly responsive"], bio:"Client-first advisor focused on clear communication and structured buying plans." },
+      { id:"shelly-channey", name:"Shelly Channey", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ec680d50-9548-4fcc-b29f-6780ec1a3e86/Shelly.jpg?format=500w", email:"shelly.kapoor@compass.com", stats:["Detail-driven strategy","Lifestyle matching","Advocacy-focused"], bio:"Known for detail and helping buyers choose with confidence." },
+      { id:"julian-levit", name:"Julian Levit", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21a6ba8a-39f9-4a98-acf7-4047f7a0f8cd/Julian+5mb.jpeg?format=500w", email:"julianlevit@compass.com", stats:["$37M+ volume","230+ sales","Transparent process"], bio:"Educational advisor known for accessibility and low-stress support." },
+      { id:"nicolas-gamboa-wills", name:"Nicolas Gamboa Wills", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=500w", email:"nicolas.gamboawills@compass.com", stats:["Luxury + urban expertise","Offer strategy","Client advocacy"], bio:"Trusted advisor for buyers navigating competitive city inventory." },
+      { id:"layne-zagorin", name:"Layne Zagorin", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5016d411-0889-4558-a8d9-146070d08181/Photo-18+%284%29.jpg?format=500w", email:"layne.zagorin@compass.com", stats:["Market knowledge","Clear communication","Fast execution"], bio:"Guides buyers through a focused and efficient process." },
+      { id:"mino-conenna", name:"Mino Conenna", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/20b29b84-587a-4b96-8ec9-f5184687e29d/Black+Jacket.jpeg?format=500w", email:"mino.conenna@compass.com", stats:["Negotiation support","Buyer roadmap","Hands-on service"], bio:"High-touch support from first tour to final walkthrough." },
+      { id:"barbara-laken", name:"Barbara Laken", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/61c6aac4-a530-4807-a26a-8d511db76a58/AndrewMiller-Barbara2020%281%29.jpg?format=500w", email:"barbara.laken@compass.com", stats:["Process precision","Neighborhood insight","Client-centered"], bio:"Experienced advisor who keeps every step organized and clear." },
+      { id:"gabriel-rendon", name:"Gabriel Rendon", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/10a058a9-3ef3-4b5b-8466-e47388e23843/Headshot-10.jpg?format=500w", email:"gabriel.rendon@compass.com", stats:["Competitive strategy","Reliable follow-through","Efficient communication"], bio:"Focused on helping buyers secure the right home with confidence." },
+      { id:"angela-engelbrecht", name:"Angela Engelbrecht", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/197eb36b-0a4c-40de-b5de-4a9c93a33879/DSC09944.jpg?format=500w", email:"angela.engelbrecht@compass.com", stats:["Buyer education","Calm guidance","Strong execution"], bio:"Combines practical guidance with market expertise for smoother moves." },
+      { id:"matthew-clevenger", name:"Matthew Clevenger", role:"Senior Agent", photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5c117b07-d067-453d-86fb-d0b4e22f7998/image0.jpeg?format=500w", email:"matthew.clevenger@compass.com", stats:["Strategic positioning","Buyer support","Clear timelines"], bio:"Helps buyers align priorities with opportunities and move decisively." }
+    ];
+
+    var questions = [
+      { key:"full_name", title:"Let's make it yours", sub:"Who are we helping?", icon:"👤", type:"text", placeholder:"Full name", required:true, color:"#4f8df6" },
+      { key:"contact", title:"How can we reach you?", sub:"Share your best contact details.", icon:"📬", type:"contact", required:true, color:"#8a7cf6" },
+      { key:"locations", title:"Where do you want to buy?", sub:"Neighborhoods, suburbs, or school zones.", icon:"🏡", type:"text", placeholder:"e.g. Lincoln Park, Lakeview", required:true, color:"#38b89d" },
+      { key:"budget_max", title:"What's your max budget?", sub:"Set your upper target.", icon:"💰", type:"number", placeholder:"e.g. 950000", required:true, color:"#f59e0b" },
+      { key:"property_type", title:"Property type", sub:"What kind of home are you searching for?", icon:"🧱", type:"select", options:["Condo","Single-Family","Townhome","Multi-Unit","New Construction"], required:true, color:"#5b8def" },
+      { key:"bedrooms", title:"Bedrooms", sub:"How many bedrooms do you need?", icon:"🛏️", type:"select", options:["Any","1+","2+","3+","4+"], required:false, color:"#7c8afe" },
+      { key:"financing_status", title:"Financing status", sub:"Where are you in the process?", icon:"🏦", type:"select", options:["Cash","Pre-approved","Need lender referral","Not started"], required:true, color:"#f97316" },
+      { key:"current_situation", title:"Current situation", sub:"Tell us about your housing today.", icon:"🧭", type:"select", options:["Renting","Own and need to sell first","Relocating","Other"], required:false, color:"#22c55e" },
+      { key:"must_haves", title:"Must-haves", sub:"What matters most in your next home?", icon:"✨", type:"textarea", placeholder:"Parking, outdoor space, schools, transit, layout...", required:true, color:"#ec4899" },
+      { key:"notes", title:"Anything else?", sub:"Share any dealbreakers or scheduling details.", icon:"📝", type:"textarea", placeholder:"Any additional notes...", required:false, color:"#6366f1" }
+    ];
+
+    var selectedAgent = null;
+    var answers = {};
+    var qIndex = 0;
+
+    var step1 = document.getElementById("asg-step1");
+    var step2 = document.getElementById("asg-step2");
+    var step3 = document.getElementById("asg-step3");
+    var circles = document.getElementById("asg-agent-circles");
+    var railPhoto = document.getElementById("asg-rail-photo");
+    var railName = document.getElementById("asg-rail-name");
+    var railRole = document.getElementById("asg-rail-role");
+    var railStats = document.getElementById("asg-rail-stats");
+    var changeAgent = document.getElementById("asg-change-agent");
+    var dots = document.getElementById("asg-dots");
+    var qIconWrap = document.getElementById("asg-q-icon-wrap");
+    var qIcon = document.getElementById("asg-q-icon");
+    var qTitle = document.getElementById("asg-q-title");
+    var qSub = document.getElementById("asg-q-sub");
+    var qCard = document.getElementById("asg-question-card");
+    var prevBtn = document.getElementById("asg-prev-btn");
+    var nextBtn = document.getElementById("asg-next-btn");
+    var reviewPhoto = document.getElementById("asg-review-photo");
+    var reviewAgentName = document.getElementById("asg-review-agent-name");
+    var reviewAgentRole = document.getElementById("asg-review-agent-role");
+    var reviewGrid = document.getElementById("asg-review-grid");
+    var submitFinal = document.getElementById("asg-submit-final");
+    var submitMsg = document.getElementById("asg-submit-msg");
+    var editIntake = document.getElementById("asg-edit-intake");
+
+    function renderAgentCircles(){
+      circles.innerHTML = agents.map(function(a){
+        return ''+
+          '<div class="asg-agent-node">'+
+            '<button type="button" class="asg-agent-btn" data-id="'+a.id+'"><img src="'+a.photo+'" alt="'+a.name+'"></button>'+
+            '<div class="asg-agent-label">'+a.name+'</div>'+
+            '<div class="asg-hover-pop"><h4>'+a.name+'</h4><p>'+a.bio+'</p><ul>'+a.stats.map(function(s){return "<li>"+s+"</li>";}).join("")+'</ul></div>'+
+          '</div>';
+      }).join("");
+
+      Array.prototype.forEach.call(circles.querySelectorAll(".asg-agent-btn"), function(btn){
+        btn.addEventListener("click", function(){
+          var id = btn.getAttribute("data-id");
+          selectedAgent = agents.find(function(a){ return a.id === id; }) || null;
+          if(!selectedAgent) return;
+          startJourney();
+        });
+      });
+    }
+
+    function renderDots(){
+      dots.innerHTML = questions.map(function(_, i){
+        return '<span class="asg-dot '+(i===qIndex?'active':'')+'"></span>';
+      }).join("");
+    }
+
+    function startJourney(){
+      answers = { selected_agent: selectedAgent.name };
+      qIndex = 0;
+      railPhoto.src = selectedAgent.photo;
+      railName.textContent = selectedAgent.name;
+      railRole.textContent = selectedAgent.role;
+      railStats.textContent = selectedAgent.stats.join(" · ");
+      step1.classList.remove("is-active");
+      step3.classList.remove("is-active");
+      step2.classList.add("is-active");
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      var q = questions[qIndex];
+      renderDots();
+      qTitle.textContent = q.title;
+      qSub.textContent = q.sub;
+      qIcon.textContent = q.icon;
+      qIconWrap.style.background = "color-mix(in srgb, "+q.color+" 12%, #ffffff)";
+      qIconWrap.style.borderColor = "color-mix(in srgb, "+q.color+" 40%, #e5e7ef)";
+      prevBtn.style.visibility = qIndex === 0 ? "hidden" : "visible";
+      nextBtn.textContent = qIndex === questions.length - 1 ? "Review" : "Continue";
+      nextBtn.style.background = q.color;
+      nextBtn.style.borderColor = q.color;
+
+      var fieldHtml = "";
+      if(q.type === "text" || q.type === "number"){
+        fieldHtml = '<input id="asg-q-input" type="'+q.type+'" placeholder="'+(q.placeholder||"")+'" value="'+(answers[q.key]||"")+'">';
+      } else if(q.type === "textarea"){
+        fieldHtml = '<textarea id="asg-q-input" rows="4" placeholder="'+(q.placeholder||"")+'">'+(answers[q.key]||"")+'</textarea>';
+      } else if(q.type === "select"){
+        fieldHtml = '<select id="asg-q-input"><option value="">Select</option>'+q.options.map(function(opt){ return '<option value="'+opt+'" '+((answers[q.key]===opt)?'selected':'')+'>'+opt+'</option>'; }).join("")+'</select>';
+      } else if(q.type === "contact"){
+        fieldHtml = ''+
+          '<div class="asg-contact-grid">'+
+            '<input id="asg-q-email" type="email" placeholder="Email*" value="'+(answers.email||"")+'">'+
+            '<input id="asg-q-phone" type="text" placeholder="Phone*" value="'+(answers.phone||"")+'">'+
+            '<select id="asg-q-method"><option value="">Preferred contact method*</option>'+
+              ["Call","Text","Email"].map(function(m){ return '<option value="'+m+'" '+((answers.preferred_contact===m)?'selected':'')+'>'+m+'</option>'; }).join("")+
+            '</select>'+
+          '</div>';
+      }
+
+      qCard.innerHTML = '<div class="asg-q-input-wrap">'+fieldHtml+'</div>';
+    }
+
+    function saveCurrent(){
+      var q = questions[qIndex];
+      if(q.type === "contact"){
+        var email = (document.getElementById("asg-q-email").value || "").trim();
+        var phone = (document.getElementById("asg-q-phone").value || "").trim();
+        var method = (document.getElementById("asg-q-method").value || "").trim();
+        if(q.required && (!email || !phone || !method)) return { ok:false, msg:"Please complete all contact fields." };
+        answers.email = email;
+        answers.phone = phone;
+        answers.preferred_contact = method;
+        return { ok:true };
+      }
+      var input = document.getElementById("asg-q-input");
+      var value = (input && input.value ? input.value : "").trim();
+      if(q.required && !value) return { ok:false, msg:"Please complete this step before continuing." };
+      answers[q.key] = value;
+      return { ok:true };
+    }
+
+    function openReview(){
+      reviewPhoto.src = selectedAgent.photo;
+      reviewAgentName.textContent = selectedAgent.name;
+      reviewAgentRole.textContent = selectedAgent.role;
+      var items = [
+        ["Agent", answers.selected_agent || "—"],
+        ["Name", answers.full_name || "—"],
+        ["Email", answers.email || "—"],
+        ["Phone", answers.phone || "—"],
+        ["Preferred Contact", answers.preferred_contact || "—"],
+        ["Location", answers.locations || "—"],
+        ["Max Budget", answers.budget_max || "—"],
+        ["Property Type", answers.property_type || "—"],
+        ["Bedrooms", answers.bedrooms || "Any"],
+        ["Financing", answers.financing_status || "—"],
+        ["Current Situation", answers.current_situation || "—"],
+        ["Must-Haves", answers.must_haves || "—"],
+        ["Notes", answers.notes || "—"]
+      ];
+      reviewGrid.innerHTML = items.map(function(i){ return '<div class="item"><strong>'+i[0]+'</strong><span>'+i[1]+'</span></div>'; }).join("");
+      step2.classList.remove("is-active");
+      step3.classList.add("is-active");
+    }
+
+    prevBtn.addEventListener("click", function(){
+      if(qIndex === 0) return;
+      qIndex--;
+      renderQuestion();
+    });
+
+    nextBtn.addEventListener("click", function(){
+      var res = saveCurrent();
+      if(!res.ok){ alert(res.msg); return; }
+      if(qIndex === questions.length - 1){ openReview(); return; }
+      qIndex++;
+      renderQuestion();
+    });
+
+    changeAgent.addEventListener("click", function(){
+      step2.classList.remove("is-active");
+      step1.classList.add("is-active");
+    });
+
+    editIntake.addEventListener("click", function(){
+      step3.classList.remove("is-active");
+      step2.classList.add("is-active");
+    });
+
+    submitFinal.addEventListener("click", function(){
+      if(!selectedAgent){ submitMsg.textContent = "Please select an agent."; return; }
+      submitFinal.disabled = true;
+      submitMsg.textContent = "Submitting...";
+
+      var payload = new FormData();
+      Object.keys(answers).forEach(function(k){ payload.append(k, answers[k]); });
+      payload.append("agent_email", selectedAgent.email);
+      payload.append("page_type", "buyer_onboarding");
+      payload.append("submitted_at", new Date().toISOString());
+
+      if(WEBHOOK_URL){
+        fetch(WEBHOOK_URL, { method:"POST", body:payload })
+          .then(function(){ submitMsg.textContent = selectedAgent.name + " will contact you shortly."; submitFinal.textContent = "Submitted"; })
+          .catch(function(){ submitFinal.disabled = false; submitMsg.textContent = "Could not submit. Please try again."; });
+        return;
+      }
+
+      var lines = [];
+      payload.forEach(function(v,k){ lines.push(k + ": " + v); });
+      window.location.href = "mailto:"+encodeURIComponent(selectedAgent.email)+"?subject=New Buyer Intake&body="+encodeURIComponent(lines.join("\n"));
+      submitMsg.textContent = selectedAgent.name + " will contact you shortly.";
+      submitFinal.disabled = false;
+    });
+
+    renderAgentCircles();
+  })();
+</script>
+<section id="asg-buyer-fullspread">
+  <div class="asg-page">
+    <header class="asg-hero">
+      <p class="asg-kicker">Buy With Alex Stoykov Group</p>
+      <h1>Find the right home with a clear strategy.</h1>
+      <p class="asg-sub">Choose your senior agent, then complete a guided buyer onboarding flow in one seamless experience.</p>
+    </header>
+
+    <section class="asg-roadmap">
+      <h2>How the process works</h2>
+      <p>
+        Consultation -> Pre-Approval -> Search & Showings -> Offer Strategy -> Under Contract -> Contingencies
+        (inspection, attorney review, mortgage, appraisal) -> Clear to Close -> Final Walkthrough -> Closing.
+      </p>
+      <p class="asg-roadmap-note">Typical timeline is about 3 weeks to 2 months depending on financing and contract terms.</p>
+    </section>
+
+    <section class="asg-bento" id="asg-main-bento">
+      <div id="asg-step1" class="asg-bento-screen is-active">
+        <div class="asg-screen-head">
+          <span>Step 1</span>
+          <h3>Select your senior agent</h3>
+          <p>Choose who you want to work with. After selection, onboarding starts immediately in this same panel.</p>
+        </div>
+        <div id="asg-agent-grid" class="asg-agent-grid"></div>
+      </div>
+
+      <div id="asg-step2" class="asg-bento-screen">
+        <aside class="asg-agent-rail" id="asg-agent-rail">
+          <img id="asg-rail-photo" alt="Selected agent" />
+          <h4 id="asg-rail-name"></h4>
+          <p id="asg-rail-role"></p>
+          <button type="button" class="asg-btn-light" id="asg-change-agent">Change Agent</button>
+        </aside>
+
+        <div class="asg-onboarding-panel">
+          <div class="asg-onboarding-head">
+            <span id="asg-card-step">Question 1 of 10</span>
+            <h3 id="asg-card-title">Your name</h3>
+            <p id="asg-card-sub">Let's start with who we are helping.</p>
+          </div>
+
+          <div id="asg-question-card" class="asg-question-card"></div>
+
+          <div class="asg-card-actions">
+            <button type="button" class="asg-btn-light" id="asg-prev-btn">Back</button>
+            <button type="button" class="asg-btn-dark" id="asg-next-btn">Next</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="asg-step3" class="asg-bento-screen">
+        <div class="asg-screen-head">
+          <span>Step 3</span>
+          <h3>Review and begin your search</h3>
+          <p>Confirm details below and submit. Your selected agent will contact you shortly.</p>
+        </div>
+        <div class="asg-review-wrap">
+          <div class="asg-review-agent">
+            <img id="asg-review-photo" alt="Selected agent" />
+            <div>
+              <h4 id="asg-review-agent-name"></h4>
+              <p id="asg-review-agent-role"></p>
+            </div>
+          </div>
+          <div id="asg-review-grid" class="asg-review-grid"></div>
+          <button type="button" id="asg-submit-final" class="asg-btn-dark asg-submit-final">Begin Your Search</button>
+          <p id="asg-submit-msg" class="asg-submit-msg"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<style>
+  #asg-buyer-fullspread{width:100vw;position:relative;left:50%;margin-left:-50vw;background:#f5f5f7;color:#111;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  #asg-buyer-fullspread *{box-sizing:border-box}
+  #asg-buyer-fullspread .asg-page{max-width:1380px;margin:0 auto;padding:64px 28px 90px}
+  #asg-buyer-fullspread .asg-kicker{margin:0;color:#6e6e73;font-size:12px;text-transform:uppercase;letter-spacing:.13em}
+  #asg-buyer-fullspread h1{font-size:clamp(44px,7.6vw,88px);line-height:.96;letter-spacing:-.03em;margin:10px 0 14px;max-width:980px}
+  #asg-buyer-fullspread .asg-sub{font-size:20px;color:#5c5c61;line-height:1.45;margin:0;max-width:760px}
+  #asg-buyer-fullspread .asg-roadmap{margin-top:20px;background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:26px;padding:24px}
+  #asg-buyer-fullspread .asg-roadmap h2{margin:0 0 8px;font-size:28px}
+  #asg-buyer-fullspread .asg-roadmap p{margin:0;color:#333;line-height:1.56}
+  #asg-buyer-fullspread .asg-roadmap-note{margin-top:8px!important;color:#6e6e73!important;font-size:14px}
+
+  #asg-buyer-fullspread .asg-bento{margin-top:22px;background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:30px;min-height:640px;overflow:hidden;position:relative}
+  #asg-buyer-fullspread .asg-bento-screen{display:none;padding:28px}
+  #asg-buyer-fullspread .asg-bento-screen.is-active{display:block;animation:asgFade .28s ease}
+  @keyframes asgFade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  #asg-buyer-fullspread .asg-screen-head span{font-size:12px;color:#6e6e73;text-transform:uppercase;letter-spacing:.12em}
+  #asg-buyer-fullspread .asg-screen-head h3{margin:8px 0 8px;font-size:38px;line-height:1.04;letter-spacing:-.02em}
+  #asg-buyer-fullspread .asg-screen-head p{margin:0;color:#6e6e73}
+
+  #asg-buyer-fullspread .asg-agent-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px}
+  #asg-buyer-fullspread .asg-agent-item{border:1px solid rgba(17,17,17,.08);border-radius:18px;padding:14px;background:#fafafb;transition:.22s ease;cursor:pointer}
+  #asg-buyer-fullspread .asg-agent-item:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.08)}
+  #asg-buyer-fullspread .asg-agent-photo-wrap{display:flex;justify-content:center;padding-top:4px}
+  #asg-buyer-fullspread .asg-agent-photo{width:96px;height:96px;border-radius:50%;object-fit:cover;transition:transform .22s ease}
+  #asg-buyer-fullspread .asg-agent-item:hover .asg-agent-photo{transform:scale(1.08)}
+  #asg-buyer-fullspread .asg-agent-item h4{margin:12px 0 3px;text-align:center;font-size:21px}
+  #asg-buyer-fullspread .asg-agent-item p{margin:0;text-align:center;color:#6e6e73;font-size:13px}
+  #asg-buyer-fullspread .asg-agent-item .asg-btn-dark{margin:12px auto 0;display:block}
+
+  #asg-buyer-fullspread #asg-step2{padding:0;display:none;grid-template-columns:300px 1fr;min-height:640px}
+  #asg-buyer-fullspread #asg-step2.is-active{display:grid}
+  #asg-buyer-fullspread .asg-agent-rail{border-right:1px solid rgba(17,17,17,.08);background:#fafafb;padding:24px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  #asg-buyer-fullspread .asg-agent-rail img{width:116px;height:116px;border-radius:50%;object-fit:cover}
+  #asg-buyer-fullspread .asg-agent-rail h4{margin:0;font-size:24px;line-height:1.08}
+  #asg-buyer-fullspread .asg-agent-rail p{margin:0;color:#6e6e73}
+
+  #asg-buyer-fullspread .asg-onboarding-panel{padding:28px;display:flex;flex-direction:column;justify-content:space-between}
+  #asg-buyer-fullspread .asg-onboarding-head span{font-size:12px;color:#6e6e73;text-transform:uppercase;letter-spacing:.12em}
+  #asg-buyer-fullspread .asg-onboarding-head h3{margin:7px 0 6px;font-size:34px;line-height:1.08;letter-spacing:-.02em}
+  #asg-buyer-fullspread .asg-onboarding-head p{margin:0;color:#6e6e73}
+  #asg-buyer-fullspread .asg-question-card{margin-top:20px;min-height:280px;border:1px solid rgba(17,17,17,.08);border-radius:18px;background:#fff;padding:22px;display:flex;flex-direction:column;justify-content:center}
+  #asg-buyer-fullspread .asg-q-icon{width:42px;height:42px;border-radius:12px;background:#f1f1f4;display:flex;align-items:center;justify-content:center;font-size:20px}
+  #asg-buyer-fullspread .asg-q-label{margin-top:10px;font-size:13px;color:#6e6e73;text-transform:uppercase;letter-spacing:.1em}
+  #asg-buyer-fullspread .asg-q-input{margin-top:10px}
+  #asg-buyer-fullspread .asg-q-input input,
+  #asg-buyer-fullspread .asg-q-input select,
+  #asg-buyer-fullspread .asg-q-input textarea{width:100%;border:1px solid rgba(17,17,17,.15);border-radius:12px;padding:14px;font:inherit}
+  #asg-buyer-fullspread .asg-q-input input:focus,
+  #asg-buyer-fullspread .asg-q-input select:focus,
+  #asg-buyer-fullspread .asg-q-input textarea:focus{outline:none;border-color:#111}
+  #asg-buyer-fullspread .asg-card-actions{margin-top:16px;display:flex;justify-content:space-between;gap:10px}
+
+  #asg-buyer-fullspread .asg-btn-dark{border:1px solid #111;background:#111;color:#fff;border-radius:999px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  #asg-buyer-fullspread .asg-btn-light{border:1px solid rgba(17,17,17,.15);background:#fff;color:#111;border-radius:999px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+
+  #asg-buyer-fullspread #asg-step3{padding:28px}
+  #asg-buyer-fullspread .asg-review-wrap{margin-top:16px}
+  #asg-buyer-fullspread .asg-review-agent{display:flex;align-items:center;gap:12px}
+  #asg-buyer-fullspread .asg-review-agent img{width:76px;height:76px;border-radius:50%;object-fit:cover}
+  #asg-buyer-fullspread .asg-review-agent h4{margin:0;font-size:24px}
+  #asg-buyer-fullspread .asg-review-agent p{margin:0;color:#6e6e73}
+  #asg-buyer-fullspread .asg-review-grid{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #asg-buyer-fullspread .asg-review-item{background:#fafafb;border:1px solid rgba(17,17,17,.08);border-radius:12px;padding:12px}
+  #asg-buyer-fullspread .asg-review-item strong{display:block;font-size:11px;color:#6e6e73;text-transform:uppercase;letter-spacing:.11em}
+  #asg-buyer-fullspread .asg-review-item span{display:block;margin-top:4px;font-size:15px}
+  #asg-buyer-fullspread .asg-submit-final{margin-top:16px}
+  #asg-buyer-fullspread .asg-submit-msg{margin:10px 0 0;color:#6e6e73}
+
+  @media (max-width:1140px){
+    #asg-buyer-fullspread .asg-agent-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #asg-buyer-fullspread #asg-step2.is-active{grid-template-columns:1fr}
+    #asg-buyer-fullspread .asg-agent-rail{border-right:none;border-bottom:1px solid rgba(17,17,17,.08)}
+  }
+  @media (max-width:760px){
+    #asg-buyer-fullspread .asg-page{padding:40px 14px 56px}
+    #asg-buyer-fullspread h1{font-size:46px}
+    #asg-buyer-fullspread .asg-screen-head h3{font-size:30px}
+    #asg-buyer-fullspread .asg-review-grid{grid-template-columns:1fr}
+    #asg-buyer-fullspread .asg-agent-grid{grid-template-columns:1fr}
+  }
+</style>
+
+<script>
+  (function(){
+    var WEBHOOK_URL = ""; // Optional webhook endpoint. Leave blank to use email fallback.
+
+    var agents = [
+      {
+        id:"alex-stoykov",
+        name:"Alex Stoykov",
+        role:"Principal Broker",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w",
+        bio:"Over 20 years in business and more than $180M in closed volume, known for strategic pricing and high-touch buyer guidance.",
+        email:"alex.stoykov@compass.com",
+        points:["Career volume: $180M+","Experience: 20+ years","Market: Chicago core neighborhoods"]
+      },
+      {
+        id:"sam-abadi",
+        name:"Sam Abadi",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ff7dcd12-4bc3-4dae-b39b-a930407ec53b/sam%2Babadi%2Bheadshot.jpg?format=750w",
+        bio:"Client-first advisor focused on clear communication and structured buying plans in competitive markets.",
+        email:"sam.abadi@compass.com",
+        points:["Focus: Buyer planning","Strength: Communication","Approach: Low-stress execution"]
+      },
+      {
+        id:"shelly-channey",
+        name:"Shelly Channey",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/4c9f5a4e-3e7b-4708-8a2f-d136cf45ca42/shelly%2Bheadshot.jpg?format=750w",
+        bio:"Relationship-led senior agent known for detail, advocacy, and helping buyers choose with confidence.",
+        email:"shelly.channey@compass.com",
+        points:["Strength: Negotiation support","Focus: Lifestyle fit","Approach: Detail-driven"]
+      },
+      {
+        id:"julian-levit",
+        name:"Julian Levit",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/2f7b28a7-1514-44d0-9f62-bf4d68f45da3/julian%2Bheadshot.jpg?format=750w",
+        bio:"Transparent and educational advisor with $37M+ in sales and 230+ transactions.",
+        email:"julianlevit@compass.com",
+        points:["Career volume: $37M+","Sales: 230+","Approach: Educational + accessible"]
+      }
+    ];
+
+    var questions = [
+      { key:"full_name", title:"Your name", sub:"Let's start with who we are helping.", icon:"👤", type:"text", required:true },
+      { key:"contact", title:"Best contact details", sub:"How should we reach you quickly?", icon:"✉️", type:"contact", required:true },
+      { key:"locations", title:"Where do you want to buy?", sub:"Neighborhoods, suburbs, or school zones.", icon:"📍", type:"text", placeholder:"e.g. Lincoln Park, Lakeview, North Shore", required:true },
+      { key:"budget_max", title:"Max budget", sub:"Your top-end target budget.", icon:"💰", type:"number", placeholder:"e.g. 950000", required:true },
+      { key:"property_type", title:"Property type", sub:"What kind of home are you looking for?", icon:"🏠", type:"select", options:["Condo","Single-Family","Townhome","Multi-Unit","New Construction"], required:true },
+      { key:"bedrooms", title:"Bedrooms", sub:"How many bedrooms do you need?", icon:"🛏️", type:"select", options:["Any","1+","2+","3+","4+"], required:false },
+      { key:"financing_status", title:"Financing status", sub:"Where are you in the financing process?", icon:"🏦", type:"select", options:["Cash","Pre-approved","Need lender referral","Not started"], required:true },
+      { key:"current_situation", title:"Current situation", sub:"Your current housing situation.", icon:"🧭", type:"select", options:["Renting","Own and need to sell first","Relocating","Other"], required:false },
+      { key:"must_haves", title:"Must-haves", sub:"What should your next home absolutely include?", icon:"⭐", type:"textarea", required:true, placeholder:"Parking, outdoor space, transit access, schools, layout..." },
+      { key:"notes", title:"Anything else?", sub:"Share preferences, dealbreakers, or scheduling notes.", icon:"📝", type:"textarea", required:false, placeholder:"Noise tolerance, renovation comfort, timeline details..." }
+    ];
+
+    var answers = {};
+    var selectedAgent = null;
+    var questionIndex = 0;
+
+    var step1 = document.getElementById("asg-step1");
+    var step2 = document.getElementById("asg-step2");
+    var step3 = document.getElementById("asg-step3");
+    var grid = document.getElementById("asg-agent-grid");
+    var cardStep = document.getElementById("asg-card-step");
+    var cardTitle = document.getElementById("asg-card-title");
+    var cardSub = document.getElementById("asg-card-sub");
+    var questionCard = document.getElementById("asg-question-card");
+    var prevBtn = document.getElementById("asg-prev-btn");
+    var nextBtn = document.getElementById("asg-next-btn");
+    var railPhoto = document.getElementById("asg-rail-photo");
+    var railName = document.getElementById("asg-rail-name");
+    var railRole = document.getElementById("asg-rail-role");
+    var changeAgent = document.getElementById("asg-change-agent");
+    var reviewPhoto = document.getElementById("asg-review-photo");
+    var reviewAgentName = document.getElementById("asg-review-agent-name");
+    var reviewAgentRole = document.getElementById("asg-review-agent-role");
+    var reviewGrid = document.getElementById("asg-review-grid");
+    var submitFinal = document.getElementById("asg-submit-final");
+    var submitMsg = document.getElementById("asg-submit-msg");
+
+    function renderAgentCards(){
+      grid.innerHTML = agents.map(function(a){
+        return ''+
+          '<article class="asg-agent-item" data-agent="'+a.id+'">'+
+            '<div class="asg-agent-photo-wrap"><img class="asg-agent-photo" src="'+a.photo+'" alt="'+a.name+'"></div>'+
+            '<h4>'+a.name+'</h4>'+
+            '<p>'+a.role+'</p>'+
+            '<button type="button" class="asg-btn-dark">Select Agent</button>'+
+          '</article>';
+      }).join("");
+
+      Array.prototype.forEach.call(grid.querySelectorAll(".asg-agent-item"), function(el){
+        el.addEventListener("click", function(){
+          var id = el.getAttribute("data-agent");
+          selectedAgent = agents.find(function(a){ return a.id === id; }) || null;
+          if(!selectedAgent) return;
+          startOnboarding();
+        });
+      });
+    }
+
+    function startOnboarding(){
+      railPhoto.src = selectedAgent.photo;
+      railName.textContent = selectedAgent.name;
+      railRole.textContent = selectedAgent.role;
+      questionIndex = 0;
+      answers = { selected_agent: selectedAgent.name };
+      step1.classList.remove("is-active");
+      step2.classList.add("is-active");
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      var q = questions[questionIndex];
+      cardStep.textContent = "Question "+(questionIndex+1)+" of "+questions.length;
+      cardTitle.textContent = q.title;
+      cardSub.textContent = q.sub;
+      prevBtn.style.visibility = questionIndex === 0 ? "hidden" : "visible";
+      nextBtn.textContent = questionIndex === questions.length - 1 ? "Review" : "Next";
+
+      var fieldHtml = "";
+      if(q.type === "text" || q.type === "number"){
+        fieldHtml = '<input id="asg-q-input" type="'+q.type+'" '+(q.placeholder?'placeholder="'+q.placeholder+'"':'')+' value="'+(answers[q.key]||"")+'">';
+      } else if(q.type === "textarea"){
+        fieldHtml = '<textarea id="asg-q-input" rows="4" '+(q.placeholder?'placeholder="'+q.placeholder+'"':'')+'>'+(answers[q.key]||"")+'</textarea>';
+      } else if(q.type === "select"){
+        fieldHtml = '<select id="asg-q-input">'+
+          '<option value="">Select</option>'+
+          q.options.map(function(opt){ return '<option value="'+opt+'" '+((answers[q.key]===opt)?'selected':'')+'>'+opt+'</option>'; }).join("")+
+        '</select>';
+      } else if(q.type === "contact"){
+        fieldHtml = ''+
+          '<div style="display:grid;gap:10px">'+
+            '<input id="asg-q-email" type="email" placeholder="Email*" value="'+(answers.email||"")+'">'+
+            '<input id="asg-q-phone" type="text" placeholder="Phone*" value="'+(answers.phone||"")+'">'+
+            '<select id="asg-q-method">'+
+              '<option value="">Preferred contact method*</option>'+
+              ['Call','Text','Email'].map(function(opt){ return '<option value="'+opt+'" '+((answers.preferred_contact===opt)?'selected':'')+'>'+opt+'</option>'; }).join("")+
+            '</select>'+
+          '</div>';
+      }
+
+      questionCard.innerHTML = ''+
+        '<div class="asg-q-icon">'+q.icon+'</div>'+
+        '<div class="asg-q-label">'+q.title+(q.required?' *':'')+'</div>'+
+        '<div class="asg-q-input">'+fieldHtml+'</div>';
+    }
+
+    function saveCurrentQuestion(){
+      var q = questions[questionIndex];
+      if(q.type === "contact"){
+        var email = (document.getElementById("asg-q-email").value || "").trim();
+        var phone = (document.getElementById("asg-q-phone").value || "").trim();
+        var method = (document.getElementById("asg-q-method").value || "").trim();
+        if(q.required && (!email || !phone || !method)){
+          return { ok:false, msg:"Please complete all contact fields." };
+        }
+        answers.email = email;
+        answers.phone = phone;
+        answers.preferred_contact = method;
+        return { ok:true };
+      }
+      var input = document.getElementById("asg-q-input");
+      var val = (input && input.value ? input.value : "").trim();
+      if(q.required && !val){
+        return { ok:false, msg:"Please complete this field before continuing." };
+      }
+      answers[q.key] = val;
+      return { ok:true };
+    }
+
+    function openReview(){
+      reviewPhoto.src = selectedAgent.photo;
+      reviewAgentName.textContent = selectedAgent.name;
+      reviewAgentRole.textContent = selectedAgent.role;
+      var reviewItems = [
+        ["Agent", answers.selected_agent || "—"],
+        ["Full Name", answers.full_name || "—"],
+        ["Email", answers.email || "—"],
+        ["Phone", answers.phone || "—"],
+        ["Preferred Contact", answers.preferred_contact || "—"],
+        ["Location", answers.locations || "—"],
+        ["Max Budget", answers.budget_max || "—"],
+        ["Property Type", answers.property_type || "—"],
+        ["Bedrooms", answers.bedrooms || "Any"],
+        ["Financing", answers.financing_status || "—"],
+        ["Current Situation", answers.current_situation || "—"],
+        ["Must-Haves", answers.must_haves || "—"],
+        ["Notes", answers.notes || "—"]
+      ];
+      reviewGrid.innerHTML = reviewItems.map(function(item){
+        return '<div class="asg-review-item"><strong>'+item[0]+'</strong><span>'+item[1]+'</span></div>';
+      }).join("");
+      step2.classList.remove("is-active");
+      step3.classList.add("is-active");
+    }
+
+    prevBtn.addEventListener("click", function(){
+      if(questionIndex === 0) return;
+      questionIndex--;
+      renderQuestion();
+    });
+
+    nextBtn.addEventListener("click", function(){
+      var saved = saveCurrentQuestion();
+      if(!saved.ok){ alert(saved.msg); return; }
+      if(questionIndex === questions.length - 1){
+        openReview();
+        return;
+      }
+      questionIndex++;
+      renderQuestion();
+    });
+
+    changeAgent.addEventListener("click", function(){
+      step2.classList.remove("is-active");
+      step1.classList.add("is-active");
+    });
+
+    submitFinal.addEventListener("click", function(){
+      if(!selectedAgent){ submitMsg.textContent = "Please select an agent."; return; }
+      submitFinal.disabled = true;
+      submitMsg.textContent = "Submitting...";
+
+      var payload = new FormData();
+      Object.keys(answers).forEach(function(k){ payload.append(k, answers[k]); });
+      payload.append("agent_email", selectedAgent.email);
+      payload.append("page_type", "buyer_onboarding");
+      payload.append("submitted_at", new Date().toISOString());
+
+      if(WEBHOOK_URL){
+        fetch(WEBHOOK_URL, { method:"POST", body:payload })
+          .then(function(){
+            submitMsg.textContent = selectedAgent.name + " will contact you shortly.";
+          })
+          .catch(function(){
+            submitFinal.disabled = false;
+            submitMsg.textContent = "Could not submit. Please try again.";
+          });
+        return;
+      }
+
+      var lines = [];
+      payload.forEach(function(v,k){ lines.push(k+": "+v); });
+      var body = encodeURIComponent(lines.join("\n"));
+      window.location.href = "mailto:"+encodeURIComponent(selectedAgent.email)+"?subject=New Buyer Intake&body="+body;
+      submitMsg.textContent = selectedAgent.name + " will contact you shortly.";
+      submitFinal.disabled = false;
+    });
+
+    renderAgentCards();
+  })();
+</script>
+<section id="asg-buyer-fullspread">
+  <div class="asg-page">
+    <header class="asg-hero">
+      <p class="asg-kicker">Buy With Alex Stoykov Group</p>
+      <h1>Find the right home with a clear strategy.</h1>
+      <p class="asg-sub">
+        Choose your senior agent, share your goals, and we will reach out quickly to launch a tailored search.
+      </p>
+      <div class="asg-steps-pill">
+        <span class="active">1. Pick Agent</span>
+        <span>2. Buyer Details</span>
+        <span>3. Review</span>
+      </div>
+    </header>
+
+    <section class="asg-roadmap">
+      <h2>How the process works</h2>
+      <p>
+        Consultation -> Pre-Approval -> Search & Showings -> Offer Strategy -> Under Contract -> Contingencies
+        (inspection, attorney review, mortgage, appraisal) -> Clear to Close -> Final Walkthrough -> Closing.
+      </p>
+      <p class="asg-roadmap-note">Typical timeline is about 3 weeks to 2 months depending on financing and contract terms.</p>
+    </section>
+
+    <section class="asg-flow">
+      <div class="asg-agent-stage">
+        <div class="asg-stage-head">
+          <span>Step 1</span>
+          <h3>Select your senior agent</h3>
+        </div>
+        <p class="asg-muted">Hover to preview, click to select.</p>
+
+        <div class="asg-agent-stack" id="asg-agent-stack"></div>
+        <div id="asg-agent-card" class="asg-agent-card" aria-live="polite">
+          <div class="asg-agent-card-body">
+            <h4 id="asg-agent-name">Choose an agent</h4>
+            <p id="asg-agent-role" class="asg-muted"></p>
+            <p id="asg-agent-bio" class="asg-agent-bio"></p>
+            <ul id="asg-agent-points"></ul>
+          </div>
+          <button id="asg-select-agent" type="button" class="asg-btn-dark" disabled>Select Agent</button>
+        </div>
+      </div>
+
+      <div id="asg-form-stage" class="asg-form-stage is-locked">
+        <div class="asg-stage-head">
+          <span>Step 2</span>
+          <h3>Tell us about your search</h3>
+        </div>
+        <p class="asg-muted">Selected agent: <strong id="asg-selected-label">Not selected</strong></p>
+
+        <form id="asg-buyer-form" class="asg-form">
+          <input type="hidden" id="asg-selected-agent-input" name="selected_agent" />
+          <div class="asg-grid">
+            <label>Full Name*<input name="full_name" required /></label>
+            <label>Email*<input type="email" name="email" required /></label>
+            <label>Phone*<input name="phone" required /></label>
+            <label>Preferred Contact*
+              <select name="preferred_contact" required>
+                <option value="">Select</option>
+                <option>Call</option>
+                <option>Text</option>
+                <option>Email</option>
+              </select>
+            </label>
+
+            <label class="span2">Location(s) you are considering*<input name="locations" placeholder="Neighborhoods, suburbs, school zones..." required /></label>
+
+            <label>Budget Min*<input type="number" name="budget_min" min="0" step="1000" required /></label>
+            <label>Budget Max*<input type="number" name="budget_max" min="0" step="1000" required /></label>
+
+            <label>Property Type*
+              <select name="property_type" required>
+                <option value="">Select</option>
+                <option>Condo</option>
+                <option>Single-Family</option>
+                <option>Townhome</option>
+                <option>Multi-Unit</option>
+                <option>New Construction</option>
+              </select>
+            </label>
+            <label>Timeline*
+              <select name="timeline" required>
+                <option value="">Select</option>
+                <option>ASAP (0-30 days)</option>
+                <option>1-3 months</option>
+                <option>3-6 months</option>
+                <option>6+ months</option>
+                <option>Just researching</option>
+              </select>
+            </label>
+
+            <label>Bedrooms
+              <select name="bedrooms">
+                <option value="">Any</option><option>1+</option><option>2+</option><option>3+</option><option>4+</option>
+              </select>
+            </label>
+            <label>Bathrooms
+              <select name="bathrooms">
+                <option value="">Any</option><option>1+</option><option>2+</option><option>3+</option>
+              </select>
+            </label>
+
+            <label>Financing Status*
+              <select name="financing_status" required>
+                <option value="">Select</option>
+                <option>Cash</option>
+                <option>Pre-approved</option>
+                <option>Need lender referral</option>
+                <option>Not started</option>
+              </select>
+            </label>
+            <label>Current Situation
+              <select name="current_situation">
+                <option value="">Select</option>
+                <option>Renting</option>
+                <option>Own and need to sell first</option>
+                <option>Relocating</option>
+              </select>
+            </label>
+
+            <label class="span2">Must-Haves*<textarea name="must_haves" rows="3" required placeholder="Parking, outdoor space, transit, schools, finishes..."></textarea></label>
+            <label class="span2">Notes / dealbreakers<textarea name="notes" rows="3" placeholder="Anything we should know before setting up your search?"></textarea></label>
+          </div>
+          <div class="asg-actions">
+            <button type="submit" class="asg-btn-dark">Continue to Review</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="asg-review-stage" class="asg-review is-locked">
+      <div class="asg-stage-head">
+        <span>Step 3</span>
+        <h3>Review and begin your search</h3>
+      </div>
+      <div id="asg-review-grid" class="asg-review-grid"></div>
+      <blockquote>
+        "Great buyer outcomes start with a clear strategy, strong representation, and speed in execution."
+      </blockquote>
+      <div class="asg-actions">
+        <button id="asg-submit-final" class="asg-btn-dark">Begin Your Search</button>
+        <p id="asg-submit-msg" class="asg-muted"></p>
+      </div>
+    </section>
+  </div>
+</section>
+
+<style>
+  #asg-buyer-fullspread{width:100vw;position:relative;left:50%;margin-left:-50vw;background:#f6f6f8;color:#121212;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  #asg-buyer-fullspread *{box-sizing:border-box}
+  #asg-buyer-fullspread .asg-page{max-width:1400px;margin:0 auto;padding:72px 32px 96px}
+  #asg-buyer-fullspread .asg-hero{padding-bottom:28px}
+  #asg-buyer-fullspread .asg-kicker{margin:0;color:#6e6e73;font-size:12px;text-transform:uppercase;letter-spacing:.14em}
+  #asg-buyer-fullspread h1{font-size:clamp(42px,7vw,86px);line-height:.98;letter-spacing:-.03em;margin:10px 0 14px;max-width:980px}
+  #asg-buyer-fullspread .asg-sub{font-size:20px;line-height:1.5;color:#5c5c61;max-width:760px;margin:0}
+  #asg-buyer-fullspread .asg-steps-pill{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+  #asg-buyer-fullspread .asg-steps-pill span{padding:8px 12px;border-radius:999px;background:#ececf0;color:#6e6e73;font-size:12px}
+  #asg-buyer-fullspread .asg-steps-pill .active{background:#111;color:#fff}
+
+  #asg-buyer-fullspread .asg-roadmap{margin-top:18px;background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:26px;padding:26px}
+  #asg-buyer-fullspread .asg-roadmap h2{margin:0 0 8px;font-size:28px}
+  #asg-buyer-fullspread .asg-roadmap p{margin:0;color:#2f2f33;line-height:1.6}
+  #asg-buyer-fullspread .asg-roadmap-note{margin-top:8px!important;color:#6e6e73!important;font-size:14px}
+
+  #asg-buyer-fullspread .asg-flow{display:grid;grid-template-columns:1fr 1.4fr;gap:28px;margin-top:26px;align-items:start}
+  #asg-buyer-fullspread .asg-agent-stage,
+  #asg-buyer-fullspread .asg-form-stage,
+  #asg-buyer-fullspread .asg-review{background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:26px;padding:26px}
+  #asg-buyer-fullspread .asg-stage-head span{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#6e6e73}
+  #asg-buyer-fullspread .asg-stage-head h3{margin:8px 0 8px;font-size:34px;line-height:1.08;letter-spacing:-.02em}
+  #asg-buyer-fullspread .asg-muted{margin:0;color:#6e6e73}
+
+  #asg-buyer-fullspread .asg-agent-stack{display:flex;align-items:center;margin:20px 0 18px}
+  #asg-buyer-fullspread .asg-agent-chip{width:96px;height:96px;border-radius:50%;background-size:cover;background-position:center;border:3px solid #fff;margin-left:-18px;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.15);transition:transform .22s ease, box-shadow .22s ease, z-index .22s ease, outline-color .22s ease;outline:2px solid transparent}
+  #asg-buyer-fullspread .asg-agent-chip:first-child{margin-left:0}
+  #asg-buyer-fullspread .asg-agent-chip:hover{transform:translateY(-4px) scale(1.1);z-index:4;box-shadow:0 16px 34px rgba(0,0,0,.2)}
+  #asg-buyer-fullspread .asg-agent-chip.active{outline-color:#111;transform:scale(1.1);z-index:5}
+
+  #asg-buyer-fullspread .asg-agent-card{opacity:0;transform:translateY(6px);pointer-events:none;transition:.24s ease}
+  #asg-buyer-fullspread .asg-agent-card.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  #asg-buyer-fullspread .asg-agent-card{border:1px solid rgba(17,17,17,.08);border-radius:16px;background:#fafafb}
+  #asg-buyer-fullspread .asg-agent-card-body{padding:16px}
+  #asg-buyer-fullspread .asg-agent-card h4{margin:0 0 4px;font-size:24px}
+  #asg-buyer-fullspread .asg-agent-bio{margin:10px 0;color:#3f3f44;line-height:1.55}
+  #asg-buyer-fullspread .asg-agent-card ul{margin:0;padding-left:16px;color:#67676e;font-size:13px}
+  #asg-buyer-fullspread #asg-select-agent{margin:0 16px 16px}
+
+  #asg-buyer-fullspread .asg-form-stage.is-locked,
+  #asg-buyer-fullspread .asg-review.is-locked{opacity:.52;filter:grayscale(.06)}
+  #asg-buyer-fullspread .asg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+  #asg-buyer-fullspread label{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:600}
+  #asg-buyer-fullspread input,
+  #asg-buyer-fullspread select,
+  #asg-buyer-fullspread textarea{width:100%;padding:13px;border-radius:12px;border:1px solid rgba(17,17,17,.15);background:#fff;font:inherit}
+  #asg-buyer-fullspread input:focus,
+  #asg-buyer-fullspread select:focus,
+  #asg-buyer-fullspread textarea:focus{outline:none;border-color:#111}
+  #asg-buyer-fullspread .span2{grid-column:1/-1}
+  #asg-buyer-fullspread .asg-actions{margin-top:16px;display:flex;align-items:center;gap:12px;justify-content:flex-end;flex-wrap:wrap}
+  #asg-buyer-fullspread .asg-btn-dark{border:1px solid #111;background:#111;color:#fff;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:600;cursor:pointer}
+
+  #asg-buyer-fullspread .asg-review{margin-top:24px}
+  #asg-buyer-fullspread .asg-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+  #asg-buyer-fullspread .asg-review-item{background:#fafafb;border:1px solid rgba(17,17,17,.08);border-radius:12px;padding:12px}
+  #asg-buyer-fullspread .asg-review-item strong{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6e6e73}
+  #asg-buyer-fullspread .asg-review-item span{display:block;margin-top:4px;font-size:15px}
+  #asg-buyer-fullspread blockquote{margin:16px 0 0;padding:14px 16px;background:#111;color:#fff;border-radius:14px;line-height:1.5}
+
+  @media (max-width:1120px){
+    #asg-buyer-fullspread .asg-flow{grid-template-columns:1fr}
+    #asg-buyer-fullspread .asg-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:760px){
+    #asg-buyer-fullspread .asg-page{padding:42px 14px 60px}
+    #asg-buyer-fullspread h1{font-size:44px}
+    #asg-buyer-fullspread .asg-grid{grid-template-columns:1fr}
+    #asg-buyer-fullspread .span2{grid-column:auto}
+    #asg-buyer-fullspread .asg-review-grid{grid-template-columns:1fr}
+    #asg-buyer-fullspread .asg-stage-head h3{font-size:28px}
+  }
+</style>
+
+<script>
+  (function(){
+    var WEBHOOK_URL = ""; // Optional webhook URL. Leave blank for email fallback.
+
+    var agents = [
+      {
+        id:"alex-stoykov",
+        name:"Alex Stoykov",
+        role:"Principal Broker",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w",
+        bio:"Over 20 years in business and more than $180M in closed volume, known for strategic pricing and high-touch buyer guidance.",
+        points:["Career Volume: $180M+","Experience: 20+ years","Market: Chicago core neighborhoods"],
+        email:"alex.stoykov@compass.com"
+      },
+      {
+        id:"sam-abadi",
+        name:"Sam Abadi",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ff7dcd12-4bc3-4dae-b39b-a930407ec53b/sam%2Babadi%2Bheadshot.jpg?format=750w",
+        bio:"Client-first advisor focused on clear communication and structured buying plans in competitive markets.",
+        points:["Strength: Buyer planning","Focus: Low-stress execution","Approach: Highly responsive"],
+        email:"sam.abadi@compass.com"
+      },
+      {
+        id:"shelly-channey",
+        name:"Shelly Channey",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/4c9f5a4e-3e7b-4708-8a2f-d136cf45ca42/shelly%2Bheadshot.jpg?format=750w",
+        bio:"Relationship-led senior agent known for detail, advocacy, and helping buyers choose with confidence.",
+        points:["Strength: Negotiation support","Focus: Lifestyle fit","Approach: Detail-driven"],
+        email:"shelly.channey@compass.com"
+      },
+      {
+        id:"julian-levit",
+        name:"Julian Levit",
+        role:"Senior Agent",
+        photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/2f7b28a7-1514-44d0-9f62-bf4d68f45da3/julian%2Bheadshot.jpg?format=750w",
+        bio:"Transparent and educational advisor with $37M+ in sales and 230+ transactions.",
+        points:["Career Volume: $37M+","Sales: 230+","Approach: Educational + accessible"],
+        email:"julianlevit@compass.com"
+      }
+    ];
+
+    var stack = document.getElementById("asg-agent-stack");
+    var card = document.getElementById("asg-agent-card");
+    var nameEl = document.getElementById("asg-agent-name");
+    var roleEl = document.getElementById("asg-agent-role");
+    var bioEl = document.getElementById("asg-agent-bio");
+    var pointsEl = document.getElementById("asg-agent-points");
+    var selectBtn = document.getElementById("asg-select-agent");
+    var formStage = document.getElementById("asg-form-stage");
+    var reviewStage = document.getElementById("asg-review-stage");
+    var selectedInput = document.getElementById("asg-selected-agent-input");
+    var selectedLabel = document.getElementById("asg-selected-label");
+    var form = document.getElementById("asg-buyer-form");
+    var reviewGrid = document.getElementById("asg-review-grid");
+    var submitFinal = document.getElementById("asg-submit-final");
+    var submitMsg = document.getElementById("asg-submit-msg");
+
+    var selectedAgent = null;
+    var stagedData = null;
+
+    agents.forEach(function(agent){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "asg-agent-chip";
+      chip.style.backgroundImage = "url('"+agent.photo+"')";
+      chip.title = agent.name;
+      chip.setAttribute("aria-label", agent.name);
+      chip.addEventListener("click", function(){
+        Array.prototype.forEach.call(stack.children, function(c){ c.classList.remove("active"); });
+        chip.classList.add("active");
+        selectedAgent = agent;
+        nameEl.textContent = agent.name;
+        roleEl.textContent = agent.role;
+        bioEl.textContent = agent.bio;
+        pointsEl.innerHTML = (agent.points||[]).map(function(p){ return "<li>"+p+"</li>"; }).join("");
+        card.classList.add("show");
+        selectBtn.disabled = false;
+      });
+      stack.appendChild(chip);
+    });
+
+    selectBtn.addEventListener("click", function(){
+      if(!selectedAgent) return;
+      selectedInput.value = selectedAgent.name;
+      selectedLabel.textContent = selectedAgent.name;
+      formStage.classList.remove("is-locked");
+      formStage.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      if(!selectedInput.value){
+        alert("Please select an agent first.");
+        return;
+      }
+      var fd = new FormData(form);
+      stagedData = {};
+      fd.forEach(function(v,k){ stagedData[k] = String(v||"").trim(); });
+
+      var cards = [
+        ["Agent", stagedData.selected_agent],
+        ["Location", stagedData.locations || "—"],
+        ["Budget", (stagedData.budget_min||"—")+" to "+(stagedData.budget_max||"—")],
+        ["Timeline", stagedData.timeline || "—"],
+        ["Property Type", stagedData.property_type || "—"],
+        ["Financing", stagedData.financing_status || "—"]
+      ];
+      reviewGrid.innerHTML = cards.map(function(c){
+        return '<div class="asg-review-item"><strong>'+c[0]+'</strong><span>'+c[1]+'</span></div>';
+      }).join("");
+
+      reviewStage.classList.remove("is-locked");
+      reviewStage.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    submitFinal.addEventListener("click", function(){
+      if(!stagedData || !selectedAgent){
+        submitMsg.textContent = "Please complete the previous steps.";
+        return;
+      }
+      submitFinal.disabled = true;
+      submitMsg.textContent = "Submitting...";
+
+      var payload = new FormData();
+      Object.keys(stagedData).forEach(function(k){ payload.append(k, stagedData[k]); });
+      payload.append("page_type", "buyer_onboarding");
+      payload.append("submitted_at", new Date().toISOString());
+      payload.append("agent_email", selectedAgent.email);
+
+      if(WEBHOOK_URL){
+        fetch(WEBHOOK_URL, {method:"POST", body:payload})
+          .then(function(){
+            submitMsg.textContent = "Done. "+selectedAgent.name+" will contact you ASAP to begin your search.";
+            submitFinal.textContent = "Submitted";
+          })
+          .catch(function(){
+            submitFinal.disabled = false;
+            submitMsg.textContent = "Could not submit automatically. Please try again.";
+          });
+        return;
+      }
+
+      var lines = [];
+      payload.forEach(function(v,k){ lines.push(k+": "+v); });
+      var body = encodeURIComponent(lines.join("\n"));
+      window.location.href = "mailto:"+encodeURIComponent(selectedAgent.email)+"?subject=New Buyer Intake&body="+body;
+      submitMsg.textContent = "Opening your email app to send the intake.";
+      submitFinal.disabled = false;
+    });
+  })();
+</script>
