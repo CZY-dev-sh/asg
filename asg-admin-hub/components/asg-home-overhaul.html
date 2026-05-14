@@ -1,0 +1,385 @@
+<!--
+  ASG HOME PAGE
+  Paste into a Squarespace Code Block on your homepage.
+  Requires: site-wide CSS + JS injections (see asg-site-css-injection.html + asg-site-js-injection.html)
+-->
+
+<main class="asg-page-main">
+
+  <!-- ───── HERO ───── -->
+  <section class="asg-hero">
+    <div class="asg-hero-inner">
+      <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center;" class="asg-home-hero-grid">
+        <div style="display:flex; flex-direction:column; gap:28px;">
+
+          <div class="asg-hero-fade" style="animation-delay:.1s;">
+            <span class="asg-pill">Chicago Luxury Real Estate</span>
+          </div>
+
+          <h1 class="asg-hero-h1">
+            <span class="asg-word-mask"><span style="animation-delay:.20s">Find</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.28s">your</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.36s">next</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.44s">move</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.52s">with</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.60s">confidence.</span></span>
+          </h1>
+
+          <p class="asg-hero-lead asg-hero-fade" style="animation-delay:.82s;">
+            A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance from first showing to final close.
+          </p>
+
+          <div class="asg-hero-fade" style="animation-delay:1s; display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="/buyers" class="asg-btn asg-btn-dark asg-btn-lg">I'm Buying</a>
+            <a href="/sellers" class="asg-btn asg-btn-light asg-btn-lg">I'm Selling</a>
+          </div>
+
+          <div class="asg-hero-fade" style="animation-delay:1.15s; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;" class="asg-home-stats">
+            <div class="asg-card asg-hover-lift" style="padding:14px 16px;">
+              <p class="asg-stat-label">Career Volume</p>
+              <p class="asg-stat-val">$659M+</p>
+            </div>
+            <div class="asg-card asg-hover-lift" style="padding:14px 16px;">
+              <p class="asg-stat-label">Avg. Days on Market</p>
+              <p class="asg-stat-val">18</p>
+            </div>
+            <div class="asg-card asg-hover-lift" style="padding:14px 16px;">
+              <p class="asg-stat-label">Total Agents</p>
+              <p class="asg-stat-val">28</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="asg-hero-fade" style="animation-delay:.5s;">
+          <div style="border-radius:34px; overflow:hidden; border:1px solid var(--asg-line); box-shadow:var(--asg-shadow-deep); position:relative; aspect-ratio:4/5;">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85"
+                 alt="1912 N Orchard St — Lincoln Park"
+                 loading="eager"
+                 decoding="async"
+                 style="width:100%; height:100%; object-fit:cover;">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,.55) 0%, transparent 50%);"></div>
+            <div style="position:absolute; bottom:0; left:0; right:0; padding:24px 22px;">
+              <p style="color:rgba(255,255,255,.65); font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 4px; font-family:var(--asg-font-display);">Just Listed</p>
+              <p style="color:#fff; font-size:1.5rem; font-weight:800; letter-spacing:-.03em; line-height:1; margin:0; font-family:var(--asg-font-display);">$2,190,000</p>
+              <p style="color:rgba(255,255,255,.72); font-size:.88rem; margin:4px 0 12px;">1912 N Orchard St, Lincoln Park</p>
+              <a href="/listings" class="asg-btn asg-btn-glass asg-btn-sm">Start Your Search</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── DUAL ENTRY (Buying / Selling) ───── -->
+  <section class="asg-section asg-anchor" id="entry">
+    <div class="asg-shell asg-shell-alt asg-reveal">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;" class="asg-grid-2">
+
+        <a href="/buyers" class="asg-card asg-hover-lift asg-reveal asg-d1" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:14px; min-height:240px; background:#fff;">
+          <p class="asg-eyebrow" style="margin:0;">For Buyers</p>
+          <h3 style="font-family:var(--asg-font-display); font-weight:800; font-size:1.8rem; letter-spacing:-.035em; line-height:1.05; margin:0;">Search every listing in Chicagoland.</h3>
+          <p style="color:var(--asg-muted); font-size:.96rem; line-height:1.55; margin:0;">Live MLS data, saved searches, and instant alerts when matching homes hit the market — paired with an agent who knows the block.</p>
+          <span class="asg-btn asg-btn-dark asg-btn-sm" style="align-self:flex-start; margin-top:auto;">Start your search →</span>
+        </a>
+
+        <a href="/sellers" class="asg-card asg-hover-lift asg-reveal asg-d2" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:14px; min-height:240px; background:#fff;">
+          <p class="asg-eyebrow" style="margin:0;">For Sellers</p>
+          <h3 style="font-family:var(--asg-font-display); font-weight:800; font-size:1.8rem; letter-spacing:-.035em; line-height:1.05; margin:0;">What's your home actually worth?</h3>
+          <p style="color:var(--asg-muted); font-size:.96rem; line-height:1.55; margin:0;">Get a real estimate in 60 seconds — built on comparable sales, current market velocity, and the same data we use to price our own listings.</p>
+          <span class="asg-btn asg-btn-dark asg-btn-sm" style="align-self:flex-start; margin-top:auto;">Get instant valuation →</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FEATURED LISTINGS (IDX showcase widget) ───── -->
+  <section class="asg-section asg-anchor" id="listings">
+    <div class="asg-shell asg-reveal">
+      <div class="asg-section-head">
+        <div>
+          <p class="asg-eyebrow">Properties</p>
+          <h2 class="asg-section-h2">Featured Listings</h2>
+        </div>
+        <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">View All Listings</a>
+      </div>
+
+      <!-- Static fallback grid; the IDX showcase widget will replace it once loaded.
+           If you'd rather not embed the widget on the home page, delete the <script> below
+           and the static cards remain as the live UI. -->
+      <div class="asg-grid asg-grid-3" id="asgHomeFeatured">
+        <article class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="position:relative; aspect-ratio:16/10; background:#e9e9e4;">
+            <span style="position:absolute; top:10px; left:10px; border-radius:999px; border:1px solid rgba(17,17,17,.1); padding:5px 10px; font-size:.72rem; font-weight:700; background:rgba(255,255,255,.95); z-index:1; font-family:var(--asg-font-display);">Just Listed</span>
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80" alt="1912 N Orchard St" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 16px;">
+            <p style="font-family:var(--asg-font-display); font-size:1.42rem; font-weight:800; letter-spacing:-.028em; line-height:1; margin:0;">$2,190,000</p>
+            <p style="font-weight:600; font-size:.95rem; line-height:1.2; margin:5px 0 0;">1912 N Orchard St</p>
+            <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.24; margin:5px 0 0;">Lincoln Park · 5 Bed · 4.5 Bath · 4,200 sqft</p>
+            <a href="/listings" class="asg-btn asg-btn-dark" style="width:100%; margin-top:14px; padding:11px 0; font-size:.86rem;">View Details</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="position:relative; aspect-ratio:16/10; background:#e9e9e4;">
+            <span style="position:absolute; top:10px; left:10px; border-radius:999px; border:1px solid rgba(17,17,17,.1); padding:5px 10px; font-size:.72rem; font-weight:700; background:rgba(255,255,255,.95); z-index:1; font-family:var(--asg-font-display);">Open Sun</span>
+            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80" alt="820 W Armitage Ave #3E" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 16px;">
+            <p style="font-family:var(--asg-font-display); font-size:1.42rem; font-weight:800; letter-spacing:-.028em; line-height:1; margin:0;">$1,485,000</p>
+            <p style="font-weight:600; font-size:.95rem; line-height:1.2; margin:5px 0 0;">820 W Armitage Ave #3E</p>
+            <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.24; margin:5px 0 0;">Bucktown · 3 Bed · 3 Bath · 2,150 sqft</p>
+            <a href="/listings" class="asg-btn asg-btn-dark" style="width:100%; margin-top:14px; padding:11px 0; font-size:.86rem;">View Details</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="position:relative; aspect-ratio:16/10; background:#e9e9e4;">
+            <span style="position:absolute; top:10px; left:10px; border-radius:999px; border:1px solid rgba(17,17,17,.1); padding:5px 10px; font-size:.72rem; font-weight:700; background:rgba(255,255,255,.95); z-index:1; font-family:var(--asg-font-display);">New</span>
+            <img src="https://images.unsplash.com/photo-1600566753052-3f4510d4f2ad?auto=format&fit=crop&w=900&q=80" alt="59 E Elm St" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 16px;">
+            <p style="font-family:var(--asg-font-display); font-size:1.42rem; font-weight:800; letter-spacing:-.028em; line-height:1; margin:0;">$3,050,000</p>
+            <p style="font-weight:600; font-size:.95rem; line-height:1.2; margin:5px 0 0;">59 E Elm St</p>
+            <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.24; margin:5px 0 0;">Gold Coast · 6 Bed · 5 Bath · 5,030 sqft</p>
+            <a href="/listings" class="asg-btn asg-btn-dark" style="width:100%; margin-top:14px; padding:11px 0; font-size:.86rem;">View Details</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── PROCESS ───── -->
+  <section class="asg-section asg-anchor" id="process">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">How We Work</p>
+        <h2 class="asg-section-h2">Your next move, step by step.</h2>
+      </div>
+      <div class="asg-grid asg-grid-4">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-size:.8rem; font-weight:800; margin-bottom:14px;">01</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.04rem; letter-spacing:-.02em; margin:0 0 7px;">Strategy Session</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Define timing, priorities, and market position with a custom plan built around your goals.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-size:.8rem; font-weight:800; margin-bottom:14px;">02</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.04rem; letter-spacing:-.02em; margin:0 0 7px;">Preparation</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Elevate your home's presentation with staging guidance, premium media, and a launch timeline.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-size:.8rem; font-weight:800; margin-bottom:14px;">03</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.04rem; letter-spacing:-.02em; margin:0 0 7px;">Negotiation</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Navigate every offer with data-backed recommendations and disciplined leverage.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d4">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-size:.8rem; font-weight:800; margin-bottom:14px;">04</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.04rem; letter-spacing:-.02em; margin:0 0 7px;">Close & Beyond</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Coordinate every detail through closing and stay with you through your next chapter.</p>
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <a href="/how-we-work" class="asg-btn asg-btn-light asg-btn-sm">See the full process →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── NEIGHBORHOODS ───── -->
+  <section class="asg-section asg-anchor" id="neighborhoods">
+    <div class="asg-shell asg-shell-alt asg-reveal">
+      <div class="asg-section-head">
+        <div>
+          <p class="asg-eyebrow">Local Expertise</p>
+          <h2 class="asg-section-h2">Neighborhood Guides</h2>
+        </div>
+        <a href="/neighborhoods" class="asg-btn asg-btn-light asg-btn-sm">All neighborhoods</a>
+      </div>
+      <div class="asg-grid asg-grid-4">
+        <a href="/neighborhoods" class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:#fff; padding:0; overflow:hidden; text-decoration:none; color:inherit;">
+          <div class="asg-img-zoom" style="aspect-ratio:4/3; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=700&q=80" alt="Lincoln Park" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 18px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:.98rem; letter-spacing:-.02em; margin:0 0 4px;">Lincoln Park</p>
+            <p style="color:var(--asg-muted); font-size:.82rem; line-height:1.5; margin:0;">Tree-lined streets, top schools, lake access.</p>
+          </div>
+        </a>
+        <a href="/neighborhoods" class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:#fff; padding:0; overflow:hidden; text-decoration:none; color:inherit;">
+          <div class="asg-img-zoom" style="aspect-ratio:4/3; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=700&q=80" alt="Gold Coast" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 18px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:.98rem; letter-spacing:-.02em; margin:0 0 4px;">Gold Coast</p>
+            <p style="color:var(--asg-muted); font-size:.82rem; line-height:1.5; margin:0;">Historic architecture, prime lakefront living.</p>
+          </div>
+        </a>
+        <a href="/neighborhoods" class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:#fff; padding:0; overflow:hidden; text-decoration:none; color:inherit;">
+          <div class="asg-img-zoom" style="aspect-ratio:4/3; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=700&q=80" alt="West Loop" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 18px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:.98rem; letter-spacing:-.02em; margin:0 0 4px;">West Loop</p>
+            <p style="color:var(--asg-muted); font-size:.82rem; line-height:1.5; margin:0;">Vibrant dining scene, modern loft conversions.</p>
+          </div>
+        </a>
+        <a href="/neighborhoods" class="asg-card asg-hover-lift asg-reveal asg-d4" style="background:#fff; padding:0; overflow:hidden; text-decoration:none; color:inherit;">
+          <div class="asg-img-zoom" style="aspect-ratio:4/3; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=700&q=80" alt="Wicker Park" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:14px 16px 18px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:.98rem; letter-spacing:-.02em; margin:0 0 4px;">Wicker Park</p>
+            <p style="color:var(--asg-muted); font-size:.82rem; line-height:1.5; margin:0;">Creative energy, boutique retail, strong appreciation.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── TEAM PREVIEW ───── -->
+  <section class="asg-section asg-anchor" id="team">
+    <div class="asg-shell asg-reveal">
+      <div class="asg-section-head">
+        <div>
+          <p class="asg-eyebrow">The Specialists</p>
+          <h2 class="asg-section-h2">Meet the Team</h2>
+        </div>
+        <a href="/team" class="asg-btn asg-btn-light asg-btn-sm">See full roster</a>
+      </div>
+      <div class="asg-grid asg-grid-4">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt); display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;">
+          <div style="width:76px; height:76px; border-radius:50%; overflow:hidden; background:#e4e4df; border:1px solid var(--asg-line); flex-shrink:0;">
+            <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w" alt="Alex Stoykov" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; object-position:top;">
+          </div>
+          <div>
+            <p style="font-weight:700; font-size:1rem; letter-spacing:-.01em; margin:0 0 3px;">Alex Stoykov</p>
+            <p style="color:var(--asg-muted); font-size:.8rem; font-weight:500; margin:0;">Team Lead · Senior Agent</p>
+          </div>
+          <a href="/team" class="asg-btn asg-btn-dark" style="width:100%; padding:10px 0; font-size:.83rem;">Work Together</a>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt); display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;">
+          <div style="width:76px; height:76px; border-radius:50%; overflow:hidden; background:#e4e4df; border:1px solid var(--asg-line); flex-shrink:0;">
+            <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3dca5ab6-460d-4861-adbe-bc4dd778daaa/Sam.jpg?format=500w" alt="Sam Abadi" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; object-position:top;">
+          </div>
+          <div>
+            <p style="font-weight:700; font-size:1rem; letter-spacing:-.01em; margin:0 0 3px;">Sam Abadi</p>
+            <p style="color:var(--asg-muted); font-size:.8rem; font-weight:500; margin:0;">Senior Agent</p>
+          </div>
+          <a href="/team" class="asg-btn asg-btn-dark" style="width:100%; padding:10px 0; font-size:.83rem;">Work Together</a>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt); display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;">
+          <div style="width:76px; height:76px; border-radius:50%; overflow:hidden; background:#e4e4df; border:1px solid var(--asg-line); flex-shrink:0;">
+            <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/ec680d50-9548-4fcc-b29f-6780ec1a3e86/Shelly.jpg?format=500w" alt="Shelly Channey" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; object-position:top;">
+          </div>
+          <div>
+            <p style="font-weight:700; font-size:1rem; letter-spacing:-.01em; margin:0 0 3px;">Shelly Channey</p>
+            <p style="color:var(--asg-muted); font-size:.8rem; font-weight:500; margin:0;">Senior Agent</p>
+          </div>
+          <a href="/team" class="asg-btn asg-btn-dark" style="width:100%; padding:10px 0; font-size:.83rem;">Work Together</a>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d4" style="background:var(--asg-bg-alt); display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;">
+          <div style="width:76px; height:76px; border-radius:50%; overflow:hidden; background:#e4e4df; border:1px solid var(--asg-line); flex-shrink:0;">
+            <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/5aa10003-d12c-4377-aae3-60f90e660255/DSC00354.jpg?format=500w" alt="Nicolas Gamboa Wills" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; object-position:top;">
+          </div>
+          <div>
+            <p style="font-weight:700; font-size:1rem; letter-spacing:-.01em; margin:0 0 3px;">Nicolas Gamboa Wills</p>
+            <p style="color:var(--asg-muted); font-size:.8rem; font-weight:500; margin:0;">Senior Agent</p>
+          </div>
+          <a href="/team" class="asg-btn asg-btn-dark" style="width:100%; padding:10px 0; font-size:.83rem;">Work Together</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── TESTIMONIALS ───── -->
+  <section class="asg-section asg-anchor" id="testimonials">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">Client Experiences</p>
+        <h2 class="asg-section-h2">Real results, real stories.</h2>
+      </div>
+      <div class="asg-grid asg-grid-3">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt);">
+          <div style="display:flex; gap:3px; margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+          </div>
+          <p style="font-size:.94rem; line-height:1.62; margin:0 0 14px;">"We sold over asking in six days with zero stress. Strategy, staging direction, and communication were flawless."</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <p style="font-family:var(--asg-font-display); font-weight:700; font-size:.85rem; margin:0;">The Delgado Family</p>
+            <span style="font-size:.76rem; font-weight:600; color:var(--asg-muted); background:#fff; border:1px solid var(--asg-line); border-radius:999px; padding:4px 10px;">Lincoln Park</span>
+          </div>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt);">
+          <div style="display:flex; gap:3px; margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+          </div>
+          <p style="font-size:.94rem; line-height:1.62; margin:0 0 14px;">"Our relocation purchase felt effortless. Every home was curated to exactly what we wanted, and the negotiation was sharp."</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <p style="font-family:var(--asg-font-display); font-weight:700; font-size:.85rem; margin:0;">M. Patel</p>
+            <span style="font-size:.76rem; font-weight:600; color:var(--asg-muted); background:#fff; border:1px solid var(--asg-line); border-radius:999px; padding:4px 10px;">Gold Coast</span>
+          </div>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt);">
+          <div style="display:flex; gap:3px; margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#111"><path d="M7 1l1.5 4.5H14l-4 2.5 1.5 4.5L7 10 1.5 12.5 3 8 -1 5.5h5.5z"/></svg>
+          </div>
+          <p style="font-size:.94rem; line-height:1.62; margin:0 0 14px;">"The marketing quality looked like a luxury campaign. Photos, video, and launch timing made all the difference."</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <p style="font-family:var(--asg-font-display); font-weight:700; font-size:.85rem; margin:0;">K. Thompson</p>
+            <span style="font-size:.76rem; font-weight:600; color:var(--asg-muted); background:#fff; border:1px solid var(--asg-line); border-radius:999px; padding:4px 10px;">West Loop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── CTA ───── -->
+  <section class="asg-section asg-anchor" id="contact">
+    <div class="asg-shell asg-shell-dark asg-reveal" style="display:grid; grid-template-columns:1.2fr .8fr; gap:28px; align-items:start; padding:36px 32px;">
+      <div>
+        <p style="color:rgba(255,255,255,.45); font-family:var(--asg-font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 14px;">Get Started</p>
+        <h2 style="color:#fff; font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.8rem,2.8vw,2.8rem); letter-spacing:-.04em; line-height:.95; margin:0 0 16px;">Let's build your real estate plan.</h2>
+        <p style="color:rgba(255,255,255,.62); font-size:1rem; line-height:1.6; max-width:50ch; margin:0 0 28px;">Whether you're preparing to sell, searching for your next home, or evaluating options — we'll create a clear strategy and walk with you through every step.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="/buyers" class="asg-btn asg-btn-glass">Start Buying</a>
+          <a href="/sellers" class="asg-btn asg-btn-light">List My Home</a>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:20px;">
+        <form data-asg-form="home-cta" novalidate>
+          <p style="color:rgba(255,255,255,.55); font-family:var(--asg-font-display); font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin:0 0 12px;">Request a Consultation</p>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <input class="asg-input" name="name" type="text" required placeholder="Full name"
+              style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+            <input class="asg-input" name="email" type="email" required placeholder="Email address"
+              style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+            <input class="asg-input" name="phone" type="tel" placeholder="Phone number"
+              style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+            <select class="asg-select" name="intent" required
+              style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+              <option value="" style="color:#111;">I'm interested in…</option>
+              <option value="buying" style="color:#111;">Buying a home</option>
+              <option value="selling" style="color:#111;">Selling a home</option>
+              <option value="both" style="color:#111;">Both</option>
+              <option value="just-curious" style="color:#111;">Just exploring</option>
+            </select>
+            <button type="submit" class="asg-btn asg-btn-light" style="margin-top:4px;">Request Consultation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>

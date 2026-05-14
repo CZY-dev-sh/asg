@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_blank" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Listing HQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      #asg-listing-hq-root {
+        --asg-ph-bg: #f7f8fa;
+        --asg-ph-card: #ffffff;
+        --asg-ph-text: #111111;
+        --asg-ph-muted: rgba(17, 17, 17, 0.58);
+        --asg-ph-border: rgba(17, 17, 17, 0.08);
+        --asg-ph-blue: #3b82f6;
+        --asg-ph-green: #22c55e;
+        --asg-ph-orange: #f97316;
+        font-family: "Outfit", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--asg-ph-text);
+        min-height: 100vh;
+        background: var(--asg-ph-bg);
+        padding: 16px;
+      }
+      #asg-listing-hq-root *,
+      #asg-listing-hq-root *::before,
+      #asg-listing-hq-root *::after {
+        box-sizing: border-box;
+      }
+      #asg-listing-hq-root .lh-shell {
+        max-width: 1160px;
+        margin: 0 auto;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 30px;
+        padding: 18px;
+        background: var(--asg-ph-bg);
+      }
+      #asg-listing-hq-root .lh-card {
+        background: var(--asg-ph-card);
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 24px;
+        padding: 18px;
+        min-width: 0;
+      }
+      #asg-listing-hq-root .lh-label {
+        font-size: 13px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--asg-ph-muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      #asg-listing-hq-root .lh-label-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: var(--asg-ph-green);
+      }
+      #asg-listing-hq-root .lh-label-dot--blue {
+        background: var(--asg-ph-blue);
+      }
+      #asg-listing-hq-root .lh-label-dot--orange {
+        background: var(--asg-ph-orange);
+      }
+      #asg-listing-hq-root .lh-mock-chip {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #b45309;
+        background: rgba(245, 158, 11, 0.14);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+      }
+
+      /* Header */
+      #asg-listing-hq-root .lh-header {
+        margin-bottom: 14px;
+      }
+      #asg-listing-hq-root .lh-title {
+        margin: 0 0 5px;
+        font-size: clamp(24px, 3.2vw, 34px);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        font-weight: 800;
+      }
+      #asg-listing-hq-root .lh-sub {
+        margin: 0;
+        color: var(--asg-ph-muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      /* Full-width status bento */
+      #asg-listing-hq-root .lh-status-main {
+        margin-bottom: 14px;
+      }
+      #asg-listing-hq-root .lh-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      #asg-listing-hq-root .lh-badge {
+        border-radius: 999px;
+        padding: 0 10px;
+        height: 22px;
+        line-height: 22px;
+        font-size: 10px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+      #asg-listing-hq-root .lh-badge.phase {
+        background: rgba(59, 130, 246, 0.1);
+        color: #275cc5;
+        border-color: rgba(59, 130, 246, 0.22);
+      }
+      #asg-listing-hq-root .lh-badge.status {
+        background: rgba(34, 197, 94, 0.1);
+        color: #0f8a3a;
+        border-color: rgba(34, 197, 94, 0.22);
+      }
+      #asg-listing-hq-root .lh-badge.type {
+        background: rgba(249, 115, 22, 0.12);
+        color: #c2410c;
+        border-color: rgba(249, 115, 22, 0.24);
+      }
+      #asg-listing-hq-root .lh-status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      #asg-listing-hq-root .lh-stat {
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 14px;
+        padding: 10px;
+        background: #fafbfc;
+      }
+      #asg-listing-hq-root .lh-stat-k {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--asg-ph-muted);
+      }
+      #asg-listing-hq-root .lh-stat-v {
+        margin-top: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #111;
+      }
+      #asg-listing-hq-root .lh-status-tasks {
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: var(--asg-ph-muted);
+        font-size: 12px;
+      }
+      #asg-listing-hq-root .lh-status-tasks li {
+        margin: 3px 0;
+      }
+      #asg-listing-hq-root .lh-questionnaire {
+        margin-top: 12px;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 14px;
+        padding: 12px;
+        background: #fafbfc;
+      }
+      #asg-listing-hq-root .lh-questionnaire-title {
+        margin: 0 0 8px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--asg-ph-muted);
+        font-weight: 700;
+      }
+      #asg-listing-hq-root .lh-questionnaire-pre {
+        margin: 0;
+        white-space: pre-wrap;
+        max-height: 220px;
+        overflow: auto;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #1f2937;
+      }
+
+      /* Three equal bentos on one line */
+      #asg-listing-hq-root .lh-trio {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+      #asg-listing-hq-root .lh-trio-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 440px;
+      }
+      #asg-listing-hq-root .lh-fill {
+        flex: 1;
+        min-height: 0;
+      }
+
+      #asg-listing-hq-root .lh-carousel {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--asg-ph-border);
+        background: #eef2f6;
+        height: 260px;
+      }
+      #asg-listing-hq-root .lh-carousel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      #asg-listing-hq-root .lh-row-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      #asg-listing-hq-root .lh-btn {
+        appearance: none;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        background: #fff;
+        color: #111;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      #asg-listing-hq-root .lh-btn:hover {
+        background: #f8fafc;
+      }
+      #asg-listing-hq-root .lh-btn--green {
+        background: rgba(34, 197, 94, 0.14);
+        border-color: rgba(34, 197, 94, 0.35);
+        color: #166534;
+      }
+      #asg-listing-hq-root .lh-btn.is-off {
+        opacity: 0.45;
+        pointer-events: none;
+      }
+
+      #asg-listing-hq-root .lh-embed {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--asg-ph-border);
+        background: #111;
+        height: 260px;
+      }
+      #asg-listing-hq-root .lh-embed iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      #asg-listing-hq-root .lh-muted {
+        color: var(--asg-ph-muted);
+        font-size: 12px;
+        margin: 0;
+      }
+
+      /* Marketing mini bentos */
+      #asg-listing-hq-root .lh-assets-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      #asg-listing-hq-root .lh-asset-box {
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 14px;
+        padding: 10px;
+        background: #fafbfc;
+        display: grid;
+        gap: 8px;
+      }
+      #asg-listing-hq-root .lh-asset-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #111;
+        line-height: 1.25;
+        min-height: 28px;
+      }
+      #asg-listing-hq-root .lh-asset-open {
+        justify-self: start;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        color: #111;
+        background: #fff;
+      }
+      #asg-listing-hq-root .lh-asset-open.off {
+        opacity: 0.45;
+        pointer-events: none;
+      }
+
+      #asg-listing-hq-root .lh-empty {
+        border: 1px dashed var(--asg-ph-border);
+        border-radius: 14px;
+        padding: 14px;
+        color: var(--asg-ph-muted);
+        text-align: center;
+        font-size: 12px;
+      }
+      #asg-listing-hq-root .lh-toast {
+        position: fixed;
+        bottom: 22px;
+        right: 22px;
+        background: #fff;
+        border: 1px solid var(--asg-ph-border);
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease;
+        z-index: 99;
+      }
+      #asg-listing-hq-root .lh-toast.show {
+        opacity: 1;
+      }
+
+      /* Share email (dashboard-style) */
+      #asg-listing-hq-root .lh-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      #asg-listing-hq-root .lh-share-open {
+        appearance: none;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 999px;
+        padding: 10px 18px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: #111;
+        color: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      #asg-listing-hq-root .lh-share-open:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+      }
+      #asg-listing-hq-root .lh-share-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(15, 23, 42, 0.38);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+      }
+      #asg-listing-hq-root .lh-share-backdrop.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #asg-listing-hq-root .lh-share-modal {
+        width: min(1040px, 100%);
+        max-height: min(92vh, 900px);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+        transform: scale(0.94) translateY(16px);
+        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      #asg-listing-hq-root .lh-share-backdrop.is-open .lh-share-modal {
+        transform: scale(1) translateY(0);
+      }
+      #asg-listing-hq-root .lh-share-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 26px 28px 18px;
+        border-bottom: 1px solid var(--asg-ph-border);
+        background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+      }
+      #asg-listing-hq-root .lh-share-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f2f2f0;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(0, 0, 0, 0.45);
+        margin-bottom: 10px;
+      }
+      #asg-listing-hq-root .lh-share-pill::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--asg-ph-green);
+      }
+      #asg-listing-hq-root .lh-share-title {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+      }
+      #asg-listing-hq-root .lh-share-desc {
+        margin: 0;
+        font-size: 14px;
+        color: var(--asg-ph-muted);
+        font-weight: 500;
+        line-height: 1.45;
+        max-width: 520px;
+      }
+      #asg-listing-hq-root .lh-share-x {
+        appearance: none;
+        border: 0;
+        background: #f4f4f2;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        color: #111;
+        flex-shrink: 0;
+      }
+      #asg-listing-hq-root .lh-share-x:hover {
+        background: #e8e8e4;
+      }
+      #asg-listing-hq-root .lh-share-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+        gap: 0;
+        flex: 1;
+        min-height: 0;
+      }
+      #asg-listing-hq-root .lh-share-form {
+        padding: 22px 26px 26px;
+        border-right: 1px solid var(--asg-ph-border);
+        overflow-y: auto;
+        max-height: min(72vh, 720px);
+      }
+      #asg-listing-hq-root .lh-share-field {
+        margin-bottom: 16px;
+      }
+      #asg-listing-hq-root .lh-share-field label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--asg-ph-muted);
+        margin-bottom: 6px;
+      }
+      #asg-listing-hq-root .lh-share-field input,
+      #asg-listing-hq-root .lh-share-field select,
+      #asg-listing-hq-root .lh-share-field textarea {
+        width: 100%;
+        border: 1px solid var(--asg-ph-border);
+        border-radius: 14px;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 14px;
+        background: #fafbfc;
+        outline: none;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      #asg-listing-hq-root .lh-share-field input:focus,
+      #asg-listing-hq-root .lh-share-field select:focus,
+      #asg-listing-hq-root .lh-share-field textarea:focus {
+        background: #fff;
+        border-color: rgba(59, 130, 246, 0.45);
+      }
+      #asg-listing-hq-root .lh-share-field textarea {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.5;
+      }
+      #asg-listing-hq-root .lh-share-to-line {
+        font-size: 12px;
+        color: var(--asg-ph-muted);
+        margin: -8px 0 16px;
+      }
+      #asg-listing-hq-root .lh-share-to-line strong {
+        color: #111;
+        font-weight: 700;
+      }
+      #asg-listing-hq-root .lh-share-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      #asg-listing-hq-root .lh-share-actions button {
+        appearance: none;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid var(--asg-ph-border);
+        background: #fff;
+        color: #111;
+      }
+      #asg-listing-hq-root .lh-share-actions button.lh-share-send {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+      #asg-listing-hq-root .lh-share-actions button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #asg-listing-hq-root .lh-share-preview-col {
+        padding: 22px 22px 26px;
+        background: #f4f5f7;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      #asg-listing-hq-root .lh-share-preview-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--asg-ph-muted);
+        margin-bottom: 10px;
+      }
+      #asg-listing-hq-root .lh-share-preview-frame-wrap {
+        flex: 1;
+        min-height: 280px;
+        border-radius: 18px;
+        border: 1px solid var(--asg-ph-border);
+        background: #e8eaee;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      }
+      #asg-listing-hq-root .lh-share-preview-frame {
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+        border: 0;
+        background: #fff;
+      }
+      #asg-listing-hq-root .lh-share-preview-loading {
+        padding: 24px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--asg-ph-muted);
+      }
+      @media (max-width: 900px) {
+        #asg-listing-hq-root .lh-share-grid {
+          grid-template-columns: 1fr;
+        }
+        #asg-listing-hq-root .lh-share-form {
+          border-right: none;
+          border-bottom: 1px solid var(--asg-ph-border);
+          max-height: none;
+        }
+      }
+      @media (max-width: 980px) {
+        #asg-listing-hq-root .lh-trio {
+          grid-template-columns: 1fr;
+        }
+        #asg-listing-hq-root .lh-trio-card {
+          min-height: 0;
+        }
+        #asg-listing-hq-root .lh-status-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="asg-listing-hq-root">
+      <div class="lh-shell">
+        <header class="lh-header">
+          <div class="lh-header-top">
+            <div>
+              <h1 id="lhAddress" class="lh-title">Listing Address</h1>
+              <p id="lhSub" class="lh-sub"></p>
+            </div>
+            <button type="button" class="lh-share-open" id="btnShareEmail">Share with agent</button>
+          </div>
+          <div class="lh-label" style="margin-top:10px;margin-bottom:0">
+            <span class="lh-label-dot"></span>
+            Listing details
+            <span id="lhMockChip" class="lh-mock-chip" style="display:none">Visual preview</span>
+          </div>
+        </header>
+
+        <section class="lh-card lh-status-main">
+          <div class="lh-label"><span class="lh-label-dot lh-label-dot--blue"></span>Status</div>
+          <div id="lhBadgeRow" class="lh-badges"></div>
+          <div class="lh-status-grid">
+            <div class="lh-stat"><div class="lh-stat-k">Agent</div><div id="stAgent" class="lh-stat-v">—</div></div>
+            <div class="lh-stat"><div class="lh-stat-k">Phase</div><div id="stPhase" class="lh-stat-v">—</div></div>
+            <div class="lh-stat"><div class="lh-stat-k">Acuity</div><div id="stAcuity" class="lh-stat-v">—</div></div>
+            <div class="lh-stat"><div class="lh-stat-k">Asana</div><div id="stAsana" class="lh-stat-v">—</div></div>
+          </div>
+          <ul id="statusTasks" class="lh-status-tasks"></ul>
+          <div id="questionnaireWrap" class="lh-questionnaire" style="display:none">
+            <h4 class="lh-questionnaire-title">Seller Questionnaire</h4>
+            <pre id="questionnaireText" class="lh-questionnaire-pre"></pre>
+          </div>
+        </section>
+
+        <section class="lh-trio">
+          <article class="lh-card lh-trio-card">
+            <div class="lh-label"><span class="lh-label-dot"></span>Photos</div>
+            <div class="lh-fill">
+              <p id="carouselEmpty" class="lh-empty" style="display:none">No photos in Drive folder yet.</p>
+              <div id="carouselBox" style="display:none">
+                <div class="lh-carousel"><img id="carImg" alt="" /></div>
+                <div class="lh-row-btns">
+                  <button type="button" class="lh-btn" id="carPrev">Previous</button>
+                  <button type="button" class="lh-btn" id="carNext">Next</button>
+                  <a class="lh-btn lh-btn--green" id="downloadAll" href="#">Download all</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="lh-card lh-trio-card">
+            <div class="lh-label"><span class="lh-label-dot lh-label-dot--blue"></span>Matterport</div>
+            <div class="lh-fill">
+              <p id="mpFallback" class="lh-muted" style="margin-bottom:10px"></p>
+              <div class="lh-embed" id="mpEmbed" style="display:none"></div>
+              <div class="lh-row-btns">
+                <button type="button" class="lh-btn" id="copyMp">Copy link</button>
+                <a class="lh-btn lh-btn--green" id="openMp" href="#">Open</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="lh-card lh-trio-card">
+            <div class="lh-label"><span class="lh-label-dot lh-label-dot--orange"></span>Marketing materials</div>
+            <div id="assetGrid" class="lh-fill lh-assets-grid"></div>
+          </article>
+        </section>
+      </div>
+      <div class="lh-toast" id="toast">Copied</div>
+
+      <div class="lh-share-backdrop" id="shareBackdrop" aria-hidden="true">
+        <div class="lh-share-modal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+          <div class="lh-share-head">
+            <div>
+              <div class="lh-share-pill">Share</div>
+              <h2 id="shareModalTitle" class="lh-share-title">Email listing assets</h2>
+              <p class="lh-share-desc">
+                Pick the agent, adjust the greeting and message, preview the branded layout, then send — mail goes out from the ASG Marketing account on this hub.
+              </p>
+            </div>
+            <button type="button" class="lh-share-x" id="shareClose" aria-label="Close">×</button>
+          </div>
+          <div class="lh-share-grid">
+            <div class="lh-share-form">
+              <div class="lh-share-field">
+                <label for="shareAgent">Agent</label>
+                <select id="shareAgent"></select>
+              </div>
+              <p class="lh-share-to-line" id="shareToLine">To: <strong>—</strong></p>
+              <div class="lh-share-field">
+                <label for="shareHi">Greeting name</label>
+                <input type="text" id="shareHi" autocomplete="off" placeholder="First name" />
+              </div>
+              <div class="lh-share-field">
+                <label for="shareSubject">Subject</label>
+                <input type="text" id="shareSubject" autocomplete="off" />
+              </div>
+              <div class="lh-share-field">
+                <label for="shareNote">Message</label>
+                <textarea id="shareNote" placeholder="Note shown in the body above the link buttons"></textarea>
+              </div>
+              <div class="lh-share-actions">
+                <button type="button" id="shareRefreshPreview">Refresh preview</button>
+                <button type="button" class="lh-share-send" id="shareSend">Send email</button>
+              </div>
+            </div>
+            <div class="lh-share-preview-col">
+              <div class="lh-share-preview-label">Preview</div>
+              <div class="lh-share-preview-frame-wrap">
+                <iframe class="lh-share-preview-frame" id="sharePreviewFrame" title="Email preview" sandbox="allow-same-origin allow-popups"></iframe>
+              </div>
+              <p class="lh-share-preview-loading" id="sharePreviewLoading" style="display: none">Updating preview…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var USE_VISUAL_MOCK = <?!= JSON.stringify(useVisualMock) ?>;
+      var RAW_LISTING = <?!= listingJson ?>;
+      var RAW_OPS = <?!= opsJson ?>;
+      var RAW_PHOTOS = <?!= photosJson ?>;
+      var DETAIL_URL = <?!= JSON.stringify(detailUrl || '') ?>;
+      var AGENT_DIRECTORY = <?!= agentsJson ?>;
+      var DEFAULT_SHARE_NOTE = <?!= JSON.stringify(defaultShareNote || '') ?>;
+
+      /** Placeholder content for design QA — enable with ?mock=1 or LISTING_DETAIL_VISUAL_MOCK */
+      var MOCK = {
+        listing: {
+          address: "1847 N Hudson Ave",
+          neighborhood: "Lincoln Park",
+          agent: "Jordan Lee",
+          agentCanonical: "Jordan Lee",
+          listingType: "Sale",
+          status: "Active",
+          phaseKey: "drafting",
+          beds: "4",
+          baths: "3.5",
+          sqFt: "3,200",
+          coverImage:
+            "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80",
+          photos: "https://drive.google.com/drive/folders/mock-folder",
+          matterport: "https://my.matterport.com/show/?m=SxQL3iGyoDo",
+          floorPlan: "https://drive.google.com/file/d/mock-floorplan/view",
+          openHouseMaterialsUrl: "https://drive.google.com/drive/folders/mock-oh",
+          factSheet: "https://drive.google.com/file/d/mock-fact/view",
+          bookletUrl: "https://drive.google.com/file/d/mock-booklet/view",
+          video: "https://example.com/listing-video-placeholder",
+          openHouseStoryUrl: "https://drive.google.com/file/d/mock-story/view",
+          openHouseSignUrl: "https://drive.google.com/file/d/mock-sign/view",
+          openHouse: "https://www.compass.com/listing/mock"
+        },
+        photos: [
+          {
+            viewUrl:
+              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
+            name: "Living.jpg"
+          },
+          {
+            viewUrl:
+              "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=80",
+            name: "Kitchen.jpg"
+          },
+          {
+            viewUrl:
+              "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=80",
+            name: "Primary.jpg"
+          }
+        ],
+        ops: {
+          success: true,
+          listing: { address: "1847 N Hudson Ave", phaseKey: "drafting", band: "Drafting" },
+          sources: { asana: "ok", acuity: "ok", fub: "skipped" },
+          asana: [
+            { title: "Listing photography scheduled", completed: false, dueOn: "2026-05-08" },
+            { title: "Seller questionnaire received", completed: true, dueOn: null },
+            { title: "Draft marketing deck — interior stills", completed: false, dueOn: "2026-05-11" }
+          ],
+          acuity: [
+            { startsAt: "2026-05-06T14:00:00-05:00", type: "Listing Photos · Premium", status: "scheduled" }
+          ],
+          fub: null,
+          generatedAt: new Date().toISOString()
+        }
+      };
+
+      function qs(id) {
+        return document.getElementById(id);
+      }
+
+      function effectiveListing() {
+        if (!USE_VISUAL_MOCK) return RAW_LISTING || {};
+        var out = JSON.parse(JSON.stringify(MOCK.listing));
+        var raw = RAW_LISTING || {};
+        Object.keys(raw).forEach(function (k) {
+          var v = raw[k];
+          if (v !== undefined && v !== null && String(v).trim() !== "") out[k] = v;
+        });
+        return out;
+      }
+
+      function effectivePhotos() {
+        if (USE_VISUAL_MOCK) return MOCK.photos.slice();
+        return Array.isArray(RAW_PHOTOS) ? RAW_PHOTOS : [];
+      }
+
+      function effectiveOps() {
+        if (USE_VISUAL_MOCK) return MOCK.ops;
+        try {
+          return RAW_OPS && RAW_OPS.success ? RAW_OPS : RAW_OPS || { success: false };
+        } catch (e) {
+          return { success: false };
+        }
+      }
+
+      var LISTING = effectiveListing();
+      var PHOTOS = effectivePhotos();
+      var OPS = effectiveOps();
+
+      function toast(msg) {
+        var t = qs("toast");
+        t.textContent = msg || "Copied";
+        t.classList.add("show");
+        setTimeout(function () {
+          t.classList.remove("show");
+        }, 1400);
+      }
+
+      function matterportEmbedUrl(url) {
+        if (!url) return "";
+        try {
+          var u = String(url).trim();
+          if (u.indexOf("my.matterport.com/show/?m=") >= 0 || u.indexOf("matterport.com/discover/space/") >= 0)
+            return u.replace(/^http:/, "https:");
+          var m = u.match(/m=([a-zA-Z0-9_-]+)/);
+          if (m) return "https://my.matterport.com/show/?m=" + m[1];
+          var m2 = u.match(/spaces\/([a-zA-Z0-9_-]+)/);
+          if (m2) return "https://my.matterport.com/show/?m=" + m2[1];
+          return "";
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function assetBox(label, url) {
+        var href = String(url || "").trim();
+        return (
+          '<div class="lh-asset-box">' +
+          '<div class="lh-asset-title">' +
+          esc(label) +
+          "</div>" +
+          '<a class="lh-asset-open ' +
+          (href ? "" : "off") +
+          '" href="' +
+          escAttr(href || "#") +
+          '">' +
+          (href ? "Open" : "Missing") +
+          "</a>" +
+          "</div>"
+        );
+      }
+
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function escAttr(s) {
+        return esc(String(s || "").replace(/"/g, "&quot;"));
+      }
+
+      function fmtPhaseKey(pk) {
+        pk = String(pk || "").trim();
+        if (!pk) return "";
+        return pk.charAt(0).toUpperCase() + pk.slice(1).replace(/([a-z])([A-Z])/g, "$1 $2");
+      }
+
+      function initHero() {
+        if (USE_VISUAL_MOCK) qs("lhMockChip").style.display = "inline-flex";
+        qs("lhAddress").textContent = LISTING.address || "Untitled listing";
+
+        var metaParts = [];
+        if (LISTING.neighborhood) metaParts.push(LISTING.neighborhood);
+        var specs = [];
+        if (LISTING.beds) specs.push(LISTING.beds + " Beds");
+        if (LISTING.baths) specs.push(LISTING.baths + " Baths");
+        if (LISTING.sqFt) specs.push(LISTING.sqFt + " Sq Ft");
+        if (specs.length) metaParts.push(specs.join(" · "));
+        qs("lhSub").textContent = metaParts.join(" · ");
+
+        var badges = qs("lhBadgeRow");
+        badges.innerHTML = "";
+        function addBadge(text, cls) {
+          if (!text) return;
+          var span = document.createElement("span");
+          span.className = "lh-badge " + cls;
+          span.textContent = text;
+          badges.appendChild(span);
+        }
+        addBadge(fmtPhaseKey(LISTING.phaseKey), "phase");
+        addBadge(LISTING.status, "status");
+        addBadge(LISTING.listingType, "type");
+      }
+
+      function initPhotos() {
+        var imgs = PHOTOS;
+        var box = qs("carouselBox");
+        var empty = qs("carouselEmpty");
+        var img = qs("carImg");
+        var dl = qs("downloadAll");
+        if (!imgs.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        box.style.display = "block";
+        var idx = 0;
+        function show() {
+          var it = imgs[idx];
+          img.src = it.viewUrl || "";
+          img.alt = it.name || "";
+        }
+        show();
+        qs("carPrev").onclick = function () {
+          idx = (idx - 1 + imgs.length) % imgs.length;
+          show();
+        };
+        qs("carNext").onclick = function () {
+          idx = (idx + 1) % imgs.length;
+          show();
+        };
+        dl.href = LISTING.photos || "#";
+        if (!LISTING.photos) dl.classList.add("is-off");
+      }
+
+      function initMatterport() {
+        var raw = String(LISTING.matterport || "").trim();
+        var embed = matterportEmbedUrl(raw);
+        var wrap = qs("mpEmbed");
+        var fb = qs("mpFallback");
+        qs("openMp").href = raw || "#";
+        qs("copyMp").onclick = function () {
+          if (!raw) return;
+          navigator.clipboard.writeText(raw).then(
+            function () {
+              toast("Matterport link copied");
+            },
+            function () {
+              toast("Copy failed");
+            }
+          );
+        };
+        if (embed) {
+          wrap.style.display = "block";
+          wrap.innerHTML =
+            '<iframe src="' + embed.replace(/"/g, "&quot;") + '" allowfullscreen loading="lazy"></iframe>';
+          fb.textContent = "";
+        } else if (raw) {
+          fb.textContent = "Embed not available for this URL — use Open or Copy for MLS.";
+        } else {
+          fb.textContent = "Add a Matterport link in the sheet to embed the tour.";
+        }
+      }
+
+      function initMarketingRow() {
+        var host = qs("assetGrid");
+        var rows = [
+          ["Floor Plan", LISTING.floorPlan],
+          ["Open House Materials", LISTING.openHouseMaterialsUrl],
+          ["Fact Sheet", LISTING.factSheet],
+          ["Booklet", LISTING.bookletUrl],
+          ["Listing Video", LISTING.video],
+          ["Open House Story", LISTING.openHouseStoryUrl],
+          ["Open House Sign", LISTING.openHouseSignUrl],
+          ["Legacy Open House Link", LISTING.openHouse]
+        ];
+        host.innerHTML = rows
+          .map(function (pair) {
+            return assetBox(pair[0], pair[1]);
+          })
+          .join("");
+      }
+
+      function renderOps() {
+        var ops = OPS || {};
+        var asanaState = "—";
+        var acuityState = "—";
+        var phase = fmtPhaseKey(LISTING.phaseKey) || "—";
+        var agent = LISTING.agentCanonical || LISTING.agent || "—";
+        var tasksHost = qs("statusTasks");
+        var questionnaireWrap = qs("questionnaireWrap");
+        var questionnaireText = qs("questionnaireText");
+
+        // Prefer sheet-first columns written by integrations.
+        if (LISTING.marketingStatus) {
+          asanaState =
+            LISTING.marketingStatus +
+            " (" +
+            (LISTING.asanaOpenTasksCount || "0") +
+            " open / " +
+            (LISTING.asanaDoneTasksCount || "0") +
+            " done)";
+        } else if (ops.success) {
+          asanaState = ops.sources && ops.sources.asana ? String(ops.sources.asana) : "—";
+        }
+        if (LISTING.photosStatus) {
+          acuityState = LISTING.photosStatus + (LISTING.photosDatetime ? " · " + LISTING.photosDatetime : "");
+        } else if (ops.success) {
+          acuityState = ops.sources && ops.sources.acuity ? String(ops.sources.acuity) : "—";
+        }
+
+        qs("stAgent").textContent = agent;
+        qs("stPhase").textContent = phase;
+        qs("stAcuity").textContent = acuityState;
+        qs("stAsana").textContent = asanaState;
+
+        var rows = [];
+        if (LISTING.integrationHealth) {
+          rows.push("<li>Integration health: " + esc(LISTING.integrationHealth) + "</li>");
+        }
+        if (LISTING.asanaLastSyncAt) {
+          rows.push("<li>Asana last sync: " + esc(LISTING.asanaLastSyncAt) + "</li>");
+        }
+        if (LISTING.fubStage) {
+          rows.push(
+            "<li>FUB stage: " +
+              esc(LISTING.fubStage) +
+              (LISTING.fubOpenTaskCount ? " · open tasks: " + esc(LISTING.fubOpenTaskCount) : "") +
+              "</li>"
+          );
+        }
+        if (LISTING.fubLastSyncAt) {
+          rows.push("<li>FUB last sync: " + esc(LISTING.fubLastSyncAt) + "</li>");
+        }
+        if (!rows.length && ops.success && Array.isArray(ops.asana) && ops.asana.length) {
+          rows = ops.asana.slice(0, 6).map(function (t) {
+            return (
+              "<li>" +
+              (t.completed ? "✓ " : "○ ") +
+              esc(t.title || "") +
+              (t.dueOn ? " · due " + esc(t.dueOn) : "") +
+              "</li>"
+            );
+          });
+        } else if (!rows.length) {
+          rows = ['<li>Status feed unavailable right now.</li>'];
+        }
+        tasksHost.innerHTML = rows.join("");
+
+        var questionnaire = String(LISTING.sellerQuestionnaireContent || "").trim();
+        if (questionnaire) {
+          questionnaireWrap.style.display = "block";
+          questionnaireText.textContent = questionnaire;
+        } else {
+          questionnaireWrap.style.display = "none";
+          questionnaireText.textContent = "";
+        }
+      }
+
+      initHero();
+      initPhotos();
+      initMatterport();
+      initMarketingRow();
+      renderOps();
+
+      /* —— Share email modal —— */
+      function firstNameFromDisplayName(name) {
+        var parts = String(name || "")
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean);
+        return parts.length ? parts[0] : "there";
+      }
+
+      function getSharePayload() {
+        var agentSel = qs("shareAgent");
+        var agent = agentSel && agentSel.value ? agentSel.value : "";
+        return {
+          address: LISTING.address || "",
+          agent: agent,
+          hiName: (qs("shareHi") && qs("shareHi").value) || "",
+          subject: (qs("shareSubject") && qs("shareSubject").value) || "",
+          note: qs("shareNote") ? qs("shareNote").value : ""
+        };
+      }
+
+      function updateShareToLine() {
+        var agent = qs("shareAgent") && qs("shareAgent").value;
+        var row = qs("shareToLine");
+        if (!row || !AGENT_DIRECTORY || !AGENT_DIRECTORY.length) return;
+        var email = "";
+        for (var i = 0; i < AGENT_DIRECTORY.length; i++) {
+          if (AGENT_DIRECTORY[i].name === agent) {
+            email = AGENT_DIRECTORY[i].email || "";
+            break;
+          }
+        }
+        row.innerHTML = email ? "To: <strong>" + esc(email) + "</strong>" : "To: <strong>—</strong>";
+      }
+
+      function fillShareAgentSelect() {
+        var sel = qs("shareAgent");
+        if (!sel || !AGENT_DIRECTORY || !AGENT_DIRECTORY.length) return;
+        sel.innerHTML = "";
+        var preferred = LISTING.agentCanonical || LISTING.agent || "";
+        var i,
+          matched = false;
+        for (i = 0; i < AGENT_DIRECTORY.length; i++) {
+          var opt = document.createElement("option");
+          opt.value = AGENT_DIRECTORY[i].name;
+          opt.textContent = AGENT_DIRECTORY[i].name;
+          sel.appendChild(opt);
+          if (AGENT_DIRECTORY[i].name === preferred) matched = true;
+        }
+        if (matched) sel.value = preferred;
+        else if (sel.options.length) sel.selectedIndex = 0;
+        var hi = qs("shareHi");
+        if (hi) hi.value = firstNameFromDisplayName(sel.value);
+        updateShareToLine();
+      }
+
+      function defaultShareSubject() {
+        var a = LISTING.address || "";
+        return a ? a + " - Photos, 3D Walkthrough & Floor Plan (New Listing)" : "Listing assets ready";
+      }
+
+      var sharePreviewTimer = null;
+      function scheduleSharePreview(delay) {
+        if (sharePreviewTimer) clearTimeout(sharePreviewTimer);
+        sharePreviewTimer = setTimeout(runSharePreview, delay == null ? 400 : delay);
+      }
+
+      function runSharePreview() {
+        var loading = qs("sharePreviewLoading");
+        var frame = qs("sharePreviewFrame");
+        if (typeof google === "undefined" || !google.script || !google.script.run) {
+          if (frame) frame.srcdoc = "<p style='padding:16px;font-family:sans-serif'>Preview requires this page to be opened from the Listing Hub web app.</p>";
+          return;
+        }
+        if (loading) loading.style.display = "block";
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (loading) loading.style.display = "none";
+            if (!res || !res.success) {
+              toast((res && res.error) || "Preview failed");
+              return;
+            }
+            if (frame) {
+              frame.srcdoc = res.html || "";
+            }
+          })
+          .withFailureHandler(function (err) {
+            if (loading) loading.style.display = "none";
+            toast(err && err.message ? err.message : "Preview failed");
+          })
+          .previewListingShareEmail(getSharePayload());
+      }
+
+      function openShareModal() {
+        var bd = qs("shareBackdrop");
+        if (!bd) return;
+        fillShareAgentSelect();
+        var sub = qs("shareSubject");
+        if (sub) sub.value = defaultShareSubject();
+        var note = qs("shareNote");
+        if (note) note.value = DEFAULT_SHARE_NOTE || "";
+        bd.classList.add("is-open");
+        bd.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        runSharePreview();
+      }
+
+      function closeShareModal() {
+        var bd = qs("shareBackdrop");
+        if (!bd) return;
+        bd.classList.remove("is-open");
+        bd.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      function wireShareUi() {
+        var openBtn = qs("btnShareEmail");
+        if (openBtn) openBtn.onclick = openShareModal;
+        var closeBtn = qs("shareClose");
+        if (closeBtn) closeBtn.onclick = closeShareModal;
+        var bd = qs("shareBackdrop");
+        if (bd) {
+          bd.addEventListener("click", function (e) {
+            if (e.target === bd) closeShareModal();
+          });
+        }
+        var agentSel = qs("shareAgent");
+        if (agentSel) {
+          agentSel.onchange = function () {
+            var hi = qs("shareHi");
+            if (hi) hi.value = firstNameFromDisplayName(agentSel.value);
+            updateShareToLine();
+            scheduleSharePreview(200);
+          };
+        }
+        ["shareHi", "shareSubject", "shareNote"].forEach(function (id) {
+          var el = qs(id);
+          if (el) {
+            el.addEventListener("input", function () {
+              scheduleSharePreview(450);
+            });
+          }
+        });
+        var ref = qs("shareRefreshPreview");
+        if (ref) ref.onclick = function () { runSharePreview(); };
+        var sendBtn = qs("shareSend");
+        if (sendBtn) {
+          sendBtn.onclick = function () {
+            if (typeof google === "undefined" || !google.script || !google.script.run) {
+              toast("Send requires the Listing Hub web app.");
+              return;
+            }
+            sendBtn.disabled = true;
+            google.script.run
+              .withSuccessHandler(function (res) {
+                sendBtn.disabled = false;
+                if (!res || !res.success) {
+                  toast((res && res.error) || "Send failed");
+                  return;
+                }
+                toast("Sent to " + (res.to || "agent"));
+                closeShareModal();
+              })
+              .withFailureHandler(function (err) {
+                sendBtn.disabled = false;
+                toast(err && err.message ? err.message : "Send failed");
+              })
+              .sendListingShareEmail(getSharePayload());
+          };
+        }
+      }
+
+      wireShareUi();
+    </script>
+  </body>
+</html>

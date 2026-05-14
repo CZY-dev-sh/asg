@@ -778,6 +778,12 @@
   const SELLERS_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1110212825&single=true&output=csv";
   const FOLDERS_API="https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  function listingDetailPageUrl(addr){
+    const a=String(addr||"").trim();
+    if(!a)return"#";
+    const sep=LISTINGS_API.indexOf("?")>=0?"&":"?";
+    return LISTINGS_API+sep+"view=detailpage&address="+encodeURIComponent(a);
+  }
   const HUB_DATA_API=String(window.ASG_HUB_DATA_API||"https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
   const TEAM=[
     {name:"Alex Stoykov",tier:"Senior",role:"Senior Agent",email:"alex.stoykov@compass.com",phone:"312-593-3110",fubPhone:"312-477-2199",photo:"https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=500w",landing:"https://www.alexstoykovgroup.com/alexstoykov",book:"https://asgmarketing.as.me/?firstName=Alex&lastName=Stoykov&email=alex.stoykov%40compass.com&phone=3125933110&field:18245579=Alex%20Stoykov&field:18245580=Admin%20Hub",request:"https://form.asana.com/?k=pt7tbwwT4JUDdxLj2fbm5Q&d=7720513273924"},
@@ -1428,7 +1434,7 @@
       <div class="asg-h-act-grid">
         <a class="asg-h-act-btn" href="${hasBook?esc(a.book):'#'}" target="${hasBook?'_blank':''}" rel="noopener" ${!hasBook?'onclick="return false" style="opacity:.4;pointer-events:none"':''}>
           <div class="asg-h-act-icon" style="background:rgba(34,197,94,.1)"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="12" rx="2" stroke="#22c55e" stroke-width="1.5"/><path d="M3 8h14" stroke="#22c55e" stroke-width="1.5"/><circle cx="7" cy="12" r="1" fill="#22c55e"/></svg></div>
-          <div class="asg-h-act-text"><div class="asg-h-act-title">Book a Shoot</div><div class="asg-h-act-sub">Schedule photo/video for ${esc(a.name.split(" ")[0])}</div></div>
+          <div class="asg-h-act-text"><div class="asg-h-act-title">Book A Service</div><div class="asg-h-act-sub">Schedule photo/video for ${esc(a.name.split(" ")[0])}</div></div>
           <svg class="asg-h-act-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
         <a class="asg-h-act-btn" href="${hasRequest?esc(a.request):'#'}" target="${hasRequest?'_blank':''}" rel="noopener" ${!hasRequest?'onclick="return false" style="opacity:.4;pointer-events:none"':''}>
@@ -1651,10 +1657,13 @@
           <div class="asg-h-lh-list-type ${listingType.cls}">${esc(listingType.label)}</div>
         </div>
         <div class="asg-h-lh-list-actions">
+          ${listActionButton("Listing HQ",listingDetailPageUrl(item.address))}
           ${listActionButton("Photos",item.photos)}
           ${listActionButton("Matterport",item.matterport)}
           ${listActionButton("Floor Plan",item.floorPlan)}
           ${listActionButton("Fact Sheet",item.factSheet)}
+          ${listActionButton("OH Materials",item.openHouseMaterialsUrl)}
+          ${listActionButton("Booklet",item.bookletUrl)}
           ${listActionButton("Open House",item.openHouse)}
           ${listActionButton("Video",item.video)}
         </div>
@@ -1723,14 +1732,20 @@
         address:item.address||"",
         neighborhood:item.neighborhood||"",
         agent:item.agent||"",
+        agentCanonical:item.agentCanonical||item.agent||"",
         listingType:item.listingType||"",
         status:item.status||"",
+        phaseKey:item.phaseKey||"",
         coverImage:item.coverImage||"",
         photos:item.photos||"",
         matterport:item.matterport||"",
         floorPlan:item.floorPlan||"",
         factSheet:item.factSheet||"",
         openHouse:item.openHouse||"",
+        openHouseMaterialsUrl:item.openHouseMaterialsUrl||"",
+        bookletUrl:item.bookletUrl||"",
+        openHouseStoryUrl:item.openHouseStoryUrl||"",
+        openHouseSignUrl:item.openHouseSignUrl||"",
         video:item.video||"",
         archived:!!item.archived
       }));

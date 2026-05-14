@@ -458,6 +458,8 @@
     gap:4px;
     align-content:start;
   }
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-hq-link{color:inherit;text-decoration:none}
+  #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-hq-link:hover{text-decoration:underline}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-title{font-size:13px;font-weight:700;line-height:1.2;margin:0}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-listing-meta{margin-top:1px;font-size:10.5px;color:var(--asg-ph-muted);line-height:1.25}
   #asg-agent-personal-hub-matthew-clevenger .asg-ph-badge{
@@ -1654,6 +1656,13 @@
   */
   const STATS_API="https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec";
   const LISTINGS_API="https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec";
+  function listingDetailPageUrl(addr){
+    var a=String(addr||"").trim();
+    if(!a)return"#";
+    var sep=LISTINGS_API.indexOf("?")>=0?"&":"?";
+    return LISTINGS_API+sep+"view=detailpage&address="+encodeURIComponent(a);
+  }
+
   const FUB_HUB_API="https://script.google.com/macros/s/AKfycbxxcap5FOy3ooT2O_m9O5RMvLhsTtAk7hRXxN_bclGAh0lANCY_kV13W7P920nmYCQNgg/exec";
   const HUB_DATA_API="https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec";
   const FUB_AGENT_NAME="Matthew Clevenger";
@@ -1960,7 +1969,7 @@
             ${calendarIcon}
             <span>Book Marketing</span>
           </a>
-          <a class="asg-ph-mobile-quick-btn" href="${esc(safeHref(AGENT_PROFILE.book))}" target="_blank" rel="noopener">
+          <a class="asg-ph-mobile-quick-btn" href="${esc(safeHref(AGENT_PROFILE.request))}" target="_blank" rel="noopener">
             ${designIcon}
             <span>Marketing Request</span>
           </a>
@@ -1989,7 +1998,7 @@
         <section class="asg-ph-card asg-ph-card--top-actions">
           <div class="asg-ph-label"><span class="asg-ph-label-dot" style="background:var(--asg-ph-purple)"></span>Marketing Actions</div>
           <div class="asg-ph-actions">
-            ${actionLink("Book a Shoot","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
+            ${actionLink("Book A Service","Schedule marketing for your listing",AGENT_PROFILE.book,"rgba(34,197,94,.15)",calendarIcon)}
             ${actionLink("Design Request","Request social or print collateral",AGENT_PROFILE.request,"rgba(139,92,246,.15)",designIcon)}
             ${actionLink("My Landing Page","Open your public ASG page",AGENT_PROFILE.landing,"rgba(59,130,246,.15)",landingIcon,AGENT_PROFILE.landing)}
           </div>
@@ -2452,8 +2461,17 @@
         floorPlan:item.floorPlan||"",
         factSheet:item.factSheet||"",
         openHouse:item.openHouse||"",
-        video:item.video||""
-      })).filter(item=>normalize(item.agent)===normalize(AGENT_PROFILE.name)));
+        video:item.video||"",
+        agentCanonical:item.agentCanonical||item.agent||"",
+        phaseKey:item.phaseKey||"",
+        bookletUrl:item.bookletUrl||"",
+        openHouseMaterialsUrl:item.openHouseMaterialsUrl||"",
+        openHouseStoryUrl:item.openHouseStoryUrl||"",
+        openHouseSignUrl:item.openHouseSignUrl||"",
+        beds:item.beds||"",
+        baths:item.baths||"",
+        sqFt:item.sqFt||""
+      })).filter(item=>normalize(item.agentCanonical||item.agent)===normalize(AGENT_PROFILE.name)));
 
     return Promise.all([fetchView("active"),fetchView("closed")])
       .then(results=>{
@@ -2885,21 +2903,25 @@
       const status=(currentListingView==="closed")?"Closed":"Active";
       const meta=[item.neighborhood,item.listingType].filter(Boolean).join(" \u2022 ");
       const blob=listingSearchBlob(item);
+      const hq=listingDetailPageUrl(item.address);
       return `
         <article class="asg-ph-listing" data-srch data-srch-text="${esc(blob)}">
           <div class="asg-ph-listing-top">
             ${cover?`<img class="asg-ph-listing-cover" src="${esc(cover)}" alt="${esc(item.address||'Listing')}" loading="lazy" onerror="this.style.opacity=.2">`:'<div class="asg-ph-listing-cover"></div>'}
             <div class="asg-ph-listing-main">
-              <h3 class="asg-ph-listing-title">${esc(item.address||"Untitled Listing")}</h3>
+              <h3 class="asg-ph-listing-title"><a class="asg-ph-listing-hq-link" href="${esc(hq)}" target="_blank" rel="noopener">${esc(item.address||"Untitled Listing")}</a></h3>
               <div class="asg-ph-listing-meta">${esc(meta||statusLabel(item.status||status))}</div>
               <span class="asg-ph-badge ${currentListingView==="closed"?"is-closed":"is-active"}">${esc(status)}</span>
             </div>
           </div>
           <div class="asg-ph-assets">
+            ${assetLink("Listing HQ",hq)}
             ${assetLink("Photos",item.photos)}
             ${assetLink("Matterport",item.matterport)}
             ${assetLink("Floor Plan",item.floorPlan)}
             ${assetLink("Fact Sheet",item.factSheet)}
+            ${assetLink("OH Materials",item.openHouseMaterialsUrl)}
+            ${assetLink("Booklet",item.bookletUrl)}
             ${assetLink("Open House",item.openHouse)}
             ${assetLink("Video",item.video)}
           </div>

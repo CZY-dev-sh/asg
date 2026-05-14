@@ -23,13 +23,30 @@
     padding: 22px;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
   }
   #asg-admin-master-dashboard * {
     box-sizing: border-box;
   }
+  /* Guard against Squarespace global image rounding overrides. */
+  #asg-admin-master-dashboard img {
+    border-radius: 0 !important;
+  }
   #asg-admin-master-dashboard .amd-shell {
     max-width: 1440px;
     margin: 0 auto;
+    position: relative;
+  }
+  #asg-admin-master-dashboard .amd-feed-warn {
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(180, 83, 9, 0.35);
+    background: rgba(251, 191, 36, 0.14);
+    color: #92400e;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
   }
   #asg-admin-master-dashboard .amd-head {
     display: flex;
@@ -261,6 +278,20 @@
     font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.02em;
+  }
+  #asg-admin-master-dashboard .amd-panel-title--listing {
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-panel-head--listing {
+    align-items: center;
+    gap: 16px;
+    padding: 4px 2px 18px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.12);
   }
   #asg-admin-master-dashboard .amd-panel-sub {
     margin: 0;
@@ -1003,6 +1034,10 @@
   #asg-admin-master-dashboard .amd-empty,
   #asg-admin-master-dashboard .amd-error,
   #asg-admin-master-dashboard .amd-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     text-align: center;
     padding: 20px;
     color: var(--muted);
@@ -1011,6 +1046,51 @@
     background: #f8fafc;
     font-size: 13px;
     font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-data-spinner {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(17, 17, 17, 0.1);
+    border-top-color: rgba(17, 17, 17, 0.55);
+    animation: amd-spin 0.75s linear infinite;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  #asg-admin-master-dashboard .amd-data-spinner--sm {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+  @keyframes amd-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  #asg-admin-master-dashboard .amd-kpi-value.is-loading {
+    display: flex;
+    align-items: center;
+    min-height: 1.15em;
+  }
+  #asg-admin-master-dashboard .amd-panel-body-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 200px;
+    padding: 32px 16px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-panel-body-loading .amd-data-spinner {
+    width: 28px;
+    height: 28px;
+  }
+  #asg-admin-master-dashboard .amd-sell-stat-v .amd-data-spinner {
+    margin: 0 auto;
   }
 
   @media (max-width: 1180px) {
@@ -1338,13 +1418,1426 @@
   }
   #asg-admin-master-dashboard .amd-dt-empty-title { font-size:14px; font-weight:700; color:#111; margin-bottom:4px; }
 
+  #asg-admin-master-dashboard .amd-view-tools {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0 14px;
+  }
+  #asg-admin-master-dashboard .amd-view-tools select,
+  #asg-admin-master-dashboard .amd-view-tools input {
+    min-height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #fafafa;
+    color: #111;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 12px;
+  }
+  #asg-admin-master-dashboard .amd-view-tools input {
+    flex: 1;
+    min-width: 220px;
+  }
+  #asg-admin-master-dashboard .amd-sell-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  #asg-admin-master-dashboard .amd-sell-stat {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+  }
+  #asg-admin-master-dashboard .amd-sell-stat-k {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+  #asg-admin-master-dashboard .amd-sell-stat-v {
+    margin-top: 5px;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #111;
+  }
+  #asg-admin-master-dashboard .amd-sell-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  #asg-admin-master-dashboard .amd-sell-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    background: #fff;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  #asg-admin-master-dashboard .amd-sell-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0, 0, 0, 0.16);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  }
+  #asg-admin-master-dashboard .amd-sell-card-cover {
+    width: 100%;
+    height: 130px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #eef2f7;
+  }
+  #asg-admin-master-dashboard .amd-sell-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #asg-admin-master-dashboard .amd-sell-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  #asg-admin-master-dashboard .amd-sell-cover-empty {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  #asg-admin-master-dashboard .amd-sell-address {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-weight: 800;
+  }
+  #asg-admin-master-dashboard .amd-sell-meta {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-sell-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-sell-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 9px;
+    line-height: 1;
+    background: #f8fafc;
+  }
+  #asg-admin-master-dashboard .amd-sell-links {
+    margin-top: 2px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-mini-btn {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 8px 11px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  #asg-admin-master-dashboard .amd-mini-btn.is-dark {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.22);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: #f7f7f7;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-x {
+    appearance: none;
+    border: 0;
+    background: rgba(120, 120, 128, 0.14);
+    color: #1c1c1e;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-x:hover {
+    background: rgba(120, 120, 128, 0.22);
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-x:active {
+    transform: scale(0.94);
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-x svg {
+    display: block;
+  }
+  #asg-admin-master-dashboard .amd-sell-overlay-body {
+    flex: 1;
+    overflow: auto;
+    padding: 18px;
+    background: #f8fafc;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page {
+    overflow: auto;
+    padding-bottom: 2px;
+    --asg-apl-label: #1c1c1e;
+    --asg-apl-secondary: rgba(60, 60, 67, 0.6);
+    --asg-apl-tertiary: rgba(60, 60, 67, 0.3);
+    --asg-apl-separator: rgba(60, 60, 67, 0.12);
+    --asg-apl-fill: rgba(118, 118, 128, 0.12);
+    --asg-apl-fill-soft: rgba(118, 118, 128, 0.06);
+    --asg-apl-bg: #ffffff;
+    --asg-apl-bg-grouped: #f5f5f7;
+    --asg-apl-blue: #007aff;
+    --asg-apl-blue-tint: rgba(0, 122, 255, 0.12);
+    --asg-apl-blue-tint-strong: rgba(0, 122, 255, 0.18);
+    --asg-apl-green: #34c759;
+    --asg-apl-green-tint: rgba(52, 199, 89, 0.16);
+    --asg-apl-orange: #ff9500;
+    --asg-apl-orange-tint: rgba(255, 149, 0, 0.16);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-k {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #667085;
+    margin-bottom: 6px;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-v {
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-sell-assets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  /* Apple-design: Photos carousel within detail page */
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel {
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--asg-apl-fill-soft);
+    margin-bottom: 0;
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-view {
+    position: relative;
+    display: block;
+    background: var(--asg-apl-fill-soft);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-img-wrap {
+    min-height: 260px;
+    background: var(--asg-apl-fill-soft);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-img-wrap .amd-sell-carousel-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+    background: var(--asg-apl-fill-soft);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: #111;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.14s ease, transform 0.12s ease, opacity 0.14s ease;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow:hover:not(:disabled) {
+    background: #fff;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.96);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow:disabled {
+    opacity: 0.28;
+    cursor: default;
+    box-shadow: none;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow.is-next {
+    right: 10px;
+    left: auto;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-arrow:not(.is-next) {
+    left: 10px;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-foot,
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-lh-media-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    border-top: 1px solid var(--asg-apl-separator);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-sell-carousel-count {
+    font-size: 12px;
+    color: var(--asg-apl-secondary);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    font-variant-numeric: tabular-nums;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-lh-media-meta {
+    font-size: 12px;
+    color: var(--asg-apl-secondary);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    min-width: 56px;
+    text-align: right;
+  }
+  #asg-admin-master-dashboard .amd-sell-asset {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 92px;
+  }
+  #asg-admin-master-dashboard .amd-sell-asset-title {
+    font-size: 11px;
+    color: #334155;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  #asg-admin-master-dashboard .amd-sell-asset-btn {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 6px 10px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: #111;
+    background: #fff;
+  }
+  #asg-admin-master-dashboard .amd-sell-asset-btn.is-off {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Apple-design: Mini-buttons inside detail page (capsule, gray) */
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn {
+    appearance: none;
+    border: 0;
+    background: var(--asg-apl-fill);
+    color: var(--asg-apl-label);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    padding: 8px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.14s ease, transform 0.12s ease;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn:hover {
+    background: rgba(118, 118, 128, 0.2);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn:active {
+    transform: scale(0.97);
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn.is-dark {
+    background: #111;
+    color: #fff;
+    border: 0;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn.is-dark:hover {
+    background: #000;
+  }
+  #asg-admin-master-dashboard .amd-sell-detail-page .amd-mini-btn.is-off {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Apple-design: Status card */
+  #asg-admin-master-dashboard .amd-lh-status {
+    background: #ffffff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 24px rgba(15, 23, 42, 0.03);
+  }
+  /* Overview row: agent block on the left, editable status chips on the right. */
+  #asg-admin-master-dashboard .amd-lh-overview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 16px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-lh-overview .amd-lh-agent {
+    margin: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chips {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.55);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  /* Inline editable chip — looks like a tinted pill but behaves as a select. */
+  #asg-admin-master-dashboard .amd-lh-edit-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 28px 7px 13px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+    outline: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip select:hover {
+    background: rgba(118, 118, 128, 0.2);
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip select:focus {
+    box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.12);
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-right: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: translate(0, -68%) rotate(45deg);
+    color: rgba(60, 60, 67, 0.6);
+    pointer-events: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-phase select  { background: rgba(0, 122, 255, 0.12); color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-phase::after  { color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-phase select:hover { background: rgba(0, 122, 255, 0.2); }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-type select   { background: rgba(255, 149, 0, 0.16); color: #a8540f; }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-type::after   { color: #a8540f; }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-type select:hover { background: rgba(255, 149, 0, 0.24); }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-saving select {
+    opacity: 0.55;
+    cursor: progress;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-saved::after {
+    width: 4px;
+    height: 8px;
+    border-right: 1.8px solid #1d7a3a;
+    border-bottom: 1.8px solid #1d7a3a;
+    transform: translate(0, -60%) rotate(45deg);
+    color: #1d7a3a;
+  }
+  #asg-admin-master-dashboard .amd-lh-edit-chip.is-error select {
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.4);
+  }
+  #asg-admin-master-dashboard .amd-lh-agent {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 14px;
+  }
+  #asg-admin-master-dashboard .amd-lh-agent-photo {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px !important;
+    object-fit: cover;
+    border: 0;
+    box-shadow: 0 0 0 1px rgba(60, 60, 67, 0.10);
+    background: rgba(118, 118, 128, 0.12);
+  }
+  #asg-admin-master-dashboard .amd-lh-agent-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.15;
+    letter-spacing: -0.022em;
+  }
+  #asg-admin-master-dashboard .amd-lh-agent-role {
+    margin-top: 2px;
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.6);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+
+  /* Apple-design: tinted pill badges */
+  #asg-admin-master-dashboard .amd-lh-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 16px;
+  }
+  #asg-admin-master-dashboard .amd-lh-badge {
+    border-radius: 999px;
+    border: 0;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-lh-badge.is-blue { background: rgba(0, 122, 255, 0.12); color: #0a66c2; border: 0; }
+  #asg-admin-master-dashboard .amd-lh-badge.is-green { background: rgba(52, 199, 89, 0.16); color: #1d7a3a; border: 0; }
+  #asg-admin-master-dashboard .amd-lh-badge.is-orange { background: rgba(255, 149, 0, 0.16); color: #a8540f; border: 0; }
+
+  /* Apple-design: status grid cells (flat, grouped) */
+  #asg-admin-master-dashboard .amd-lh-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat {
+    border: 0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(118, 118, 128, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-k {
+    font-size: 12px;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.6);
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-v {
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.018em;
+    line-height: 1.25;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action {
+    margin-top: 10px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    padding: 8px 14px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background 0.14s ease, transform 0.12s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action:hover {
+    background: #000;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action:active {
+    transform: scale(0.97);
+  }
+
+  /* Apple-design: trio of media cards */
+  #asg-admin-master-dashboard .amd-lh-trio {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+  }
+  #asg-admin-master-dashboard .amd-lh-card {
+    background: #ffffff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    border-radius: 22px;
+    padding: 18px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 24px rgba(15, 23, 42, 0.03);
+  }
+  #asg-admin-master-dashboard .amd-lh-card.is-marketing {
+    grid-column: 1 / -1;
+  }
+  #asg-admin-master-dashboard .amd-lh-label {
+    margin: 0 0 16px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+    text-transform: none;
+    color: #1c1c1e;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.15;
+  }
+  #asg-admin-master-dashboard .amd-lh-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34c759;
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.18);
+  }
+  #asg-admin-master-dashboard .amd-lh-dot.is-blue {
+    background: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.18);
+  }
+  #asg-admin-master-dashboard .amd-lh-dot.is-orange {
+    background: #ff9500;
+    box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.18);
+  }
+  /* Bento icon badges — same vibe as the personal-hub mobile section
+     icons: tinted rounded square with a stroked SVG glyph. */
+  #asg-admin-master-dashboard .amd-lh-ico {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 10px;
+    background: rgba(118, 118, 128, 0.14);
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-lh-ico svg {
+    width: 17px;
+    height: 17px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  #asg-admin-master-dashboard .amd-lh-ico.is-status     { background: rgba(17, 17, 17, 0.08);  color: #111; }
+  #asg-admin-master-dashboard .amd-lh-ico.is-photos     { background: rgba(52, 199, 89, 0.16); color: #15803d; }
+  #asg-admin-master-dashboard .amd-lh-ico.is-matterport { background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-ico.is-marketing  { background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+
+  /* Status-grid cell icon (smaller — sits next to each cell key). */
+  #asg-admin-master-dashboard .amd-lh-stat-k {
+    display: flex;
+    align-items: center;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-ico {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    border-radius: 7px;
+    background: rgba(118, 118, 128, 0.14);
+    color: #1c1c1e;
+    margin-right: 8px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-ico svg {
+    width: 11px;
+    height: 11px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-ico.is-pin    { background: rgba(0, 122, 255, 0.14);  color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-stat-ico.is-ruler  { background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+  #asg-admin-master-dashboard .amd-lh-stat-ico.is-chart  { background: rgba(255, 149, 0, 0.16);  color: #b8540f; }
+  #asg-admin-master-dashboard .amd-lh-stat-ico.is-camera { background: rgba(52, 199, 89, 0.16);  color: #15803d; }
+
+  /* Marketing-asset tile: icon + title on one row inside each bento. */
+  #asg-admin-master-dashboard .amd-lh-asset-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-ico {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border-radius: 8px;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-ico svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-camera { background: rgba(52, 199, 89, 0.16); color: #15803d; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-cube   { background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-video  { background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-plan   { background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-doc    { background: rgba(17, 17, 17, 0.08);  color: #111; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-book   { background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-flyer  { background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+  #asg-admin-master-dashboard .amd-lh-asset-ico.is-sign   { background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+  #asg-admin-master-dashboard .amd-lh-fill { flex: 1; min-height: 0; }
+  /* Matterport block: wrapper unifies embed + foot under one rounded
+     clip, identical to the Photos carousel. */
+  #asg-admin-master-dashboard .amd-lh-media-block {
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--asg-apl-fill-soft);
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+  #asg-admin-master-dashboard .amd-lh-embed {
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    /* Light “stage” instead of black — avoids harsh triangular corners when
+       the Matterport iframe is rounded or anti-aliased by host CSS. */
+    background: #f2f2f7;
+    height: 260px;
+    margin-bottom: 0;
+    box-shadow: none;
+  }
+  /* Top corners of the player area match the outer block (footer stays square). */
+  #asg-admin-master-dashboard .amd-lh-media-block .amd-lh-embed {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+  /* When embed appears standalone (no wrapper), still round it. */
+  #asg-admin-master-dashboard .amd-lh-fill > .amd-lh-embed {
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+  /* Guard: Squarespace themes often add border-radius / shadow on iframes,
+     which leaves gaps against a dark letterbox — neutralize inside our shell. */
+  #asg-admin-master-dashboard .amd-lh-embed iframe {
+    width: 100%;
+    height: 100%;
+    border: 0 !important;
+    outline: 0 !important;
+    display: block;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #f2f2f7 !important;
+  }
+
+  /* Apple-design: marketing assets */
+  #asg-admin-master-dashboard .amd-lh-assets-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset {
+    border: 0;
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: rgba(118, 118, 128, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 96px;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset .amd-lh-asset-btn {
+    margin-top: auto;
+    justify-self: auto;
+    align-self: flex-start;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    min-height: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-btn {
+    justify-self: start;
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: #fff;
+    background: #111;
+    transition: background 0.14s ease, transform 0.12s ease;
+    line-height: 1;
+    box-shadow: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-btn:hover {
+    background: #000;
+    transform: none;
+    box-shadow: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-btn:active {
+    transform: scale(0.97);
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-btn.is-off {
+    opacity: 1;
+    pointer-events: none;
+    border: 0;
+    color: rgba(60, 60, 67, 0.45);
+    background: rgba(118, 118, 128, 0.10);
+    box-shadow: none;
+  }
+  /* Request-this-asset fallback button (when the asset URL is missing
+     but we know the agent's Asana request form). Lower-emphasis pill
+     so it doesn't compete with real "Open Asset" links. */
+  #asg-admin-master-dashboard .amd-lh-asset-btn.is-request {
+    color: #111;
+    background: rgba(17, 17, 17, 0.08);
+    border: 1px solid rgba(17, 17, 17, 0.14);
+    padding: 6px 12px;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-btn.is-request:hover {
+    background: rgba(17, 17, 17, 0.14);
+    color: #111;
+  }
+
+  #asg-admin-master-dashboard .amd-lh-empty {
+    border: 0;
+    border-radius: 14px;
+    padding: 18px 14px;
+    color: rgba(60, 60, 67, 0.6);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    text-align: center;
+    background: rgba(118, 118, 128, 0.06);
+  }
+  #asg-admin-master-dashboard .amd-lh-empty-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Seller questionnaire bento tile (spans two columns inside listing overview). */
+  #asg-admin-master-dashboard .amd-lh-stat.is-seller {
+    grid-column: span 2;
+    gap: 4px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-seller .amd-lh-stat-v {
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.35;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-meta {
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    letter-spacing: -0.005em;
+    line-height: 1.35;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-seller .amd-lh-stat-action {
+    margin-top: 10px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-actions {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-actions .amd-lh-stat-action { margin-top: 0; }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-secondary {
+    background: rgba(17, 17, 17, 0.08);
+    color: #111;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-secondary:hover {
+    background: rgba(17, 17, 17, 0.14);
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-icon {
+    padding: 6px 10px 6px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action .amd-cta-check,
+  #asg-admin-master-dashboard .amd-lh-stat-action .amd-cta-copy {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action .amd-cta-check {
+    display: none;
+    color: #157a36;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-copied .amd-cta-copy { display: none; }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-copied .amd-cta-check { display: inline-block; }
+  #asg-admin-master-dashboard .amd-lh-stat-action.is-copied {
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+  }
+
+  /* Marketing-asset bento tile meta line (status + ETA). */
+  #asg-admin-master-dashboard .amd-lh-asset-meta {
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: rgba(60, 60, 67, 0.7);
+    letter-spacing: -0.005em;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-meta .amd-lh-asset-status {
+    display: inline-block;
+    font-weight: 600;
+    color: #1c1c1e;
+    margin-right: 4px;
+  }
+  #asg-admin-master-dashboard .amd-lh-asset-meta.is-done .amd-lh-asset-status { color: #157a36; }
+  #asg-admin-master-dashboard .amd-lh-asset-meta.is-progress .amd-lh-asset-status { color: #0a4d8c; }
+  #asg-admin-master-dashboard .amd-lh-asset-meta.is-waiting .amd-lh-asset-status { color: #8a4a08; }
+
+  /* Stage container holds Marketing Status + Marketing Assets + Photos/Matterport.
+     A glass-blur overlay sits on top in Stage 1 (Marketing Action Plan). */
+  #asg-admin-master-dashboard .amd-lh-stage-area {
+    position: relative;
+    display: grid;
+    gap: 14px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-content {
+    display: grid;
+    gap: 14px;
+    transition: filter 0.45s ease, opacity 0.45s ease, transform 0.45s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-area[data-stage="1"] .amd-lh-stage-content {
+    filter: blur(2px) saturate(0.96);
+    opacity: 0.72;
+    transform: scale(0.998);
+    pointer-events: none;
+    user-select: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 12px;
+    border-radius: 22px;
+    background: rgba(244, 244, 247, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(1.05);
+    backdrop-filter: blur(20px) saturate(1.05);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    opacity: 1;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-overlay.is-leaving {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+    pointer-events: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-panel {
+    width: min(640px, 100%);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(60, 60, 67, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    padding: 22px 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-sub {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(60, 60, 67, 0.7);
+    line-height: 1.45;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-steps {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    display: grid;
+    gap: 10px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(118, 118, 128, 0.07);
+    transition: background 0.2s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step.is-done {
+    background: rgba(52, 199, 89, 0.10);
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(118, 118, 128, 0.2);
+    color: #1c1c1e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    transition: transform 0.35s cubic-bezier(0.4, 1.5, 0.6, 1), background 0.25s ease, color 0.25s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step.is-done .amd-lh-stage-step-num {
+    background: #34c759;
+    color: #fff;
+    transform: scale(1.06);
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-num svg {
+    width: 16px;
+    height: 16px;
+    stroke-dasharray: 22;
+    stroke-dashoffset: 22;
+    animation: amdCheckDraw 0.45s ease forwards;
+  }
+  @keyframes amdCheckDraw {
+    to { stroke-dashoffset: 0; }
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-body { min-width: 0; }
+  #asg-admin-master-dashboard .amd-lh-stage-step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.012em;
+    line-height: 1.25;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-meta {
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.14s ease, transform 0.14s ease;
+    white-space: nowrap;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta:hover { background: #000; }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta:active { transform: scale(0.97); }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta.is-secondary {
+    background: rgba(17, 17, 17, 0.08);
+    color: #111;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta.is-secondary:hover {
+    background: rgba(17, 17, 17, 0.14);
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta.is-done {
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+    pointer-events: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-continue {
+    margin-top: 6px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 22px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background 0.14s ease, transform 0.14s ease, opacity 0.2s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-continue:hover:not(:disabled) { background: #000; }
+  #asg-admin-master-dashboard .amd-lh-stage-continue:active:not(:disabled) { transform: scale(0.97); }
+  #asg-admin-master-dashboard .amd-lh-stage-continue:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Marketing Status roadmap — horizontal timeline with checkpoints and dates. */
+  #asg-admin-master-dashboard .amd-lh-roadmap {
+    position: relative;
+    margin-top: 4px;
+    padding: 18px 8px 6px;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-track {
+    --amd-roadmap-cols: 6;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--amd-roadmap-cols), minmax(0, 1fr));
+    gap: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-track::before {
+    content: "";
+    position: absolute;
+    /* Center the rail on the dot midpoint (dot height 28px → midpoint 14px,
+       line is 2px → top:13px puts the rail exactly through the dot center). */
+    top: 13px;
+    /* Rail starts at the first dot's center and ends at the last dot's center,
+       so the offsets equal half a column width. */
+    left: calc(50% / var(--amd-roadmap-cols));
+    right: calc(50% / var(--amd-roadmap-cols));
+    height: 2px;
+    background: rgba(60, 60, 67, 0.14);
+    border-radius: 999px;
+    z-index: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-track::after {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: calc(50% / var(--amd-roadmap-cols));
+    /* The rail spans (100% − 1 column). Multiply by --amd-roadmap-progress
+       (a unitless 0–1 value) to keep the gradient aligned to the dot
+       centers regardless of column count. */
+    width: calc((100% - 100% / var(--amd-roadmap-cols)) * var(--amd-roadmap-progress, 0));
+    height: 2px;
+    background: linear-gradient(90deg, #34c759, #007aff);
+    border-radius: 999px;
+    z-index: 1;
+    transition: width 0.5s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 6px;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid rgba(60, 60, 67, 0.25);
+    color: rgba(60, 60, 67, 0.6);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.35s cubic-bezier(0.4, 1.5, 0.6, 1);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-dot svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-done .amd-lh-roadmap-dot {
+    background: #34c759;
+    border-color: #34c759;
+    color: #fff;
+    transform: scale(1.05);
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-progress .amd-lh-roadmap-dot {
+    background: #007aff;
+    border-color: #007aff;
+    color: #fff;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-waiting .amd-lh-roadmap-dot {
+    background: #fff;
+    border-color: #ff9500;
+    color: #ff9500;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-label {
+    margin-top: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-status {
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(60, 60, 67, 0.65);
+  }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-done .amd-lh-roadmap-status { color: #157a36; }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-progress .amd-lh-roadmap-status { color: #0a4d8c; }
+  #asg-admin-master-dashboard .amd-lh-roadmap-node.is-waiting .amd-lh-roadmap-status { color: #8a4a08; }
+  #asg-admin-master-dashboard .amd-lh-roadmap-meta {
+    margin-top: 1px;
+    font-size: 11px;
+    color: rgba(60, 60, 67, 0.55);
+    line-height: 1.3;
+  }
+
+  /* Copy-link-then-checkmark inline animation for the questionnaire CTA. */
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta .amd-cta-check {
+    display: none;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  #asg-admin-master-dashboard .amd-lh-stage-step-cta.is-done .amd-cta-check {
+    display: inline-block;
+  }
+
+  /* Seller-questionnaire modal. */
+  #asg-admin-master-dashboard .amd-sq-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  #asg-admin-master-dashboard .amd-sq-card {
+    background: #fff;
+    width: min(720px, 100%);
+    max-height: 86vh;
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #asg-admin-master-dashboard .amd-sq-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  #asg-admin-master-dashboard .amd-sq-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #1c1c1e;
+  }
+  #asg-admin-master-dashboard .amd-sq-sub {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.65);
+  }
+  #asg-admin-master-dashboard .amd-sq-close {
+    appearance: none;
+    border: 0;
+    background: rgba(118, 118, 128, 0.14);
+    color: #1c1c1e;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  #asg-admin-master-dashboard .amd-sq-body {
+    padding: 18px 22px 22px;
+    overflow: auto;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #2c2c2e;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  #asg-admin-master-dashboard .amd-sq-body .amd-sq-empty {
+    color: rgba(60, 60, 67, 0.6);
+    font-style: italic;
+  }
+  #asg-admin-master-dashboard .amd-sq-qa { display: grid; gap: 14px; }
+  #asg-admin-master-dashboard .amd-sq-qa-item { display: grid; gap: 4px; }
+  #asg-admin-master-dashboard .amd-sq-qa-q {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(60, 60, 67, 0.7);
+    text-transform: none;
+    letter-spacing: -0.005em;
+  }
+  #asg-admin-master-dashboard .amd-sq-qa-a {
+    font-size: 14px;
+    color: #1c1c1e;
+    white-space: pre-wrap;
+  }
+
   @media (max-width: 900px) {
+    #asg-admin-master-dashboard .amd-sell-grid { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-sell-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #asg-admin-master-dashboard .amd-sell-card { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-sell-card-cover { height: 180px; }
+    #asg-admin-master-dashboard .amd-sell-overlay { inset: 0; border-radius: 16px; }
+    #asg-admin-master-dashboard .amd-sell-detail-grid { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-sell-assets { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-lh-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #asg-admin-master-dashboard .amd-lh-stat.is-seller { grid-column: span 2; }
+    #asg-admin-master-dashboard .amd-lh-trio { grid-template-columns: 1fr; }
+    #asg-admin-master-dashboard .amd-lh-card { min-height: 0; }
+    #asg-admin-master-dashboard .amd-lh-assets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #asg-admin-master-dashboard .amd-lh-roadmap-track { grid-template-columns: repeat(var(--amd-roadmap-cols), minmax(0, 1fr)); }
+    #asg-admin-master-dashboard .amd-lh-roadmap-label { font-size: 11px; }
+    #asg-admin-master-dashboard .amd-lh-roadmap-meta { font-size: 10.5px; }
     #asg-admin-master-dashboard .amd-dt-grid { grid-template-columns: 1fr; }
     #asg-admin-master-dashboard .amd-dt-tl { grid-template-columns:repeat(3,1fr); gap:6px; }
     #asg-admin-master-dashboard .amd-dt-tl::before { display:none; }
     #asg-admin-master-dashboard .amd-dt-checks-grid { grid-template-columns: 1fr; }
     #asg-admin-master-dashboard .amd-dt-em-row { grid-template-columns: 1fr; gap:6px; }
     #asg-admin-master-dashboard .amd-dt-em-due { align-items:flex-start; }
+  }
+  @media (max-width: 640px) {
+    #asg-admin-master-dashboard .amd-lh-assets-grid { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -1354,6 +2847,7 @@
     if (!root) return;
 
     var STATS_API = "https://script.google.com/macros/s/AKfycbxwagjmBkLzuHyEmymm1MwtbwiqMAZjKcMLPb_RVD6Lo0hNfMEoXh-76MzJ3dk5NBPv9A/exec";
+    var LISTINGS_API = String(window.ASG_LISTINGS_API || "https://script.google.com/a/compass.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec").trim();
     var HUB_DATA_API = String(window.ASG_HUB_DATA_API || "https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
     var ALL_TIME_CLOSED_API = String(window.ASG_ALL_TIME_CLOSED_API || STATS_API).trim();
     var REQUEST_TIMEOUT_MS = 12000;
@@ -1361,6 +2855,8 @@
     var CHART_MIN_YEAR = 2018;
     var CHART_MAX_YEAR = 2026;
     var CHART_FONT_FAMILY = "Outfit, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+    var AMD_CAROUSEL_CHEV_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+    var AMD_CAROUSEL_CHEV_R = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
 
     var STAGE_WEIGHTS = {
       "offer submitted": 0.35,
@@ -1379,11 +2875,18 @@
       statsAgentsAllTime: [],
       ytdSummary: null,
       allTimeSummary: null,
-      tab: "leaderboard",
+      tab: "sell",
       dealsView: "tracker",
       dealsTrackerFilter: "all",
       dealsTrackerSearch: "",
       dealsTrackerAgent: "all",
+      buyAgentFilter: "all",
+      buySearch: "",
+      sellAgentFilter: "all",
+      sellSearch: "",
+      sellActiveAddress: "",
+      closedAgentFilter: "all",
+      closedSearch: "",
       closedView: "ytd",
       leaderboardView: "ytd",
       forecastView: "team",
@@ -1391,7 +2894,24 @@
       loadedAt: null,
       qtFilter: "all",
       agentMatrixView: "ytd",
-      agentMatrixTier: "all"
+      agentMatrixTier: "all",
+      listingsRows: [],
+      listingsLoaded: false,
+      listingsFetching: false,
+      listingsError: null,
+      sellPhotosByAddress: {},
+      sellPhotoIndexByAddress: {},
+      sellPhotoLoadingAddress: "",
+      pipelineFeedError: null,
+      coreFeedsPending: true,
+      // Marketing Action Plan stage override per address. When the agent
+      // finishes both action-plan steps and clicks "Continue", we flip the
+      // stage to 2 locally so the overlay slides away even before the sheet
+      // sync confirms. Reset on close to keep the next listing pristine.
+      sellStageOverride: {},
+      // UI-only flag so the questionnaire CTA stays in its "✓ Sent" state
+      // for the rest of this session, regardless of subsequent re-renders.
+      sellQCopied: {}
     };
 
     function esc(s) {
@@ -1611,6 +3131,30 @@
       return String(key || "").split(" ").map(function (p) {
         return p ? p.charAt(0).toUpperCase() + p.slice(1) : "";
       }).join(" ").trim();
+    }
+    function normalizeAgentLookup(name) {
+      var full = normalizeAgentKey(name);
+      var aliases = {
+        "nico": "nicolas gamboa wills",
+        "matt": "matthew clevenger",
+        "gabe": "gabriel rendon",
+        "angie": "angela engelbrecht",
+        "alex 2.0": "alex valladares",
+        "alex v": "alex valladares"
+      };
+      if (aliases[full]) full = aliases[full];
+      return full;
+    }
+    function resolveAgentLinks(name) {
+      var full = normalizeAgentLookup(name);
+      if (AGENT_LINKS[full]) return AGENT_LINKS[full];
+      var first = (full.split(" ")[0] || "").trim();
+      if (!first) return { book: "", request: "" };
+      var keys = Object.keys(AGENT_LINKS);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].split(" ")[0] === first) return AGENT_LINKS[keys[i]];
+      }
+      return { book: "", request: "" };
     }
     function resolveAgentPhotoName(name) {
       var full = normalizeAgentKey(name);
@@ -2888,6 +4432,140 @@
       "cameron sine": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/a6451779-569f-4057-8af4-b1bcdcfbd243/Favorite.jpg?format=2500w",
       "kelsey glascott": "https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/3533d5c5-4a28-4d2a-8506-9956abe833cd/Kelsey+G-2.jpg?format=2500w"
     };
+    // Per-agent action links (Acuity scheduling + Asana design request forms).
+    // Mirrors the data in admin-dashboard.html so the listing detail can deep-link.
+    var AGENT_LINKS = {
+      "alex stoykov": {
+        book: "https://asgmarketing.as.me/?firstName=Alex&lastName=Stoykov&email=alex.stoykov%40compass.com&phone=3125933110&field:18245579=Alex%20Stoykov&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=pt7tbwwT4JUDdxLj2fbm5Q&d=7720513273924"
+      },
+      "sam abadi": {
+        book: "https://asgmarketing.as.me/?firstName=Sam&lastName=Abadi&email=sam.abadi%40compass.com&phone=8473344778&field:18245579=Sam%20Abadi&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=5GNV6fln0YFlMiZrsAJ2Kw&d=7720513273924"
+      },
+      "shelly channey": {
+        book: "https://asgmarketing.as.me/?firstName=Shelly&lastName=Channey&email=shelly.kapoor%40compass.com&phone=6303624041&field:18245579=Shelly%20Channey&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=7BkpF9s9vX9oGTsiYl-ftg&d=7720513273924"
+      },
+      "nicolas gamboa wills": {
+        book: "https://asgmarketing.as.me/?firstName=Nicolas&lastName=Gamboa%20Wills&email=nicolas.gamboawills%40compass.com&phone=3126100301&field:18245579=Nicolas%20Gamboa%20Wills&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=8Lw82C2zcajV-xHYEw_75w&d=7720513273924"
+      },
+      "julian levit": {
+        book: "https://asgmarketing.as.me/?firstName=Julian&lastName=Levit&email=julianlevit%40compass.com&phone=8473028804&field:18245579=Julian%20Levit&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=RJKIMRElm8E7ppFlclt_fA&d=7720513273924"
+      },
+      "mino conenna": {
+        book: "https://asgmarketing.as.me/?firstName=Mino&lastName=Conenna&email=mino.conenna%40compass.com&phone=8474777779&field:18245579=Mino%20Conenna&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=3-JUPCfHN838A8krYo9isQ&d=7720513273924"
+      },
+      "angela engelbrecht": {
+        book: "https://asgmarketing.as.me/?firstName=Angela&lastName=Engelbrecht&email=angela.engelbrecht%40compass.com&phone=3122139916&field:18245579=Angela%20Engelbrecht&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=PA4Y8j5F1YR8dzSfesDe6A&d=7720513273924"
+      },
+      "layne zagorin": {
+        book: "https://asgmarketing.as.me/?firstName=Layne&lastName=Zagorin&email=layne.zagorin%40compass.com&phone=7734250039&field:18245579=Layne%20Zagorin&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=kZ8ielvYc-6DkzJ0Cej_qQ&d=7720513273924"
+      },
+      "barbara laken": {
+        book: "https://asgmarketing.as.me/?firstName=Barbara&lastName=Laken&email=barbara.laken%40compass.com&phone=3122821087&field:18245579=Barbara%20Laken&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=espwfceO9_elFbLyN8iBbw&d=7720513273924"
+      },
+      "gabriel rendon": {
+        book: "https://asgmarketing.as.me/?firstName=Gabriel&lastName=Rendon&email=gabriel.rendon%40compass.com&phone=8478137507&field:18245579=Gabriel%20Rendon&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=Dn1_kKOAfdejXCnkIIEktA&d=7720513273924"
+      },
+      "matthew clevenger": {
+        book: "https://asgmarketing.as.me/?firstName=Matthew&lastName=Clevenger&email=matthew.clevenger%40compass.com&phone=6197084420&field:18245579=Matthew%20Clevenger&field:18245580=Admin%20Hub",
+        request: "https://form.asana.com/?k=EqgNKJpvBteZLA1laayeAQ&d=7720513273924"
+      },
+      "justin curran": {
+        book: "https://asgmarketing.as.me/?firstName=Justin&lastName=Curran&email=justin.curran%40compass.com&phone=8475077753&field:18245579=Justin%20Curran&field:18245580=Admin%20Hub",
+        request: ""
+      }
+    };
+    // Per-agent seller questionnaire links. Sourced from the Team Directory
+    // (`team-directory.html` → person.request) — same Asana form the agent
+    // hands their new seller. Keep this list in sync with the directory.
+    var AGENT_QUESTIONNAIRE_LINKS = {
+      "alex stoykov": "https://form.asana.com/?k=EFcJ61aAKXCrMf_iEkbPFg&d=7720513273924",
+      "sam abadi": "https://form.asana.com/?k=T39wL3gqPVG3R62sbGLY9Q&d=7720513273924",
+      "shelly channey": "https://form.asana.com/?k=_PuAEWqmrh6Z6CsUJE6ztg&d=7720513273924",
+      "nicolas gamboa wills": "https://form.asana.com/?k=bxl6UyBcYxbpDslZ7ZkNkQ&d=7720513273924",
+      "julian levit": "https://form.asana.com/?k=FC_lxXSCyr-TvyVPRhylgA&d=7720513273924",
+      "mino conenna": "https://form.asana.com/?k=CcNmPwIB3ARfyWOxLd1FUg&d=7720513273924",
+      "angela engelbrecht": "https://form.asana.com/?k=iAJkMMZ0j3oZw2BVQmiMuw&d=7720513273924",
+      "layne zagorin": "https://form.asana.com/?k=fW8VDNYYSL3vWmD-jNhO4w&d=7720513273924",
+      "barbara laken": "https://form.asana.com/?k=WzA9i1p-T3T5AiseM_SC5Q&d=7720513273924",
+      "gabriel rendon": "https://form.asana.com/?k=ZsDRdyHI1w-VVCBqCnKaJQ&d=7720513273924",
+      "matthew clevenger": "https://form.asana.com/?k=u-68Hp9w1zgi0dT14ATiBA&d=7720513273924",
+      "justin curran": "",
+      "alex valladares": ""
+    };
+    function resolveAgentQuestionnaireLink(name) {
+      var full = String(name || "").toLowerCase().trim();
+      if (AGENT_QUESTIONNAIRE_LINKS[full]) return AGENT_QUESTIONNAIRE_LINKS[full];
+      var first = full.split(" ")[0];
+      var keys = Object.keys(AGENT_QUESTIONNAIRE_LINKS);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].split(" ")[0] === first && AGENT_QUESTIONNAIRE_LINKS[keys[i]]) return AGENT_QUESTIONNAIRE_LINKS[keys[i]];
+      }
+      return "";
+    }
+    // Listing-detail bento-box icon glyphs.
+    // SVG paths are designed to render with the .amd-lh-ico / .amd-lh-stat-ico /
+    // .amd-lh-asset-ico CSS (currentColor stroke, no fill, ~1.6 stroke width).
+    var BENTO_ICONS = {
+      // Main bento section icons.
+      status:       '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 8.6 8 4l5.2 4.6V13a.8.8 0 0 1-.8.8H3.6A.8.8 0 0 1 2.8 13V8.6Z"/><path d="M6.5 13.6V10h3v3.6"/></svg>',
+      photos:       '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.4h1.8l1.1-1.6h4.2l1.1 1.6H13c.55 0 1 .45 1 1V12c0 .55-.45 1-1 1H3a1 1 0 0 1-1-1V6.4c0-.55.45-1 1-1Z"/><circle cx="8" cy="9.2" r="2.2"/></svg>',
+      matterport:   '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6 13.4 5v6L8 13.4 2.6 11V5Z"/><path d="M2.6 5 8 7.8m5.4-2.8L8 7.8m0 0v5.6"/></svg>',
+      marketing:    '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.4 6.4h2.2l5-3v9.2l-5-3H3.4a.8.8 0 0 1-.8-.8V7.2a.8.8 0 0 1 .8-.8Z"/><path d="M12.5 6.4c.6.5.9 1.05.9 1.8 0 .75-.3 1.3-.9 1.8"/></svg>',
+      // Status-grid cell icons.
+      pin:          '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13.6s4.2-4 4.2-7.1A4.2 4.2 0 0 0 3.8 6.5c0 3.1 4.2 7.1 4.2 7.1Z"/><circle cx="8" cy="6.4" r="1.5"/></svg>',
+      ruler:        '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="6.2" width="11.2" height="3.6" rx="0.6"/><path d="M4.8 6.2v1.4m2-1.4v1.8m2-1.8v1.4m2-1.8v1.8"/></svg>',
+      chart:        '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 13.4h10.8"/><path d="M4.6 11V8.4M7.4 11V6M10.2 11V7.2"/></svg>',
+      // Marketing-asset tile icons.
+      camera:       '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.4h1.8l1.1-1.6h4.2l1.1 1.6H13c.55 0 1 .45 1 1V12c0 .55-.45 1-1 1H3a1 1 0 0 1-1-1V6.4c0-.55.45-1 1-1Z"/><circle cx="8" cy="9.2" r="2.2"/></svg>',
+      cube:         '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6 13.4 5v6L8 13.4 2.6 11V5Z"/><path d="M2.6 5 8 7.8m5.4-2.8L8 7.8m0 0v5.6"/></svg>',
+      video:        '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="4.4" width="8.4" height="7.2" rx="1.2"/><path d="m10.8 6.6 2.6-1.4v5.6l-2.6-1.4Z"/></svg>',
+      plan:         '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="2.6" width="11.2" height="10.8" rx="1.4"/><path d="M5.8 2.6v6.8m-3.4-3h6.8m.4 0H13.6M5.8 9.4v4"/></svg>',
+      doc:          '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.4 2.6h5l2.6 2.6V13a.8.8 0 0 1-.8.8H4.4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z"/><path d="M9.4 2.6v2.6H12M5.6 8.4h4.8m-4.8 2h4.8m-4.8 2h3"/></svg>',
+      book:         '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3.4h4.4c.7 0 1.2.5 1.2 1.2v8.8a1 1 0 0 0-1-1H3Z"/><path d="M13 3.4H8.6c-.7 0-1.2.5-1.2 1.2v8.8a1 1 0 0 1 1-1H13Z"/></svg>',
+      flyer:        '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2.6" width="10" height="10.8" rx="1.2"/><path d="M5.2 5.4h5.6M5.2 7.6h5.6M5.2 9.8h3.6"/></svg>',
+      sign:         '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6v10.8"/><path d="M3.6 5.4h7.6l1.6 1.6-1.6 1.6H3.6Zm9 4H4.8L3.2 11l1.6 1.6h7.6"/></svg>'
+    };
+    // Map a marketing-asset label to its tile icon kind.
+    var MARKETING_ASSET_ICONS = {
+      "Photos": "camera",
+      "Matterport": "cube",
+      "Video": "video",
+      "Floor Plan": "plan",
+      "Fact Sheet": "doc",
+      "Open House Materials": "flyer"
+    };
+    // For empty marketing-asset tiles, decide whether the fallback CTA is
+    // "Book" (Acuity scheduling) or "Request" (Asana design request form).
+    // Photos / Matterport / Video are booked services; the rest are requested.
+    var MARKETING_ASSET_ACTION = {
+      "Photos": "book",
+      "Matterport": "book",
+      "Video": "book",
+      "Floor Plan": "book",
+      "Fact Sheet": "request",
+      "Open House Materials": "request"
+    };
+    // Map each marketing-asset tile label to the service-state machine key
+    // used by getCaptureServiceState() / getMarketingMaterialsState(). The
+    // four request-based tiles share a single Marketing-Materials state.
+    var MARKETING_ASSET_SERVICE_KEY = {
+      "Photos": "photos",
+      "Matterport": "matterport",
+      "Video": "video",
+      "Floor Plan": "floor_plan",
+      "Fact Sheet": "marketing_materials",
+      "Open House Materials": "marketing_materials"
+    };
     var AGENT_TIERS = {
       "alex stoykov": "senior",
       "sam abadi": "senior",
@@ -4124,6 +5802,34 @@
       return head + body;
     }
 
+    function dataSpinnerHtml(extraClass) {
+      var c = "amd-data-spinner" + (extraClass ? " " + extraClass : "");
+      return '<span class="' + c + '" role="presentation" aria-hidden="true"></span>';
+    }
+
+    function renderCoreFeedsPendingPanel(tab) {
+      var titles = {
+        buy: "Buy Deals",
+        closed: "Closed Deals",
+        viz: "Data Visualization",
+        deals: "Deals Workspace",
+        summary: "Summary",
+        leaderboard: "Leaderboard",
+        forecast: "Forecast"
+      };
+      var title = titles[tab] || "Workspace";
+      return (
+        '<div class="amd-panel-head">' +
+          '<h3 class="amd-panel-title">' + esc(title) + "</h3>" +
+          '<p class="amd-panel-sub">Pipeline and stats are still syncing from the published feeds.</p>' +
+        "</div>" +
+        '<div class="amd-panel-body-loading" aria-busy="true">' +
+          dataSpinnerHtml() +
+          "<p>Loading…</p>" +
+        "</div>"
+      );
+    }
+
     function render() {
       var model = computeModel();
       var updated = state.loadedAt
@@ -4146,7 +5852,488 @@
       var nextCloseDateLabel = nextClosing ? formatShortDate(parseDate(nextClosing.closeDate)) : "No Date";
 
       var panelHTML = "";
-      if (state.tab === "deals") {
+      var overlayHTML = "";
+      var sellDashboardMetrics = null;
+      if (state.tab === "sell") {
+        if (!state.listingsLoaded && !state.listingsFetching) {
+          fetchListingsMaster();
+        }
+        var allListings = (state.listingsRows || []).slice();
+        var sellAgent = state.sellAgentFilter || "all";
+        var sellSearch = state.sellSearch || "";
+        var scopedRows = allListings.filter(function (row) {
+          var agent = normalizeListingAgent(row) || "Unknown";
+          return sellAgent === "all" || agent === sellAgent;
+        });
+        var scopedActiveRows = scopedRows.filter(function (row) { return !listingIsClosed(row); });
+        var scopedClosedRows = scopedRows.filter(function (row) { return listingIsClosed(row); });
+        var sellFiltered = scopedActiveRows.filter(function (row) {
+          var agent = normalizeListingAgent(row) || "Unknown";
+          return matchesQuery(
+            [
+              row.address || "",
+              row.neighborhood || "",
+              row.status || "",
+              row.phaseKey || "",
+              row.listingType || "",
+              agent
+            ],
+            sellSearch
+          );
+        });
+        var sellAgentOptions = makeAgentOptions(allListings, sellAgent, "All Agents · " + fmtNum(allListings.length));
+        sellDashboardMetrics = {
+          totalListings: allListings.length,
+          activeListings: scopedActiveRows.length,
+          closedListings: scopedClosedRows.length,
+          filteredActive: sellFiltered.length
+        };
+        var sellStatVal = function (n) {
+          return !state.listingsLoaded ? dataSpinnerHtml("amd-data-spinner--sm") : fmtNum(n);
+        };
+        if (!state.sellActiveAddress) {
+          panelHTML =
+          '<div class="amd-panel-head">' +
+            '<h3 class="amd-panel-title">Listings Workspace</h3>' +
+            '<p class="amd-panel-sub">Admin listing operations from the Listing Hub sheet. Click a card to open a full in-block workspace.</p>' +
+          "</div>" +
+          '<div class="amd-view-tools">' +
+            '<select data-sell-agent="' + esc(sellAgent) + '">' + sellAgentOptions + "</select>" +
+            '<input type="search" data-sell-search value="' + esc(sellSearch) + '" placeholder="Search by address, neighborhood, or agent...">' +
+          "</div>" +
+          '<div class="amd-sell-stats">' +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Active Listings</div><div class="amd-sell-stat-v">' + sellStatVal(scopedActiveRows.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed Listings</div><div class="amd-sell-stat-v">' + sellStatVal(scopedClosedRows.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Showing</div><div class="amd-sell-stat-v">' + sellStatVal(sellFiltered.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Total Scoped</div><div class="amd-sell-stat-v">' + sellStatVal(scopedRows.length) + "</div></article>" +
+          "</div>";
+        if (state.listingsFetching && !allListings.length) {
+          panelHTML += '<div class="amd-loading" aria-busy="true">' + dataSpinnerHtml() + " Loading listings from Listing Hub…</div>";
+        } else if (state.listingsError) {
+          panelHTML += '<div class="amd-error">Listings feed error: ' + esc(state.listingsError) + "</div>";
+        } else if (!sellFiltered.length) {
+          panelHTML += '<div class="amd-empty">No sell listings match this filter yet.</div>';
+        } else {
+          panelHTML +=
+            '<div class="amd-sell-grid">' +
+            sellFiltered
+              .map(function (row) {
+                var addr = String(row.address || "").trim();
+                var agent = normalizeListingAgent(row) || "Unknown";
+                var chipLabels = listingChipLabels(row);
+                var specsText = listingSpecsText(row);
+                var cover = toDriveDirectImageUrl(row.coverImage);
+                var coverBackup = driveImageBackupUrl(row.coverImage);
+                return (
+                  '<article class="amd-sell-card" role="button" tabindex="0" data-sell-open="' + esc(addr) + '">' +
+                    '<div class="amd-sell-card-cover">' +
+                      (cover
+                        ? '<img src="' + esc(cover) + '" data-backup="' + esc(coverBackup || "") + '" alt="' + esc(addr || "Listing cover") + '" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.backup && this.src!==this.dataset.backup){this.src=this.dataset.backup;return;} this.onerror=null;this.parentNode.innerHTML=\'<div class=&quot;amd-sell-cover-empty&quot;>No cover image</div>\'">'
+                        : '<div class="amd-sell-cover-empty">No cover image</div>') +
+                    "</div>" +
+                    '<div class="amd-sell-main">' +
+                    '<h4 class="amd-sell-address">' + esc(addr || "Untitled Listing") + "</h4>" +
+                    '<p class="amd-sell-meta">' + esc(agent) + (row.neighborhood ? " · " + esc(row.neighborhood) : "") + "</p>" +
+                    '<div class="amd-sell-badges">' +
+                      chipLabels.map(function (chip) { return '<span class="amd-sell-badge">' + esc(chip) + "</span>"; }).join("") +
+                    "</div>" +
+                    '<p class="amd-sell-meta">' +
+                      esc(specsText || "No bed/bath/sqft yet") +
+                    "</p>" +
+                    '<div class="amd-sell-links">' +
+                      '<button class="amd-mini-btn is-dark" type="button" data-sell-open="' + esc(addr) + '">Details</button>' +
+                    "</div>" +
+                    "</div>" +
+                  "</article>"
+                );
+              })
+              .join("") +
+            "</div>";
+        }
+        }
+        if (state.sellActiveAddress) {
+          var active = null;
+          var ai;
+          for (ai = 0; ai < allListings.length; ai++) {
+            if (String(allListings[ai].address || "").trim() === state.sellActiveAddress) {
+              active = allListings[ai];
+              break;
+            }
+          }
+          if (!active) active = { address: state.sellActiveAddress };
+          var slidePhotos = getSellPhotosForAddress(state.sellActiveAddress);
+          var isSlideLoading = state.sellPhotoLoadingAddress === state.sellActiveAddress;
+          var slideIdx = Number(state.sellPhotoIndexByAddress[state.sellActiveAddress] || 0);
+          if (slidePhotos.length) {
+            slideIdx = ((slideIdx % slidePhotos.length) + slidePhotos.length) % slidePhotos.length;
+            state.sellPhotoIndexByAddress[state.sellActiveAddress] = slideIdx;
+          } else {
+            slideIdx = 0;
+          }
+          var slideItem = slidePhotos.length ? slidePhotos[slideIdx] : null;
+          var assetRows = [
+            ["Photos", active.photos],
+            ["Matterport", active.matterport],
+            ["Video", active.video],
+            ["Floor Plan", active.floorPlan],
+            ["Fact Sheet", active.factSheet],
+            ["Open House Materials", active.openHouseMaterialsUrl]
+          ];
+          var mpRaw = String(active.matterport || "").trim();
+          var mpEmbed = matterportEmbedUrl(mpRaw);
+          var specsText = listingSpecsText(active);
+          var detailChips = listingChipLabels(active);
+          var activeAgentName = normalizeListingAgent(active) || active.agent || "—";
+          var agentPhoto = resolveAgentPhotoName(activeAgentName);
+          var agentLinks = resolveAgentLinks(activeAgentName) || { book: "", request: "" };
+          var agentBookUrl = String(agentLinks.book || "").trim();
+          var agentRequestUrl = String(agentLinks.request || "").trim();
+          var photosAssetUrl = String(active.photos || "").trim();
+          var agentFirstName = String(activeAgentName || "").split(" ")[0] || "";
+          panelHTML =
+            '<div class="amd-panel-head amd-panel-head--listing">' +
+              '<h3 class="amd-panel-title amd-panel-title--listing">' + esc(state.sellActiveAddress) + '</h3>' +
+              '<div class="amd-sell-overlay-actions"><button class="amd-sell-overlay-x" type="button" data-sell-close="1" aria-label="Close">' +
+                '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+              '</button></div>' +
+            "</div>" +
+            '<div class="amd-sell-detail-page">' +
+              '<section class="amd-lh-status">' +
+                '<div class="amd-lh-label">Listing Overview</div>' +
+                '<div class="amd-lh-overview">' +
+                  '<div class="amd-lh-agent">' +
+                    (agentPhoto
+                      ? '<img class="amd-lh-agent-photo" src="' + esc(agentPhoto) + '" alt="' + esc(activeAgentName) + '" loading="lazy">'
+                      : '<div class="amd-lh-agent-photo" aria-hidden="true"></div>') +
+                    '<div><div class="amd-lh-agent-name">' + esc(activeAgentName) + '</div><div class="amd-lh-agent-role">Listing Agent</div></div>' +
+                  "</div>" +
+                  renderListingEditChips(active) +
+                "</div>" +
+                (function () {
+                  var sq = getSellerQuestionnaire(active);
+                  var qLink = resolveAgentQuestionnaireLink(activeAgentName);
+                  var sellerLine =
+                    sq.name
+                      ? esc(sq.name)
+                      : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">No seller contact yet</span>';
+                  var metaBits = [];
+                  if (sq.email) metaBits.push(esc(sq.email));
+                  if (sq.phone) metaBits.push(esc(sq.phone));
+                  var metaHtml = metaBits.length
+                    ? '<div class="amd-lh-stat-meta">' + metaBits.join(" · ") + "</div>"
+                    : (sq.raw
+                        ? ""
+                        : '<div class="amd-lh-stat-meta">Seller questionnaire not received yet.</div>');
+                  var actions = [];
+                  if (qLink) {
+                    var copiedClass = (state.sellQCopied && state.sellQCopied[state.sellActiveAddress]) ? " is-copied" : "";
+                    actions.push(
+                      '<button class="amd-lh-stat-action is-secondary is-icon' + copiedClass + '" type="button"' +
+                      ' data-sell-copy-questionnaire="' + esc(state.sellActiveAddress) + '"' +
+                      ' data-sell-copy-questionnaire-link="' + esc(qLink) + '"' +
+                      ' aria-label="Copy seller questionnaire link">' +
+                        '<svg class="amd-cta-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>' +
+                        '<svg class="amd-cta-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12.5 10 17.5 19 7.5"/></svg>' +
+                        "<span>Copy link</span>" +
+                      "</button>"
+                    );
+                  }
+                  if (sq.answers.length || sq.raw) {
+                    actions.push('<button class="amd-lh-stat-action" type="button" data-sell-open-sq="' + esc(state.sellActiveAddress) + '">More details</button>');
+                  }
+                  var actionsHtml = actions.length
+                    ? '<div class="amd-lh-stat-actions">' + actions.join("") + "</div>"
+                    : "";
+                  return (
+                    '<div class="amd-lh-status-grid">' +
+                      '<div class="amd-lh-stat"><div class="amd-lh-stat-k">Neighborhood</div><div class="amd-lh-stat-v">' + esc(active.neighborhood || "—") + "</div></div>" +
+                      '<div class="amd-lh-stat"><div class="amd-lh-stat-k">Specs</div><div class="amd-lh-stat-v">' + esc(specsText || "No bed/bath/sqft yet") + "</div></div>" +
+                      '<div class="amd-lh-stat is-seller">' +
+                        '<div class="amd-lh-stat-k">Seller Questionnaire</div>' +
+                        '<div class="amd-lh-stat-v">' + sellerLine + "</div>" +
+                        metaHtml +
+                        actionsHtml +
+                      "</div>" +
+                    "</div>"
+                  );
+                })() +
+              "</section>" +
+              (function () {
+                var plan = getMarketingActionPlanState(active, state.sellActiveAddress);
+                var questionnaireLink = resolveAgentQuestionnaireLink(activeAgentName);
+                var photoBooked = !!parseListingBookingDate(active) ||
+                  String(active.photosStatus || "").toLowerCase().indexOf("book") >= 0;
+                var bookingDateLabelStr = formatBookingDate(parseListingBookingDate(active));
+                var photosEtaLabel = formatBookingDate(computeServiceEta("photos", parseListingBookingDate(active)));
+                var matterportEtaLabel = formatBookingDate(computeServiceEta("matterport", parseListingBookingDate(active)));
+
+                // Photos bento empty-state messaging respects the booked state.
+                var photosEmptyMsg;
+                if (isSlideLoading) {
+                  photosEmptyMsg = "Loading photos...";
+                } else if (photoBooked) {
+                  photosEmptyMsg = bookingDateLabelStr
+                    ? "Booked for " + bookingDateLabelStr +
+                      (photosEtaLabel ? " · Delivers " + photosEtaLabel : "")
+                    : "Photo shoot booked";
+                } else {
+                  photosEmptyMsg = "No photos found";
+                }
+                var matterportEmptyMsg;
+                if (mpRaw) {
+                  matterportEmptyMsg = "Embed not available for this URL.";
+                } else if (photoBooked) {
+                  matterportEmptyMsg = bookingDateLabelStr
+                    ? "Booked for " + bookingDateLabelStr +
+                      (matterportEtaLabel ? " · Delivers " + matterportEtaLabel : "")
+                    : "Matterport booked";
+                } else {
+                  matterportEmptyMsg = "No Matterport link yet.";
+                }
+
+                var marketingStatusHtml = renderMarketingStatusSection(active, state.sellActiveAddress, agentBookUrl, agentRequestUrl);
+                var marketingAssetsHtml =
+                  '<article class="amd-lh-card is-marketing">' +
+                    '<div class="amd-lh-label">Marketing Assets</div>' +
+                    '<div class="amd-lh-fill">' +
+                    '<div class="amd-lh-assets-grid">' +
+                      assetRows
+                        .map(function (a) {
+                          var label = a[0];
+                          var href = String(a[1] || "").trim();
+                          var hasHref = !!href;
+                          var action = MARKETING_ASSET_ACTION[label] || "request";
+                          var fallbackUrl = action === "book" ? agentBookUrl : agentRequestUrl;
+                          var fallbackLabel = action === "book" ? "Book →" : "Request →";
+                          var btnHtml;
+                          if (hasHref) {
+                            btnHtml = '<a class="amd-lh-asset-btn" href="' + esc(href) + '" target="_blank" rel="noopener">Open Asset ↗</a>';
+                          } else if (fallbackUrl) {
+                            btnHtml = '<a class="amd-lh-asset-btn is-request" href="' + esc(fallbackUrl) + '" target="_blank" rel="noopener" title="' + (action === "book" ? "Book service" : "Submit a request") + ' for ' + esc(agentFirstName || activeAgentName) + '">' + fallbackLabel + "</a>";
+                          } else {
+                            btnHtml = '<a class="amd-lh-asset-btn is-off" href="#" target="_blank" rel="noopener">Missing</a>';
+                          }
+                          var iconKind = MARKETING_ASSET_ICONS[label] || "doc";
+                          var iconSvg = BENTO_ICONS[iconKind] || BENTO_ICONS.doc;
+                          // Per-tile status + ETA. Capture services (photos /
+                          // matterport / floor plan / video) anchor off the
+                          // Acuity booking date; request services (the four
+                          // marketing materials) share the marketing-materials
+                          // state machine.
+                          var serviceKey = MARKETING_ASSET_SERVICE_KEY[label];
+                          var assetMetaHtml = "";
+                          if (serviceKey) {
+                            var bookingForEta = parseListingBookingDate(active);
+                            var assetState, assetStatusLabel, assetEtaLabel = "";
+                            if (serviceKey === "marketing_materials") {
+                              assetState = getMarketingMaterialsState(active);
+                              if (assetState === "delivered") {
+                                assetStatusLabel = "Delivered";
+                              } else if (assetState === "building") {
+                                assetStatusLabel = "Marketing is on it";
+                                assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
+                              } else if (assetState === "requested") {
+                                assetStatusLabel = "Requested";
+                                assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
+                              } else {
+                                assetStatusLabel = "Not Requested";
+                              }
+                            } else {
+                              assetState = getCaptureServiceState(active, serviceKey);
+                              if (assetState === "delivered") {
+                                assetStatusLabel = "Delivered";
+                              } else if (assetState === "editing") {
+                                assetStatusLabel = "Editing";
+                                assetEtaLabel = formatBookingDate(computeServiceEta(serviceKey, bookingForEta));
+                              } else if (assetState === "booked") {
+                                assetStatusLabel = bookingForEta
+                                  ? "Booked · " + formatBookingDate(bookingForEta)
+                                  : "Booked";
+                                assetEtaLabel = formatBookingDate(computeServiceEta(serviceKey, bookingForEta));
+                              } else {
+                                assetStatusLabel = "Not Booked";
+                              }
+                            }
+                            var assetTone = SERVICE_STATE_TONE[assetState] || "pending";
+                            assetMetaHtml =
+                              '<div class="amd-lh-asset-meta is-' + esc(assetTone) + '">' +
+                                '<span class="amd-lh-asset-status">' + esc(assetStatusLabel) + "</span>" +
+                                (assetEtaLabel ? "Delivers " + esc(assetEtaLabel) : "") +
+                              "</div>";
+                          }
+                          return '<div class="amd-lh-asset">' +
+                            '<div class="amd-lh-asset-head">' +
+                            '<span class="amd-lh-asset-ico is-' + iconKind + '">' + iconSvg + "</span>" +
+                            '<div class="amd-lh-asset-title">' + esc(label) + "</div>" +
+                            "</div>" +
+                            assetMetaHtml +
+                            btnHtml +
+                            "</div>";
+                        })
+                        .join("") +
+                    "</div>" +
+                    "</div>" +
+                  "</article>";
+                var photosCardHtml =
+                  '<article class="amd-lh-card">' +
+                    '<div class="amd-lh-label"><span class="amd-lh-ico is-photos">' + BENTO_ICONS.photos + '</span>Photos</div>' +
+                    '<div class="amd-lh-fill">' +
+                    '<div class="amd-sell-carousel">' +
+                      '<div class="amd-sell-carousel-view">' +
+                        '<button class="amd-sell-carousel-arrow" type="button" aria-label="Previous photo" data-sell-photo-prev="' + esc(state.sellActiveAddress) + '"' +
+                        (!slidePhotos.length ? " disabled" : "") +
+                        ">" +
+                        AMD_CAROUSEL_CHEV_L +
+                        "</button>" +
+                        '<div class="amd-sell-carousel-img-wrap">' +
+                      (slideItem
+                        ? '<img class="amd-sell-carousel-img" src="' + esc(slideItem.url) + '" data-backup="' + esc(slideItem.backupUrl || "") + '" alt="' + esc(slideItem.name || active.address || "Listing photo") + '" loading="lazy" onerror="if(this.dataset.backup && this.src!==this.dataset.backup){this.src=this.dataset.backup;return;} this.onerror=null;">'
+                        : '<div class="amd-sell-cover-empty" style="height:230px">' + esc(photosEmptyMsg) + "</div>") +
+                        "</div>" +
+                        '<button class="amd-sell-carousel-arrow is-next" type="button" aria-label="Next photo" data-sell-photo-next="' + esc(state.sellActiveAddress) + '"' +
+                        (!slidePhotos.length ? " disabled" : "") +
+                        ">" +
+                        AMD_CAROUSEL_CHEV_R +
+                        "</button>" +
+                      "</div>" +
+                      '<div class="amd-sell-carousel-foot">' +
+                        '<div class="amd-sell-links">' +
+                          (photosAssetUrl
+                            ? '<button class="amd-mini-btn" type="button" data-sell-copy-photos="' + esc(photosAssetUrl) + '">Copy link</button>' +
+                              '<button type="button" class="amd-mini-btn is-dark" data-sell-photo-download-all="' + esc(state.sellActiveAddress) + '">Download all</button>'
+                            : (photoBooked
+                                ? '<span class="amd-mini-btn is-off">Awaiting delivery</span>'
+                                : (agentBookUrl
+                                    ? '<button type="button" class="amd-mini-btn is-dark" data-sell-milestone-action="photos" data-sell-milestone-mode="book" data-sell-milestone-url="' + esc(agentBookUrl) + '" data-sell-milestone-address="' + esc(state.sellActiveAddress) + '">Book Photos</button>'
+                                    : (agentRequestUrl
+                                        ? '<a class="amd-mini-btn" href="' + esc(agentRequestUrl) + '" target="_blank" rel="noopener">Request photos</a>'
+                                        : '<span class="amd-mini-btn is-off">Download all</span>')))) +
+                        "</div>" +
+                        '<div class="amd-sell-carousel-count">' + (slidePhotos.length ? esc((slideIdx + 1) + " / " + slidePhotos.length) : "0 / 0") + "</div>" +
+                      "</div>" +
+                    "</div>" +
+                    '</div>' +
+                  "</article>";
+                var matterportCardHtml =
+                  '<article class="amd-lh-card">' +
+                    '<div class="amd-lh-label"><span class="amd-lh-ico is-matterport">' + BENTO_ICONS.matterport + '</span>Matterport</div>' +
+                    '<div class="amd-lh-fill">' +
+                    (mpEmbed
+                      ? '<div class="amd-lh-media-block">' +
+                          '<div class="amd-lh-embed"><iframe src="' + esc(mpEmbed) + '" allowfullscreen loading="lazy"></iframe></div>' +
+                          '<div class="amd-lh-media-foot">' +
+                            '<div class="amd-sell-links">' +
+                              '<button class="amd-mini-btn" type="button" data-sell-copy-mp="' + esc(mpRaw) + '">Copy link</button>' +
+                              '<a class="amd-mini-btn is-dark" href="' + esc(mpRaw) + '" target="_blank" rel="noopener">Open</a>' +
+                            "</div>" +
+                            '<div class="amd-lh-media-meta">3D tour</div>' +
+                          "</div>" +
+                        "</div>"
+                      : '<div class="amd-sell-carousel">' +
+                          '<div class="amd-sell-carousel-view">' +
+                            '<div class="amd-sell-carousel-img-wrap">' +
+                              '<div class="amd-sell-cover-empty" style="height:230px">' + esc(matterportEmptyMsg) + "</div>" +
+                            "</div>" +
+                          "</div>" +
+                          '<div class="amd-sell-carousel-foot">' +
+                            '<div class="amd-sell-links">' +
+                              (photoBooked
+                                ? '<span class="amd-mini-btn is-off">Awaiting delivery</span>'
+                                : (agentBookUrl
+                                    ? '<button type="button" class="amd-mini-btn is-dark" data-sell-milestone-action="matterport" data-sell-milestone-mode="book" data-sell-milestone-url="' + esc(agentBookUrl) + '" data-sell-milestone-address="' + esc(state.sellActiveAddress) + '">Book Matterport</button>'
+                                    : (agentRequestUrl
+                                        ? '<a class="amd-mini-btn" href="' + esc(agentRequestUrl) + '" target="_blank" rel="noopener">Request Matterport</a>'
+                                        : '<span class="amd-mini-btn is-off">Book Matterport</span>'))) +
+                            "</div>" +
+                            '<div class="amd-lh-media-meta">3D tour</div>' +
+                          "</div>" +
+                        "</div>") +
+                    '</div>' +
+                  "</article>";
+
+                var stageContent =
+                  '<div class="amd-lh-stage-content">' +
+                    marketingStatusHtml +
+                    marketingAssetsHtml +
+                    '<section class="amd-lh-trio">' + photosCardHtml + matterportCardHtml + "</section>" +
+                  "</div>";
+                var overlayHtml = plan.stage === 1
+                  ? renderMarketingActionPlan(active, state.sellActiveAddress, plan, agentBookUrl, agentRequestUrl, questionnaireLink)
+                  : "";
+                return (
+                  '<div class="amd-lh-stage-area" data-stage="' + plan.stage + '" data-sell-stage-address="' + esc(state.sellActiveAddress) + '">' +
+                    stageContent +
+                    overlayHtml +
+                  "</div>"
+                );
+              })() +
+            "</div>";
+        }
+      } else if (state.coreFeedsPending) {
+        panelHTML = renderCoreFeedsPendingPanel(state.tab);
+      } else if (state.tab === "buy") {
+        var buyRows = (state.deals || []).filter(function (d) { return d && dealSideKey(d.side) === "buy" && dealBucket(d) !== "closed"; });
+        var buyAgent = state.buyAgentFilter || "all";
+        var buySearch = state.buySearch || "";
+        var buyAgentCounts = {};
+        buyRows.forEach(function (d) {
+          var n = d.agent || "Unknown";
+          buyAgentCounts[n] = (buyAgentCounts[n] || 0) + 1;
+        });
+        var buyAgents = Object.keys(buyAgentCounts).sort(function (a, b) { return a.localeCompare(b); });
+        var buyAgentOptions = '<option value="all"' + (buyAgent === "all" ? " selected" : "") + '>All Agents · ' + fmtNum(buyRows.length) + '</option>' +
+          buyAgents.map(function (name) {
+            return '<option value="' + esc(name) + '"' + (buyAgent === name ? " selected" : "") + ">" + esc(name) + " · " + buyAgentCounts[name] + "</option>";
+          }).join("");
+        var buyFiltered = buyRows.filter(function (d) {
+          if (buyAgent !== "all" && d.agent !== buyAgent) return false;
+          return matchesQuery([d.address || "", d.agent || "", d.stage || ""], buySearch);
+        });
+        var buyVol = buyFiltered.reduce(function (sum, d) { return sum + (Number(d.price) || 0); }, 0);
+        panelHTML =
+          '<div class="amd-panel-head"><h3 class="amd-panel-title">Buy Deals (Follow Up Boss)</h3><p class="amd-panel-sub">Open buy-side pipeline by agent.</p></div>' +
+          '<div class="amd-view-tools"><select data-buy-agent="' + esc(buyAgent) + '">' + buyAgentOptions + '</select><input type="search" data-buy-search value="' + esc(buySearch) + '" placeholder="Search buy deals..."></div>' +
+          '<div class="amd-sell-stats">' +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Buy Deals</div><div class="amd-sell-stat-v">' + fmtNum(buyFiltered.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Buy Volume</div><div class="amd-sell-stat-v">' + fmtMoney(buyVol) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Total Agents</div><div class="amd-sell-stat-v">' + fmtNum(buyAgents.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Scope</div><div class="amd-sell-stat-v">' + esc(buyAgent === "all" ? "All" : "1") + "</div></article>" +
+          "</div>" +
+          '<div class="amd-table-wrap"><table class="amd-deals-table">' + renderDealsTableHead({ includeRawDate: false, statusLabel: "Stage" }) + "<tbody>" +
+          renderTableRows(buyFiltered, "activePending", { includeRawDate: false }) +
+          "</tbody></table></div>";
+      } else if (state.tab === "closed") {
+        var closedRows = (state.allTimeClosedDeals && state.allTimeClosedDeals.length ? state.allTimeClosedDeals : model.closedDeals).slice();
+        var closedAgent = state.closedAgentFilter || "all";
+        var closedSearch = state.closedSearch || "";
+        var closedAgentCounts = {};
+        closedRows.forEach(function (d) {
+          var n = d.agent || "Unknown";
+          closedAgentCounts[n] = (closedAgentCounts[n] || 0) + 1;
+        });
+        var closedAgents = Object.keys(closedAgentCounts).sort(function (a, b) { return a.localeCompare(b); });
+        var closedOptions = '<option value="all"' + (closedAgent === "all" ? " selected" : "") + '>All Agents · ' + fmtNum(closedRows.length) + '</option>' +
+          closedAgents.map(function (name) {
+            return '<option value="' + esc(name) + '"' + (closedAgent === name ? " selected" : "") + ">" + esc(name) + " · " + closedAgentCounts[name] + "</option>";
+          }).join("");
+        var closedFiltered = closedRows.filter(function (d) {
+          if (closedAgent !== "all" && d.agent !== closedAgent) return false;
+          return matchesQuery([d.address || "", d.agent || "", d.side || ""], closedSearch);
+        });
+        var closedVolFiltered = closedFiltered.reduce(function (sum, d) { return sum + (Number(d.price) || 0); }, 0);
+        panelHTML =
+          '<div class="amd-panel-head"><h3 class="amd-panel-title">Closed Deals</h3><p class="amd-panel-sub">All available closed transactions.</p></div>' +
+          '<div class="amd-view-tools"><select data-closed-agent="' + esc(closedAgent) + '">' + closedOptions + '</select><input type="search" data-closed-search value="' + esc(closedSearch) + '" placeholder="Search closed deals..."></div>' +
+          '<div class="amd-sell-stats">' +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed Deals</div><div class="amd-sell-stat-v">' + fmtNum(closedFiltered.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed Volume</div><div class="amd-sell-stat-v">' + fmtMoney(closedVolFiltered) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Agents</div><div class="amd-sell-stat-v">' + fmtNum(closedAgents.length) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Data Source</div><div class="amd-sell-stat-v">' + esc((state.allTimeClosedDeals || []).length ? "All Time" : "YTD") + "</div></article>" +
+          "</div>" +
+          '<div class="amd-table-wrap"><table class="amd-deals-table">' + renderDealsTableHead({ includeRawDate: true, statusLabel: "Status" }) + "<tbody>" +
+          renderTableRows(closedFiltered, "closed", { includeRawDate: true }) +
+          "</tbody></table></div>";
+      } else if (state.tab === "deals") {
         var dealsSubtabs =
           '<div class="amd-subtabs">' +
             '<button class="amd-subtab ' + (state.dealsView === "tracker" ? "is-active" : "") + '" data-subtab="deals-tracker" type="button">Deal Tracker</button>' +
@@ -4326,8 +6513,35 @@
               )) +
           "</div>";
       } else {
-        state.tab = "viz";
+        state.tab = "sell";
         return render();
+      }
+      var kpiValLoading = '<div class="amd-kpi-value is-loading">' + dataSpinnerHtml() + '</div><div class="amd-kpi-meta">Loading…</div>';
+      var kpisHTML;
+      if (state.tab === "sell" && !state.listingsLoaded) {
+        kpisHTML =
+          '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Listings Pipeline</div><span class="amd-kpi-chip pipeline">Listings</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active Listings</div><span class="amd-kpi-chip pending">Live</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed Listings</div><span class="amd-kpi-chip closed">Closed</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label">Filtered Active</div><span class="amd-kpi-chip next">Search</span></div>' + kpiValLoading + "</article>";
+      } else if (state.tab === "sell" && state.listingsLoaded && sellDashboardMetrics) {
+        kpisHTML =
+          '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Listings Pipeline</div><span class="amd-kpi-chip pipeline">Listings</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.totalListings) + '</div><div class="amd-kpi-meta">total listings in Listing Hub</div></article>' +
+          '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active Listings</div><span class="amd-kpi-chip pending">Live</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.activeListings) + '</div><div class="amd-kpi-meta">currently active scope</div></article>' +
+          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed Listings</div><span class="amd-kpi-chip closed">Closed</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.closedListings) + '</div><div class="amd-kpi-meta">historical + archived scope</div></article>' +
+          '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label">Filtered Active</div><span class="amd-kpi-chip next">Search</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.filteredActive) + '</div><div class="amd-kpi-meta">cards currently visible below</div></article>';
+      } else if (state.coreFeedsPending) {
+        kpisHTML =
+          '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Total Pipeline (YTD)</div><span class="amd-kpi-chip pipeline">YTD</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active</div><span class="amd-kpi-chip pending">Pending</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed</div><span class="amd-kpi-chip closed">YTD Closed</span></div>' + kpiValLoading + "</article>" +
+          '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label next-close-label">Next Closing <span class="amd-keys-icon" aria-hidden="true">🔑</span></div><span class="amd-kpi-chip next">' + esc(nextCloseDateLabel) + '</span></div>' + kpiValLoading + "</article>";
+      } else {
+        kpisHTML =
+          '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Total Pipeline (YTD)</div><span class="amd-kpi-chip pipeline">YTD</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume + model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.totalDeals) + " deals</div></article>" +
+          '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active</div><span class="amd-kpi-chip pending">Pending</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.pendingDeals.length) + " deals</div></article>" +
+          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed</div><span class="amd-kpi-chip closed">YTD Closed</span></div><div class="amd-kpi-value">' + fmtMoney(model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.closedDeals.length) + " deals</div></article>" +
+          '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label next-close-label">Next Closing <span class="amd-keys-icon" aria-hidden="true">🔑</span></div><span class="amd-kpi-chip next">' + esc(nextCloseDateLabel) + '</span></div><div class="amd-kpi-value">' + (nextClosing ? fmtMoneyFull(nextClosing.price) : "—") + '</div><div class="amd-kpi-meta">' + (nextClosing ? (esc(nextClosing.agent || "—") + " · " + esc(nextClosing.side || "—") + " · " + esc(nextClosing.address || "—")) : "No upcoming close date available") + "</div></article>";
       }
 
       root.innerHTML =
@@ -4335,7 +6549,7 @@
           '<div class="amd-head">' +
             "<div>" +
               '<h2 class="amd-title">Team Performance</h2>' +
-              '<p class="amd-subtitle">Deals, leaderboard, and visualization views.</p>' +
+              '<p class="amd-subtitle">Master operations workspace for Buy, Sell, Closed, and Data Viz.</p>' +
             "</div>" +
             '<div class="amd-actions">' +
               '<div class="amd-updated">Last refresh: ' + esc(updated) + "</div>" +
@@ -4343,24 +6557,453 @@
             "</div>" +
           "</div>" +
           '<div class="amd-kpis">' +
-            '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Total Pipeline (YTD)</div><span class="amd-kpi-chip pipeline">YTD</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume + model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.totalDeals) + " deals</div></article>" +
-            '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active</div><span class="amd-kpi-chip pending">Pending</span></div><div class="amd-kpi-value">' + fmtMoney(model.pendingVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.pendingDeals.length) + " deals</div></article>" +
-            '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed</div><span class="amd-kpi-chip closed">YTD Closed</span></div><div class="amd-kpi-value">' + fmtMoney(model.closedVolume) + '</div><div class="amd-kpi-meta">' + fmtNum(model.closedDeals.length) + " deals</div></article>" +
-            '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label next-close-label">Next Closing <span class="amd-keys-icon" aria-hidden="true">🔑</span></div><span class="amd-kpi-chip next">' + esc(nextCloseDateLabel) + '</span></div><div class="amd-kpi-value">' + (nextClosing ? fmtMoneyFull(nextClosing.price) : "—") + '</div><div class="amd-kpi-meta">' + (nextClosing ? (esc(nextClosing.agent || "—") + " · " + esc(nextClosing.side || "—") + " · " + esc(nextClosing.address || "—")) : "No upcoming close date available") + "</div></article>" +
+            kpisHTML +
           "</div>" +
+          (state.pipelineFeedError
+            ? '<div class="amd-feed-warn" role="status">' + esc(state.pipelineFeedError) + "</div>"
+            : "") +
           '<div class="amd-tabs">' +
-            '<button class="amd-tab ' + (state.tab === "leaderboard" ? "is-active" : "") + '" data-tab="leaderboard" type="button">Leaderboard</button>' +
-            '<button class="amd-tab ' + (state.tab === "deals" ? "is-active" : "") + '" data-tab="deals" type="button">Deals</button>' +
-            '<button class="amd-tab ' + (state.tab === "viz" ? "is-active" : "") + '" data-tab="viz" type="button">Data Visualization</button>' +
+            '<button class="amd-tab ' + (state.tab === "buy" ? "is-active" : "") + '" data-tab="buy" type="button">Buy</button>' +
+            '<button class="amd-tab ' + (state.tab === "sell" ? "is-active" : "") + '" data-tab="sell" type="button">Sell</button>' +
+            '<button class="amd-tab ' + (state.tab === "closed" ? "is-active" : "") + '" data-tab="closed" type="button">Closed</button>' +
+            '<button class="amd-tab ' + (state.tab === "viz" ? "is-active" : "") + '" data-tab="viz" type="button">Data Viz</button>' +
           "</div>" +
           '<section class="amd-panel">' + panelHTML + "</section>" +
+          overlayHTML +
         "</div>";
 
       var tabs = root.querySelectorAll(".amd-tab");
       for (var i = 0; i < tabs.length; i++) {
         tabs[i].addEventListener("click", function () {
           state.tab = this.getAttribute("data-tab");
+          if (state.tab === "sell") {
+            if (!state.listingsLoaded && !state.listingsFetching) {
+              fetchListingsMaster();
+            } else {
+              render();
+            }
+          } else {
+            render();
+          }
+        });
+      }
+      var sellAgentEl = root.querySelector("[data-sell-agent]");
+      if (sellAgentEl) {
+        sellAgentEl.addEventListener("change", function () {
+          state.sellAgentFilter = this.value || "all";
           render();
+        });
+      }
+      var sellSearchEl = root.querySelector("[data-sell-search]");
+      if (sellSearchEl) {
+        sellSearchEl.addEventListener("input", function () {
+          var self = this;
+          var pos = self.selectionStart;
+          clearTimeout(this._sellTimer);
+          this._sellTimer = setTimeout(function () {
+            state.sellSearch = self.value || "";
+            render();
+            var s = root.querySelector("[data-sell-search]");
+            if (s) {
+              s.focus();
+              try { s.setSelectionRange(pos, pos); } catch (e) {}
+            }
+          }, 120);
+        });
+      }
+      var openSellBtns = root.querySelectorAll("[data-sell-open]");
+      for (var so = 0; so < openSellBtns.length; so++) {
+        openSellBtns[so].addEventListener("click", function () {
+          state.sellActiveAddress = this.getAttribute("data-sell-open") || "";
+          fetchSellPhotosForAddress(state.sellActiveAddress);
+          render();
+        });
+        openSellBtns[so].addEventListener("keydown", function (evt) {
+          if (evt.key === "Enter" || evt.key === " ") {
+            evt.preventDefault();
+            state.sellActiveAddress = this.getAttribute("data-sell-open") || "";
+            fetchSellPhotosForAddress(state.sellActiveAddress);
+            render();
+          }
+        });
+      }
+      var closeSellBtn = root.querySelector("[data-sell-close]");
+      if (closeSellBtn) {
+        closeSellBtn.addEventListener("click", function () {
+          var prevAddr = state.sellActiveAddress;
+          state.sellActiveAddress = "";
+          // Keep per-address stage overrides for this session so reopening the
+          // same listing keeps the action plan dismissed, but clear any UI-only
+          // "copied" flag for the address we just left.
+          if (prevAddr && state.sellQCopied) delete state.sellQCopied[prevAddr];
+          closeSellerQuestionnaireModal();
+          render();
+        });
+      }
+      var prevPhotoBtns = root.querySelectorAll("[data-sell-photo-prev]");
+      for (var pp = 0; pp < prevPhotoBtns.length; pp++) {
+        prevPhotoBtns[pp].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var addr = this.getAttribute("data-sell-photo-prev") || "";
+          var photos = getSellPhotosForAddress(addr);
+          if (!photos.length) return;
+          var idx = Number(state.sellPhotoIndexByAddress[addr] || 0);
+          idx = (idx - 1 + photos.length) % photos.length;
+          state.sellPhotoIndexByAddress[addr] = idx;
+          updateSellPhotoCarouselDOM(addr);
+        });
+      }
+      var nextPhotoBtns = root.querySelectorAll("[data-sell-photo-next]");
+      for (var np = 0; np < nextPhotoBtns.length; np++) {
+        nextPhotoBtns[np].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var addr = this.getAttribute("data-sell-photo-next") || "";
+          var photos = getSellPhotosForAddress(addr);
+          if (!photos.length) return;
+          var idx = Number(state.sellPhotoIndexByAddress[addr] || 0);
+          idx = (idx + 1) % photos.length;
+          state.sellPhotoIndexByAddress[addr] = idx;
+          updateSellPhotoCarouselDOM(addr);
+        });
+      }
+      var downloadAllPhotoBtns = root.querySelectorAll("[data-sell-photo-download-all]");
+      for (var da = 0; da < downloadAllPhotoBtns.length; da++) {
+        downloadAllPhotoBtns[da].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var addr = this.getAttribute("data-sell-photo-download-all") || "";
+          var photos = getSellPhotosForAddress(addr);
+          if (!photos.length) return;
+          for (var pi = 0; pi < photos.length; pi++) {
+            var p = photos[pi] || {};
+            var url = String(p.url || p.backupUrl || "").trim();
+            if (!url) continue;
+            try {
+              var link = document.createElement("a");
+              link.href = url;
+              link.target = "_blank";
+              link.rel = "noopener";
+              link.download = "";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } catch (e) {
+              try { window.open(url, "_blank", "noopener"); } catch (e2) {}
+            }
+          }
+        });
+      }
+      var copyMpBtns = root.querySelectorAll("[data-sell-copy-mp]");
+      for (var cm = 0; cm < copyMpBtns.length; cm++) {
+        copyMpBtns[cm].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var link = this.getAttribute("data-sell-copy-mp") || "";
+          if (!link) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function () {}, function () {});
+          }
+        });
+      }
+      var copyPhotosBtns = root.querySelectorAll("[data-sell-copy-photos]");
+      for (var cp = 0; cp < copyPhotosBtns.length; cp++) {
+        copyPhotosBtns[cp].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var link = this.getAttribute("data-sell-copy-photos") || "";
+          if (!link) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function () {}, function () {});
+          }
+        });
+      }
+      var photoScheduleBtns = root.querySelectorAll("[data-sell-schedule-photos]");
+      for (var ps = 0; ps < photoScheduleBtns.length; ps++) {
+        photoScheduleBtns[ps].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var link = this.getAttribute("data-sell-schedule-photos") || "";
+          if (!link || link === "#") return;
+          window.open(link, "_blank", "noopener");
+        });
+      }
+      // Marketing milestone Book / Request buttons: open the agent's Acuity /
+      // Asana URL in a new tab, then optimistically flip the milestone status
+      // in local state and POST the update to the Listing Hub sheet.
+      var MILESTONE_FIELD_MAP = {
+        photos:      { sheet: "photos_status",      local: "photosStatus" },
+        matterport:  { sheet: "matterport_status",  local: "matterportStatus" },
+        floor_plan:  { sheet: "floor_plan_status",  local: "floorPlanStatus" },
+        video:       { sheet: "video_status",       local: "videoStatus" },
+        marketing:   { sheet: "marketing_status",   local: "marketingStatus" }
+      };
+      var milestoneBtns = root.querySelectorAll("[data-sell-milestone-action]");
+      for (var mi = 0; mi < milestoneBtns.length; mi++) {
+        milestoneBtns[mi].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var btn = this;
+          var key = btn.getAttribute("data-sell-milestone-action") || "";
+          var mode = btn.getAttribute("data-sell-milestone-mode") || "book";
+          var url = btn.getAttribute("data-sell-milestone-url") || "";
+          var address = btn.getAttribute("data-sell-milestone-address") || "";
+          if (url) { try { window.open(url, "_blank", "noopener"); } catch (e) {} }
+          var map = MILESTONE_FIELD_MAP[key];
+          if (!map || !address) return;
+          var newStatus = mode === "book" ? "Booked" : "Requested";
+          var rows = state.listingsRows || [];
+          var targetRow = null;
+          for (var ri = 0; ri < rows.length; ri++) {
+            if (String(rows[ri].address || "").trim() === address) { targetRow = rows[ri]; break; }
+          }
+          var prev = targetRow ? targetRow[map.local] : "";
+          if (targetRow) targetRow[map.local] = newStatus;
+          btn.classList.add("is-saving");
+          render();
+          var updates = {};
+          updates[map.sheet] = newStatus;
+          postListingUpdate(address, updates)
+            .then(function (resp) {
+              if (!(resp && resp.success)) {
+                if (targetRow) targetRow[map.local] = prev;
+                console.error("Milestone update failed:", resp && resp.error);
+                render();
+              }
+            })
+            .catch(function (err) {
+              if (targetRow) targetRow[map.local] = prev;
+              console.error("Milestone update error:", err);
+              render();
+            });
+        });
+      }
+      // Seller-questionnaire "More details" button.
+      var sqBtns = root.querySelectorAll("[data-sell-open-sq]");
+      for (var sqi = 0; sqi < sqBtns.length; sqi++) {
+        sqBtns[sqi].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var addr = this.getAttribute("data-sell-open-sq") || state.sellActiveAddress || "";
+          openSellerQuestionnaireModal(addr);
+        });
+      }
+      // Listing Overview: persistent copy-questionnaire-link button. Animates
+      // to a green ✓ Copied state and also flips seller_questionnaire_sent in
+      // the sheet so the action plan stays in sync with reality.
+      var ovCopyBtns = root.querySelectorAll("[data-sell-copy-questionnaire]");
+      for (var ovc = 0; ovc < ovCopyBtns.length; ovc++) {
+        ovCopyBtns[ovc].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var btn = this;
+          var addr = btn.getAttribute("data-sell-copy-questionnaire") || "";
+          var link = btn.getAttribute("data-sell-copy-questionnaire-link") || "";
+          if (link && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function () {}, function () {});
+          }
+          btn.classList.add("is-copied");
+          // Replace the trailing label with "Copied" for clearer feedback.
+          var label = btn.querySelector("span");
+          if (label) label.textContent = "Copied";
+          state.sellQCopied[addr] = true;
+          var rows = state.listingsRows || [];
+          var targetRow = null;
+          for (var ri = 0; ri < rows.length; ri++) {
+            if (String(rows[ri].address || "").trim() === addr) { targetRow = rows[ri]; break; }
+          }
+          if (targetRow) targetRow.sellerQuestionnaireSent = new Date().toISOString();
+          postListingUpdate(addr, {
+            seller_questionnaire_sent: "true",
+            seller_questionnaire_sent_at: new Date().toISOString()
+          }).catch(function (err) { console.warn("Questionnaire-sent persist failed:", err); });
+          // Refresh just the Marketing Status roadmap (Seller Questionnaire
+          // ✓) without re-rendering the whole panel, so the open Matterport
+          // iframe and photo carousel don't reload.
+          setTimeout(function () {
+            try {
+              var card = document.querySelector('#asg-admin-master-dashboard [data-sell-marketing-status="' + addr.replace(/"/g, '\\"') + '"]');
+              if (!card) return;
+              var rows = state.listingsRows || [];
+              var row = null;
+              for (var ri2 = 0; ri2 < rows.length; ri2++) {
+                if (String(rows[ri2].address || "").trim() === addr) { row = rows[ri2]; break; }
+              }
+              if (!row) return;
+              var freshHtml = renderMarketingStatusSection(row, addr);
+              var tmp = document.createElement("div");
+              tmp.innerHTML = freshHtml;
+              var fresh = tmp.firstElementChild;
+              if (fresh && card.parentNode) card.parentNode.replaceChild(fresh, card);
+            } catch (swapErr) { /* keep optimistic state */ }
+          }, 180);
+        });
+      }
+      // ── Marketing Action Plan (Stage 1 overlay) ───────────────────────────
+      // Step 1: Copy seller questionnaire link → flips the CTA to "Sent" with
+      // an animated checkmark, persists seller_questionnaire_sent in the sheet.
+      var copyQBtns = root.querySelectorAll("[data-sell-ap-copy-q]");
+      for (var cq = 0; cq < copyQBtns.length; cq++) {
+        copyQBtns[cq].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var btn = this;
+          var addr = btn.getAttribute("data-sell-ap-copy-q") || "";
+          var link = btn.getAttribute("data-sell-ap-q-link") || "";
+          if (link && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function () {}, function () {});
+          }
+          state.sellQCopied[addr] = true;
+          var rows = state.listingsRows || [];
+          var targetRow = null;
+          for (var ri = 0; ri < rows.length; ri++) {
+            if (String(rows[ri].address || "").trim() === addr) { targetRow = rows[ri]; break; }
+          }
+          if (targetRow) targetRow.sellerQuestionnaireSent = new Date().toISOString();
+          render();
+          postListingUpdate(addr, { seller_questionnaire_sent: "true", seller_questionnaire_sent_at: new Date().toISOString() })
+            .catch(function (err) { console.warn("Questionnaire-sent persist failed:", err); });
+        });
+      }
+      // Step 2: Book Marketing → opens Acuity, optimistically marks photos as
+      // Booked locally and POSTs the new status so the action plan completes.
+      var bookMktBtns = root.querySelectorAll("[data-sell-ap-book]");
+      for (var bm = 0; bm < bookMktBtns.length; bm++) {
+        bookMktBtns[bm].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var btn = this;
+          var addr = btn.getAttribute("data-sell-ap-book") || "";
+          var url = btn.getAttribute("data-sell-ap-book-url") || "";
+          if (url) { try { window.open(url, "_blank", "noopener"); } catch (e) {} }
+          var rows = state.listingsRows || [];
+          var targetRow = null;
+          for (var ri = 0; ri < rows.length; ri++) {
+            if (String(rows[ri].address || "").trim() === addr) { targetRow = rows[ri]; break; }
+          }
+          if (targetRow) {
+            targetRow.photosStatus = "Booked";
+            targetRow.matterportStatus = targetRow.matterportStatus || "Booked";
+            targetRow.floorPlanStatus = targetRow.floorPlanStatus || "Booked";
+            targetRow.videoStatus = targetRow.videoStatus || "Booked";
+          }
+          render();
+          postListingUpdate(addr, {
+            photos_status: "Booked",
+            matterport_status: "Booked",
+            floor_plan_status: "Booked",
+            video_status: "Booked"
+          }).catch(function (err) { console.warn("Marketing booking persist failed:", err); });
+        });
+      }
+      // Continue: flip to Stage 2 locally with a brief overlay-fade animation.
+      var continueBtns = root.querySelectorAll("[data-sell-ap-continue]");
+      for (var cc = 0; cc < continueBtns.length; cc++) {
+        continueBtns[cc].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          if (this.disabled) return;
+          var addr = this.getAttribute("data-sell-ap-continue") || "";
+          var overlay = root.querySelector(".amd-lh-stage-overlay");
+          if (overlay) overlay.classList.add("is-leaving");
+          setTimeout(function () {
+            state.sellStageOverride[addr] = 2;
+            render();
+          }, 420);
+        });
+      }
+      // Inline listing edit chips (Phase + Listing Type).
+      var editChipSelects = root.querySelectorAll("[data-sell-edit-field]");
+      for (var ec = 0; ec < editChipSelects.length; ec++) {
+        editChipSelects[ec].addEventListener("change", function () {
+          var sel = this;
+          var chip = sel.closest(".amd-lh-edit-chip");
+          var field = sel.getAttribute("data-sell-edit-field");
+          var address = sel.getAttribute("data-sell-edit-address") || "";
+          var newValue = sel.value;
+          if (!address || !field || !newValue) return;
+          var sheetField = field === "phase" ? "Phase" : (field === "type" ? "Listing Type" : "");
+          var localFields;
+          if (field === "phase") {
+            localFields = ["phaseKey", "status", "phase"];
+          } else if (field === "type") {
+            localFields = ["listingType"];
+          } else {
+            return;
+          }
+          var rows = state.listingsRows || [];
+          var targetRow = null;
+          for (var ri = 0; ri < rows.length; ri++) {
+            if (String(rows[ri].address || "").trim() === address) { targetRow = rows[ri]; break; }
+          }
+          var previousValues = {};
+          if (targetRow) {
+            for (var pf = 0; pf < localFields.length; pf++) previousValues[localFields[pf]] = targetRow[localFields[pf]];
+          }
+          // Optimistic UI update.
+          if (chip) {
+            chip.classList.add("is-saving");
+            chip.classList.remove("is-saved", "is-error");
+          }
+          if (targetRow) {
+            for (var lf = 0; lf < localFields.length; lf++) targetRow[localFields[lf]] = newValue;
+          }
+          var updates = {};
+          updates[sheetField] = newValue;
+          postListingUpdate(address, updates)
+            .then(function (resp) {
+              if (chip) chip.classList.remove("is-saving");
+              if (resp && resp.success) {
+                if (chip) {
+                  chip.classList.add("is-saved");
+                  setTimeout(function () { chip.classList.remove("is-saved"); }, 1400);
+                }
+              } else {
+                if (chip) chip.classList.add("is-error");
+                if (targetRow) {
+                  for (var rf = 0; rf < localFields.length; rf++) targetRow[localFields[rf]] = previousValues[localFields[rf]];
+                }
+                console.error("Listing update failed:", resp && resp.error);
+              }
+            })
+            .catch(function (err) {
+              if (chip) {
+                chip.classList.remove("is-saving");
+                chip.classList.add("is-error");
+              }
+              if (targetRow) {
+                for (var rf2 = 0; rf2 < localFields.length; rf2++) targetRow[localFields[rf2]] = previousValues[localFields[rf2]];
+              }
+              console.error("Listing update error:", err);
+            });
+        });
+        editChipSelects[ec].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+        });
+      }
+      var buyAgentEl = root.querySelector("[data-buy-agent]");
+      if (buyAgentEl) {
+        buyAgentEl.addEventListener("change", function () {
+          state.buyAgentFilter = this.value || "all";
+          render();
+        });
+      }
+      var buySearchEl = root.querySelector("[data-buy-search]");
+      if (buySearchEl) {
+        buySearchEl.addEventListener("input", function () {
+          var self = this;
+          clearTimeout(this._buyTimer);
+          this._buyTimer = setTimeout(function () {
+            state.buySearch = self.value || "";
+            render();
+          }, 120);
+        });
+      }
+      var closedAgentEl = root.querySelector("[data-closed-agent]");
+      if (closedAgentEl) {
+        closedAgentEl.addEventListener("change", function () {
+          state.closedAgentFilter = this.value || "all";
+          render();
+        });
+      }
+      var closedSearchEl = root.querySelector("[data-closed-search]");
+      if (closedSearchEl) {
+        closedSearchEl.addEventListener("input", function () {
+          var self = this;
+          clearTimeout(this._closedTimer);
+          this._closedTimer = setTimeout(function () {
+            state.closedSearch = self.value || "";
+            render();
+          }, 120);
         });
       }
       var subtabs = root.querySelectorAll(".amd-subtab");
@@ -4384,6 +7027,8 @@
       var refreshBtn = root.querySelector("#amdRefreshBtn");
       if (refreshBtn) {
         refreshBtn.addEventListener("click", function () {
+          state.coreFeedsPending = true;
+          render();
           load();
         });
       }
@@ -4579,10 +7224,6 @@
       }
     }
 
-    function setLoading() {
-      root.innerHTML = '<div class="amd-loading">Loading live deals from sheets...</div>';
-    }
-
     function setError(err) {
       root.innerHTML = '<div class="amd-error">Unable to load dashboard data. Please confirm your published sheet links are accessible.<br><small>' + esc(err && err.message ? err.message : "Unknown error") + "</small></div>";
     }
@@ -4592,6 +7233,949 @@
         if (!r.ok) throw new Error("Request failed (" + r.status + ")");
         return r.json();
       });
+    }
+
+    // POST helper for inline listing edits. Uses text/plain content type so
+    // the request stays "simple" (no CORS preflight) while still landing in
+    // Apps Script's e.postData.contents as a JSON string our doPost can parse.
+    function postListingUpdate(address, updates) {
+      var body = JSON.stringify({ action: "updatelisting", address: address, updates: updates });
+      return fetch(LISTINGS_API, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: body,
+        redirect: "follow"
+      }).then(function (r) {
+        if (!r.ok) throw new Error("Update failed (" + r.status + ")");
+        return r.json();
+      });
+    }
+
+    // Allowed phase + type options for the inline edit chips. The current
+    // sheet value is always merged in as the first option so we never lose
+    // an off-spec custom value the admin already entered.
+    var LISTING_PHASE_OPTIONS = [
+      "Pre-Listing",
+      "Coming Soon",
+      "Live",
+      "Under Contract",
+      "Pending",
+      "Closed",
+      "Sold",
+      "Off-Market",
+      "Withdrawn",
+      "Expired"
+    ];
+    var LISTING_TYPE_OPTIONS = [
+      "Sale",
+      "Lease",
+      "Sale + Lease",
+      "Land"
+    ];
+    function listingPhaseLabel(row) {
+      var raw = String((row && (row.phaseKey || row.status || row.phase)) || "").trim();
+      if (!raw) return "—";
+      return raw
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/[_\-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+    function buildOptionList(options, current, formatLabel) {
+      var seen = {};
+      var out = [];
+      var trimmed = String(current || "").trim();
+      function push(displayLabel, value) {
+        var key = String(value || "").toLowerCase().trim();
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        var sel = trimmed && trimmed.toLowerCase() === key ? " selected" : "";
+        out.push('<option value="' + esc(value) + '"' + sel + ">" + esc(displayLabel) + "</option>");
+      }
+      if (trimmed) {
+        var disp = formatLabel ? formatLabel(trimmed) : trimmed;
+        push(disp, trimmed);
+      }
+      for (var i = 0; i < options.length; i++) {
+        push(options[i], options[i]);
+      }
+      return out.join("");
+    }
+    function formatListingTypeDisplay(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return s;
+      return s.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+    function renderListingEditChips(row) {
+      var addr = String(row && row.address || "").trim();
+      var phaseValue = String((row && (row.phaseKey || row.status || row.phase)) || "").trim();
+      var typeValue = String((row && row.listingType) || "").trim();
+      var phasePlaceholder = phaseValue ? "" : '<option value="" selected disabled hidden>Set status</option>';
+      var typePlaceholder = typeValue ? "" : '<option value="" selected disabled hidden>Set type</option>';
+      return (
+        '<div class="amd-lh-edit-chips">' +
+          '<div class="amd-lh-edit-chip-col">' +
+            '<span class="amd-lh-edit-chip-title">Status</span>' +
+            '<label class="amd-lh-edit-chip is-phase" title="Listing status / phase">' +
+              '<select data-sell-edit-field="phase" data-sell-edit-address="' + esc(addr) + '" aria-label="Listing status">' +
+                buildOptionList(LISTING_PHASE_OPTIONS, phaseValue, function (v) {
+                  return listingPhaseLabel({ phaseKey: v, status: v, phase: v });
+                }) +
+                phasePlaceholder +
+              "</select>" +
+            "</label>" +
+          "</div>" +
+          '<div class="amd-lh-edit-chip-col">' +
+            '<span class="amd-lh-edit-chip-title">Type</span>' +
+            '<label class="amd-lh-edit-chip is-type" title="Listing type">' +
+              '<select data-sell-edit-field="type" data-sell-edit-address="' + esc(addr) + '" aria-label="Listing type">' +
+                buildOptionList(LISTING_TYPE_OPTIONS, typeValue, formatListingTypeDisplay) +
+                typePlaceholder +
+              "</select>" +
+            "</label>" +
+          "</div>" +
+        "</div>"
+      );
+    }
+
+    function listingDetailPageUrl(addr) {
+      var a = String(addr || "").trim();
+      if (!a) return "#";
+      var sep = LISTINGS_API.indexOf("?") >= 0 ? "&" : "?";
+      return LISTINGS_API + sep + "view=detailpage&address=" + encodeURIComponent(a);
+    }
+
+    function normalizeListingAgent(row) {
+      return String((row && (row.agentCanonical || row.agent)) || "").trim();
+    }
+    function normalizeText(v) {
+      return String(v || "").toLowerCase().trim();
+    }
+    function listingIsClosed(row) {
+      if (!row) return false;
+      if (row.archived === true || String(row.archived).toLowerCase() === "true") return true;
+      var key = normalizeText(row.phaseKey || row.status || row.phase || "");
+      return key.indexOf("closed") > -1;
+    }
+    function listingSpecsText(row) {
+      var specs = [];
+      if (row && row.beds) specs.push(String(row.beds) + " bd");
+      if (row && row.baths) specs.push(String(row.baths) + " ba");
+      if (row && row.sqFt) specs.push(String(row.sqFt) + " sf");
+      return specs.join(" · ");
+    }
+    function listingChipLabels(row) {
+      var out = [];
+      var phase = listingPhaseLabel(row);
+      var status = String((row && row.status) || "").trim();
+      if (phase && phase !== "—") out.push("Phase: " + phase);
+      if (status && normalizeText(status) !== normalizeText(phase)) out.push("Status: " + status);
+      if (row && row.listingType) out.push(String(row.listingType).trim());
+      return out.filter(Boolean);
+    }
+    // Determine the marketing action-plan completion + which stage the
+    // listing-details popup should render. Stage 1 = action plan overlay
+    // (questionnaire not sent OR marketing not booked yet). Stage 2 = full
+    // marketing status / assets / media bentos visible.
+    function getMarketingActionPlanState(row, address) {
+      if (!row) row = {};
+      var sentRaw = String(row.sellerQuestionnaireSent || row.sellerQuestionnaireSentAt || "").trim();
+      var questionnaireSent = !!sentRaw && sentRaw.toLowerCase() !== "false" && sentRaw !== "0";
+      var bookingDate = parseListingBookingDate(row);
+      var bookedStatus = String(row.photosStatus || "").trim().toLowerCase();
+      var bookedByStatus = bookedStatus.indexOf("book") >= 0 || bookedStatus.indexOf("schedul") >= 0;
+      var marketingBooked = !!bookingDate || bookedByStatus;
+      var override = state.sellStageOverride && state.sellStageOverride[address] === 2;
+      var bothDone = questionnaireSent && marketingBooked;
+      // Stage 2 if either: both steps confirmed on the sheet, OR user clicked
+      // Continue locally (override). Otherwise show the action plan overlay.
+      var stage = override || bothDone ? 2 : 1;
+      return {
+        stage: stage,
+        questionnaireSent: questionnaireSent,
+        marketingBooked: marketingBooked,
+        bookingDate: bookingDate,
+        bothDone: bothDone
+      };
+    }
+    function parseListingBookingDate(row) {
+      var raw = row && (row.photosDatetime || row.photoBookingAt || row.acuityDatetime);
+      if (!raw) return null;
+      // photosDatetime is typically an ISO string from Acuity. Parse defensively.
+      var d = parseDate(raw);
+      return d && !isNaN(d.getTime()) ? d : null;
+    }
+    function formatBookingDate(d) {
+      if (!d || isNaN(d.getTime())) return "";
+      try {
+        return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+      } catch (e) {
+        return d.toDateString();
+      }
+    }
+    function formatBookingTime(d) {
+      if (!d || isNaN(d.getTime())) return "";
+      try {
+        return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      } catch (e) {
+        return "";
+      }
+    }
+    function bookingDateLabel(d) {
+      var dt = formatBookingDate(d);
+      var tm = formatBookingTime(d);
+      if (dt && tm) return dt + " · " + tm;
+      return dt || tm || "";
+    }
+
+    // Stage-1 overlay: Marketing Action Plan checklist (Send Questionnaire +
+    // Book Marketing). Sits absolutely over the rest of the detail page.
+    function renderMarketingActionPlan(active, address, plan, agentBookUrl, agentRequestUrl, questionnaireLink) {
+      var safeAddr = String(address || "").trim();
+      var qSentLocal = !!(state.sellQCopied && state.sellQCopied[safeAddr]);
+      var qDone = plan.questionnaireSent || qSentLocal;
+      var bookDone = plan.marketingBooked;
+      var continueEnabled = qDone && bookDone;
+
+      function checkSvg() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12.5 10 17.5 19 7.5"></polyline></svg>';
+      }
+      function stepNumNode(done, n) {
+        return '<div class="amd-lh-stage-step-num">' + (done ? checkSvg() : String(n)) + "</div>";
+      }
+
+      var qCta;
+      if (qDone) {
+        qCta = '<button type="button" class="amd-lh-stage-step-cta is-done" disabled>' +
+          '<span class="amd-cta-check">' + checkSvg() + "</span>Sent</button>";
+      } else if (questionnaireLink) {
+        qCta = '<button type="button" class="amd-lh-stage-step-cta" data-sell-ap-copy-q="' + esc(safeAddr) + '" data-sell-ap-q-link="' + esc(questionnaireLink) + '">Copy link</button>';
+      } else {
+        qCta = '<button type="button" class="amd-lh-stage-step-cta is-secondary" data-sell-ap-copy-q="' + esc(safeAddr) + '" title="No questionnaire link wired for this agent yet — admin can add it in AGENT_QUESTIONNAIRE_LINKS.">Mark as sent</button>';
+      }
+
+      var bookCta;
+      if (bookDone) {
+        bookCta = '<button type="button" class="amd-lh-stage-step-cta is-done" disabled>' +
+          '<span class="amd-cta-check">' + checkSvg() + "</span>Booked</button>";
+      } else if (agentBookUrl) {
+        bookCta = '<button type="button" class="amd-lh-stage-step-cta" data-sell-ap-book="' + esc(safeAddr) + '" data-sell-ap-book-url="' + esc(agentBookUrl) + '">Book Marketing</button>';
+      } else if (agentRequestUrl) {
+        bookCta = '<a class="amd-lh-stage-step-cta is-secondary" href="' + esc(agentRequestUrl) + '" target="_blank" rel="noopener">Request</a>';
+      } else {
+        bookCta = '<button type="button" class="amd-lh-stage-step-cta is-secondary" disabled>Book Marketing</button>';
+      }
+
+      var qMeta = qDone
+        ? "Sent · seller has the questionnaire link."
+        : "Copy the seller questionnaire link and send it to your seller.";
+      var bookMeta = bookDone
+        ? (plan.bookingDate
+            ? "Booked for " + esc(bookingDateLabel(plan.bookingDate))
+            : "Booking confirmed.")
+        : "Schedule photos, Matterport, floor plan, and video in one session.";
+
+      return (
+        '<div class="amd-lh-stage-overlay" data-sell-ap-overlay="' + esc(safeAddr) + '">' +
+          '<div class="amd-lh-stage-panel" role="region" aria-label="Marketing Action Plan">' +
+            '<h3 class="amd-lh-stage-title">Marketing Action Plan</h3>' +
+            '<p class="amd-lh-stage-sub">Finish these two steps to unlock the full marketing workspace for this listing.</p>' +
+            '<ol class="amd-lh-stage-steps">' +
+              '<li class="amd-lh-stage-step' + (qDone ? " is-done" : "") + '">' +
+                stepNumNode(qDone, 1) +
+                '<div class="amd-lh-stage-step-body">' +
+                  '<div class="amd-lh-stage-step-title">Send Seller Questionnaire</div>' +
+                  '<div class="amd-lh-stage-step-meta">' + qMeta + "</div>" +
+                "</div>" +
+                qCta +
+              "</li>" +
+              '<li class="amd-lh-stage-step' + (bookDone ? " is-done" : "") + '">' +
+                stepNumNode(bookDone, 2) +
+                '<div class="amd-lh-stage-step-body">' +
+                  '<div class="amd-lh-stage-step-title">Book Marketing</div>' +
+                  '<div class="amd-lh-stage-step-meta">' + bookMeta + "</div>" +
+                "</div>" +
+                bookCta +
+              "</li>" +
+            "</ol>" +
+            '<button type="button" class="amd-lh-stage-continue" data-sell-ap-continue="' + esc(safeAddr) + '"' +
+            (continueEnabled ? "" : " disabled") +
+            ">Continue</button>" +
+          "</div>" +
+        "</div>"
+      );
+    }
+
+    // ── Marketing delivery ETA helpers ─────────────────────────────────────
+    // Photos/Matterport: booking + 1 calendar day. Floor plan: +2 business
+    // days. Video: +5 business days from filming. Marketing materials: +1
+    // business day from when the request is submitted. Per spec we only ever
+    // surface the *date*, never the "hours" duration.
+    function addCalendarDays(d, n) {
+      if (!d || isNaN(d.getTime())) return null;
+      var out = new Date(d.getTime());
+      out.setDate(out.getDate() + n);
+      return out;
+    }
+    function addBusinessDays(d, n) {
+      if (!d || isNaN(d.getTime())) return null;
+      var out = new Date(d.getTime());
+      var added = 0;
+      while (added < n) {
+        out.setDate(out.getDate() + 1);
+        var dow = out.getDay();
+        if (dow !== 0 && dow !== 6) added++;
+      }
+      return out;
+    }
+    var SERVICE_DELIVERY_OFFSETS = {
+      photos:               { mode: "calendar",  days: 1 },
+      matterport:           { mode: "calendar",  days: 1 },
+      floor_plan:           { mode: "business",  days: 2 },
+      video:                { mode: "business",  days: 5 },
+      marketing_materials:  { mode: "business",  days: 1 }
+    };
+    function computeServiceEta(serviceKey, anchorDate) {
+      if (!anchorDate) return null;
+      var cfg = SERVICE_DELIVERY_OFFSETS[serviceKey];
+      if (!cfg) return null;
+      return cfg.mode === "business"
+        ? addBusinessDays(anchorDate, cfg.days)
+        : addCalendarDays(anchorDate, cfg.days);
+    }
+    // List of services covered by the marketing booking. When Acuity wires
+    // this through (description parsing on the Apps Script side), it will
+    // come back as row.servicesBooked = ["photos","matterport",…]. Until
+    // then we assume the standard 4-service shoot is booked together.
+    var DEFAULT_BOOKED_SERVICES = ["photos", "matterport", "floor_plan", "video"];
+    function listingHasService(row, key) {
+      var list = row && row.servicesBooked;
+      if (Array.isArray(list) && list.length) {
+        for (var i = 0; i < list.length; i++) {
+          if (String(list[i]).toLowerCase().replace(/\s+/g, "_") === key) return true;
+        }
+        return false;
+      }
+      return DEFAULT_BOOKED_SERVICES.indexOf(key) >= 0;
+    }
+    // Derive a milestone's display state from sheet fields. Returns one of:
+    //   not_booked | booked | editing | delivered
+    // (for marketing materials the equivalent enum is not_requested |
+    //  requested | building | delivered — we use that nomenclature on the
+    //  status label only; the tone/state machine is identical).
+    function getCaptureServiceState(row, key) {
+      var statusField = {
+        photos: "photosStatus",
+        matterport: "matterportStatus",
+        floor_plan: "floorPlanStatus",
+        video: "videoStatus"
+      }[key];
+      var urlField = {
+        photos: "photos",
+        matterport: "matterport",
+        floor_plan: "floorPlan",
+        video: "video"
+      }[key];
+      var raw = String((row && row[statusField]) || "").trim().toLowerCase();
+      var hasAsset = !!String((row && row[urlField]) || "").trim();
+      var booked = !!parseListingBookingDate(row) && listingHasService(row, key);
+      if (hasAsset || raw.indexOf("deliver") >= 0 || raw.indexOf("done") >= 0 || raw.indexOf("complete") >= 0 || raw.indexOf("ready") >= 0) {
+        return "delivered";
+      }
+      if (raw.indexOf("edit") >= 0 || raw.indexOf("retouch") >= 0 || raw.indexOf("post") >= 0) return "editing";
+      if (raw.indexOf("book") >= 0 || raw.indexOf("schedul") >= 0 || booked) return "booked";
+      return "not_booked";
+    }
+    // Returns the *next* (soonest-future) open-house request from a row's
+    // marketingRequests JSON array, or null. We sort future requests
+    // ascending so an agent with consecutive-weekend OHs sees the closest
+    // deadline first. Past requests are ignored except for status rollup.
+    function getNextOpenHouseRequest(row) {
+      var list = row && row.marketingRequests;
+      if (!Array.isArray(list) || !list.length) return null;
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var upcoming = list.filter(function (r) {
+        if (!r || !r.open_house_date) return false;
+        var d = parseDate(r.open_house_date);
+        return d && d >= today;
+      });
+      if (!upcoming.length) return null;
+      upcoming.sort(function (a, b) {
+        return String(a.open_house_date).localeCompare(String(b.open_house_date));
+      });
+      return upcoming[0];
+    }
+    function getMarketingMaterialsState(row) {
+      // Prefer the structured request list when present — its statuses are
+      // authoritative since they come from Asana custom fields.
+      var list = row && row.marketingRequests;
+      if (Array.isArray(list) && list.length) {
+        var anyBuilding = false, anyRequested = false, anyUndelivered = false;
+        for (var i = 0; i < list.length; i++) {
+          var s = String(list[i].status || "").trim().toLowerCase();
+          if (s === "delivered") continue;
+          anyUndelivered = true;
+          if (s === "building" || s === "in progress" || s.indexOf("on it") >= 0) anyBuilding = true;
+          else if (s === "requested" || s === "new") anyRequested = true;
+        }
+        if (!anyUndelivered) return "delivered";
+        if (anyBuilding) return "building";
+        if (anyRequested) return "requested";
+      }
+      var raw = String((row && row.marketingStatus) || "").trim().toLowerCase();
+      if (raw.indexOf("deliver") >= 0 || raw === "done" || raw.indexOf("complete") >= 0) return "delivered";
+      if (raw.indexOf("progress") >= 0 || raw.indexOf("build") >= 0 || raw.indexOf("working") >= 0 || raw.indexOf("on it") >= 0) return "building";
+      if (raw && raw.indexOf("not") < 0 && raw !== "n/a" && raw !== "none") return "requested";
+      return "not_requested";
+    }
+    // Tone (drives roadmap dot color) for each state-machine value.
+    var SERVICE_STATE_TONE = {
+      not_booked:     "pending",
+      not_requested:  "pending",
+      booked:         "progress",
+      requested:      "progress",
+      editing:        "waiting",
+      building:       "waiting",
+      delivered:      "done"
+    };
+    // Human-readable label for each state, including an optional date.
+    function serviceStateLabel(state, dateStr) {
+      switch (state) {
+        case "not_booked":    return "Not Booked";
+        case "not_requested": return "Not Requested";
+        case "booked":        return dateStr ? "Booked · " + dateStr : "Booked";
+        case "requested":     return dateStr ? "Requested · " + dateStr : "Requested";
+        case "editing":       return "Editing";
+        case "building":      return "Building";
+        case "delivered":     return "Delivered";
+        default:              return "Not Booked";
+      }
+    }
+
+    // Stage-2 "Marketing Status" section: horizontal roadmap of milestones
+    // with checkpoints + dates + delivery ETAs. Driven by the Listing Hub
+    // sheet (photos_status / photos_datetime / matterport_status / etc.).
+    function renderMarketingStatusSection(active, address /*, agentBookUrl, agentRequestUrl */) {
+      var bookingDate = parseListingBookingDate(active);
+      var bookingLabel = bookingDate ? formatBookingDate(bookingDate) : "";
+      var sq = getSellerQuestionnaire(active);
+      var qSent = !!String(active && (active.sellerQuestionnaireSent || active.sellerQuestionnaireSentAt) || "").trim() ||
+                  !!(sq.answers && sq.answers.length) ||
+                  !!(state.sellQCopied && state.sellQCopied[address]);
+
+      function buildCaptureNode(key, label, icon) {
+        var serviceState = getCaptureServiceState(active, key);
+        var statusLabel;
+        var metaLabel = "";
+        if (serviceState === "delivered") {
+          statusLabel = "Delivered";
+        } else if (serviceState === "editing") {
+          statusLabel = "Editing";
+          var eta = computeServiceEta(key, bookingDate);
+          if (eta) metaLabel = "Ready " + formatBookingDate(eta);
+        } else if (serviceState === "booked") {
+          statusLabel = bookingLabel ? "Booked · " + bookingLabel : "Booked";
+          var etaB = computeServiceEta(key, bookingDate);
+          if (etaB) metaLabel = "Delivers " + formatBookingDate(etaB);
+        } else {
+          statusLabel = "Not Booked";
+        }
+        return { key: key, label: label, icon: icon, tone: SERVICE_STATE_TONE[serviceState], statusLabel: statusLabel, metaLabel: metaLabel };
+      }
+
+      // Marketing Materials: not_requested / requested / building / delivered.
+      // When marketing_requests JSON is populated we anchor the ETA to the
+      // *next upcoming open house* so the agent sees the real deadline.
+      var matState = getMarketingMaterialsState(active);
+      var nextReq = getNextOpenHouseRequest(active);
+      var matLabel;
+      var matMeta = "";
+      if (matState === "delivered") {
+        matLabel = "Delivered";
+      } else if (matState === "building") {
+        matLabel = "Marketing is on it";
+        var matEta = computeServiceEta("marketing_materials", new Date());
+        if (matEta) matMeta = "Ready " + formatBookingDate(matEta);
+      } else if (matState === "requested") {
+        matLabel = "Requested";
+        var matEta2 = computeServiceEta("marketing_materials", new Date());
+        if (matEta2) matMeta = "Delivers " + formatBookingDate(matEta2);
+      } else {
+        matLabel = "Not Requested";
+        matMeta = "Fact Sheet · Open House Materials";
+      }
+      if (nextReq && nextReq.open_house_date) {
+        var ohDate = parseDate(nextReq.open_house_date);
+        if (ohDate) matMeta = "Open House " + formatBookingDate(ohDate) + (matMeta ? " · " + matMeta : "");
+      }
+
+      var nodes = [
+        {
+          key: "questionnaire",
+          label: "Seller Questionnaire",
+          icon: "doc",
+          tone: qSent ? "done" : "pending",
+          statusLabel: qSent ? "Sent" : "Pending",
+          metaLabel: qSent ? "" : "Awaiting seller"
+        },
+        buildCaptureNode("photos",     "Photos",     "camera"),
+        buildCaptureNode("matterport", "Matterport", "cube"),
+        buildCaptureNode("floor_plan", "Floor Plan", "plan"),
+        buildCaptureNode("video",      "Video",      "video"),
+        {
+          key: "marketing_materials",
+          label: "Marketing Materials",
+          icon: "doc",
+          tone: SERVICE_STATE_TONE[matState],
+          statusLabel: matLabel,
+          metaLabel: matMeta
+        }
+      ];
+
+      // Progress accumulator → drives the green→blue gradient rail width.
+      var doneCount = 0;
+      for (var di = 0; di < nodes.length; di++) {
+        if (nodes[di].tone === "done") doneCount++;
+        else if (nodes[di].tone === "waiting") doneCount += 0.66;
+        else if (nodes[di].tone === "progress") doneCount += 0.5;
+      }
+      // --amd-roadmap-progress is a unitless 0–1 multiplier of the rail width
+      // (the CSS handles dot-center offsets via --amd-roadmap-cols).
+      var pct = nodes.length ? (doneCount / (nodes.length - 1)) : 0;
+      if (pct < 0) pct = 0;
+      if (pct > 1) pct = 1;
+
+      function checkSvg() {
+        return '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12.5 10 17.5 19 7.5"></polyline></svg>';
+      }
+      var nodeHtml = nodes.map(function (n) {
+        var inner = n.tone === "done"
+          ? checkSvg()
+          : (BENTO_ICONS[n.icon] || BENTO_ICONS.doc);
+        return (
+          '<div class="amd-lh-roadmap-node is-' + esc(n.tone) + '">' +
+            '<div class="amd-lh-roadmap-dot">' + inner + "</div>" +
+            '<div class="amd-lh-roadmap-label">' + esc(n.label) + "</div>" +
+            '<div class="amd-lh-roadmap-status">' + esc(n.statusLabel) + "</div>" +
+            (n.metaLabel ? '<div class="amd-lh-roadmap-meta">' + esc(n.metaLabel) + "</div>" : "") +
+          "</div>"
+        );
+      }).join("");
+      return (
+        '<article class="amd-lh-card is-marketing is-marketing-status" data-sell-marketing-status="' + esc(address || "") + '">' +
+          '<div class="amd-lh-label">Marketing Status</div>' +
+          '<div class="amd-lh-roadmap">' +
+            '<div class="amd-lh-roadmap-track" style="--amd-roadmap-cols:' + nodes.length + ';--amd-roadmap-progress:' + pct.toFixed(3) + '">' +
+              nodeHtml +
+            "</div>" +
+          "</div>" +
+        "</article>"
+      );
+    }
+
+    // Render the seller-questionnaire modal overlay on the body so it floats
+    // above the dashboard panel and respects the page scroll context.
+    function openSellerQuestionnaireModal(address) {
+      closeSellerQuestionnaireModal();
+      var row = null;
+      var rows = state.listingsRows || [];
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i].address || "").trim() === address) { row = rows[i]; break; }
+      }
+      var sq = getSellerQuestionnaire(row || {});
+      var bodyHtml;
+      if (sq.answers && sq.answers.length) {
+        bodyHtml = '<div class="amd-sq-qa">' +
+          sq.answers.map(function (a) {
+            return '<div class="amd-sq-qa-item">' +
+              '<div class="amd-sq-qa-q">' + esc(a.question || "") + "</div>" +
+              '<div class="amd-sq-qa-a">' + esc(a.answer || "") + "</div>" +
+            "</div>";
+          }).join("") +
+          "</div>";
+      } else if (sq.raw) {
+        bodyHtml = esc(sq.raw);
+      } else {
+        bodyHtml = '<div class="amd-sq-empty">No questionnaire answers have been received from Asana yet.</div>';
+      }
+      var overlay = document.createElement("div");
+      overlay.className = "amd-sq-modal";
+      overlay.id = "amdSqModal";
+      overlay.innerHTML =
+        '<div class="amd-sq-card" role="dialog" aria-modal="true" aria-labelledby="amdSqTitle">' +
+          '<div class="amd-sq-head">' +
+            "<div>" +
+              '<h3 class="amd-sq-title" id="amdSqTitle">Seller Questionnaire</h3>' +
+              '<p class="amd-sq-sub">' + esc(address || "") + (sq.name ? " · " + esc(sq.name) : "") + "</p>" +
+            "</div>" +
+            '<button class="amd-sq-close" type="button" aria-label="Close" data-sq-close="1">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+            "</button>" +
+          "</div>" +
+          '<div class="amd-sq-body">' + bodyHtml + "</div>" +
+        "</div>";
+      overlay.addEventListener("click", function (evt) {
+        if (evt.target === overlay) closeSellerQuestionnaireModal();
+      });
+      var closeBtn = overlay.querySelector("[data-sq-close]");
+      if (closeBtn) closeBtn.addEventListener("click", closeSellerQuestionnaireModal);
+      document.body.appendChild(overlay);
+      document.addEventListener("keydown", sqEscHandler);
+    }
+    function closeSellerQuestionnaireModal() {
+      var existing = document.getElementById("amdSqModal");
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+      document.removeEventListener("keydown", sqEscHandler);
+    }
+    function sqEscHandler(evt) {
+      if (evt && evt.key === "Escape") closeSellerQuestionnaireModal();
+    }
+
+    // Resolve a single milestone's status using {URL present → Done,
+    // explicit status field, sane fallback}. Returns { label, tone } where
+    // tone drives the pill color (done/progress/waiting/pending).
+    function resolveMilestoneStatus(rawStatus, hasUrl, fallbackTone) {
+      if (hasUrl) return { label: "Done", tone: "done" };
+      var raw = String(rawStatus || "").trim();
+      if (!raw) return { label: "Not Started", tone: fallbackTone || "pending" };
+      var key = raw.toLowerCase();
+      if (
+        key === "not started" ||
+        key === "not scheduled" ||
+        key === "n/a" ||
+        key === "none" ||
+        key === "tbd" ||
+        key === "—" ||
+        key === "-"
+      ) {
+        return { label: "Not Started", tone: fallbackTone || "pending" };
+      }
+      if (
+        key.indexOf("done") >= 0 ||
+        key.indexOf("complete") >= 0 ||
+        key.indexOf("delivered") >= 0 ||
+        key.indexOf("received") >= 0 ||
+        key.indexOf("ready") >= 0 ||
+        key.indexOf("live") >= 0
+      ) {
+        return { label: titleCase(raw), tone: "done" };
+      }
+      if (key.indexOf("progress") >= 0 || key.indexOf("scheduled") >= 0 || key.indexOf("booked") >= 0) {
+        return { label: titleCase(raw), tone: "progress" };
+      }
+      if (key.indexOf("request") >= 0 || key.indexOf("pending") >= 0 || key.indexOf("waiting") >= 0) {
+        return { label: titleCase(raw), tone: "waiting" };
+      }
+      return { label: titleCase(raw), tone: fallbackTone || "pending" };
+    }
+    function titleCase(s) {
+      return String(s || "")
+        .replace(/[_\-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+    // Read the seller-questionnaire blob from the listing row. The Apps Script
+    // sweep stuffs the Asana task description into seller_questionnaire_content;
+    // we also support a structured seller_questionnaire_answers JSON column if
+    // an integration provides one.
+    function getSellerQuestionnaire(row) {
+      if (!row) return { name: "", email: "", phone: "", answers: [], raw: "" };
+      var raw = String(row.sellerQuestionnaireContent || row.sellerQuestionnaireAnswers || "").trim();
+      var answers = [];
+      var name = String(row.sellerName || "").trim();
+      var email = String(row.sellerEmail || "").trim();
+      var phone = String(row.sellerPhone || "").trim();
+      // Try JSON first (preferred): [{question, answer}, ...] or {q:a}.
+      if (raw && (raw.charAt(0) === "[" || raw.charAt(0) === "{")) {
+        try {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            for (var i = 0; i < parsed.length; i++) {
+              var it = parsed[i] || {};
+              var q = String(it.question || it.q || it.label || "").trim();
+              var a = String(it.answer || it.a || it.value || "").trim();
+              if (q || a) answers.push({ question: q || "Answer", answer: a });
+            }
+          } else if (typeof parsed === "object") {
+            for (var k in parsed) {
+              if (!parsed.hasOwnProperty(k)) continue;
+              answers.push({ question: k, answer: String(parsed[k] == null ? "" : parsed[k]) });
+            }
+          }
+        } catch (e) {
+          // fall through to heuristic parser
+        }
+      }
+      // Heuristic: parse "Question: Answer" style lines (Asana task description).
+      if (!answers.length && raw) {
+        var lines = raw.split(/\r?\n/);
+        var current = null;
+        for (var li = 0; li < lines.length; li++) {
+          var line = lines[li].replace(/\s+$/, "");
+          if (!line.trim()) {
+            if (current) answers.push(current);
+            current = null;
+            continue;
+          }
+          var m = line.match(/^([^:]{1,80}):\s*(.*)$/);
+          if (m) {
+            if (current) answers.push(current);
+            current = { question: m[1].trim(), answer: m[2].trim() };
+          } else if (current) {
+            current.answer += (current.answer ? "\n" : "") + line.trim();
+          }
+        }
+        if (current) answers.push(current);
+      }
+      // Derive seller contact from common question labels if not provided as columns.
+      function findAnswer(rgx) {
+        for (var i = 0; i < answers.length; i++) {
+          if (rgx.test(answers[i].question)) return answers[i].answer;
+        }
+        return "";
+      }
+      if (!name) name = findAnswer(/seller.*name|owner.*name|^name$|full.?name/i);
+      if (!email) email = findAnswer(/email/i);
+      if (!phone) phone = findAnswer(/phone|mobile|cell/i);
+      return { name: name, email: email, phone: phone, answers: answers, raw: raw };
+    }
+    function listingPhotosScheduled(row) {
+      var v = normalizeText((row && row.photosStatus) || "").trim();
+      if (!v) return false;
+      // "Not scheduled" / "not yet" / "tbd" all mean we should still prompt to schedule.
+      if (v.indexOf("not ") === 0 && v.indexOf("schedul") > -1) return false;
+      if (v === "not scheduled" || v === "tbd" || v === "n/a" || v === "none" || v === "—") return false;
+      // Any other set status (Scheduled, In Progress, Done, Complete, Delivered,
+      // Received, Ready, Live, etc.) means photos work is initiated.
+      return true;
+    }
+    function listingPhotoScheduleLink(row) {
+      if (!row) return "#";
+      var direct =
+        row.photoScheduleUrl ||
+        row.photosScheduleUrl ||
+        row.acuityUrl ||
+        row.schedulingUrl ||
+        "";
+      var cleaned = String(direct || "").trim();
+      if (cleaned) return cleaned;
+      return listingDetailPageUrl(row.address || "");
+    }
+    function makeAgentOptions(rows, selected, includeAllLabel) {
+      var counts = {};
+      (rows || []).forEach(function (row) {
+        var name = normalizeListingAgent(row) || String(row.agent || "").trim() || "Unknown";
+        if (!name) return;
+        counts[name] = (counts[name] || 0) + 1;
+      });
+      var names = Object.keys(counts).sort(function (a, b) { return a.localeCompare(b); });
+      var html = '<option value="all"' + (selected === "all" ? " selected" : "") + ">" + esc(includeAllLabel || "All Agents") + "</option>";
+      for (var i = 0; i < names.length; i++) {
+        var nm = names[i];
+        html += '<option value="' + esc(nm) + '"' + (selected === nm ? " selected" : "") + ">" + esc(nm) + " · " + counts[nm] + "</option>";
+      }
+      return html;
+    }
+    function dealSideKey(v) {
+      var s = normalizeText(v);
+      if (s.indexOf("buy") > -1) return "buy";
+      if (s.indexOf("sell") > -1 || s.indexOf("listing") > -1) return "sell";
+      return "other";
+    }
+    function matchesQuery(textParts, query) {
+      var q = normalizeText(query);
+      if (!q) return true;
+      var hay = textParts.join(" ").toLowerCase();
+      return hay.indexOf(q) > -1;
+    }
+    function toDriveDirectImageUrl(url) {
+      var raw = String(url || "").trim();
+      if (!raw) return "";
+      var id = driveFileIdFromUrl(raw);
+      if (id) return "https://lh3.googleusercontent.com/d/" + id + "=w1600";
+      return raw;
+    }
+    function driveFileIdFromUrl(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      var m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (m && m[1]) return m[1];
+      var q = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (q && q[1]) return q[1];
+      var uc = s.match(/\/uc\?[^#]*[?&]id=([a-zA-Z0-9_-]+)/);
+      if (uc && uc[1]) return uc[1];
+      return "";
+    }
+    function driveImageBackupUrl(raw) {
+      var id = driveFileIdFromUrl(raw);
+      if (!id) return "";
+      return "https://drive.google.com/uc?export=view&id=" + id;
+    }
+    function getSellPhotosForAddress(address) {
+      var key = String(address || "").trim();
+      var cached = state.sellPhotosByAddress && state.sellPhotosByAddress[key];
+      return Array.isArray(cached) ? cached : [];
+    }
+
+    /** Updates only the Photos carousel strip so the Matterport iframe is not torn down. */
+    function updateSellPhotoCarouselDOM(address) {
+      if (!root) return;
+      var addr = String(address || "").trim();
+      if (!addr) return;
+      var carousel = root.querySelector(".amd-sell-detail-page .amd-sell-carousel");
+      if (!carousel) return;
+      var photos = getSellPhotosForAddress(addr);
+      var n = photos.length;
+      var idx = Number(state.sellPhotoIndexByAddress[addr] || 0);
+      if (n) {
+        idx = ((idx % n) + n) % n;
+        state.sellPhotoIndexByAddress[addr] = idx;
+      }
+      var item = n ? photos[idx] : null;
+      var imgWrap = carousel.querySelector(".amd-sell-carousel-img-wrap");
+      var countEl = carousel.querySelector(".amd-sell-carousel-count");
+      var prevBtn = carousel.querySelector("[data-sell-photo-prev]");
+      var nextBtn = carousel.querySelector("[data-sell-photo-next]");
+      if (countEl) countEl.textContent = n ? String(idx + 1) + " / " + String(n) : "0 / 0";
+      if (prevBtn) prevBtn.disabled = !n;
+      if (nextBtn) nextBtn.disabled = !n;
+      if (!imgWrap) return;
+      var loading = state.sellPhotoLoadingAddress === addr && !n;
+      if (item && item.url) {
+        imgWrap.innerHTML =
+          '<img class="amd-sell-carousel-img" src="' +
+          esc(item.url) +
+          '" data-backup="' +
+          esc(item.backupUrl || "") +
+          '" alt="' +
+          esc(item.name || addr || "Listing photo") +
+          '" loading="lazy" onerror="if(this.dataset.backup && this.src!==this.dataset.backup){this.src=this.dataset.backup;return;} this.onerror=null;">';
+      } else if (loading) {
+        imgWrap.innerHTML = '<div class="amd-sell-cover-empty" style="height:230px">Loading photos...</div>';
+      } else {
+        imgWrap.innerHTML = '<div class="amd-sell-cover-empty" style="height:230px">No photos found</div>';
+      }
+    }
+    function normalizePhotoItems(items) {
+      var arr = Array.isArray(items) ? items : [];
+      var out = [];
+      for (var i = 0; i < arr.length; i++) {
+        var it = arr[i] || {};
+        var u = toDriveDirectImageUrl(String(it.viewUrl || it.url || it.src || "").trim());
+        if (!u) continue;
+        out.push({ url: u, backupUrl: driveImageBackupUrl(it.viewUrl || it.url || it.src || ""), name: String(it.name || "Photo " + (i + 1)).trim() });
+      }
+      return out;
+    }
+    function matterportEmbedUrl(rawUrl) {
+      var raw = String(rawUrl || "").trim();
+      if (!raw) return "";
+      if (raw.indexOf("my.matterport.com/show/?m=") >= 0 || raw.indexOf("matterport.com/discover/space/") >= 0) {
+        return raw.replace(/^http:/, "https:");
+      }
+      var m = raw.match(/m=([a-zA-Z0-9_-]+)/);
+      if (m && m[1]) return "https://my.matterport.com/show/?m=" + m[1];
+      var s = raw.match(/spaces\/([a-zA-Z0-9_-]+)/);
+      if (s && s[1]) return "https://my.matterport.com/show/?m=" + s[1];
+      return "";
+    }
+    function fetchSellPhotosForAddress(address) {
+      var key = String(address || "").trim();
+      if (!key) return;
+      if (state.sellPhotoLoadingAddress === key) return;
+      if (getSellPhotosForAddress(key).length) return;
+      state.sellPhotoLoadingAddress = key;
+      fetchJSON(appendApiQuery(LISTINGS_API, "view=listingphotos&address=" + encodeURIComponent(key)))
+        .then(function (payload) {
+          var photos = normalizePhotoItems(payload && payload.photos);
+          state.sellPhotosByAddress[key] = photos;
+          if (state.sellPhotoIndexByAddress[key] == null) state.sellPhotoIndexByAddress[key] = 0;
+          state.sellPhotoLoadingAddress = "";
+          if (state.sellActiveAddress === key) {
+            updateSellPhotoCarouselDOM(key);
+          } else {
+            render();
+          }
+        })
+        .catch(function () {
+          state.sellPhotosByAddress[key] = [];
+          state.sellPhotoLoadingAddress = "";
+          if (state.sellActiveAddress === key) {
+            updateSellPhotoCarouselDOM(key);
+          } else {
+            render();
+          }
+        });
+    }
+
+    function extractListingsRows(payload) {
+      if (!payload || typeof payload !== "object") return [];
+      if (Array.isArray(payload.listings)) return payload.listings.slice();
+      if (payload.data && Array.isArray(payload.data.listings)) return payload.data.listings.slice();
+      if (Array.isArray(payload.rows)) return payload.rows.slice();
+      if (payload.data && Array.isArray(payload.data.rows)) return payload.data.rows.slice();
+      return [];
+    }
+    function appendApiQuery(url, query) {
+      return String(url || "") + (String(url || "").indexOf("?") >= 0 ? "&" : "?") + query;
+    }
+    function uniqueListingRows(rows) {
+      var seen = {};
+      var out = [];
+      for (var i = 0; i < (rows || []).length; i++) {
+        var row = rows[i] || {};
+        var key = normalizeText(row.address || "") + "|" + normalizeText(normalizeListingAgent(row) || "");
+        if (!key || key === "|") continue;
+        if (seen[key]) continue;
+        seen[key] = true;
+        out.push(row);
+      }
+      return out;
+    }
+    function fetchListingsMaster() {
+      if (state.listingsFetching) {
+        render();
+        return;
+      }
+      state.listingsFetching = true;
+      state.listingsError = null;
+      render();
+      fetchJSON(appendApiQuery(LISTINGS_API, "view=all"))
+        .then(function (allPayload) {
+          var rows = extractListingsRows(allPayload);
+          if (rows.length) return { rows: rows, source: "all" };
+          return Promise.all([
+            fetchJSON(appendApiQuery(LISTINGS_API, "view=active")).catch(function () { return null; }),
+            fetchJSON(appendApiQuery(LISTINGS_API, "view=archive")).catch(function () { return null; })
+          ]).then(function (parts) {
+            var activeRows = extractListingsRows(parts[0]);
+            var archiveRows = extractListingsRows(parts[1]);
+            return { rows: uniqueListingRows(activeRows.concat(archiveRows)), source: "active+archive" };
+          });
+        })
+        .then(function (result) {
+          var rows = (result && result.rows) || [];
+          state.listingsRows = rows;
+          state.listingsLoaded = true;
+          state.listingsFetching = false;
+          if (!rows.length) {
+            state.listingsError =
+              "Listings API responded but returned 0 rows. Active endpoint: " +
+              LISTINGS_API +
+              " (diag: " +
+              appendApiQuery(LISTINGS_API, "view=diag") +
+              "). Confirm this is the same deployment that reads your live Listing Hub sheet.";
+          } else {
+            state.listingsError = null;
+          }
+          render();
+        })
+        .catch(function (e) {
+          state.listingsError = e && e.message ? e.message : String(e);
+          state.listingsFetching = false;
+          render();
+        });
     }
 
     function withTimeout(promise, ms, label) {
@@ -4622,7 +8206,6 @@
     }
 
     function load() {
-      setLoading();
       var allTimeRowsPromise = withTimeout(
         fetchAllTimeClosedRowsFromScript(),
         ALL_TIME_ROWS_TIMEOUT_MS,
@@ -4649,6 +8232,7 @@
             Array.isArray(pipelineJSON.ytdPending) &&
             Array.isArray(pipelineJSON.ytdClosed)
           ) {
+            state.pipelineFeedError = null;
             state.ytdPendingDeals = pipelineJSON.ytdPending.map(function (r) {
               return mapPipelineRow(r, "Pending");
             });
@@ -4659,7 +8243,13 @@
               return d.agent && d.agent !== "—" && d.address && d.address !== "—";
             });
           } else {
-            throw new Error("Pipeline feed unavailable (YTD Pending / YTD Closed).");
+            // Do not hard-fail the whole dashboard: pipeline timeouts, script
+            // errors, or response-shape drift would otherwise blank the UI.
+            state.ytdPendingDeals = [];
+            state.ytdClosedDeals = [];
+            state.deals = [];
+            state.pipelineFeedError =
+              "Pipeline feed unavailable (YTD Pending / YTD Closed). Listings and other tabs still work; refresh when the feed recovers.";
           }
 
           state.statsAgentsYtd = ytdJSON && Array.isArray(ytdJSON.agents) ? ytdJSON.agents : [];
@@ -4668,6 +8258,7 @@
           state.directoryRows = extractDirectoryRows(directoryJSON);
           state.ytdSummary = ytdJSON && ytdJSON.summary ? ytdJSON.summary : null;
           state.allTimeSummary = allTimeJSON && allTimeJSON.summary ? allTimeJSON.summary : null;
+          state.coreFeedsPending = false;
           state.loadedAt = new Date();
           try { render(); } catch (e) { console.error("render:", e); setError(e); }
 
@@ -4678,9 +8269,13 @@
             try { render(); } catch (e) { console.error("render:", e); setError(e); }
           });
         })
-        .catch(setError);
+        .catch(function (err) {
+          state.coreFeedsPending = false;
+          setError(err);
+        });
     }
 
+    render();
     load();
   })();
 </script>

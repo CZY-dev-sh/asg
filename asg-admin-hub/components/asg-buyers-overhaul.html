@@ -1,0 +1,239 @@
+<!--
+  ASG BUYERS PAGE
+  Paste into a Squarespace Code Block on your /buyers page.
+  Requires: site-wide CSS + JS injections.
+-->
+
+<main class="asg-page-main">
+
+  <!-- ───── HERO ───── -->
+  <section class="asg-hero">
+    <div class="asg-hero-inner">
+      <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          <div class="asg-hero-fade" style="animation-delay:.1s;">
+            <span class="asg-pill">For Buyers</span>
+          </div>
+          <h1 class="asg-hero-h1">
+            <span class="asg-word-mask"><span style="animation-delay:.20s">Find</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.28s">a</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.36s">home</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.44s">that</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.52s">fits</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.60s">your</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.68s">life.</span></span>
+          </h1>
+          <p class="asg-hero-lead asg-hero-fade" style="animation-delay:.85s;">
+            Live MLS access, neighborhood-by-neighborhood insight, and an agent who tours with you, negotiates for you, and shows up after closing.
+          </p>
+          <div class="asg-hero-fade" style="animation-delay:1s; display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="/listings" class="asg-btn asg-btn-dark asg-btn-lg">Browse listings</a>
+            <a href="#consultation" class="asg-btn asg-btn-light asg-btn-lg">Talk to an agent</a>
+          </div>
+        </div>
+
+        <div class="asg-hero-fade" style="animation-delay:.5s;">
+          <div style="border-radius:34px; overflow:hidden; border:1px solid var(--asg-line); box-shadow:var(--asg-shadow-deep); aspect-ratio:4/5;">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85"
+                 alt="Lincoln Park luxury home interior"
+                 loading="eager" decoding="async"
+                 style="width:100%; height:100%; object-fit:cover;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── SEARCH PROMO ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-alt asg-reveal" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;">
+      <div>
+        <p class="asg-eyebrow">Powered by Live MLS</p>
+        <h2 style="font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.6rem,2.4vw,2.4rem); letter-spacing:-.04em; line-height:1.05; margin:0 0 12px;">Search every home in Chicagoland.</h2>
+        <p style="color:var(--asg-muted); font-size:1rem; line-height:1.6; margin:0 0 20px;">Filter by neighborhood, price, beds, baths, and amenities. Save searches and get instant alerts the moment a matching home hits the market.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="/listings" class="asg-btn asg-btn-dark">Open the search</a>
+          <a href="#consultation" class="asg-btn asg-btn-light">Get matched with an agent</a>
+        </div>
+      </div>
+      <div class="asg-card" style="background:#fff;">
+        <p class="asg-eyebrow" style="margin:0 0 14px;">Quick Search</p>
+        <form data-asg-form="buyer-quick-search" novalidate style="display:flex; flex-direction:column; gap:10px;" onsubmit="window.location='/listings'; return false;">
+          <div class="asg-field">
+            <label class="asg-label">Neighborhood</label>
+            <select class="asg-select" name="neighborhood">
+              <option value="">Any neighborhood</option>
+              <option>Lincoln Park</option>
+              <option>Gold Coast</option>
+              <option>West Loop</option>
+              <option>Wicker Park</option>
+              <option>Bucktown</option>
+              <option>Lakeview</option>
+              <option>Streeterville</option>
+              <option>River North</option>
+              <option>Old Town</option>
+            </select>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="asg-field">
+              <label class="asg-label">Min Price</label>
+              <select class="asg-select" name="minPrice">
+                <option value="">No min</option><option>$500k</option><option>$750k</option><option>$1M</option><option>$1.5M</option><option>$2M</option><option>$3M</option>
+              </select>
+            </div>
+            <div class="asg-field">
+              <label class="asg-label">Max Price</label>
+              <select class="asg-select" name="maxPrice">
+                <option value="">No max</option><option>$1M</option><option>$1.5M</option><option>$2M</option><option>$3M</option><option>$5M</option><option>$10M+</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="asg-field">
+              <label class="asg-label">Beds</label>
+              <select class="asg-select" name="beds"><option value="">Any</option><option>1+</option><option>2+</option><option>3+</option><option>4+</option><option>5+</option></select>
+            </div>
+            <div class="asg-field">
+              <label class="asg-label">Baths</label>
+              <select class="asg-select" name="baths"><option value="">Any</option><option>1+</option><option>2+</option><option>3+</option><option>4+</option></select>
+            </div>
+          </div>
+          <button type="submit" class="asg-btn asg-btn-dark" style="margin-top:6px;">Search homes →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── WHY WORK WITH US ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">Why Buyers Choose ASG</p>
+        <h2 class="asg-section-h2">Buyers deserve the same edge sellers get.</h2>
+      </div>
+      <div class="asg-grid asg-grid-3">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">First-look access</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Our network surfaces off-market and pre-MLS opportunities — homes you'd never find on Zillow.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-5"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Disciplined negotiation</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">We pull comps, days-on-market, and seller motivation data before every offer — and walk away when the math doesn't work.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Transparent process</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Vendor referrals, inspection coordination, lender intros — all in one place, with no surprises at closing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── PROCESS TIMELINE ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-alt asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">The Buying Journey</p>
+        <h2 class="asg-section-h2">From first showing to keys in hand.</h2>
+      </div>
+      <div class="asg-grid asg-grid-4">
+        <div class="asg-card asg-reveal asg-d1" style="background:#fff;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">01</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Discovery</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">We map your priorities, timeline, and budget — and connect you to a lender if you need one.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d2" style="background:#fff;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">02</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Tour</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Curated showings — never a long list of homes that miss the mark. We refine as we go.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d3" style="background:#fff;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">03</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Offer & Negotiate</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">We structure the offer for leverage — terms, timing, contingencies — and negotiate hard.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d4" style="background:#fff;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">04</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Close</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Inspections, appraisal, walk-through, closing table — we manage every detail in writing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── BUYER GUIDE LEAD MAGNET ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-dark asg-reveal" style="display:grid; grid-template-columns:1.2fr .8fr; gap:28px; align-items:center; padding:40px 32px;" id="consultation">
+      <div>
+        <p style="color:rgba(255,255,255,.45); font-family:var(--asg-font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 14px;">Free Resource</p>
+        <h2 style="color:#fff; font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.8rem,2.6vw,2.6rem); letter-spacing:-.04em; line-height:1; margin:0 0 14px;">The Chicago Buyer's Guide.</h2>
+        <p style="color:rgba(255,255,255,.65); font-size:1rem; line-height:1.6; max-width:50ch; margin:0 0 22px;">A 24-page playbook covering neighborhood snapshots, condo vs. single-family tradeoffs, financing strategy, and exactly what to expect at every step. No fluff.</p>
+        <ul style="list-style:none; padding:0; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:8px 16px;">
+          <li style="color:rgba(255,255,255,.85); font-size:.92rem; display:flex; gap:8px; align-items:flex-start;"><svg width="16" height="16" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Neighborhood data</li>
+          <li style="color:rgba(255,255,255,.85); font-size:.92rem; display:flex; gap:8px; align-items:flex-start;"><svg width="16" height="16" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Lender shortlist</li>
+          <li style="color:rgba(255,255,255,.85); font-size:.92rem; display:flex; gap:8px; align-items:flex-start;"><svg width="16" height="16" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Inspection checklist</li>
+          <li style="color:rgba(255,255,255,.85); font-size:.92rem; display:flex; gap:8px; align-items:flex-start;"><svg width="16" height="16" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Closing-cost worksheet</li>
+        </ul>
+      </div>
+
+      <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:22px;">
+        <form data-asg-form="buyer-guide" novalidate style="display:flex; flex-direction:column; gap:10px;">
+          <p style="color:rgba(255,255,255,.55); font-family:var(--asg-font-display); font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin:0 0 4px;">Send Me the Guide</p>
+          <input class="asg-input" name="name" type="text" required placeholder="Full name"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+          <input class="asg-input" name="email" type="email" required placeholder="Email address"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+          <input class="asg-input" name="phone" type="tel" placeholder="Phone (optional)"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+          <select class="asg-select" name="timeline" required
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+            <option value="" style="color:#111;">When are you looking to buy?</option>
+            <option value="0-3" style="color:#111;">In the next 3 months</option>
+            <option value="3-6" style="color:#111;">3–6 months</option>
+            <option value="6-12" style="color:#111;">6–12 months</option>
+            <option value="exploring" style="color:#111;">Just exploring</option>
+          </select>
+          <button type="submit" class="asg-btn asg-btn-light" style="margin-top:6px;">Email me the guide</button>
+          <p style="color:rgba(255,255,255,.4); font-size:.78rem; line-height:1.5; margin:6px 0 0;">We'll never sell your info. Unsubscribe any time.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FAQ ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">Buyer FAQ</p>
+        <h2 class="asg-section-h2">The questions buyers actually ask.</h2>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <details class="asg-card asg-reveal asg-d1" style="cursor:pointer; padding:18px 22px;">
+          <summary style="font-family:var(--asg-font-display); font-weight:700; font-size:1rem; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px;">Do I pay anything to work with a buyer's agent? <span aria-hidden="true" style="font-size:1.3rem;">+</span></summary>
+          <p style="color:var(--asg-muted); font-size:.94rem; line-height:1.6; margin:12px 0 0;">In most Chicago transactions, the seller's listing agreement covers buyer-side compensation. We'll review the specifics in your buyer agreement before you sign anything — no hidden fees, ever.</p>
+        </details>
+        <details class="asg-card asg-reveal asg-d2" style="cursor:pointer; padding:18px 22px;">
+          <summary style="font-family:var(--asg-font-display); font-weight:700; font-size:1rem; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px;">How fast can I see a home once I find one I like? <span aria-hidden="true" style="font-size:1.3rem;">+</span></summary>
+          <p style="color:var(--asg-muted); font-size:.94rem; line-height:1.6; margin:12px 0 0;">Same day in most cases. We tour aggressively in the first 48 hours of a listing because the best Chicago homes move fast.</p>
+        </details>
+        <details class="asg-card asg-reveal asg-d3" style="cursor:pointer; padding:18px 22px;">
+          <summary style="font-family:var(--asg-font-display); font-weight:700; font-size:1rem; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px;">Do you have a preferred lender? <span aria-hidden="true" style="font-size:1.3rem;">+</span></summary>
+          <p style="color:var(--asg-muted); font-size:.94rem; line-height:1.6; margin:12px 0 0;">We work with several. We'll introduce you to two or three based on your situation and let you compare — we don't take referral fees.</p>
+        </details>
+        <details class="asg-card asg-reveal asg-d4" style="cursor:pointer; padding:18px 22px;">
+          <summary style="font-family:var(--asg-font-display); font-weight:700; font-size:1rem; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px;">What's the typical timeline from first showing to closing? <span aria-hidden="true" style="font-size:1.3rem;">+</span></summary>
+          <p style="color:var(--asg-muted); font-size:.94rem; line-height:1.6; margin:12px 0 0;">For most cash-strong buyers, 30–45 days from offer accepted to keys. For first-time buyers using financing, plan for 45–60.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>

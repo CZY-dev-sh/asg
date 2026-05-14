@@ -1,0 +1,235 @@
+<!--
+  ASG NEIGHBORHOODS PAGE
+  Paste into a Squarespace Code Block on your /neighborhoods page.
+  Requires: site-wide CSS + JS injections.
+
+  SEO note: each neighborhood card here can later become its own page
+  (e.g. /neighborhoods/lincoln-park) for stronger long-tail search performance.
+-->
+
+<main class="asg-page-main">
+
+  <!-- ───── HERO ───── -->
+  <section class="asg-hero">
+    <div class="asg-hero-inner">
+      <div style="display:flex; flex-direction:column; gap:20px; max-width:880px;">
+        <div class="asg-hero-fade" style="animation-delay:.1s;"><span class="asg-pill">Local Expertise</span></div>
+        <h1 class="asg-hero-h1">
+          <span class="asg-word-mask"><span style="animation-delay:.20s">Know</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.28s">the</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.36s">block,</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.44s">not</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.52s">just</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.60s">the</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.68s">city.</span></span>
+        </h1>
+        <p class="asg-hero-lead asg-hero-fade" style="animation-delay:.86s;">
+          Honest takes on Chicago's neighborhoods — what each one feels like to live in, what's drawing buyers right now, and where the value is hiding.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FEATURE NEIGHBORHOOD ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal" style="padding:0; overflow:hidden;">
+      <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:0; align-items:stretch;">
+        <div style="aspect-ratio:4/3; min-height:380px; background:#e9e9e4;" class="asg-img-zoom">
+          <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1200&q=80" alt="Lincoln Park" loading="lazy" decoding="async">
+        </div>
+        <div style="padding:36px 32px; display:flex; flex-direction:column; justify-content:center; gap:18px;">
+          <p class="asg-eyebrow" style="margin:0;">Featured · Lincoln Park</p>
+          <h2 style="font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.8rem,2.6vw,2.6rem); letter-spacing:-.04em; line-height:1.05; margin:0;">Lincoln Park</h2>
+          <p style="color:var(--asg-muted); font-size:1rem; line-height:1.6; margin:0;">Tree-lined streets, top-tier public and private schools, instant access to the lakefront, and the city's deepest restaurant bench. Inventory is tight and often sells before it hits public MLS — the kind of neighborhood you don't search alone.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px;">
+            <div><p class="asg-stat-label" style="margin:0 0 4px;">Median Sale</p><p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.4rem; letter-spacing:-.03em; line-height:1; margin:0;">$1.4M</p></div>
+            <div><p class="asg-stat-label" style="margin:0 0 4px;">Avg. DOM</p><p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.4rem; letter-spacing:-.03em; line-height:1; margin:0;">22</p></div>
+            <div><p class="asg-stat-label" style="margin:0 0 4px;">YoY</p><p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.4rem; letter-spacing:-.03em; line-height:1; margin:0;">+3.8%</p></div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+            <a href="/listings" class="asg-btn asg-btn-dark">See Lincoln Park homes</a>
+            <a href="#guide" class="asg-btn asg-btn-light">Get the full guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── ALL NEIGHBORHOODS GRID ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal">
+      <div class="asg-section-head">
+        <div>
+          <p class="asg-eyebrow">Browse by Neighborhood</p>
+          <h2 class="asg-section-h2">North Side, Loop, and beyond.</h2>
+        </div>
+      </div>
+
+      <div class="asg-grid asg-grid-3">
+        <article class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=900&q=80" alt="Gold Coast" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Gold Coast</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Historic architecture, prime lakefront living, and proximity to everything — Mag Mile, Oak Street Beach, the Loop.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$2.1M</strong> median</span>
+              <span><strong style="color:var(--asg-text);">28</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80" alt="West Loop" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">West Loop</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Vibrant dining, modern loft conversions, and the strongest new-construction pipeline in the city.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$895K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">31</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80" alt="Wicker Park" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Wicker Park</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Creative energy, boutique retail, the strongest 5-year appreciation curve on the North Side.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$725K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">26</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d4" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80&sat=-20" alt="Bucktown" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Bucktown</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Walkable, neighborhood-y, and increasingly family-driven. The 606 trail is the spine of the area.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$815K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">29</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d5" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=80" alt="Lakeview" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Lakeview</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">East-side condos with skyline views, west-side single-families with backyards. Something for every buyer.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$640K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">24</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d6" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1496450681664-3df85efbd29f?auto=format&fit=crop&w=900&q=80" alt="River North" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">River North</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">High-rise living at the center of everything — gallery district, dining, transit, and the river-walk.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$580K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">35</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1518477497312-872c93cb1eaf?auto=format&fit=crop&w=900&q=80" alt="Streeterville" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Streeterville</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Lakefront high-rises, Northwestern campus, walking distance to Mag Mile. A renter-to-owner pipeline city.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$695K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">38</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=80&sat=-30" alt="Old Town" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Old Town</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Historic charm with new-build pockets, Wells Street energy, and quick access to LSD and the Loop.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$1.05M</strong> median</span>
+              <span><strong style="color:var(--asg-text);">27</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+
+        <article class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt); padding:0; overflow:hidden;">
+          <div class="asg-img-zoom" style="aspect-ratio:16/10; background:#e9e9e4;">
+            <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80" alt="Logan Square" loading="lazy" decoding="async">
+          </div>
+          <div style="padding:18px 20px 22px;">
+            <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.025em; margin:0 0 6px;">Logan Square</p>
+            <p style="color:var(--asg-muted); font-size:.9rem; line-height:1.55; margin:0 0 14px;">Boulevard living, two-flat conversions, and one of the city's strongest food and bar scenes.</p>
+            <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--asg-muted);">
+              <span><strong style="color:var(--asg-text);">$595K</strong> median</span>
+              <span><strong style="color:var(--asg-text);">21</strong> DOM</span>
+            </div>
+            <a href="/listings" class="asg-btn asg-btn-light asg-btn-sm">Browse listings</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── GUIDE LEAD MAGNET ───── -->
+  <section class="asg-section asg-anchor" id="guide">
+    <div class="asg-shell asg-shell-dark asg-reveal" style="display:grid; grid-template-columns:1.2fr .8fr; gap:28px; align-items:center; padding:40px 32px;">
+      <div>
+        <p style="color:rgba(255,255,255,.45); font-family:var(--asg-font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 14px;">Free Download</p>
+        <h2 style="color:#fff; font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.8rem,2.6vw,2.6rem); letter-spacing:-.04em; line-height:1; margin:0 0 14px;">The Chicago Neighborhood Atlas.</h2>
+        <p style="color:rgba(255,255,255,.65); font-size:1rem; line-height:1.6; max-width:50ch; margin:0;">A 60-page deep dive into 18 Chicago neighborhoods — schools, transit, price-per-square-foot trends, walkability, and what's actually changing on the ground.</p>
+      </div>
+      <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:22px;">
+        <form data-asg-form="neighborhood-atlas" novalidate style="display:flex; flex-direction:column; gap:10px;">
+          <input class="asg-input" name="name" type="text" required placeholder="Full name"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+          <input class="asg-input" name="email" type="email" required placeholder="Email address"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+          <select class="asg-select" name="interest"
+            style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.16); color:#fff;">
+            <option value="" style="color:#111;">I'm most interested in…</option>
+            <option style="color:#111;">Buying</option>
+            <option style="color:#111;">Selling</option>
+            <option style="color:#111;">Investing</option>
+            <option style="color:#111;">Just exploring</option>
+          </select>
+          <button type="submit" class="asg-btn asg-btn-light" style="margin-top:6px;">Email me the Atlas</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>

@@ -1,0 +1,387 @@
+<!--
+  ASG SITE-WIDE JS INJECTION
+  Paste into: Squarespace → Settings → Advanced → Code Injection → FOOTER
+  This loads on every page. Do NOT paste this into a Code Block.
+
+  Provides:
+    • body.asg-page marker (so site CSS hides native chrome)
+    • Floating glass nav (auto-injected at top of <body>)
+    • Site footer (auto-injected at end of <body>)
+    • Mobile menu
+    • Scroll-blur intensifier
+    • IntersectionObserver for .asg-reveal
+    • Shared form handler (honeypot + time-trap + Apps Script POST)
+
+  TO WIRE LEAD FORMS LATER:
+    set window.ASG_LEAD_ENDPOINT = "https://script.google.com/macros/s/.../exec";
+    (For now, forms POST nowhere; they show success state for design preview.)
+-->
+
+<script>
+(function () {
+  'use strict';
+
+  /* Mark body so site-wide CSS knows to hide native chrome.
+     We do this only on pages that include an .asg-page-main element. */
+  function markPage(){
+    if (document.querySelector('.asg-page-main')) {
+      document.body.classList.add('asg-page');
+    }
+  }
+
+  /* ───────────── Configuration ───────────── */
+  var ASG_LOGO_URL = 'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w';
+
+  /* Primary nav (top floating pill) */
+  var NAV_LINKS = [
+    { label: 'Buyers',        href: '/buyers' },
+    { label: 'Sellers',       href: '/sellers' },
+    { label: 'Listings',      href: '/listings' },
+    { label: 'Neighborhoods', href: '/neighborhoods' },
+    { label: 'About',         href: '/about' },
+    { label: 'Team',          href: '/team' }
+  ];
+
+  /* Footer columns */
+  var FOOTER_COLS = [
+    {
+      title: 'Real Estate',
+      links: [
+        { label: 'Buyers',        href: '/buyers' },
+        { label: 'Sellers',       href: '/sellers' },
+        { label: 'Listings',      href: '/listings' },
+        { label: 'Neighborhoods', href: '/neighborhoods' }
+      ]
+    },
+    {
+      title: 'Company',
+      links: [
+        { label: 'About',         href: '/about' },
+        { label: 'How We Work',   href: '/how-we-work' },
+        { label: 'Team',          href: '/team' },
+        { label: 'Careers',       href: '/careers' },
+        { label: 'Blog',          href: '/blog' }
+      ]
+    },
+    {
+      title: 'Connect',
+      links: [
+        { label: 'Contact',        href: '/contact' },
+        { label: 'Client Portal',  href: '/client-portal' },
+        { label: 'Instagram',      href: 'https://www.instagram.com/alexstoykovgroup', external: true },
+        { label: 'LinkedIn',       href: 'https://www.linkedin.com', external: true }
+      ]
+    }
+  ];
+
+  /* ───────────── Helpers ───────────── */
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        if (k === 'class') node.className = attrs[k];
+        else if (k === 'html') node.innerHTML = attrs[k];
+        else if (k === 'on' && typeof attrs[k] === 'object') {
+          Object.keys(attrs[k]).forEach(function (ev) {
+            node.addEventListener(ev, attrs[k][ev]);
+          });
+        }
+        else if (k in node && k !== 'style') node[k] = attrs[k];
+        else node.setAttribute(k, attrs[k]);
+      });
+    }
+    (children || []).forEach(function (c) {
+      if (c == null) return;
+      if (typeof c === 'string') node.appendChild(document.createTextNode(c));
+      else node.appendChild(c);
+    });
+    return node;
+  }
+
+  function getCurrentPath(){
+    var p = (window.location.pathname || '/').toLowerCase().replace(/\/+$/,'') || '/';
+    return p;
+  }
+
+  /* ───────────── Build & inject nav ───────────── */
+  function injectNav(){
+    if (document.querySelector('.asg-nav-frost')) return;
+    var path = getCurrentPath();
+
+    var frost = el('div', { class: 'asg-nav-frost', 'aria-hidden': 'true' });
+
+    var logo = el('a', {
+      class: 'asg-nav-logo',
+      href: '/',
+      'aria-label': 'Alex Stoykov Group — Home'
+    }, [
+      el('img', { src: ASG_LOGO_URL, alt: 'Alex Stoykov Group' })
+    ]);
+
+    var linksRow = el('div', { class: 'asg-nav-links', role: 'navigation', 'aria-label': 'Primary' });
+    NAV_LINKS.forEach(function (l) {
+      var a = el('a', {
+        class: 'asg-nav-link' + (path === l.href.toLowerCase() ? ' is-active' : ''),
+        href: l.href
+      }, [l.label]);
+      linksRow.appendChild(a);
+    });
+
+    var ctaRow = el('div', { class: 'asg-nav-cta' }, [
+      el('a', { class: 'asg-btn asg-btn-light asg-btn-sm', href: '/buyers' }, ["I'm Buying"]),
+      el('a', { class: 'asg-btn asg-btn-dark asg-btn-sm', href: '/sellers' }, ["I'm Selling"])
+    ]);
+
+    var burger = el('button', {
+      class: 'asg-nav-burger',
+      type: 'button',
+      'aria-label': 'Open menu',
+      'aria-controls': 'asgMobilePanel',
+      'aria-expanded': 'false',
+      on: { click: openMobile }
+    }, []);
+    burger.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+
+    var nav = el('nav', { class: 'asg-nav', 'aria-label': 'Site' }, [logo, linksRow, ctaRow, burger]);
+    var inner = el('div', { class: 'asg-nav-inner' }, [nav]);
+    var wrap = el('div', { class: 'asg-nav-wrap' }, [inner]);
+
+    /* Mobile panel */
+    var panel = el('div', { class: 'asg-mobile-panel', id: 'asgMobilePanel', role: 'dialog', 'aria-modal': 'true' });
+    var closeBtn = el('button', {
+      class: 'asg-mobile-panel-close',
+      type: 'button',
+      'aria-label': 'Close menu',
+      on: { click: closeMobile }
+    });
+    closeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>';
+    panel.appendChild(closeBtn);
+
+    NAV_LINKS.forEach(function (l) {
+      panel.appendChild(el('a', { href: l.href }, [l.label]));
+    });
+    panel.appendChild(el('a', { href: '/contact' }, ['Contact']));
+    panel.appendChild(el('a', { href: '/client-portal' }, ['Client Portal']));
+
+    var mobileCta = el('div', { class: 'asg-mobile-panel-cta' }, [
+      el('a', { class: 'asg-btn asg-btn-light', href: '/buyers' }, ["I'm Buying"]),
+      el('a', { class: 'asg-btn asg-btn-dark', href: '/sellers' }, ["I'm Selling"])
+    ]);
+    panel.appendChild(mobileCta);
+
+    document.body.insertBefore(wrap, document.body.firstChild);
+    document.body.insertBefore(frost, wrap);
+    document.body.appendChild(panel);
+
+    function openMobile(){
+      panel.classList.add('is-open');
+      burger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobile(){
+      panel.classList.remove('is-open');
+      burger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    /* Close mobile menu when a link is clicked */
+    panel.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') closeMobile();
+    });
+
+    /* Esc closes mobile */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+    });
+
+    /* Scroll-blur intensifier */
+    var lastScrolled = false;
+    function onScroll(){
+      var y = window.scrollY || 0;
+      var scrolled = y > 20;
+      if (scrolled !== lastScrolled) {
+        nav.classList.toggle('is-scrolled', scrolled);
+        frost.classList.toggle('is-scrolled', scrolled);
+        lastScrolled = scrolled;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* ───────────── Build & inject footer ───────────── */
+  function injectFooter(){
+    if (document.querySelector('.asg-footer')) return;
+
+    var brand = el('div', { class: 'asg-footer-brand' }, [
+      el('a', { class: 'asg-footer-logo', href: '/' }, [
+        el('img', { src: ASG_LOGO_URL, alt: '' }),
+        document.createTextNode('Alex Stoykov Group')
+      ]),
+      el('p', { class: 'asg-footer-tagline' }, [
+        'A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance — from first showing to final close.'
+      ]),
+      el('p', { class: 'asg-footer-tagline' }, ['Brokered by Compass · Chicago, IL'])
+    ]);
+
+    var inner = el('div', { class: 'asg-footer-inner' }, [brand]);
+
+    FOOTER_COLS.forEach(function (col) {
+      var ul = el('ul');
+      col.links.forEach(function (l) {
+        var attrs = { href: l.href };
+        if (l.external) { attrs.target = '_blank'; attrs.rel = 'noopener noreferrer'; }
+        ul.appendChild(el('li', null, [el('a', attrs, [l.label])]));
+      });
+      inner.appendChild(el('div', { class: 'asg-footer-col' }, [
+        el('h4', null, [col.title]),
+        ul
+      ]));
+    });
+
+    var year = new Date().getFullYear();
+    var bottom = el('div', { class: 'asg-footer-bottom' }, [
+      el('span', null, ['© ' + year + ' Alex Stoykov Group · All rights reserved']),
+      el('div', { style: 'display:flex;gap:18px;flex-wrap:wrap;' }, [
+        el('a', { href: '/privacy' }, ['Privacy']),
+        el('a', { href: '/terms' }, ['Terms']),
+        el('a', { href: '/accessibility' }, ['Accessibility']),
+        el('a', { href: '/fair-housing' }, ['Fair Housing'])
+      ])
+    ]);
+
+    var footer = el('footer', { class: 'asg-footer' }, [inner, bottom]);
+    document.body.appendChild(footer);
+  }
+
+  /* ───────────── Reveal observer ───────────── */
+  function initReveal(){
+    var els = document.querySelectorAll('.asg-reveal:not(.is-visible)');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (e) { e.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  /* ───────────── Form handler ─────────────
+     Any <form data-asg-form> submits via this handler.
+       • honeypot field name="company" must remain empty
+       • time-trap rejects submissions <1.5s after render
+       • submits to window.ASG_LEAD_ENDPOINT if defined; otherwise shows preview success
+  */
+  function initForms(){
+    var forms = document.querySelectorAll('form[data-asg-form]:not([data-asg-bound])');
+    forms.forEach(function (form) {
+      form.setAttribute('data-asg-bound', '1');
+      form.dataset.renderedAt = String(Date.now());
+
+      /* Inject honeypot if not present */
+      if (!form.querySelector('input[name="company"]')) {
+        var hp = el('input', {
+          type: 'text', name: 'company', autocomplete: 'off',
+          tabindex: '-1', 'aria-hidden': 'true',
+          class: 'asg-honeypot'
+        });
+        form.appendChild(hp);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var hp = form.querySelector('input[name="company"]');
+        if (hp && hp.value) return; /* bot */
+
+        var rendered = parseInt(form.dataset.renderedAt || '0', 10);
+        if (Date.now() - rendered < 1500) return; /* too fast → likely bot */
+
+        var data = {};
+        Array.prototype.forEach.call(form.elements, function (field) {
+          if (!field.name || field.name === 'company') return;
+          if (field.type === 'checkbox') data[field.name] = field.checked;
+          else data[field.name] = field.value;
+        });
+        data._page = window.location.pathname;
+        data._formType = form.getAttribute('data-asg-form') || 'contact';
+        data._submittedAt = new Date().toISOString();
+
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.dataset.origLabel = btn.textContent; btn.textContent = 'Sending…'; }
+
+        var endpoint = (window.ASG_LEAD_ENDPOINT || '').trim();
+
+        function showSuccess(){
+          var wrap = form.parentNode;
+          var msg = el('div', { class: 'asg-form-success' }, [
+            el('div', { class: 'asg-form-success-icon' }, [(function(){
+              var s = document.createElement('span');
+              s.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+              return s.firstChild;
+            })()]),
+            el('p', { style: 'font-family:var(--asg-font-display);font-weight:700;font-size:1.1rem;' }, ['Thank you — request received']),
+            el('p', { style: 'color:var(--asg-muted);font-size:.92rem;line-height:1.5;max-width:36ch;' }, ['A member of the Alex Stoykov Group will reach out within one business day.'])
+          ]);
+          form.style.display = 'none';
+          wrap.appendChild(msg);
+        }
+
+        function showError(){
+          if (btn) { btn.disabled = false; btn.textContent = btn.dataset.origLabel || 'Send'; }
+          var existing = form.querySelector('.asg-form-error');
+          if (existing) return;
+          var err = el('p', {
+            class: 'asg-form-error',
+            style: 'color:#b00020;font-size:.88rem;margin-top:8px;'
+          }, ['Sorry — something went wrong. Please try again or email contact@alexstoykovgroup.com.']);
+          form.appendChild(err);
+        }
+
+        if (!endpoint) {
+          /* Preview mode — no backend wired yet. Show success state. */
+          setTimeout(showSuccess, 600);
+          return;
+        }
+
+        try {
+          fetch(endpoint, {
+            method: 'POST',
+            mode: 'no-cors', /* Apps Script doesn't return CORS headers; we can't read response */
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data)
+          })
+            .then(function () { showSuccess(); })
+            .catch(function () { showError(); });
+        } catch (err) {
+          showError();
+        }
+      });
+    });
+  }
+
+  /* ───────────── Boot ───────────── */
+  function boot(){
+    markPage();
+    if (!document.body.classList.contains('asg-page')) return; /* not an ASG page */
+    injectNav();
+    injectFooter();
+    initReveal();
+    initForms();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  /* Re-init on Squarespace AJAX page loads */
+  document.addEventListener('mercury:load', boot);
+})();
+</script>

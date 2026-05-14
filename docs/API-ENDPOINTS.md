@@ -504,6 +504,102 @@ Same Apps Script deployment. Returns the FUB custom-field catalog plus pipelines
 
 ---
 
+## Listing Hub — ASG Deals `Listings` tab (2026)
+
+**Apps Script source**: [`ListingHub.gs`](../asg-admin-hub/apps-script/listing-hub/ListingHub.gs) + [`ListingDetailPage.html`](../asg-admin-hub/apps-script/listing-hub/ListingDetailPage.html)
+
+**Typical deployment URL** (hubs reference this today):  
+`https://script.google.com/macros/s/AKfycbwSHKQstev11npo4JSFUm29kY1G_gIdUvF9R-ed-cbIT-olm-RY4KxXRlRt_9mauMYz/exec`
+
+Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Squarespace iframes and hub fetch calls work.
+
+### Script properties
+
+| Property | Notes |
+|---|---|
+| `LISTINGS_SPREADSHEET_ID` | Optional. Opens this workbook for the `Listings` tab; if unset, uses the script’s container spreadsheet. |
+| `LISTING_WEB_APP_URL` | Optional. Canonical base URL for emails/embeds if `ScriptApp.getService().getUrl()` is empty in context. |
+| `WEBHOOK_SECRET` | Required for secured POST actions (`requestOpenHouse`, `questionnaireComplete`, `createMarketingKickoff`). |
+| `ASANA_TOKEN`, `ASANA_WORKSPACE_GID`, `ASANA_MARKETING_PROJECT_GID` | Optional. Per-listing ops + kickoff task creation. |
+| `ACUITY_USER_ID`, `ACUITY_API_KEY`, `ACUITY_CALENDAR_IDS` | Optional. Photo booking correlation. |
+| `FUB_API_KEY`, `FUB_API_BASE_URL` | Optional. Deal/task correlation after listing is linked or fuzzy-matched. |
+| `LISTING_DETAIL_VISUAL_MOCK` | Optional. Set to `true` to serve Listing HQ with built-in mock listing data (same as `?mock=1` on the detail page). |
+
+### GET
+
+| Query | Returns |
+|---|---|
+| `?view=active` | Active rows (not closed). JSON list in `listings`. |
+| `?view=archive` or `closed` | Closed rows. |
+| `?view=all` | All rows (master dashboard). |
+| `?view=listing&address=` | Single listing object (`listing`). |
+| `?view=listingphotos&photosUrl=` or `folderId=` | Enumerated Drive images for carousel (`images`). |
+| `?view=listingops&address=` | Cached hybrid rollup: Asana tasks, Acuity hits, FUB deal slice (`asana`, `acuity`, `fub`). |
+| `?view=detailpage&address=` | **HtmlService** Listing HQ page — layout matches agent personal-hub listing bentos (light cards, pill links). Optional **`&mock=1`** or Script Property **`LISTING_DETAIL_VISUAL_MOCK=true`** enables built-in **visual mock data** (photos, Matterport sample, Asana/Acuity stubs). If embedding on Squarespace, prefer iframe + `setXFrameOptionsMode(ALLOWALL)`. |
+| `?view=embedsnippet&address=` | JSON with `iframeSnippet` + `detailUrl`. |
+
+### POST JSON actions
+
+- `sendListingEmail` — unchanged contract; email body includes **Listing HQ** deep link when `detailUrl` omitted (computed server-side).
+- `requestOpenHouse` — requires `secret`; emails ops distro (`notifyOpenHouseRequest_`).
+- `questionnaireComplete` — requires `secret`; emails marketing (`handleQuestionnaireComplete_`).
+- `createMarketingKickoff` — requires `secret`; creates an Asana task when token/workspace/project are configured.
+
+### Time-driven automation
+
+- Run `sweepListingSheetForNewRows()` on an hourly trigger to email when the sheet grows past the last notified row (marker `LISTINGS_LAST_ROW_NOTIFIED`).
+
+### Sheet columns (flexible headers)
+
+The reader accepts aliases for: Address, Neighborhood, Agent, Listing Agreement Date, SMO Credit, Listing Type, Status, Listing Phase / Phase, Beds, Baths, Sq Ft, Cover Image, Photos / Photos URL, Matterport, Floor Plan, Open House Materials URL, Fact Sheet, Booklet URL, Open House / Story / Sign URLs, Listing Video URL, Asana / Acuity / FUB / MLS correlation columns, Archived, Email Sent.
+
+**Used in**: `admin-dashboard.html`, `admin-master-dashboard.html`, `agent-personal-hub-*.html`
+
+---
+
+## Marketing Output Tracker (Gmail)
+
+**Apps Script source**: `asg-admin-hub/apps-script/marketing-output/MarketingOutputGmail.gs`
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_MARKETING_OUTPUT_DEPLOYMENT/exec`
+
+**Method**: `GET`
+
+**Purpose**: Scans the **deploying user’s** Gmail with `GmailApp` — no LLM cost. Combines `in:sent` (outbound) and `from:<Ellie>` (inbound coordinator mail), dedupes by message id, applies the same keyword categories as the React tracker, and returns `emails` + `stats` JSON for dashboards.
+
+**Query params**:
+
+| Param | Notes |
+|---|---|
+| `days` | Window in days. `0` = no `newer_than` filter (full history up to thread cap). Default `30`. |
+| `secret` | Required only if Script Property `MARKETING_OUTPUT_SECRET` is set. |
+| `format` | `html` or `embed` returns **HtmlService** (full tracker UI). Use with an **iframe** on Squarespace; many sites block external `<script src="script.google.com">` (JSONP) via CSP. |
+| `callback` | **JSONP** (optional): safe JS identifier. Response is `application/javascript`: `callback({...});`. Prefer `format=html` + iframe for Squarespace. |
+
+**Apps Script project files**
+
+| File | Role |
+|---|---|
+| `Code.gs` (paste `MarketingOutputGmail.gs`) | **Only file required.** `doGet`, Gmail scan, JSON / JSONP / HTML. The `?format=html` UI is embedded in this script as `motGetBuiltinEmbedTemplate_()`. |
+
+**Reference (not loaded by the web app):** `MarketingOutputEmbed.html` in the repo is the same UI as HTML for editing/readability — **do not** paste `MarketingOutputGmail.gs` into an Apps Script `.html` file.
+
+**Script properties (optional)**:
+
+| Property | Notes |
+|---|---|
+| `MARKETING_OUTPUT_ELLIE_EMAIL` | Default `ellie.ngassa@compass.com`. |
+| `MARKETING_OUTPUT_SECRET` | If set, callers must pass matching `?secret=`. |
+| `MARKETING_OUTPUT_MAX_THREADS` | Max threads fetched **per search leg** (default `2000`, max `5000`). |
+
+**Response** (abbreviated): `{ "ok": true, "meta": { ... }, "emails": [...], "stats": { "byCategory", "byWeek", "byMonth", "byPerson", "properties", "total", "categoryColors" } }`
+
+**Editor test**: Run `motSmokeTest()` (uses `days=14`, no web deployment).
+
+**Used in**: `asg-admin-hub/components/marketing-output-tracker.html` (Squarespace: iframe `?format=html`). Apps Script: **only** paste `MarketingOutputGmail.gs` into `Code.gs` and deploy. Ignore or delete any `MarketingOutputEmbed` HTML file in the project if you accidentally duplicated `.gs` there.
+
+---
+
 ## Pipeline CSV Data
 
 **Buyers CSV**: `https://docs.google.com/spreadsheets/d/e/2PACX-1vRP9DdHc1LRiDAruzEhCvnhOgYfCwgO4Q--5rkENDD4zxwn6UKD40Ux817lNI5kFTIpdeBJj1oieNqs/pub?gid=1143085145&single=true&output=csv`

@@ -12,6 +12,7 @@ asg-admin-hub/
 │   ├── team-directory.html           # Full-page team directory with cards, search, filters
 │   ├── agent-cards.html              # Agent grid with Book / Request action buttons
 │   ├── marketing-assets.html         # Photo library, agent folders, brand assets section
+│   ├── marketing-output-tracker.html # Gmail output tracker (iframe + Apps Script ?format=html)
 │   └── listing-hub-standalone.html   # Standalone listing hub (independent from dashboard)
 ├── shared/
 │   └── team-data.js                  # Shared team roster & constants (reference only)
@@ -33,6 +34,7 @@ asg-admin-hub/
 | `team-directory.html` | `/adminhub` (below dashboard) | Full team directory with card layout |
 | `agent-cards.html` | `/adminhub` | Agent action grid (Book a Shoot / Design Request) |
 | `marketing-assets.html` | `/adminhub` | Photo library & brand assets section |
+| `marketing-output-tracker.html` | `/adminhub` or dedicated page | Gmail-backed marketing output KPIs, charts, feed (Apps Script) |
 | `listing-hub-standalone.html` | Standalone page or embed | Independent listing hub with share modal |
 
 ## External Dependencies

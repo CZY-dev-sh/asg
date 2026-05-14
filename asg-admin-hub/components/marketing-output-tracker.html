@@ -1,0 +1,574 @@
+<!--
+  ASG Marketing — Output Tracker (Squarespace code block) — IFRAME v2 (May 2026)
+
+  If the red error still says "JSONP" or "Gmail summary script", you are NOT using this
+  file on Squarespace: replace the entire code block with this file from the repo and publish.
+
+  Squarespace CSP blocks JSONP. This build loads ?format=html in an iframe instead.
+  Apps Script: paste <strong>MarketingOutputGmail.gs</strong> as Code.gs only (embed UI is built into that file). Then New version &rarr; Deploy web app. Do not add a second Apps Script file with the same .gs code.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<div id="asg-mot-marketing-output" class="asg-mot" data-mot-ui="iframe-v2" aria-live="polite">
+  <div class="asg-mot__head">
+    <p class="asg-mot__kicker">ASG Marketing</p>
+    <h2 class="asg-mot__title">Output Tracker</h2>
+    <div class="asg-mot__title-rule" aria-hidden="true"></div>
+  </div>
+
+  <div class="asg-mot__toolbar">
+    <div class="asg-mot__pill-group" role="group" aria-label="Time range">
+      <button type="button" class="asg-mot__pill" data-days="7">7d</button>
+      <button type="button" class="asg-mot__pill" data-days="14">14d</button>
+      <button type="button" class="asg-mot__pill is-active" data-days="30">30d</button>
+      <button type="button" class="asg-mot__pill" data-days="60">60d</button>
+      <button type="button" class="asg-mot__pill" data-days="90">90d</button>
+      <button type="button" class="asg-mot__pill asg-mot__pill--wide" data-days="0">All Time</button>
+    </div>
+    <button type="button" class="asg-mot__btn-primary" id="asgMotFetch">Scan Gmail</button>
+  </div>
+
+  <div class="asg-mot__progress" id="asgMotProgress" hidden>
+    <div class="asg-mot__progress-inner">
+      <div class="asg-mot__progress-meta">
+        <span class="asg-mot__progress-label">
+          <span class="asg-mot__dot" aria-hidden="true"></span>
+          <span id="asgMotStatus">Loading…</span>
+        </span>
+        <span id="asgMotPct" class="asg-mot__progress-pct"></span>
+      </div>
+      <div class="asg-mot__progress-track">
+        <div class="asg-mot__progress-fill" id="asgMotProgressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="asg-mot__error" id="asgMotError" hidden></div>
+
+  <div class="asg-mot__frame-wrap" id="asgMotFrameWrap" hidden>
+    <div class="asg-mot__frame-loading" id="asgMotFrameLoading" hidden aria-live="assertive" aria-busy="true">
+      <div class="asg-mot__frame-loading-inner">
+        <div class="asg-mot__spinner" aria-hidden="true"></div>
+        <p class="asg-mot__loading-title" id="asgMotLoadingTitle">Scanning Gmail</p>
+        <p class="asg-mot__loading-sub" id="asgMotLoadingSub">
+          Searching sent mail and coordinator threads in Apps Script. This often takes 30 seconds to a few minutes — the page will appear below when ready.
+        </p>
+        <div class="asg-mot__loading-bar" role="progressbar" aria-valuetext="In progress">
+          <div class="asg-mot__loading-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+    <iframe
+      class="asg-mot__frame"
+      id="asgMotFrame"
+      title="Marketing output (Gmail)"
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
+  </div>
+
+  <div class="asg-mot__hint" id="asgMotHint">
+    <p>
+      Pick a range, then <strong>Scan Gmail</strong>. The table loads in the frame below (served by your Apps Script web app).
+    </p>
+    <p class="asg-mot__hint-sub">
+      If the frame stays blank, open the
+      <a id="asgMotDirectLink" href="#" target="_blank" rel="noopener noreferrer">tracker URL</a>
+      in a new tab to confirm deployment. Apps Script only needs <strong>Code.gs</strong> from <code>MarketingOutputGmail.gs</code> (delete any duplicate <code>MarketingOutputEmbed</code> HTML file that contains <code>.gs</code> code).
+    </p>
+    <p class="asg-mot__ver" aria-hidden="true">UI iframe-v2 · not JSONP</p>
+  </div>
+</div>
+
+<style>
+  #asg-mot-marketing-output.asg-mot {
+    --mot-ink: #111111;
+    --mot-muted: #666666;
+    --mot-line: rgba(17, 17, 17, 0.12);
+    --mot-track: rgba(17, 17, 17, 0.08);
+    font-family: "Outfit", system-ui, -apple-system, sans-serif;
+    color: var(--mot-ink);
+    background: linear-gradient(180deg, #f8f8f8 0%, #f1f1f1 100%);
+    border: 1px solid var(--mot-line);
+    border-radius: 28px;
+    padding: 28px 22px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+  #asg-mot-marketing-output.asg-mot *,
+  #asg-mot-marketing-output.asg-mot *::before,
+  #asg-mot-marketing-output.asg-mot *::after {
+    box-sizing: border-box;
+  }
+  #asg-mot-marketing-output .asg-mot__head {
+    margin-bottom: 24px;
+  }
+  #asg-mot-marketing-output .asg-mot__kicker {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mot-muted);
+  }
+  #asg-mot-marketing-output .asg-mot__title {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--mot-ink);
+  }
+  #asg-mot-marketing-output .asg-mot__title-rule {
+    width: 40px;
+    height: 3px;
+    margin-top: 12px;
+    border-radius: 999px;
+    background: var(--mot-ink);
+  }
+  #asg-mot-marketing-output .asg-mot__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  #asg-mot-marketing-output .asg-mot__pill-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: #ececec;
+  }
+  #asg-mot-marketing-output .asg-mot__pill {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    color: #444444;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  #asg-mot-marketing-output .asg-mot__pill--wide {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  #asg-mot-marketing-output .asg-mot__pill:hover {
+    color: var(--mot-ink);
+  }
+  #asg-mot-marketing-output .asg-mot__pill.is-active {
+    background: var(--mot-ink);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  }
+  #asg-mot-marketing-output .asg-mot__btn-primary {
+    appearance: none;
+    margin-left: auto;
+    border: 1px solid var(--mot-ink);
+    border-radius: 999px;
+    padding: 10px 18px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--mot-ink);
+    color: #ffffff;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.2s ease;
+  }
+  #asg-mot-marketing-output .asg-mot__btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  }
+  #asg-mot-marketing-output .asg-mot__btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  #asg-mot-marketing-output .asg-mot__progress {
+    margin-bottom: 16px;
+  }
+  #asg-mot-marketing-output .asg-mot__progress-inner {
+    padding: 14px 16px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--mot-line);
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(17, 17, 17, 0.06);
+  }
+  #asg-mot-marketing-output .asg-mot__progress-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #asg-mot-marketing-output .asg-mot__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mot-ink);
+    animation: asgMotBlink 0.9s ease-in-out infinite;
+  }
+  @keyframes asgMotBlink {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  #asg-mot-marketing-output .asg-mot__progress-pct {
+    font-variant-numeric: tabular-nums;
+    color: #888888;
+  }
+  #asg-mot-marketing-output .asg-mot__progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mot-ink);
+  }
+  #asg-mot-marketing-output .asg-mot__progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--mot-track);
+    overflow: hidden;
+  }
+  #asg-mot-marketing-output .asg-mot__progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #111 0%, #444 50%, #111 100%);
+    background-size: 200% 100%;
+    animation: asgMotShimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes asgMotShimmer {
+    0% {
+      width: 22%;
+      background-position: 0% 50%;
+    }
+    50% {
+      width: 55%;
+      background-position: 100% 50%;
+    }
+    100% {
+      width: 22%;
+      background-position: 0% 50%;
+    }
+  }
+  #asg-mot-marketing-output .asg-mot__error {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    background: rgba(254, 226, 226, 0.6);
+    color: #991b1b;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  #asg-mot-marketing-output .asg-mot__frame-wrap {
+    position: relative;
+    margin-top: 4px;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid var(--mot-line);
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.06);
+    min-height: 520px;
+  }
+  #asg-mot-marketing-output .asg-mot__frame-loading {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  #asg-mot-marketing-output .asg-mot__frame-loading[hidden] {
+    display: none !important;
+  }
+  #asg-mot-marketing-output .asg-mot__frame-loading-inner {
+    max-width: 420px;
+    text-align: center;
+  }
+  #asg-mot-marketing-output .asg-mot__spinner {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    border: 3px solid rgba(17, 17, 17, 0.12);
+    border-top-color: var(--mot-ink);
+    animation: asgMotSpin 0.75s linear infinite;
+  }
+  @keyframes asgMotSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  #asg-mot-marketing-output .asg-mot__loading-title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--mot-ink);
+  }
+  #asg-mot-marketing-output .asg-mot__loading-sub {
+    margin: 0 0 22px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--mot-muted);
+  }
+  #asg-mot-marketing-output .asg-mot__loading-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--mot-track);
+    overflow: hidden;
+  }
+  #asg-mot-marketing-output .asg-mot__loading-bar-fill {
+    height: 100%;
+    width: 40%;
+    border-radius: 999px;
+    background: var(--mot-ink);
+    animation: asgMotLoadSweep 1.3s ease-in-out infinite;
+  }
+  @keyframes asgMotLoadSweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(350%);
+    }
+  }
+  #asg-mot-marketing-output .asg-mot__frame {
+    display: block;
+    width: 100%;
+    min-height: 720px;
+    height: 80vh;
+    border: 0;
+  }
+  #asg-mot-marketing-output .asg-mot__hint {
+    padding: 12px 4px 0;
+    color: var(--mot-muted);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  #asg-mot-marketing-output .asg-mot__hint p {
+    margin: 0 0 8px;
+  }
+  #asg-mot-marketing-output .asg-mot__hint-sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888888;
+  }
+  #asg-mot-marketing-output .asg-mot__hint a {
+    color: var(--mot-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  #asg-mot-marketing-output .asg-mot__ver {
+    margin: 10px 0 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bbbbbb;
+  }
+  @media (max-width: 600px) {
+    #asg-mot-marketing-output .asg-mot__btn-primary {
+      margin-left: 0;
+      width: 100%;
+    }
+    #asg-mot-marketing-output .asg-mot__frame {
+      height: 75vh;
+      min-height: 560px;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  var API_BASE =
+    "https://script.google.com/macros/s/AKfycbxFllk1yMt0CIiwL3S8ndmgdVdr_KZiECMfBrm7c7BfL3kCmgLngFE1uHLOXDOktKyPiw/exec";
+  var API_SECRET = "";
+
+  var root = document.getElementById("asg-mot-marketing-output");
+  if (!root) return;
+
+  var days = 30;
+  var loading = false;
+  var slowWarnTid = null;
+
+  var elFetch = document.getElementById("asgMotFetch");
+  var elProgress = document.getElementById("asgMotProgress");
+  var elStatus = document.getElementById("asgMotStatus");
+  var elPct = document.getElementById("asgMotPct");
+  var elFill = document.getElementById("asgMotProgressFill");
+  var elError = document.getElementById("asgMotError");
+  var elWrap = document.getElementById("asgMotFrameWrap");
+  var elFrame = document.getElementById("asgMotFrame");
+  var elFrameLoading = document.getElementById("asgMotFrameLoading");
+  var elHint = document.getElementById("asgMotHint");
+  var elDirect = document.getElementById("asgMotDirectLink");
+  var elLoadingTitle = document.getElementById("asgMotLoadingTitle");
+  var elLoadingSub = document.getElementById("asgMotLoadingSub");
+  var tickTid = null;
+
+  function showError(msg) {
+    if (!elError) return;
+    elError.textContent = msg;
+    elError.hidden = !msg;
+  }
+
+  function buildHtmlUrl() {
+    var u =
+      API_BASE +
+      "?format=html&days=" +
+      encodeURIComponent(String(days));
+    if (API_SECRET) u += "&secret=" + encodeURIComponent(API_SECRET);
+    return u;
+  }
+
+  if (elDirect) elDirect.href = buildHtmlUrl();
+
+  function runFetch() {
+    if (loading || !elFrame) return;
+    if (slowWarnTid) {
+      window.clearTimeout(slowWarnTid);
+      slowWarnTid = null;
+    }
+    if (tickTid) {
+      window.clearInterval(tickTid);
+      tickTid = null;
+    }
+    loading = true;
+    showError("");
+    if (elHint) elHint.hidden = true;
+    if (elWrap) elWrap.hidden = false;
+    if (elFrameLoading) elFrameLoading.hidden = false;
+    if (elProgress) elProgress.hidden = false;
+    if (elFill) elFill.style.animation = "";
+    var rangeWords = days === 0 ? "All time" : "Last " + days + " days";
+    if (elStatus) elStatus.textContent = "Scanning Gmail (" + rangeWords + ")…";
+    if (elPct) elPct.textContent = "In progress";
+    if (elLoadingTitle) elLoadingTitle.textContent = "Scanning Gmail";
+    if (elLoadingSub) {
+      elLoadingSub.textContent =
+        "Apps Script is searching sent mail and coordinator threads for " +
+        rangeWords.toLowerCase() +
+        ". Large mailboxes can take a few minutes — results will replace this panel when ready.";
+    }
+    if (elFetch) elFetch.disabled = true;
+
+    var started = Date.now();
+    tickTid = window.setInterval(function () {
+      if (!loading) return;
+      var sec = Math.floor((Date.now() - started) / 1000);
+      if (elPct) elPct.textContent = sec < 60 ? sec + "s" : Math.floor(sec / 60) + "m " + (sec % 60) + "s";
+      if (elStatus) elStatus.textContent = "Still scanning Gmail (" + rangeWords + ")…";
+    }, 1000);
+
+    var url = buildHtmlUrl();
+    if (elDirect) elDirect.href = url;
+
+    function isTrackerFrameUrl(href) {
+      if (!href) return false;
+      try {
+        return String(href).indexOf("script.google.com/macros") !== -1;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function done() {
+      if (slowWarnTid) {
+        window.clearTimeout(slowWarnTid);
+        slowWarnTid = null;
+      }
+      if (tickTid) {
+        window.clearInterval(tickTid);
+        tickTid = null;
+      }
+      loading = false;
+      if (elFetch) elFetch.disabled = false;
+      if (elProgress) elProgress.hidden = true;
+      if (elFrameLoading) elFrameLoading.hidden = true;
+      if (elFill) elFill.style.animation = "none";
+      if (elPct) elPct.textContent = "";
+    }
+
+    elFrame.onload = function () {
+      if (!loading) return;
+      if (!isTrackerFrameUrl(elFrame.src)) return;
+      done();
+    };
+
+    elFrame.onerror = function () {
+      done();
+      showError(
+        "The tracker frame failed to load. Open the tracker URL in a new tab to verify the web app, then redeploy Apps Script (New version) and try again."
+      );
+    };
+
+    try {
+      elFrame.src = "about:blank";
+      window.setTimeout(function () {
+        elFrame.src = url;
+      }, 50);
+    } catch (err) {
+      done();
+      showError("Error: " + (err && err.message ? err.message : String(err)));
+    }
+
+    slowWarnTid = window.setTimeout(function () {
+      if (!loading) return;
+      done();
+      showError(
+        "Still loading after 6 minutes — Gmail scan may be too large. Try 7d or 14d, or lower MARKETING_OUTPUT_MAX_THREADS in Apps Script."
+      );
+    }, 360000);
+  }
+
+  root.addEventListener("click", function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+
+    var pill = t.closest(".asg-mot__pill");
+    if (pill && root.contains(pill)) {
+      var d = pill.getAttribute("data-days");
+      if (d == null) return;
+      days = parseInt(d, 10);
+      if (isNaN(days)) return;
+      var pills = root.querySelectorAll(".asg-mot__pill");
+      for (var i = 0; i < pills.length; i++) {
+        pills[i].classList.toggle("is-active", pills[i] === pill);
+      }
+      return;
+    }
+
+    if (t.closest("#asgMotFetch")) {
+      runFetch();
+    }
+  });
+})();
+</script>

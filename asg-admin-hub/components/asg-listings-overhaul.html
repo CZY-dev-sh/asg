@@ -1,0 +1,113 @@
+<!--
+  ASG LISTINGS PAGE
+  Paste into a Squarespace Code Block on your /listings page.
+  Requires: site-wide CSS + JS injections.
+
+  IDX Strategy:
+  Your provider is IDX by Elm Street. The public-facing search lives at
+  https://search.alexstoykovgroup.com/ — we embed it in a sandboxed iframe
+  inside our shell so:
+    • The widget keeps working when Elm Street ships changes
+    • CSP/sandbox attributes restrict what the embedded site can do
+    • You preserve your nav/footer wrapping
+    • Agents can still create accounts and run searches inside the IDX site
+  When you (or Elm Street) wire up Single Sign On from your domain,
+  swap the src to the appropriate URL — this page won't change.
+-->
+
+<main class="asg-page-main">
+
+  <!-- ───── HERO ───── -->
+  <section class="asg-hero" style="padding-bottom:0;">
+    <div class="asg-hero-inner">
+      <div style="display:flex; flex-direction:column; gap:20px; max-width:880px;">
+        <div class="asg-hero-fade" style="animation-delay:.1s;"><span class="asg-pill">Live MLS Search</span></div>
+        <h1 class="asg-hero-h1" style="font-size:clamp(2.4rem,4.5vw,4.2rem);">
+          <span class="asg-word-mask"><span style="animation-delay:.20s">Every</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.28s">Chicago</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.36s">listing.</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.44s">In</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.52s">one</span></span>
+          <span class="asg-word-mask"><span style="animation-delay:.60s">place.</span></span>
+        </h1>
+        <p class="asg-hero-lead asg-hero-fade" style="animation-delay:.78s;">
+          Real-time MLS data with map and list view, saved searches, instant alerts, and direct messaging with the Alex Stoykov Group.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── IDX IFRAME ───── -->
+  <section class="asg-section" style="margin-top:24px;">
+    <div class="asg-shell asg-reveal" style="padding:14px;">
+      <div style="position:relative; width:100%; height:min(82vh, 1100px); min-height:640px; background:var(--asg-bg-alt); border-radius:24px; overflow:hidden; border:1px solid var(--asg-line);">
+        <!--
+          IDX Search embed.
+          'sandbox' allows the widget to do its job (scripts, forms, popups, navigation, same-origin auth)
+          while still preventing top-level navigation hijack and other footguns.
+          'referrerpolicy' avoids leaking full URL to the embedded origin.
+          'loading=lazy' defers load until the user scrolls near it.
+          'allow' lets users complete a saved-search account flow.
+        -->
+        <iframe
+          src="https://search.alexstoykovgroup.com/"
+          title="IDX MLS Search"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+          allow="geolocation; clipboard-write"
+          style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;">
+        </iframe>
+      </div>
+      <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.55; margin:14px 6px 0;">
+        Search powered by IDX by Elm Street. All listing data deemed reliable but not guaranteed.
+        <a class="asg-link" href="https://search.alexstoykovgroup.com/" target="_blank" rel="noopener noreferrer">Open full-page search →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ───── HELP ROW ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-alt asg-reveal">
+      <div class="asg-grid asg-grid-3">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:#fff;">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.05rem; letter-spacing:-.02em; margin:0 0 8px;">Save searches & favorites</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0 0 14px;">Create a free IDX account inside the search to save listings and get instant alerts when matches hit the market.</p>
+          <a href="https://search.alexstoykovgroup.com/" target="_blank" rel="noopener noreferrer" class="asg-btn asg-btn-light asg-btn-sm">Open search</a>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:#fff;">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.05rem; letter-spacing:-.02em; margin:0 0 8px;">Tour with us</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0 0 14px;">See something you love? Schedule a private showing — most homes we can tour the same day.</p>
+          <a href="/contact" class="asg-btn asg-btn-light asg-btn-sm">Book a showing</a>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:#fff;">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.05rem; letter-spacing:-.02em; margin:0 0 8px;">Off-market opportunities</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0 0 14px;">The best Chicago homes never hit the public MLS. Tell us what you're looking for and we'll surface them.</p>
+          <a href="/buyers#consultation" class="asg-btn asg-btn-light asg-btn-sm">Talk to an agent</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── BOTTOM CTA ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-dark asg-reveal" style="display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:32px;">
+      <div>
+        <p style="color:rgba(255,255,255,.45); font-family:var(--asg-font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 10px;">No browsing, just expert help</p>
+        <h2 style="color:#fff; font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.4rem,2.2vw,2.2rem); letter-spacing:-.035em; line-height:1.1; margin:0 0 6px;">Tell us what you want — we'll do the search.</h2>
+        <p style="color:rgba(255,255,255,.65); font-size:.95rem; line-height:1.55; max-width:55ch; margin:0;">Skip the hours of scrolling. Share your criteria and we'll send a curated shortlist within 24 hours.</p>
+      </div>
+      <a href="/buyers#consultation" class="asg-btn asg-btn-light asg-btn-lg">Get matched</a>
+    </div>
+  </section>
+
+</main>

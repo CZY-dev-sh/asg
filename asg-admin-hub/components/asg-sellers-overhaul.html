@@ -1,0 +1,257 @@
+<!--
+  ASG SELLERS PAGE
+  Paste into a Squarespace Code Block on your /sellers page.
+  Requires: site-wide CSS + JS injections.
+
+  Conversion strategy: the instant-valuation form is the #1 lead magnet
+  on this page. It captures contact info in exchange for a real human
+  follow-up with comps. Keep the form prominent and friction-low.
+-->
+
+<main class="asg-page-main">
+
+  <!-- ───── HERO with VALUATION FORM ───── -->
+  <section class="asg-hero">
+    <div class="asg-hero-inner">
+      <div style="display:grid; grid-template-columns:1.05fr .95fr; gap:28px; align-items:center;">
+
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          <div class="asg-hero-fade" style="animation-delay:.1s;">
+            <span class="asg-pill">For Sellers</span>
+          </div>
+          <h1 class="asg-hero-h1">
+            <span class="asg-word-mask"><span style="animation-delay:.20s">What's</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.28s">your</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.36s">home</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.44s">actually</span></span>
+            <span class="asg-word-mask"><span style="animation-delay:.52s">worth?</span></span>
+          </h1>
+          <p class="asg-hero-lead asg-hero-fade" style="animation-delay:.74s;">
+            Get a real estimate built on comparable sales, current days-on-market velocity, and condition adjustments — not a Zestimate. Delivered with comps within one business day.
+          </p>
+          <div class="asg-hero-fade" style="animation-delay:.9s;">
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+              <li style="display:flex; gap:10px; align-items:flex-start; font-size:.96rem; color:var(--asg-text);"><svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pulls comps from the last 90 days within 0.5 mi</li>
+              <li style="display:flex; gap:10px; align-items:flex-start; font-size:.96rem; color:var(--asg-text);"><svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Adjusts for sqft, bed/bath count, finish level</li>
+              <li style="display:flex; gap:10px; align-items:flex-start; font-size:.96rem; color:var(--asg-text);"><svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="margin-top:3px; flex-shrink:0;"><path d="M4 11l5 5 9-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Delivered by an agent — no automated email blast</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="asg-hero-fade" style="animation-delay:.5s;">
+          <div class="asg-card" style="background:#fff; padding:28px; border-radius:28px; box-shadow:var(--asg-shadow-deep);">
+            <p class="asg-eyebrow" style="margin:0 0 6px;">Free · No Obligation</p>
+            <h3 style="font-family:var(--asg-font-display); font-weight:800; font-size:1.5rem; letter-spacing:-.03em; margin:0 0 18px;">Instant Home Valuation</h3>
+            <form data-asg-form="seller-valuation" novalidate style="display:flex; flex-direction:column; gap:11px;">
+              <div class="asg-field">
+                <label class="asg-label" for="val-address">Property Address</label>
+                <input id="val-address" class="asg-input" name="address" type="text" required placeholder="1912 N Orchard St, Chicago IL 60614" autocomplete="street-address">
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="asg-field">
+                  <label class="asg-label">Beds</label>
+                  <select class="asg-select" name="beds" required>
+                    <option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option>
+                  </select>
+                </div>
+                <div class="asg-field">
+                  <label class="asg-label">Baths</label>
+                  <select class="asg-select" name="baths" required>
+                    <option value="">Select</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4+</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="asg-field">
+                  <label class="asg-label">Approx. Sqft</label>
+                  <input class="asg-input" name="sqft" type="text" inputmode="numeric" placeholder="2,400">
+                </div>
+                <div class="asg-field">
+                  <label class="asg-label">Property Type</label>
+                  <select class="asg-select" name="propertyType" required>
+                    <option value="">Select</option>
+                    <option>Single Family</option>
+                    <option>Condo</option>
+                    <option>Townhome</option>
+                    <option>Multi-unit</option>
+                  </select>
+                </div>
+              </div>
+              <div class="asg-field">
+                <label class="asg-label">Selling Timeline</label>
+                <select class="asg-select" name="timeline" required>
+                  <option value="">When are you considering selling?</option>
+                  <option value="now">In the next 30 days</option>
+                  <option value="3mo">1–3 months</option>
+                  <option value="6mo">3–6 months</option>
+                  <option value="12mo">6–12 months</option>
+                  <option value="exploring">Just curious</option>
+                </select>
+              </div>
+              <hr class="asg-divider" style="margin:6px 0;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="asg-field">
+                  <label class="asg-label">Your Name</label>
+                  <input class="asg-input" name="name" type="text" required placeholder="Full name" autocomplete="name">
+                </div>
+                <div class="asg-field">
+                  <label class="asg-label">Phone</label>
+                  <input class="asg-input" name="phone" type="tel" required placeholder="(312) 555-0123" autocomplete="tel">
+                </div>
+              </div>
+              <div class="asg-field">
+                <label class="asg-label">Email</label>
+                <input class="asg-input" name="email" type="email" required placeholder="you@email.com" autocomplete="email">
+              </div>
+              <button type="submit" class="asg-btn asg-btn-dark" style="margin-top:6px;">Get my valuation →</button>
+              <p style="color:var(--asg-muted-soft); font-size:.78rem; line-height:1.5; margin:4px 0 0;">We'll respond within one business day with a comp-backed estimate. No spam. No pressure.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── PROOF / RESULTS ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-alt asg-reveal">
+      <div class="asg-grid asg-grid-4">
+        <div class="asg-card asg-reveal asg-d1" style="background:#fff;">
+          <p class="asg-stat-label">Avg. Days on Market</p>
+          <p class="asg-stat-val">18</p>
+          <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.5; margin:8px 0 0;">vs. Chicago metro avg of 42</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d2" style="background:#fff;">
+          <p class="asg-stat-label">List-to-Sale Ratio</p>
+          <p class="asg-stat-val">102%</p>
+          <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.5; margin:8px 0 0;">we sell over asking on average</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d3" style="background:#fff;">
+          <p class="asg-stat-label">Career Volume</p>
+          <p class="asg-stat-val">$659M+</p>
+          <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.5; margin:8px 0 0;">across 800+ closed transactions</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d4" style="background:#fff;">
+          <p class="asg-stat-label">Repeat & Referral</p>
+          <p class="asg-stat-val">73%</p>
+          <p style="color:var(--asg-muted); font-size:.84rem; line-height:1.5; margin:8px 0 0;">of our business each year</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── WHAT YOU GET ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">The Listing Package</p>
+        <h2 class="asg-section-h2">A luxury campaign for every home — not just the trophies.</h2>
+      </div>
+      <div class="asg-grid asg-grid-3">
+        <div class="asg-card asg-hover-lift asg-reveal asg-d1" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Premium Media</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Pro photography, twilight shots, drone, 4K cinematic video, 3D Matterport tour, dimensioned floor plans.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d2" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 2 12 12"/><path d="M16 2h6v6"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Strategic Launch</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Pre-market teaser to our agent network, coming-soon campaign, then a coordinated MLS launch with paid social and email.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d3" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Staging Direction</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">From light-touch refresh to full furniture rental — we direct the look that makes buyers fall in love online.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d4" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-6 0v4"/><rect width="20" height="14" x="2" y="9" rx="2"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Pricing Discipline</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">We price to attract — not to flatter. Comps, absorption rate, and seasonality all factor in.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d5" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Negotiation</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Multiple-offer scripts, escalation analysis, contingency strategy — we drive the spread, you decide.</p>
+        </div>
+        <div class="asg-card asg-hover-lift asg-reveal asg-d6" style="background:var(--asg-bg-alt);">
+          <div style="width:42px; height:42px; border-radius:14px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+          </div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; margin:0 0 8px;">Closing Coordination</p>
+          <p style="color:var(--asg-muted); font-size:.92rem; line-height:1.55; margin:0;">Inspection responses, attorney review, appraisal disputes, walk-through prep — all managed in writing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── TESTIMONIAL FEATURE ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-dark asg-reveal" style="padding:40px 32px;">
+      <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:28px; align-items:center;">
+        <div style="border-radius:24px; overflow:hidden; aspect-ratio:1/1; border:1px solid rgba(255,255,255,.1);">
+          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=80" alt="Sold over asking" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div>
+          <p style="color:rgba(255,255,255,.45); font-family:var(--asg-font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 14px;">Recent Listing</p>
+          <h3 style="color:#fff; font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.5rem,2.4vw,2.4rem); letter-spacing:-.04em; line-height:1.05; margin:0 0 14px;">"Sold in 6 days, $90K over asking."</h3>
+          <p style="color:rgba(255,255,255,.65); font-size:1rem; line-height:1.6; margin:0 0 22px; max-width:55ch;">Lincoln Park single-family. Listed Thursday, accepted offers Tuesday morning, two weeks of attorney review, closed under the original timeline. The marketing did exactly what it was supposed to do.</p>
+          <p style="color:#fff; font-family:var(--asg-font-display); font-weight:700; font-size:.95rem; margin:0;">— The Delgado Family</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── PROCESS ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-reveal">
+      <div style="margin-bottom:22px;">
+        <p class="asg-eyebrow">Selling Timeline</p>
+        <h2 class="asg-section-h2">From valuation to closing table.</h2>
+      </div>
+      <div class="asg-grid asg-grid-4">
+        <div class="asg-card asg-reveal asg-d1">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">01</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Valuation</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">In-home consultation, comp review, list-price strategy.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d2">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">02</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Prep</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Staging, repairs, professional media, copy, floor plans.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d3">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">03</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Launch</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">MLS, paid social, broker open, public open, agent outreach.</p>
+        </div>
+        <div class="asg-card asg-reveal asg-d4">
+          <div style="width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--asg-font-display); font-weight:800; font-size:.8rem; margin-bottom:14px;">04</div>
+          <p style="font-family:var(--asg-font-display); font-weight:800; font-size:1rem; margin:0 0 6px;">Close</p>
+          <p style="color:var(--asg-muted); font-size:.88rem; line-height:1.55; margin:0;">Negotiate, attorney review, inspection, appraisal, closing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── BOTTOM CTA ───── -->
+  <section class="asg-section">
+    <div class="asg-shell asg-shell-alt asg-reveal" style="display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:32px;">
+      <div>
+        <h2 style="font-family:var(--asg-font-display); font-weight:800; font-size:clamp(1.4rem,2vw,2rem); letter-spacing:-.035em; line-height:1.1; margin:0 0 8px;">Not ready for a valuation? Let's just talk.</h2>
+        <p style="color:var(--asg-muted); font-size:.96rem; line-height:1.55; max-width:55ch; margin:0;">Coffee, a phone call, or a walk-through with no pressure. We'll answer questions and tell you when you're ready (and when you're not).</p>
+      </div>
+      <a href="/contact" class="asg-btn asg-btn-dark asg-btn-lg">Schedule a chat</a>
+    </div>
+  </section>
+
+</main>

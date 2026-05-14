@@ -60,6 +60,13 @@
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
+│           MARKETING OUTPUT TRACKER (optional)            │
+│         (marketing-output-tracker.html)                  │
+│  Time range → Scan Gmail → KPIs, category/week bars,    │
+│  feed (Apps Script JSON; same mailbox as web app user)  │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
 │                TEAM DIRECTORY                            │
 │             (team-directory.html)                        │
 │  Stats strip → Filter pills → Search → Card grid       │
@@ -70,6 +77,7 @@
 ## Standalone Components
 
 - **`listing-hub-standalone.html`** — Can be placed on any page independently. Uses its own CSS prefix (`lh-`) and its own IIFE. Connects to Listings API V2 with share/email support.
+- **`marketing-output-tracker.html`** — Squarespace: chrome + iframe `?format=html`. Apps Script: **one** file — `MarketingOutputGmail.gs` as `Code.gs`. Repo `MarketingOutputEmbed.html` is reference HTML only (not loaded by the script).
 
 ## CSS Prefix Reference
 
@@ -79,4 +87,5 @@
 | Team Directory | `asg-dir-` / `asg-` | `#asg-team-directory` |
 | Agent Cards | `admin-` | `.admin-hub-grid` |
 | Marketing Assets | `asg-admin-assets__` | `.asg-admin-assets` |
+| Marketing Output Tracker | `asg-mot__` | `#asg-mot-marketing-output` |
 | Listing Hub Standalone | `lh-` | `#asg-listing-hub-root` |
