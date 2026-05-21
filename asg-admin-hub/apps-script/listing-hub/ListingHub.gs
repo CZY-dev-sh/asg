@@ -49,6 +49,8 @@ function doGet(e) {
     if (view === 'listingphotos') return jsonResponse_(listingPhotosPayload_(p));
     if (view === 'listingops') return jsonResponse_(listingOpsPayload_(p));
     if (view === 'embedsnippet') return jsonResponse_(embedSnippetPayload_(p));
+    if (view === 'idxsync') return jsonResponse_({ success: true, idx: idxSyncStatusPayload_() });
+    if (view === 'idxprobe') return jsonResponse_({ success: true, probe: idxProbeFeeds_() });
     var listings = getListings_();
     var out = [];
     var i;
@@ -90,6 +92,10 @@ function doPost(e) {
     if (action === 'syncasana') {
       verifyWebhookSecret_(data.secret);
       return jsonResponse_(syncAsanaToListingsSheet());
+    }
+    if (action === 'syncidx') {
+      verifyWebhookSecret_(data.secret);
+      return jsonResponse_(syncIdxListingsToSheet());
     }
     if (action === 'updatelisting') {
       // Lightweight inline edit from the admin dashboard. We intentionally
@@ -176,20 +182,42 @@ function getListingsSheetName_() {
     SHEET_NAME
   );
 }
-function sheetLooksLikeListings_(sh) {
-  if (!sh) return false;
-  if (sh.getLastRow() < 2) return false;
+function sheetListingsHeaderCheck_(sh) {
+  if (!sh) return { ok: false, reason: 'sheet missing' };
+  if (sh.getLastRow() < 2) return { ok: false, reason: 'no data rows (lastRow < 2)', lastRow: sh.getLastRow() };
   var headers = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
   var lowered = {};
+  var headerList = [];
   var i;
   for (i = 0; i < headers.length; i++) {
-    var h = String(headers[i] || '').trim().toLowerCase();
-    if (h) lowered[h] = true;
+    var h = String(headers[i] || '').trim();
+    if (h) headerList.push(h);
+    var key = h.toLowerCase();
+    if (key) lowered[key] = true;
   }
   var hasAddress = !!lowered['address'];
   var hasAgent = !!lowered['agent'] || !!lowered['agent name'];
-  var hasStatus = !!lowered['status'] || !!lowered['deal_stage'] || !!lowered['listing phase'] || !!lowered['phase'];
-  return hasAddress && (hasAgent || hasStatus);
+  var hasStatus =
+    !!lowered['status'] ||
+    !!lowered['deal_stage'] ||
+    !!lowered['listing phase'] ||
+    !!lowered['phase'];
+  if (!hasAddress) {
+    return { ok: false, reason: 'missing Address column in row 1', headers: headerList, lastRow: sh.getLastRow() };
+  }
+  if (!hasAgent && !hasStatus) {
+    return {
+      ok: false,
+      reason: 'need Agent (or Agent Name) and/or Status (or Phase / deal_stage) in row 1',
+      headers: headerList,
+      lastRow: sh.getLastRow()
+    };
+  }
+  return { ok: true, headers: headerList, lastRow: sh.getLastRow() };
+}
+
+function sheetLooksLikeListings_(sh) {
+  return sheetListingsHeaderCheck_(sh).ok;
 }
 function getListingsSheet_() {
   var ss = getListingsSpreadsheet_();
@@ -213,16 +241,19 @@ function getListings_() {
   var values = sh.getDataRange().getValues();
   if (values.length < 2) return [];
   var headers = values[0];
+  var idxMap = buildIdxListingsAddressMap_();
   var out = [];
   var r, c;
   for (r = 1; r < values.length; r++) {
     var row = values[r];
     var has = false;
-    for (c = 0; c < row.length; c++) if (String(row[c] || '').trim()) { has = true; break; }
+    for (c = 0; c < row.length; c++) if ((String(row[c] || '').trim())) { has = true; break; }
     if (!has) continue;
     var rec = {};
     for (c = 0; c < headers.length; c++) rec[String(headers[c] || '').trim()] = row[c];
-    out.push(mapRecordToListing_(rec));
+    var listing = mapRecordToListing_(rec);
+    listing = enrichListingFromIdx_(listing, findIdxEntryForAddress_(listing.address, idxMap));
+    out.push(listing);
   }
   return out;
 }
@@ -231,16 +262,52 @@ function diagnosticsPayload_() {
   var ss = getListingsSpreadsheet_();
   var sheets = ss.getSheets();
   var all = [];
+  var sheetChecks = [];
   var i;
   for (i = 0; i < sheets.length; i++) {
     var sh = sheets[i];
+    var check = sheetListingsHeaderCheck_(sh);
     all.push({ name: sh.getName(), rows: sh.getLastRow(), cols: sh.getLastColumn() });
+    sheetChecks.push({
+      name: sh.getName(),
+      rows: sh.getLastRow(),
+      cols: sh.getLastColumn(),
+      validListingsTab: check.ok,
+      reason: check.ok ? 'ok' : check.reason,
+      headers: check.headers || []
+    });
   }
   var chosen = getListingsSheet_();
   var listings = [];
+  var parseError = '';
   try {
     listings = getListings_();
-  } catch (err) {}
+  } catch (err) {
+    parseError = errorText_(err);
+  }
+  var active = 0;
+  var closed = 0;
+  for (i = 0; i < listings.length; i++) {
+    if (isClosedListing_(listings[i])) closed++;
+    else active++;
+  }
+  var dataRows = 0;
+  var nonemptyRows = 0;
+  if (chosen && chosen.getLastRow() >= 2) {
+    dataRows = chosen.getLastRow() - 1;
+    var vals = chosen.getRange(2, 1, chosen.getLastRow(), chosen.getLastColumn()).getValues();
+    var r, c;
+    for (r = 0; r < vals.length; r++) {
+      var has = false;
+      for (c = 0; c < vals[r].length; c++) {
+        if (String(vals[r][c] || '').trim()) {
+          has = true;
+          break;
+        }
+      }
+      if (has) nonemptyRows++;
+    }
+  }
   return {
     success: true,
     spreadsheetIdResolved:
@@ -249,14 +316,53 @@ function diagnosticsPayload_() {
       trim_(props.getProperty('LISTINGS_SHEET_SPREADSHEET_ID')) ||
       DEFAULT_LISTINGS_SPREADSHEET_ID,
     spreadsheetName: ss.getName(),
+    spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/' + ss.getId() + '/edit',
     configuredSheetName:
       trim_(props.getProperty('LISTINGS_SHEET_NAME')) ||
       trim_(props.getProperty('ASG_LISTINGS_SHEET_NAME')) ||
-      '',
+      SHEET_NAME,
     chosenSheetName: chosen ? chosen.getName() : '',
     chosenSheetLastRow: chosen ? chosen.getLastRow() : 0,
+    dataRowsOnChosenSheet: dataRows,
+    nonemptyDataRows: nonemptyRows,
     parsedListingsCount: listings.length,
-    sheets: all
+    idxAddressKeys: (function () {
+      var m = buildIdxListingsAddressMap_();
+      var n = 0;
+      var k;
+      for (k in m) if (m.hasOwnProperty(k)) n++;
+      return n;
+    })(),
+    idxMergedCount: (function () {
+      var m = buildIdxListingsAddressMap_();
+      var i,
+        c = 0;
+      for (i = 0; i < listings.length; i++) if (listings[i].idxMatched) c++;
+      return c;
+    })(),
+    activeListingsCount: active,
+    closedOrArchivedCount: closed,
+    parseError: parseError,
+    sampleListing: listings[0]
+      ? {
+          address: listings[0].address,
+          status: listings[0].status,
+          phaseKey: listings[0].phaseKey,
+          archived: listings[0].archived
+        }
+      : null,
+    hint:
+      !chosen
+        ? 'No tab matched Listings rules. Fix row-1 headers on your data tab (Address + Agent + Status).'
+        : nonemptyRows === 0
+          ? 'Tab found but all data rows are empty. Add listing rows or check you opened the correct spreadsheet ID.'
+          : listings.length === 0
+            ? 'Rows exist on sheet but none parsed — check for hidden empty rows.'
+            : active === 0
+              ? 'Listings parse OK but view=active is 0. Try ?view=all or clear Archived / Closed status.'
+              : 'Sheet read OK. If hubs still empty, update LISTINGS_API URL to this deployment.',
+    sheets: all,
+    sheetChecks: sheetChecks
   };
 }
 function mapRecordToListing_(rec) {

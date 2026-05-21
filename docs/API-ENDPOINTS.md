@@ -524,6 +524,9 @@ Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Sq
 | `ACUITY_USER_ID`, `ACUITY_API_KEY`, `ACUITY_CALENDAR_IDS` | Optional. Photo booking correlation. |
 | `FUB_API_KEY`, `FUB_API_BASE_URL` | Optional. Deal/task correlation after listing is linked or fuzzy-matched. |
 | `LISTING_DETAIL_VISUAL_MOCK` | Optional. Set to `true` to serve Listing HQ with built-in mock listing data (same as `?mock=1` on the detail page). |
+| `IDX_ACCESS_KEY` | Required for IDX → sheet sync (`IdxSync.gs`). API key from Elm Street / IDX control panel. |
+| `IDX_API_VERSION` | Optional. Default `1.7`. |
+| `IDX_SYNC_SHEET_NAME` | Optional. Tab name for raw IDX mirror (default `IdxListings`). |
 
 ### GET
 
@@ -537,6 +540,7 @@ Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Sq
 | `?view=listingops&address=` | Cached hybrid rollup: Asana tasks, Acuity hits, FUB deal slice (`asana`, `acuity`, `fub`). |
 | `?view=detailpage&address=` | **HtmlService** Listing HQ page — layout matches agent personal-hub listing bentos (light cards, pill links). Optional **`&mock=1`** or Script Property **`LISTING_DETAIL_VISUAL_MOCK=true`** enables built-in **visual mock data** (photos, Matterport sample, Asana/Acuity stubs). If embedding on Squarespace, prefer iframe + `setXFrameOptionsMode(ALLOWALL)`. |
 | `?view=embedsnippet&address=` | JSON with `iframeSnippet` + `detailUrl`. |
+| `?view=idxsync` | IDX mirror status: last sync time, row count, sheet name (no MLS payload). |
 
 ### POST JSON actions
 
@@ -544,10 +548,12 @@ Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Sq
 - `requestOpenHouse` — requires `secret`; emails ops distro (`notifyOpenHouseRequest_`).
 - `questionnaireComplete` — requires `secret`; emails marketing (`handleQuestionnaireComplete_`).
 - `createMarketingKickoff` — requires `secret`; creates an Asana task when token/workspace/project are configured.
+- `syncidx` — requires `secret`; pulls IDX `featured`, `soldpending`, and `supplemental` into the `IdxListings` sheet (`IdxSync.gs`).
 
 ### Time-driven automation
 
 - Run `sweepListingSheetForNewRows()` on an hourly trigger to email when the sheet grows past the last notified row (marker `LISTINGS_LAST_ROW_NOTIFIED`).
+- Run `installIdxSyncTrigger()` once to sync IDX → `IdxListings` every 15 minutes (or call `syncIdxListingsToSheet()` manually).
 
 ### Sheet columns (flexible headers)
 

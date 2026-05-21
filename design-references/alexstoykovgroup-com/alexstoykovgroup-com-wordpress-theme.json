@@ -1,0 +1,203 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "color": {
+      "palette": [
+        {
+          "slug": "primary",
+          "color": "#4a5464",
+          "name": "Primary"
+        },
+        {
+          "slug": "secondary",
+          "color": "#010d15",
+          "name": "Secondary"
+        },
+        {
+          "slug": "neutral-1",
+          "color": "#121212",
+          "name": "Neutral 1"
+        },
+        {
+          "slug": "neutral-2",
+          "color": "#dcdcd8",
+          "name": "Neutral 2"
+        },
+        {
+          "slug": "neutral-3",
+          "color": "#000000",
+          "name": "Neutral 3"
+        },
+        {
+          "slug": "neutral-4",
+          "color": "#fafafa",
+          "name": "Neutral 4"
+        },
+        {
+          "slug": "neutral-5",
+          "color": "#e7e7e7",
+          "name": "Neutral 5"
+        },
+        {
+          "slug": "bg-fafafa",
+          "color": "#fafafa",
+          "name": "Background #fafafa"
+        },
+        {
+          "slug": "bg-ffffff",
+          "color": "#ffffff",
+          "name": "Background #ffffff"
+        },
+        {
+          "slug": "bg-dcdcd8",
+          "color": "#dcdcd8",
+          "name": "Background #dcdcd8"
+        }
+      ],
+      "gradients": [
+        {
+          "slug": "gradient-1",
+          "gradient": "linear-gradient(rgb(1, 13, 21), rgba(0, 0, 0, 0))",
+          "name": "Gradient 1"
+        },
+        {
+          "slug": "gradient-2",
+          "gradient": "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+          "name": "Gradient 2"
+        },
+        {
+          "slug": "gradient-3",
+          "gradient": "linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
+          "name": "Gradient 3"
+        }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "satoshi-ymnzpr",
+          "slug": "satoshi-ymnzpr",
+          "name": "satoshi-ymnzpr"
+        },
+        {
+          "fontFamily": "Clarkson",
+          "slug": "clarkson",
+          "name": "Clarkson"
+        },
+        {
+          "fontFamily": "sans-serif",
+          "slug": "sans-serif",
+          "name": "sans-serif"
+        },
+        {
+          "fontFamily": "Poppins",
+          "slug": "poppins",
+          "name": "Poppins"
+        }
+      ],
+      "fontSizes": [
+        {
+          "size": "120px",
+          "slug": "size-120",
+          "name": "120px"
+        },
+        {
+          "size": "118px",
+          "slug": "size-118",
+          "name": "118px"
+        },
+        {
+          "size": "115.9px",
+          "slug": "size-115.9",
+          "name": "115.9px"
+        },
+        {
+          "size": "48px",
+          "slug": "size-48",
+          "name": "48px"
+        },
+        {
+          "size": "42.648px",
+          "slug": "size-42.648",
+          "name": "42.648px"
+        },
+        {
+          "size": "33.432px",
+          "slug": "size-33.432",
+          "name": "33.432px"
+        },
+        {
+          "size": "30.36px",
+          "slug": "size-30.36",
+          "name": "30.36px"
+        },
+        {
+          "size": "24.216px",
+          "slug": "size-24.216",
+          "name": "24.216px"
+        }
+      ]
+    },
+    "spacing": {
+      "spacingSizes": [
+        {
+          "size": "1px",
+          "slug": "spacing-1",
+          "name": "1px"
+        },
+        {
+          "size": "23px",
+          "slug": "spacing-23",
+          "name": "23px"
+        },
+        {
+          "size": "26px",
+          "slug": "spacing-26",
+          "name": "26px"
+        },
+        {
+          "size": "36px",
+          "slug": "spacing-36",
+          "name": "36px"
+        },
+        {
+          "size": "51px",
+          "slug": "spacing-51",
+          "name": "51px"
+        },
+        {
+          "size": "64px",
+          "slug": "spacing-64",
+          "name": "64px"
+        },
+        {
+          "size": "77px",
+          "slug": "spacing-77",
+          "name": "77px"
+        },
+        {
+          "size": "120px",
+          "slug": "spacing-120",
+          "name": "120px"
+        }
+      ]
+    },
+    "layout": {
+      "contentSize": "100%",
+      "wideSize": "1400px"
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "#fafafa",
+      "text": "#000000"
+    },
+    "typography": {
+      "fontSize": "15px",
+      "lineHeight": "normal",
+      "fontFamily": "satoshi-ymnzpr"
+    },
+    "spacing": {}
+  }
+}
