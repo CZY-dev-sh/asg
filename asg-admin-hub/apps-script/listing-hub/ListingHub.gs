@@ -15,8 +15,62 @@ function debugListingsCounts() {
     sampleFirstActive: firstActive && { address: firstActive.address }
   }, null, 2));
 }
+
+/**
+ * Editor test — confirms Listings-tab Address + Agent reach the dashboard API.
+ * Run after assigning agents on the Listings tab (no IdxCoList sheet required).
+ */
+function testListingsAgentOverlay() {
+  var overlayByAddr = buildListingsWorkflowOverlayByAddress_();
+  var overlayRows = 0;
+  var overlayWithAgent = 0;
+  var k, ov;
+  for (k in overlayByAddr) {
+    if (!overlayByAddr.hasOwnProperty(k)) continue;
+    overlayRows++;
+    ov = overlayByAddr[k];
+    if (trim_(ov.agent || ov.agentCanonical || '')) overlayWithAgent++;
+  }
+  var listings = getListings_();
+  var withAgent = 0;
+  var addressMismatchSamples = [];
+  var i, l, key, agent;
+  for (i = 0; i < listings.length; i++) {
+    l = listings[i];
+    agent = trim_(l.agent || l.agentCanonical || '');
+    if (agent) {
+      withAgent++;
+      continue;
+    }
+    ov = findListingsOverlayForAddress_(l.address || '', overlayByAddr);
+    if (ov && trim_(ov.agent || ov.agentCanonical || '') && addressMismatchSamples.length < 20) {
+      addressMismatchSamples.push({
+        idxAddress: l.address,
+        listingsTabAgent: trim_(ov.agent || ov.agentCanonical || ''),
+        hint: 'Listings row exists but address keys did not match — align Address text with IdxListings'
+      });
+    }
+  }
+  var listingsMatched = 0;
+  for (i = 0; i < listings.length; i++) {
+    if (listings[i].listingsMatched) listingsMatched++;
+  }
+  var summary = {
+    listingsTabAddresses: overlayRows,
+    listingsTabWithAgent: overlayWithAgent,
+    idxInventoryRows: listings.length,
+    listingsMatched: listingsMatched,
+    dashboardRowsWithAgent: withAgent,
+    addressMismatchSamples: addressMismatchSamples
+  };
+  Logger.log(JSON.stringify(summary, null, 2));
+  return summary;
+}
 var SHEET_NAME = 'Listings';
+var MARKETING_SHEET_NAME = 'Marketing';
+var MICROSITES_SHEET_NAME = 'Microsites';
 var DEFAULT_LISTINGS_SPREADSHEET_ID = '1DtyZsOi17q04rf3uoz72Cm9bgshuMza20p-GM9jKb1U';
+var DEFAULT_DIRECTORY_SHEET_ID = '1gHZFkVGDyLgU_6Umb0O2U1kb6rUk9249jC04k9PW0ho';
 var STATUS_CLOSED = { closed: true };
 var LH_DEFAULTS = { asanaApiBaseUrl: 'https://app.asana.com/api/1.0', asanaMaxPages: 0 };
 var QUESTIONNAIRE_SIGNATURE_PREFIX = 'this task was submitted through';
@@ -38,6 +92,8 @@ var AGENT_EMAILS = {
 };
 var CC_EMAILS = ['ellie.ngassa@compass.com', 'seph.gagon@compass.com', 'tim.urmanczy@compass.com', 'ellyn.andree@compass.com'];
 var LISTING_ASSETS_EMAIL_DEFAULT_NOTE = 'I will send the floor plan as soon as Matterport delivers it to us.';
+var SELLER_QUESTIONNAIRE_IMPORTED_LABEL = 'ASG/Questionnaire Imported';
+var SELLER_QUESTIONNAIRE_DEFAULT_GMAIL_QUERY = 'newer_than:30d ("seller questionnaire" OR "listing questionnaire")';
 
 function doGet(e) {
   try {
@@ -45,19 +101,39 @@ function doGet(e) {
     var view = String(p.view || 'active').toLowerCase();
     if (view === 'diag') return jsonResponse_(diagnosticsPayload_());
     if (view === 'detailpage') return serveListingDetailPage_(p);
+    if (view === 'microsite') return serveListingMicrositePage_(p);
     if (view === 'listing') return jsonResponse_(findSingleListingPayload_(p));
     if (view === 'listingphotos') return jsonResponse_(listingPhotosPayload_(p));
     if (view === 'listingops') return jsonResponse_(listingOpsPayload_(p));
     if (view === 'embedsnippet') return jsonResponse_(embedSnippetPayload_(p));
+    if (view === 'micrositeembed') return jsonResponse_(micrositeEmbedSnippetPayload_(p));
+    if (view === 'findlistingdebug') return jsonResponse_(findListingDebugPayload_(p));
     if (view === 'idxsync') return jsonResponse_({ success: true, idx: idxSyncStatusPayload_() });
     if (view === 'idxprobe') return jsonResponse_({ success: true, probe: idxProbeFeeds_() });
-    var listings = getListings_();
+    var slim = String(p.slim || '').toLowerCase() !== '0';
+    var listings;
     var out = [];
     var i;
-    if (view === 'all') out = listings;
-    else if (view === 'archive' || view === 'closed') for (i = 0; i < listings.length; i++) if (isClosedListing_(listings[i])) out.push(listings[i]);
-    else for (i = 0; i < listings.length; i++) if (!isClosedListing_(listings[i])) out.push(listings[i]);
-    return jsonResponse_({ success: true, view: view, count: out.length, listings: out, meta: { webAppUrl: getPublicWebAppUrl_() } });
+    if (view === 'all') {
+      listings = getListings_();
+      if (slim) listings = listings.map(slimListingForApi_);
+      out = listings;
+    } else if (view === 'archive' || view === 'closed') {
+      listings = getListings_();
+      for (i = 0; i < listings.length; i++) {
+        if (isClosedListing_(listings[i])) out.push(slim ? slimListingForApi_(listings[i]) : listings[i]);
+      }
+    } else {
+      listings = getActiveListingsForApi_();
+      out = listings;
+    }
+    return jsonResponse_({
+      success: true,
+      view: view,
+      count: out.length,
+      listings: out,
+      meta: { webAppUrl: getPublicWebAppUrl_(), slim: slim || view === 'active' }
+    });
   } catch (err) {
     return jsonResponse_({ success: false, error: errorText_(err) });
   }
@@ -76,6 +152,10 @@ function doPost(e) {
     if (action === 'questionnairecomplete') {
       verifyWebhookSecret_(data.secret);
       return jsonResponse_(handleQuestionnaireComplete_(data));
+    }
+    if (action === 'ingestquestionnaireemails') {
+      verifyWebhookSecret_(data.secret);
+      return jsonResponse_(ingestSellerQuestionnaireEmails());
     }
     if (action === 'createmarketingkickoff') {
       verifyWebhookSecret_(data.secret);
@@ -96,6 +176,10 @@ function doPost(e) {
     if (action === 'syncidx') {
       verifyWebhookSecret_(data.secret);
       return jsonResponse_(syncIdxListingsToSheet());
+    }
+    if (action === 'checkidx') {
+      verifyWebhookSecret_(data.secret);
+      return jsonResponse_(checkIdxForUpdates());
     }
     if (action === 'updatelisting') {
       // Lightweight inline edit from the admin dashboard. We intentionally
@@ -235,27 +319,589 @@ function getListingsSheet_() {
   }
   return null;
 }
-function getListings_() {
+/**
+ * Listings tab rows keyed by normalized address (workflow/marketing overlay only).
+ */
+function buildListingsWorkflowOverlayByAddress_() {
+  var map = {};
   var sh = getListingsSheet_();
-  if (!sh) throw new Error('Listings sheet not found. Checked "' + getListingsSheetName_() + '" and "' + SHEET_NAME + '".');
+  if (!sh) return map;
+  return buildListingOverlayByAddressFromSheet_(sh);
+}
+
+function getOptionalOverlaySheet_(name) {
+  try {
+    return getListingsSpreadsheet_().getSheetByName(name);
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildListingOverlayByAddressFromSheet_(sh) {
+  var map = {};
   var values = sh.getDataRange().getValues();
-  if (values.length < 2) return [];
+  if (values.length < 2) return map;
   var headers = values[0];
-  var idxMap = buildIdxListingsAddressMap_();
-  var out = [];
-  var r, c;
+  var r, c, row, has, rec, listing, addrKey;
   for (r = 1; r < values.length; r++) {
-    var row = values[r];
-    var has = false;
-    for (c = 0; c < row.length; c++) if ((String(row[c] || '').trim())) { has = true; break; }
+    row = values[r];
+    has = false;
+    for (c = 0; c < row.length; c++) {
+      if (String(row[c] || '').trim()) { has = true; break; }
+    }
     if (!has) continue;
-    var rec = {};
+    rec = {};
     for (c = 0; c < headers.length; c++) rec[String(headers[c] || '').trim()] = row[c];
-    var listing = mapRecordToListing_(rec);
-    listing = enrichListingFromIdx_(listing, findIdxEntryForAddress_(listing.address, idxMap));
+    listing = mapRecordToListing_(rec);
+    addrKey = listingAddressMatchKey_(listing.address || '');
+    if (!addrKey) continue;
+    map[addrKey] = listing;
+    var legacyKey = normalizeAddress_(listing.address || '');
+    if (legacyKey && legacyKey !== addrKey) map[legacyKey] = listing;
+  }
+  return map;
+}
+
+function buildMarketingOverlayByAddress_() {
+  var sh = getOptionalOverlaySheet_(MARKETING_SHEET_NAME);
+  return sh ? buildListingOverlayByAddressFromSheet_(sh) : {};
+}
+
+function buildMicrositeOverlayByAddress_() {
+  var sh = getOptionalOverlaySheet_(MICROSITES_SHEET_NAME);
+  return sh ? buildListingOverlayByAddressFromSheet_(sh) : {};
+}
+
+function overlayIdentityKeysForListing_(listing) {
+  var keys = [];
+  var pairs = [
+    ['idx_key', listing && listing.idxKey],
+    ['listing_id', listing && listing.listingId],
+    ['mls_number', listing && listing.mlsNumber]
+  ];
+  var i, v;
+  for (i = 0; i < pairs.length; i++) {
+    v = trim_(pairs[i][1]);
+    if (v) keys.push(pairs[i][0] + '|' + (pairs[i][0] === 'idx_key' ? v : (v.replace(/\D/g, '') || v)));
+  }
+  return keys;
+}
+
+function overlayIdentityKeysForIdxEntry_(entry) {
+  var L = (entry && entry.listing) || {};
+  var keys = [];
+  var vals = [
+    ['idx_key', entry && entry.idxKey],
+    ['listing_id', entry && (entry.listingId || L.listingID || L.listingId)],
+    ['mls_number', entry && (entry.listingId || L.mlsNumber || L.mls_number || L.listingID || L.listingId)]
+  ];
+  var i, v;
+  for (i = 0; i < vals.length; i++) {
+    v = trim_(vals[i][1]);
+    if (v) keys.push(vals[i][0] + '|' + (vals[i][0] === 'idx_key' ? v : v.replace(/\D/g, '')));
+  }
+  return keys;
+}
+
+function buildListingOverlayIndexFromSheet_(sh) {
+  var index = { byId: {}, byAddr: {}, rows: [] };
+  if (!sh) return index;
+  var values = sh.getDataRange().getValues();
+  if (values.length < 2) return index;
+  var headers = values[0];
+  var r, c, row, has, rec, listing, keys, k, addrKey, legacyKey;
+  for (r = 1; r < values.length; r++) {
+    row = values[r];
+    has = false;
+    for (c = 0; c < row.length; c++) {
+      if (String(row[c] || '').trim()) { has = true; break; }
+    }
+    if (!has) continue;
+    rec = {};
+    for (c = 0; c < headers.length; c++) rec[String(headers[c] || '').trim()] = row[c];
+    listing = mapRecordToListing_(rec);
+    index.rows.push(listing);
+    keys = overlayIdentityKeysForListing_(listing);
+    for (k = 0; k < keys.length; k++) {
+      if (keys[k] && !/\|$/.test(keys[k])) index.byId[keys[k]] = listing;
+    }
+    addrKey = listingAddressMatchKey_(listing.address || '');
+    if (addrKey) {
+      if (!index.byAddr[addrKey]) index.byAddr[addrKey] = [];
+      index.byAddr[addrKey].push(listing);
+    }
+    legacyKey = normalizeAddress_(listing.address || '');
+    if (legacyKey && legacyKey !== addrKey) {
+      if (!index.byAddr[legacyKey]) index.byAddr[legacyKey] = [];
+      index.byAddr[legacyKey].push(listing);
+    }
+  }
+  return index;
+}
+
+function buildListingsWorkflowOverlayIndex_() {
+  return buildListingOverlayIndexFromSheet_(getListingsSheet_());
+}
+
+function buildMarketingOverlayIndex_() {
+  return buildListingOverlayIndexFromSheet_(getOptionalOverlaySheet_(MARKETING_SHEET_NAME));
+}
+
+function buildMicrositeOverlayIndex_() {
+  return buildListingOverlayIndexFromSheet_(getOptionalOverlaySheet_(MICROSITES_SHEET_NAME));
+}
+
+function findListingOverlayForIdxEntry_(entry, index) {
+  if (!entry || !index) return null;
+  var keys = overlayIdentityKeysForIdxEntry_(entry);
+  var i, hit, addrKey, list, legacyKey;
+  for (i = 0; i < keys.length; i++) {
+    hit = index.byId && index.byId[keys[i]];
+    if (hit) return hit;
+  }
+  addrKey = listingAddressMatchKey_(entry.address || '');
+  list = addrKey && index.byAddr ? index.byAddr[addrKey] : null;
+  if (list && list.length === 1) return list[0];
+  legacyKey = normalizeAddress_(entry.address || '');
+  list = legacyKey && index.byAddr ? index.byAddr[legacyKey] : null;
+  return list && list.length === 1 ? list[0] : null;
+}
+
+/** Same normalized address key as IdxListings matching (unit-aware). */
+function listingAddressMatchKey_(address) {
+  return idxNormalizeAddressForMatch_(address);
+}
+
+/** Find Listings-tab overlay row for an IDX address (exact + fuzzy). */
+function findListingsOverlayForAddress_(address, overlayByAddr) {
+  if (!overlayByAddr || !address) return null;
+  var norm = listingAddressMatchKey_(address);
+  if (norm && overlayByAddr[norm]) return overlayByAddr[norm];
+  var legacy = normalizeAddress_(address);
+  if (legacy && overlayByAddr[legacy]) return overlayByAddr[legacy];
+
+  var best = null;
+  var bestScore = 0;
+  var k, sc;
+  for (k in overlayByAddr) {
+    if (!overlayByAddr.hasOwnProperty(k)) continue;
+    sc = idxAddressMatchScore_(norm || legacy, k);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best = overlayByAddr[k];
+    }
+  }
+  return bestScore >= 0.78 ? best : null;
+}
+
+/**
+ * After IDX enrich, re-apply Listings-tab workflow labels for dashboard chips
+ * (Phase/Status on sheet) while keeping idxMlsStatus as MLS truth.
+ */
+function applyListingsWorkflowDisplay_(listing, overlay) {
+  if (!listing || !overlay) return;
+  listing.listingsMatched = true;
+  var wfStatus = trim_(overlay.status || overlay.phase || overlay.dealStage || '');
+  if (wfStatus) {
+    listing.workflowStatus = wfStatus;
+    listing.status = wfStatus;
+    listing.phaseKey = normalizeStatusKey_(wfStatus) || listing.phaseKey;
+    listing.phase = wfStatus;
+  }
+  if (trim_(overlay.listingType)) listing.listingType = trim_(overlay.listingType);
+}
+
+/** Copy workflow/marketing/integration fields from overlay; IDX owns property facts. */
+var LISTING_WORKFLOW_OVERLAY_KEYS_ = [
+  'agent', 'agentCanonical', 'agentSlug', 'agentQuestionnaireUrl', 'agentBookingUrl',
+  'status', 'phaseKey', 'phase', 'dealStage', 'listingType', 'listPrice', 'listDate', 'mlsNumber',
+  'archived', 'emailSent', 'coverImage', 'notes', 'compassLink', 'compass_link',
+  'photos', 'matterport', 'floorPlan', 'video',
+  'photosStatus', 'photosDatetime', 'photosBookingId', 'photosBookingUrl', 'photosDeliveredAt',
+  'matterportStatus', 'matterportDeliveredAt', 'floorPlanStatus', 'floorPlanDeliveredAt',
+  'videoStatus', 'videoDeliveredAt',
+  'servicesBooked', 'acuityAppointmentType', 'acuityAppointmentDescription', 'acuityAddons',
+  'acuityCalendarId', 'acuityLastSyncAt',
+  'factSheet', 'factSheetStatus', 'factSheetRequestedAt', 'factSheetDeliveredAt',
+  'openHouseMaterialsUrl', 'openHouseMaterialsStatus', 'openHouseMaterialsRequestedAt',
+  'openHouseMaterialsDeliveredAt', 'openHouses', 'nextOpenHouseDate', 'nextOpenHouseStart',
+  'nextOpenHouseEnd', 'marketingRequests', 'marketingStatus',
+  'sellerName', 'sellerEmail', 'sellerPhone', 'sellerQuestionnaireContent',
+  'sellerQuestionnaireAnswers', 'seller_questionnaire_answers', 'sellerQuestionnaireFormId',
+  'sellerQuestionnaireLastSyncAt', 'sellerQuestionnaireReceivedAt', 'sellerQuestionnaireSent',
+  'sellerQuestionnaireSentAt',
+  'marketingActionPlanCompletedAt', 'lastUpdatedAt', 'lastUpdatedBy',
+  'asanaTaskId', 'asanaProjectGid', 'asanaLastSyncAt', 'asanaOpenTasksCount', 'asanaDoneTasksCount',
+  'fubDealId', 'integrationHealth', 'fubStage', 'fubOpenTaskCount', 'fubLastSyncAt'
+];
+var LISTING_MARKETING_OVERLAY_KEYS_ = [
+  'agent', 'agentCanonical', 'coListAgentName', 'co_list_agent', 'mlsCoListAgentName', 'dealStage', 'listingType',
+  'photos', 'matterport', 'floorPlan', 'video',
+  'photosStatus', 'photosDeliveredAt',
+  'matterportStatus', 'matterportDeliveredAt',
+  'floorPlanStatus', 'floorPlanDeliveredAt',
+  'videoStatus', 'videoDeliveredAt',
+  'factSheet', 'factSheetStatus', 'factSheetRequestedAt', 'factSheetDeliveredAt',
+  'openHouseMaterialsUrl', 'openHouseMaterialsStatus', 'openHouseMaterialsRequestedAt',
+  'openHouseMaterialsDeliveredAt', 'marketingRequests', 'marketingStatus',
+  'sellerQuestionnaireContent', 'sellerQuestionnaireAnswers', 'sellerQuestionnaireStatus',
+  'sellerQuestionnaireFieldsJson', 'sellerQuestionnaireReceivedAt',
+  'sellerName', 'sellerEmail', 'sellerPhone', 'sellerFirstName', 'sellerLastName',
+  'propertyType', 'unitNumber', 'bedrooms', 'bathrooms', 'parking', 'storage',
+  'hoaAssessment', 'rentalRestrictions', 'lockboxInfo', 'showingInstructions', 'preferredTiming',
+  'lastUpdatedAt', 'lastUpdatedBy', 'notes'
+];
+var LISTING_MICROSITE_OVERLAY_KEYS_ = [
+  'micrositeSlug', 'micrositeStatus', 'micrositeTemplate',
+  'publishedUrl', 'squarespacePageUrl', 'squarespaceEmbedHtml',
+  'micrositeHeadline', 'micrositeSubheadline', 'micrositeOverview',
+  'micrositeNeighborhood', 'micrositeLat', 'micrositeLng',
+  'heroImageUrl', 'gallerySource', 'galleryFolderUrl', 'galleryJson',
+  'micrositeHighlightsJson', 'micrositeDetailsJson', 'micrositeCuratedPlacesJson',
+  'micrositeSeoTitle', 'micrositeSeoDescription', 'micrositeOgImageUrl',
+  'publishReady', 'missingAssets', 'lastPreviewedAt', 'lastPublishedAt', 'micrositeSyncedAt',
+  'compassLink', 'compass_link', 'video', 'matterport', 'floorPlan'
+];
+
+function mergeListingFieldOverlay_(listing, overlay, keys) {
+  if (!listing || !overlay) return listing;
+  var i, k, v;
+  keys = keys || [];
+  for (i = 0; i < keys.length; i++) {
+    k = keys[i];
+    v = overlay[k];
+    if (v === '' || v == null) continue;
+    if (k === 'archived' || k === 'emailSent') {
+      listing[k] = v;
+      continue;
+    }
+    if (Array.isArray(v) && !v.length) continue;
+    listing[k] = v;
+  }
+  return listing;
+}
+
+function mergeListingWorkflowOverlay_(listing, overlay) {
+  return mergeListingFieldOverlay_(listing, overlay, LISTING_WORKFLOW_OVERLAY_KEYS_);
+}
+
+/** Digits-only key for MRED member # (Directory `mred_number` = IDX `listingAgentID`). */
+function normalizeMredDigits_(v) {
+  return String(v || '').replace(/\D/g, '').trim();
+}
+
+/**
+ * Build mred_number → agent name from Directory tab(s).
+ * Tries the listings spreadsheet first, then DIRECTORY_SHEET_ID if set.
+ */
+function buildDirectoryMredToNameMap_() {
+  var map = {};
+  var spreadsheets = [];
+  var seenIds = {};
+  var props = PropertiesService.getScriptProperties();
+  var dirId = trim_(props.getProperty('DIRECTORY_SHEET_ID')) || DEFAULT_DIRECTORY_SHEET_ID;
+
+  function addSpreadsheet_(ss) {
+    if (!ss) return;
+    var id = '';
+    try { id = ss.getId(); } catch (e) { id = ''; }
+    if (id && seenIds[id]) return;
+    if (id) seenIds[id] = true;
+    spreadsheets.push(ss);
+  }
+
+  try { addSpreadsheet_(getListingsSpreadsheet_()); } catch (e) {}
+  if (dirId) {
+    try { addSpreadsheet_(SpreadsheetApp.openById(dirId)); } catch (e) {}
+  }
+
+  var tabNames = ['Directory', 'Team Directory', 'team_directory'];
+  var si, ss, ti, sh, values, headers, idxMred, idxName, r, mredKey, name;
+  for (si = 0; si < spreadsheets.length; si++) {
+    ss = spreadsheets[si];
+    for (ti = 0; ti < tabNames.length; ti++) {
+      sh = ss.getSheetByName(tabNames[ti]);
+      if (!sh || sh.getLastRow() < 2) continue;
+      values = sh.getDataRange().getValues();
+      headers = values[0];
+      idxMred = indexOfHeader_(headers, 'mred_number');
+      if (idxMred === -1) idxMred = indexOfHeader_(headers, 'mred number');
+      idxName = indexOfHeader_(headers, 'name');
+      if (idxMred === -1 || idxName === -1) continue;
+      for (r = 1; r < values.length; r++) {
+        mredKey = normalizeMredDigits_(values[r][idxMred]);
+        name = trim_(values[r][idxName]);
+        if (!mredKey || !name) continue;
+        map[mredKey] = name;
+      }
+    }
+  }
+  return map;
+}
+
+/** Canonical agent name → MRED # (inverse of buildDirectoryMredToNameMap_). */
+function buildDirectoryNameToMredMap_() {
+  var mredToName = buildDirectoryMredToNameMap_();
+  var byName = {};
+  var k, name, canon, lower;
+  for (k in mredToName) {
+    if (!mredToName.hasOwnProperty(k)) continue;
+    name = trim_(mredToName[k]);
+    if (!name) continue;
+    canon = canonicalAgentName_(name);
+    lower = String(name).toLowerCase();
+    if (canon) byName[String(canon).toLowerCase()] = k;
+    if (lower) byName[lower] = k;
+  }
+  return byName;
+}
+
+/**
+ * When IDX omits co-list, use Listings-tab agent + Directory mred_number.
+ * Returns true if co-list fields were set on listing.
+ */
+function fillCoListFromWorkflowOverlay_(listing, overlay, nameToMred) {
+  if (!listing) return false;
+  if (!overlay || !nameToMred) return false;
+  var explicitCoList = trim_(overlay.coListAgentName || overlay.co_list_agent || overlay.mlsCoListAgentName || '');
+  if (!explicitCoList && normalizeMredDigits_(listing.coListAgentID || listing.mlsCoListAgentId || '')) return false;
+  var agent = explicitCoList || trim_(overlay.agent || overlay.agentCanonical || '');
+  if (!agent) return false;
+  var canon = canonicalAgentName_(agent);
+  var mred = nameToMred[String(canon).toLowerCase()] || nameToMred[String(agent).toLowerCase()] || '';
+  listing.coListAgentName = agent;
+  listing.mlsCoListAgentName = agent;
+  if (mred) {
+    listing.coListAgentID = mred;
+    listing.mlsCoListAgentId = mred;
+  }
+  listing.coListSource = explicitCoList ? 'overlay' : 'workflow';
+  return true;
+}
+
+/** Resolve team agent from Directory when Listings tab has no agent_name. */
+function applyDirectoryAgentFromMred_(listing, mredMap) {
+  if (!listing || !mredMap) return listing;
+  if (trim_(listing.agent)) return listing;
+
+  var primary = normalizeMredDigits_(listing.listingAgentID || listing.mlsListingAgentId || '');
+  var coId = normalizeMredDigits_(listing.coListAgentID || listing.mlsCoListAgentId || '');
+  var chosen = '';
+  var source = '';
+
+  // Team listings: primary is often the broker of record; co-list is the roster agent.
+  if (coId && mredMap[coId]) {
+    chosen = mredMap[coId];
+    source = 'co-list';
+  } else if (primary && mredMap[primary]) {
+    chosen = mredMap[primary];
+    source = 'primary';
+  } else if (coId && trim_(listing.mlsCoListAgentName || listing.coListAgentName)) {
+    chosen = trim_(listing.mlsCoListAgentName || listing.coListAgentName);
+    source = 'co-list-name';
+  }
+
+  if (!chosen) return listing;
+  listing.agent = chosen;
+  listing.agentCanonical = canonicalAgentName_(chosen);
+  listing.agentMredSource = source;
+  listing.agentMredId = source.indexOf('co') === 0 ? coId : primary;
+  return listing;
+}
+
+/**
+ * Dashboard inventory = every listing in IdxListings, enriched with MLS facts
+ * and optional workflow data from the Listings tab (matched by address).
+ *
+ * options.activeOnly — fast path: skip sold/pending sheet rows + closed statuses.
+ */
+function getListings_(options) {
+  options = options || {};
+  var entries = readAllIdxListingEntries_(options);
+  var overlayIndex = buildListingsWorkflowOverlayIndex_();
+  var marketingIndex = buildMarketingOverlayIndex_();
+  var micrositeIndex = buildMicrositeOverlayIndex_();
+  var idxOpenHouseMap = buildIdxOpenHousesAddressMap_();
+  var mredMap = buildDirectoryMredToNameMap_();
+  var nameToMred = buildDirectoryNameToMredMap_();
+  var out = [];
+  var i, entry, listing, addrKey, overlay, marketingOverlay, micrositeOverlay, ohRows;
+  for (i = 0; i < entries.length; i++) {
+    entry = entries[i];
+    listing = mapRecordToListing_({ Address: entry.address });
+    overlay = findListingOverlayForIdxEntry_(entry, overlayIndex);
+    marketingOverlay = findListingOverlayForIdxEntry_(entry, marketingIndex);
+    micrositeOverlay = findListingOverlayForIdxEntry_(entry, micrositeIndex);
+    if (options.activeOnly && overlay && overlay.archived) continue;
+    if (overlay) listing = mergeListingWorkflowOverlay_(listing, overlay);
+    if (marketingOverlay) listing = mergeListingFieldOverlay_(listing, marketingOverlay, LISTING_MARKETING_OVERLAY_KEYS_);
+    if (micrositeOverlay) listing = mergeListingFieldOverlay_(listing, micrositeOverlay, LISTING_MICROSITE_OVERLAY_KEYS_);
+    listing = enrichListingFromIdx_(listing, entry);
+    if (overlay) {
+      applyListingsWorkflowDisplay_(listing, overlay);
+      fillCoListFromWorkflowOverlay_(listing, overlay, nameToMred);
+    } else if (marketingOverlay) {
+      applyListingsWorkflowDisplay_(listing, marketingOverlay);
+      fillCoListFromWorkflowOverlay_(listing, marketingOverlay, nameToMred);
+    } else {
+      listing.listingsMatched = false;
+    }
+    if (options.activeOnly && isClosedListing_(listing)) continue;
+    listing = applyDirectoryAgentFromMred_(listing, mredMap);
+    addrKey = listingAddressMatchKey_(entry.address || '') || normalizeAddress_(entry.address || '');
+    ohRows = idxOpenHouseMap[addrKey];
+    if (!ohRows && addrKey) {
+      ohRows = idxOpenHouseMap[normalizeAddress_(entry.address || '')];
+    }
+    if (ohRows && ohRows.length) {
+      listing.openHouses = ohRows.slice();
+      listing.nextOpenHouseDate = trim_(ohRows[0].date || listing.nextOpenHouseDate || '');
+      listing.nextOpenHouseStart = trim_(ohRows[0].start || listing.nextOpenHouseStart || '');
+      listing.nextOpenHouseEnd = trim_(ohRows[0].end || listing.nextOpenHouseEnd || '');
+    }
     out.push(listing);
   }
+  appendMarketingOnlyListings_(out, marketingIndex, options, nameToMred, mredMap);
   return out;
+}
+
+function appendMarketingOnlyListings_(out, marketingIndex, options, nameToMred, mredMap) {
+  var rows = marketingIndex && marketingIndex.rows ? marketingIndex.rows : [];
+  var i, listing;
+  for (i = 0; i < rows.length; i++) {
+    listing = rows[i];
+    if (!listing || !trim_(listing.address)) continue;
+    if (trim_(listing.idxKey || listing.listingId || listing.mlsNumber)) continue;
+    if (listing.archived) continue;
+    listing.idxMatched = false;
+    listing.listingsMatched = true;
+    listing.preMls = true;
+    listing.status = trim_(listing.status || listing.dealStage || 'Pre Listing');
+    listing.phaseKey = trim_(listing.phaseKey || 'prelisting');
+    listing.phase = trim_(listing.phase || 'Pre-Listing');
+    fillCoListFromWorkflowOverlay_(listing, listing, nameToMred);
+    listing = applyDirectoryAgentFromMred_(listing, mredMap);
+    if (options && options.activeOnly && isClosedListing_(listing)) continue;
+    out.push(listing);
+  }
+}
+
+/** Active inventory only (featured/supplemental + non-closed), for dashboard list API. */
+function getActiveListings_() {
+  return getListings_({ activeOnly: true });
+}
+
+/** Drop huge IDX blobs from list API responses (detail view can fetch full listing). */
+function slimListingForApi_(listing) {
+  if (!listing || typeof listing !== 'object') return listing;
+  var copy = JSON.parse(JSON.stringify(listing));
+  delete copy.idx;
+  delete copy.mlsAdvanced;
+  return copy;
+}
+
+function listingsActiveCacheKey_() {
+  return 'listings_active_v4_' + getListingsSpreadsheet_().getId();
+}
+
+function invalidateListingsActiveCache_() {
+  try {
+    CacheService.getScriptCache().remove(listingsActiveCacheKey_());
+  } catch (e) {}
+}
+
+/** Cached active listings for view=active (slim JSON). */
+function getActiveListingsForApi_() {
+  var props = PropertiesService.getScriptProperties();
+  var sec = Number(props.getProperty('LISTINGS_ACTIVE_CACHE_SEC'));
+  if (!sec && sec !== 0) sec = 120;
+  var cache = CacheService.getScriptCache();
+  var key = listingsActiveCacheKey_();
+  if (sec > 0) {
+    try {
+      var hit = cache.get(key);
+      if (hit) return JSON.parse(hit);
+    } catch (eCache) {}
+  }
+  var listings = getActiveListings_();
+  var slim = [];
+  var i;
+  for (i = 0; i < listings.length; i++) slim.push(slimListingForApi_(listings[i]));
+  if (sec > 0) {
+    try {
+      var blob = JSON.stringify(slim);
+      if (blob.length < 90000) cache.put(key, blob, Math.min(sec, 21600));
+    } catch (ePut) {}
+  }
+  return slim;
+}
+
+/**
+ * Read the dedicated IDX Open Houses tab and index by normalized address.
+ * This lets the dashboard surface manual/test entries in that tab immediately
+ * (and not only the open-house fields merged into IdxListings JSON).
+ */
+function buildIdxOpenHousesAddressMap_() {
+  var out = {};
+  var ss = getListingsSpreadsheet_();
+  var name = (typeof getIdxOpenHousesSheetName_ === 'function')
+    ? getIdxOpenHousesSheetName_()
+    : 'Idx Open Houses';
+  var sh = ss.getSheetByName(name);
+  if (!sh || sh.getLastRow() < 2) return out;
+  var values = sh.getDataRange().getValues();
+  var headers = values[0];
+  var idxAddress = indexOfHeader_(headers, 'Address');
+  var idxDate = indexOfHeader_(headers, 'OH Date');
+  var idxStart = indexOfHeader_(headers, 'OH Start');
+  var idxEnd = indexOfHeader_(headers, 'OH End');
+  if (idxAddress === -1 || idxDate === -1) return out;
+  var r;
+  for (r = 1; r < values.length; r++) {
+    var row = values[r] || [];
+    var addr = trim_(row[idxAddress]);
+    var date = trim_(row[idxDate]);
+    if (!addr || !date) continue;
+    var key = listingAddressMatchKey_(addr);
+    if (!key) continue;
+    var legacyOh = normalizeAddress_(addr);
+    if (!out[key]) out[key] = [];
+    if (legacyOh && legacyOh !== key && !out[legacyOh]) out[legacyOh] = out[key];
+    out[key].push({
+      date: date,
+      start: idxStart >= 0 ? trim_(row[idxStart]) : '',
+      end: idxEnd >= 0 ? trim_(row[idxEnd]) : '',
+      // Keep generic keys for UI parsers that expect open_house_*.
+      open_house_date: date,
+      open_house_start: idxStart >= 0 ? trim_(row[idxStart]) : '',
+      open_house_end: idxEnd >= 0 ? trim_(row[idxEnd]) : ''
+    });
+  }
+  for (var k in out) {
+    if (!out.hasOwnProperty(k)) continue;
+    out[k].sort(function (a, b) {
+      var da = parseDate_(a.date);
+      var db = parseDate_(b.date);
+      var ta = da ? da.getTime() : 0;
+      var tb = db ? db.getTime() : 0;
+      if (ta !== tb) return ta - tb;
+      return String(a.start || '').localeCompare(String(b.start || ''));
+    });
+  }
+  return out;
+}
+
+function parseDate_(raw) {
+  var s = trim_(raw);
+  if (!s) return null;
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) return d;
+  var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (!m) return null;
+  var mm = Number(m[1]), dd = Number(m[2]), yy = Number(m[3]);
+  if (yy < 100) yy += 2000;
+  d = new Date(yy, mm - 1, dd);
+  return isNaN(d.getTime()) ? null : d;
 }
 function diagnosticsPayload_() {
   var props = PropertiesService.getScriptProperties();
@@ -334,10 +980,13 @@ function diagnosticsPayload_() {
       return n;
     })(),
     idxMergedCount: (function () {
-      var m = buildIdxListingsAddressMap_();
-      var i,
-        c = 0;
+      var i, c = 0;
       for (i = 0; i < listings.length; i++) if (listings[i].idxMatched) c++;
+      return c;
+    })(),
+    listingsTabMatched: (function () {
+      var i, c = 0;
+      for (i = 0; i < listings.length; i++) if (listings[i].listingsMatched) c++;
       return c;
     })(),
     activeListingsCount: active,
@@ -366,36 +1015,54 @@ function diagnosticsPayload_() {
   };
 }
 function mapRecordToListing_(rec) {
+  // The Listings tab is now a workflow/marketing overlay. Property facts
+  // (status, price, beds, baths, sqft, listingType, MLS#, list/close dates,
+  // neighborhood) come from IDX via enrichListingFromIdx_(). We still read
+  // Address (join key), Archived flag, agent name, and notes from Listings.
   var agentRaw = pick_(rec, ['Agent Name', 'agent_name', 'Agent']);
-  var status = pick_(rec, ['Status', 'deal_stage']);
-  var phase = pick_(rec, ['deal_stage', 'Listing Phase', 'Phase', 'Stage']) || status;
+  var statusRaw = trim_(
+    pick_(rec, ['Status', 'Phase', 'deal_stage', 'Deal Stage', 'Listing Phase', 'listing phase'])
+  );
   return {
     // ── Core identity / lifecycle ──────────────────────────────────────────
+    idxKey: trim_(pick_(rec, ['idx_key', 'Idx Key'])),
+    feed: trim_(pick_(rec, ['feed', 'Feed'])),
+    listingId: trim_(pick_(rec, ['listing_id', 'Listing ID'])),
+    addressKey: trim_(pick_(rec, ['address_key', 'Address Key'])),
     address: trim_(pick_(rec, ['Address'])),
-    neighborhood: trim_(pick_(rec, ['Neighborhood', 'neighborhood'])),
     agent: trim_(agentRaw),
     agentCanonical: canonicalAgentName_(agentRaw),
+    coListAgentName: trim_(pick_(rec, ['co_list_agent', 'Co List Agent', 'coListAgentName', 'mlsCoListAgentName'])),
+    co_list_agent: trim_(pick_(rec, ['co_list_agent', 'Co List Agent'])),
+    mlsCoListAgentName: trim_(pick_(rec, ['mlsCoListAgentName', 'co_list_agent', 'Co List Agent'])),
     agentSlug: trim_(pick_(rec, ['agent_slug'])),
     agentQuestionnaireUrl: trim_(pick_(rec, ['agent_questionnaire_url'])),
     agentBookingUrl: trim_(pick_(rec, ['agent_booking_url'])),
-    listingType: trim_(pick_(rec, ['Listing Type', 'listing_type'])),
-    status: trim_(status),
-    phaseKey: normalizeStatusKey_(phase),
-    dealStage: trim_(pick_(rec, ['deal_stage'])),
+    status: statusRaw,
+    phaseKey: normalizeStatusKey_(statusRaw),
+    phase: statusRaw,
+    dealStage: trim_(pick_(rec, ['deal_stage', 'Deal Stage'])),
+    listingType: trim_(pick_(rec, ['Listing Type', 'listing_type', 'Listing type'])),
+    listPrice: trim_(pick_(rec, ['list_price', 'List Price'])),
+    listDate: trim_(pick_(rec, ['list_date', 'List Date'])),
+    mlsNumber: trim_(pick_(rec, ['mls_number', 'MLS Number', 'MLS #'])),
     archived: normalizeCheckbox_(pick_(rec, ['Archived'])),
     emailSent: normalizeCheckbox_(pick_(rec, ['Email Sent'])),
 
-    // ── Listing metadata ───────────────────────────────────────────────────
+    // ── Listing metadata (workflow-only; property facts come from IDX) ────
     coverImage: trim_(pick_(rec, ['cover_image_url', 'Cover Image'])),
-    beds: trim_(pick_(rec, ['beds', 'Beds', 'Bedrooms'])),
-    baths: trim_(pick_(rec, ['baths', 'Baths', 'Bathrooms'])),
-    sqFt: trim_(pick_(rec, ['sq_ft', 'Sq Ft', 'Square Footage', 'Square Feet'])),
-    listPrice: trim_(pick_(rec, ['list_price'])),
-    listDate: trim_(pick_(rec, ['list_date'])),
-    underContractDate: trim_(pick_(rec, ['under_contract_date'])),
-    closedDate: trim_(pick_(rec, ['closed_date'])),
-    mlsNumber: trim_(pick_(rec, ['mls_number'])),
     notes: trim_(pick_(rec, ['notes'])),
+    compassLink: trim_(pick_(rec, [
+      'compass_link',
+      'Compass Link',
+      'compass_url',
+      'Compass URL',
+      'listing_url',
+      'Listing URL',
+      'listing_link',
+      'Listing Link'
+    ])),
+    compass_link: trim_(pick_(rec, ['compass_link'])),
 
     // ── Capture assets (URLs) ─────────────────────────────────────────────
     photos: trim_(pick_(rec, ['photos_url', 'Photos', 'Photos URL'])),
@@ -433,6 +1100,10 @@ function mapRecordToListing_(rec) {
     openHouseMaterialsStatus: trim_(pick_(rec, ['open_house_materials_status'])),
     openHouseMaterialsRequestedAt: trim_(pick_(rec, ['open_house_materials_requested_at'])),
     openHouseMaterialsDeliveredAt: trim_(pick_(rec, ['open_house_materials_delivered_at'])),
+    openHouses: safeJsonParseArray_(pick_(rec, ['open_houses', 'idx_open_houses', 'idx_open_house_schedule'])),
+    nextOpenHouseDate: trim_(pick_(rec, ['next_open_house_date', 'nextOpenHouseDate', 'idx_next_open_house_date'])),
+    nextOpenHouseStart: trim_(pick_(rec, ['next_open_house_start', 'nextOpenHouseStart', 'idx_next_open_house_start'])),
+    nextOpenHouseEnd: trim_(pick_(rec, ['next_open_house_end', 'nextOpenHouseEnd', 'idx_next_open_house_end'])),
     marketingRequests: safeJsonParseArray_(pick_(rec, ['marketing_requests'])),
     marketingStatus: trim_(pick_(rec, ['marketing_status'])),
 
@@ -440,13 +1111,38 @@ function mapRecordToListing_(rec) {
     sellerName: trim_(pick_(rec, ['seller_name', 'Seller Name', 'Seller'])),
     sellerEmail: trim_(pick_(rec, ['seller_email', 'Seller Email'])),
     sellerPhone: trim_(pick_(rec, ['seller_phone', 'Seller Phone'])),
-    sellerQuestionnaireContent: trim_(pick_(rec, ['seller_questionnaire_content'])),
-    sellerQuestionnaireAnswers: trim_(pick_(rec, ['seller_questionnaire_answers'])),
+    sellerQuestionnaireContent: trim_(pick_(rec, [
+      'seller_questionnaire_content',
+      'seller_questionnaire',
+      'Seller Questionnaire',
+      'questionnaire_content'
+    ])),
+    sellerQuestionnaireAnswers: trim_(pick_(rec, [
+      'seller_questionnaire_answers',
+      'questionnaire_answers',
+      'Seller Questionnaire Answers'
+    ])),
+    seller_questionnaire_answers: trim_(pick_(rec, ['seller_questionnaire_answers'])),
+    sellerQuestionnaireStatus: trim_(pick_(rec, ['seller_questionnaire_status'])),
     sellerQuestionnaireFormId: trim_(pick_(rec, ['seller_questionnaire_form_id'])),
+    sellerQuestionnaireFieldsJson: trim_(pick_(rec, ['seller_questionnaire_fields_json'])),
     sellerQuestionnaireLastSyncAt: trim_(pick_(rec, ['seller_questionnaire_last_sync_at'])),
     sellerQuestionnaireReceivedAt: trim_(pick_(rec, ['seller_questionnaire_received_at'])),
     sellerQuestionnaireSent: trim_(pick_(rec, ['seller_questionnaire_sent'])),
     sellerQuestionnaireSentAt: trim_(pick_(rec, ['seller_questionnaire_sent_at'])),
+    sellerFirstName: trim_(pick_(rec, ['seller_first_name'])),
+    sellerLastName: trim_(pick_(rec, ['seller_last_name'])),
+    propertyType: trim_(pick_(rec, ['property_type'])),
+    unitNumber: trim_(pick_(rec, ['unit_number'])),
+    bedrooms: trim_(pick_(rec, ['bedrooms'])),
+    bathrooms: trim_(pick_(rec, ['bathrooms'])),
+    parking: trim_(pick_(rec, ['parking'])),
+    storage: trim_(pick_(rec, ['storage'])),
+    hoaAssessment: trim_(pick_(rec, ['hoa_assessment'])),
+    rentalRestrictions: trim_(pick_(rec, ['rental_restrictions'])),
+    lockboxInfo: trim_(pick_(rec, ['lockbox_info'])),
+    showingInstructions: trim_(pick_(rec, ['showing_instructions'])),
+    preferredTiming: trim_(pick_(rec, ['preferred_timing'])),
 
     // ── Workflow + audit ──────────────────────────────────────────────────
     marketingActionPlanCompletedAt: trim_(pick_(rec, ['marketing_action_plan_completed_at'])),
@@ -463,7 +1159,36 @@ function mapRecordToListing_(rec) {
     integrationHealth: trim_(pick_(rec, ['intergation_health', 'integration_health'])),
     fubStage: trim_(pick_(rec, ['fub_stage'])),
     fubOpenTaskCount: trim_(pick_(rec, ['fub_open_task_count'])),
-    fubLastSyncAt: trim_(pick_(rec, ['fub_last_sync_at']))
+    fubLastSyncAt: trim_(pick_(rec, ['fub_last_sync_at'])),
+
+    // ── Public microsite overlay ───────────────────────────────────────────
+    micrositeSlug: trim_(pick_(rec, ['microsite_slug'])),
+    micrositeStatus: trim_(pick_(rec, ['microsite_status'])),
+    micrositeTemplate: trim_(pick_(rec, ['microsite_template'])),
+    publishedUrl: trim_(pick_(rec, ['published_url'])),
+    squarespacePageUrl: trim_(pick_(rec, ['squarespace_page_url'])),
+    squarespaceEmbedHtml: trim_(pick_(rec, ['squarespace_embed_html'])),
+    micrositeHeadline: trim_(pick_(rec, ['microsite_headline'])),
+    micrositeSubheadline: trim_(pick_(rec, ['microsite_subheadline'])),
+    micrositeOverview: trim_(pick_(rec, ['microsite_overview'])),
+    micrositeNeighborhood: trim_(pick_(rec, ['microsite_neighborhood'])),
+    micrositeLat: trim_(pick_(rec, ['microsite_lat'])),
+    micrositeLng: trim_(pick_(rec, ['microsite_lng'])),
+    heroImageUrl: trim_(pick_(rec, ['hero_image_url'])),
+    gallerySource: trim_(pick_(rec, ['gallery_source'])),
+    galleryFolderUrl: trim_(pick_(rec, ['gallery_folder_url'])),
+    galleryJson: trim_(pick_(rec, ['gallery_json'])),
+    micrositeHighlightsJson: trim_(pick_(rec, ['microsite_highlights_json'])),
+    micrositeDetailsJson: trim_(pick_(rec, ['microsite_details_json'])),
+    micrositeCuratedPlacesJson: trim_(pick_(rec, ['microsite_curated_places_json'])),
+    micrositeSeoTitle: trim_(pick_(rec, ['microsite_seo_title'])),
+    micrositeSeoDescription: trim_(pick_(rec, ['microsite_seo_description'])),
+    micrositeOgImageUrl: trim_(pick_(rec, ['microsite_og_image_url'])),
+    publishReady: trim_(pick_(rec, ['publish_ready'])),
+    missingAssets: trim_(pick_(rec, ['missing_assets'])),
+    lastPreviewedAt: trim_(pick_(rec, ['last_previewed_at'])),
+    lastPublishedAt: trim_(pick_(rec, ['last_published_at'])),
+    micrositeSyncedAt: trim_(pick_(rec, ['synced_at']))
   };
 }
 
@@ -497,18 +1222,120 @@ function safeJsonParseArray_(raw) {
   }
 }
 
+function lhSlugify_(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/#/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function lhSlugWithoutUnitWords_(value) {
+  return lhSlugify_(value)
+    .replace(/-(unit|apt|apartment|suite|ste)-/g, '-')
+    .replace(/-(unit|apt|apartment|suite|ste)-?$/g, '')
+    .replace(/^-+|-+$/g, '');
+}
+
+function listingSlugMatches_(listing, slug) {
+  var target = lhSlugify_(slug);
+  var targetLoose = lhSlugWithoutUnitWords_(slug);
+  var candidates;
+  var i;
+  if (!listing || !target) return false;
+  candidates = [
+    listing.micrositeSlug,
+    listing.address,
+    listing.address + ' ' + (listing.mlsUnitNumber || '')
+  ];
+  for (i = 0; i < candidates.length; i++) {
+    if (lhSlugify_(candidates[i]) === target) return true;
+    if (targetLoose && lhSlugWithoutUnitWords_(candidates[i]) === targetLoose) return true;
+  }
+  return false;
+}
+
 function findListingByParams_(p) {
+  var slug = trim_(p && p.slug);
   var address = trim_(p && p.address);
+  if (!address && !slug) return null;
+  if (slug) {
+    var allForSlug = getListings_();
+    for (var si = 0; si < allForSlug.length; si++) {
+      if (listingSlugMatches_(allForSlug[si], slug)) return allForSlug[si];
+    }
+  }
   if (!address) return null;
-  var norm = normalizeAddress_(address), all = getListings_(), i;
-  for (i = 0; i < all.length; i++) if (normalizeAddress_(all[i].address) === norm) return all[i];
-  return null;
+  var norm = listingAddressMatchKey_(address) || normalizeAddress_(address);
+  var all = getListings_();
+  var i, rowNorm, legacy, rowLegacy, best, bestScore, score;
+  for (i = 0; i < all.length; i++) {
+    rowNorm = listingAddressMatchKey_(all[i].address) || normalizeAddress_(all[i].address);
+    if (rowNorm === norm) return all[i];
+  }
+  legacy = normalizeAddress_(address);
+  best = null;
+  bestScore = 0;
+  for (i = 0; i < all.length; i++) {
+    rowNorm = listingAddressMatchKey_(all[i].address) || '';
+    rowLegacy = normalizeAddress_(all[i].address);
+    score = Math.max(
+      idxAddressMatchScore_(norm, rowNorm),
+      idxAddressMatchScore_(legacy, rowLegacy)
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      best = all[i];
+    }
+  }
+  return bestScore >= 0.78 ? best : null;
 }
 function findSingleListingPayload_(p) { var l = findListingByParams_(p || {}); return l ? { success: true, listing: l } : { success: false, error: 'Listing not found' }; }
+
+function findListingDebugPayload_(p) {
+  var slug = trim_(p && p.slug);
+  var address = trim_(p && p.address);
+  var all = getListings_();
+  var match = findListingByParams_(p || {});
+  var needle = listingAddressMatchKey_(address) || normalizeAddress_(address || slug);
+  var legacy = normalizeAddress_(address || slug);
+  var candidates = [];
+  var i, rowNorm, rowLegacy, score;
+  for (i = 0; i < all.length; i++) {
+    rowNorm = listingAddressMatchKey_(all[i].address) || '';
+    rowLegacy = normalizeAddress_(all[i].address);
+    score = Math.max(
+      idxAddressMatchScore_(needle, rowNorm),
+      idxAddressMatchScore_(legacy, rowLegacy),
+      listingSlugMatches_(all[i], slug) ? 1 : 0
+    );
+    if (score >= 0.45) {
+      candidates.push({
+        address: all[i].address,
+        slug: all[i].micrositeSlug || lhSlugify_(all[i].address),
+        status: all[i].status || all[i].idxMlsStatus || '',
+        score: score
+      });
+    }
+  }
+  candidates.sort(function (a, b) { return b.score - a.score; });
+  return {
+    success: !!match,
+    query: { slug: slug, address: address, normalizedAddress: needle },
+    match: match ? {
+      address: match.address,
+      slug: match.micrositeSlug || lhSlugify_(match.address),
+      status: match.status || match.idxMlsStatus || ''
+    } : null,
+    candidates: candidates.slice(0, 20)
+  };
+}
 function listingPhotosPayload_(p) {
   var l = findListingByParams_(p || {});
   if (!l) return { success: false, error: 'Listing not found', photos: [] };
-  var folderId = extractDriveFolderId_(l.photos), photos = [];
+  var folderId = extractDriveFolderId_(l.galleryFolderUrl || l.photos), photos = [];
   if (folderId) try {
     var folder = DriveApp.getFolderById(folderId), files = folder.getFiles();
     while (files.hasNext() && photos.length < 100) {
@@ -524,9 +1351,21 @@ function listingOpsPayload_(p) {
   return { success: true, listing: l, statusRoadmap: [{ key: 'prelisting', label: 'Pre-Listing', tasks: [{ key: 'photos', label: 'Photos', state: l.photosStatus || 'Not scheduled' }, { key: 'marketing', label: 'Marketing', state: l.marketingStatus || 'Not started' }, { key: 'questionnaire', label: 'Seller Questionnaire', state: l.sellerQuestionnaireContent ? 'Received' : 'Pending' }] }, { key: 'live', label: 'Live', tasks: [] }, { key: 'undercontract', label: 'Under Contract', tasks: [] }, { key: 'closed', label: 'Closed', tasks: [] }] };
 }
 function embedSnippetPayload_(p) { var l = findListingByParams_(p || {}); if (!l) return { success: false, error: 'Listing not found' }; var url = buildListingDetailUrl_(l.address); return { success: true, address: l.address, url: url, html: '<iframe src="' + htmlEsc_(url) + '" style="width:100%;min-height:980px;border:0;" loading="lazy"></iframe>' }; }
+function micrositeEmbedSnippetPayload_(p) {
+  var l = findListingByParams_(p || {});
+  if (!l) return { success: false, error: 'Listing not found' };
+  var url = buildListingMicrositeUrl_(l);
+  return {
+    success: true,
+    address: l.address,
+    slug: l.micrositeSlug || lhSlugify_(l.address),
+    url: url,
+    html: '<iframe src="' + htmlEsc_(url) + '" style="width:100%;min-height:1400px;border:0;" loading="lazy"></iframe>'
+  };
+}
 function serveListingDetailPage_(p) {
   var one = findSingleListingPayload_(p || {});
-  if (!one.success) return HtmlService.createHtmlOutput('Listing not found');
+  if (!one.success) return framedHtmlOutput_('Listing not found');
   var l = one.listing, t = HtmlService.createTemplateFromFile('ListingDetailPage');
   t.listingJson = JSON.stringify(l);
   t.opsJson = JSON.stringify(listingOpsPayload_({ address: l.address }));
@@ -535,7 +1374,35 @@ function serveListingDetailPage_(p) {
   t.detailUrl = buildListingDetailUrl_(l.address);
   t.agentsJson = getAgentDirectoryJson_();
   t.defaultShareNote = LISTING_ASSETS_EMAIL_DEFAULT_NOTE;
-  return t.evaluate().setTitle(l.address || 'Listing HQ');
+  return allowFrame_(t.evaluate().setTitle(l.address || 'Listing HQ'));
+}
+
+function serveListingMicrositePage_(p) {
+  var one = findSingleListingPayload_(p || {});
+  if (!one.success) return framedHtmlOutput_('Listing not found');
+  var l = one.listing;
+  var status = normalizeStatusKey_(l.micrositeStatus || '');
+  if (status === 'paused' || status === 'archived') {
+    return framedHtmlOutput_('This listing microsite is not currently available.');
+  }
+  var t = HtmlService.createTemplateFromFile('ListingMicrositePage');
+  t.listingJson = JSON.stringify(l);
+  t.opsJson = JSON.stringify(listingOpsPayload_({ address: l.address }));
+  t.photosJson = JSON.stringify(listingPhotosPayload_({ address: l.address }).photos || []);
+  t.agentsJson = getAgentDirectoryJson_();
+  t.micrositeUrl = buildListingMicrositeUrl_(l);
+  t.defaultListingsApi = getPublicWebAppUrl_();
+  return allowFrame_(t.evaluate()
+    .setTitle(l.micrositeSeoTitle || l.micrositeHeadline || l.address || 'Listing')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1'));
+}
+
+function allowFrame_(output) {
+  return output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function framedHtmlOutput_(html) {
+  return allowFrame_(HtmlService.createHtmlOutput(html));
 }
 
 function sendListingEmail_(d) {
@@ -754,7 +1621,382 @@ function buildListingAssetsEmailHtml_(hiName, address, photosUrl, walkthroughUrl
   );
 }
 function notifyOpenHouseRequest_(d) { var a = trim_(d.address), r = gatherRecipients_([]); GmailApp.sendEmail(r[0], 'Open house requested: ' + a, '', { htmlBody: '<p>Open house requested for <strong>' + htmlEsc_(a) + '</strong>.</p>', cc: r.slice(1).join(',') }); return { success: true, address: a }; }
-function handleQuestionnaireComplete_(d) { var a = trim_(d.address), nowIso = new Date().toISOString(); var res = updateListingRowByAddress_(a, { seller_questionnaire_content: trim_(d.content || d.seller_questionnaire_content), seller_questionnaire_last_sync_at: nowIso }); return res.success ? { success: true, address: a, updated: true } : res; }
+function handleQuestionnaireComplete_(d) {
+  var nowIso = new Date().toISOString();
+  var payload = questionnairePayloadFromData_(d || {}, nowIso);
+  var marketing = upsertMarketingQuestionnaireRow_(payload);
+  var listings = updateListingRowByAddress_(payload.address, {
+    seller_questionnaire_content: payload.content,
+    seller_questionnaire_received_at: payload.receivedAt,
+    seller_questionnaire_last_sync_at: nowIso
+  });
+  return {
+    success: marketing.success,
+    address: payload.address,
+    marketingRow: marketing.row,
+    marketingCreated: !!marketing.created,
+    listingsUpdated: !!listings.success,
+    listingsMessage: listings.success ? '' : listings.error
+  };
+}
+function questionnairePayloadFromData_(d, nowIso) {
+  var content = trim_(d.content || d.seller_questionnaire_content || d.seller_questionnaire_answers || '');
+  var contact = extractSellerContact_(content);
+  var fields = questionnaireFieldsFromText_(content);
+  var address = formatQuestionnaireMarketingAddress_(d.address || d.property_address || d.listing_address || extractQuestionnaireAddress_(content));
+  return {
+    address: address,
+    content: content,
+    answers: trim_(d.answers || d.seller_questionnaire_answers || content),
+    fields: fields,
+    agentName: trim_(d.agent_name || d.agentName || extractQuestionnaireAgent_(content)),
+    sellerName: trim_(d.seller_name || d.sellerName || contact.name || [fields.seller_first_name, fields.seller_last_name].filter(Boolean).join(' ')),
+    sellerEmail: trim_(d.seller_email || d.sellerEmail || contact.email),
+    sellerPhone: trim_(d.seller_phone || d.sellerPhone || contact.phone),
+    formId: trim_(d.form_id || d.seller_questionnaire_form_id),
+    messageId: trim_(d.message_id || d.gmail_message_id),
+    receivedAt: trim_(d.received_at || d.seller_questionnaire_received_at || nowIso),
+    source: trim_(d.source || 'webhook')
+  };
+}
+function upsertMarketingQuestionnaireRow_(payload) {
+  payload = payload || {};
+  var address = formatQuestionnaireMarketingAddress_(payload.address);
+  if (!address) return { success: false, error: 'Missing questionnaire address' };
+  var fields = payload.fields || questionnaireFieldsFromText_(payload.content || payload.answers || '');
+  var sh = idxEnsureOverlaySheet_(MARKETING_SHEET_NAME, IDX_MARKETING_HEADERS);
+  var values = sh.getDataRange().getValues();
+  var headers = values[0].map(function (h) { return String(h || '').trim(); });
+  var idx = idxOverlayHeaderIndex_(headers);
+  var addressKey = idxNormalizeAddressForMatch_(address) || normalizeAddress_(address);
+  var rowNum = findPreMlsMarketingRowByAddressKey_(values, idx, addressKey);
+  var firstClosedRow = firstClosedMarketingRow_(values, idx);
+  var created = false;
+  if (rowNum < 0) {
+    rowNum = firstClosedRow;
+    if (rowNum > 1) sh.insertRowBefore(rowNum);
+    else {
+      rowNum = sh.getLastRow() + 1;
+      sh.insertRowAfter(Math.max(1, sh.getLastRow()));
+    }
+    created = true;
+  } else if (firstClosedRow > 1 && rowNum > firstClosedRow) {
+    rowNum = moveMarketingRowBefore_(sh, rowNum, firstClosedRow);
+  }
+  var nowIso = new Date().toISOString();
+  var updates = {
+    address: address,
+    address_key: addressKey,
+    status: 'Pre Listing',
+    agent_name: trim_(payload.agentName),
+    deal_stage: 'Pre Listing',
+    seller_questionnaire_status: 'Received',
+    seller_questionnaire_received_at: trim_(payload.receivedAt) || nowIso,
+    seller_questionnaire_content: trim_(payload.content),
+    seller_questionnaire_answers: trim_(payload.answers || payload.content),
+    seller_questionnaire_form_id: trim_(payload.formId),
+    seller_questionnaire_message_id: trim_(payload.messageId),
+    seller_questionnaire_last_sync_at: nowIso,
+    seller_name: trim_(payload.sellerName),
+    seller_email: trim_(payload.sellerEmail),
+    seller_phone: trim_(payload.sellerPhone),
+    seller_questionnaire_fields_json: JSON.stringify(fields),
+    seller_first_name: trim_(fields.seller_first_name),
+    seller_last_name: trim_(fields.seller_last_name),
+    property_type: trim_(fields.property_type),
+    unit_number: trim_(fields.unit_number),
+    bedrooms: trim_(fields.bedrooms),
+    bathrooms: trim_(fields.bathrooms),
+    parking: trim_(fields.parking),
+    storage: trim_(fields.storage),
+    hoa_assessment: trim_(fields.hoa_assessment),
+    rental_restrictions: trim_(fields.rental_restrictions),
+    lockbox_info: trim_(fields.lockbox_info),
+    showing_instructions: trim_(fields.showing_instructions),
+    preferred_timing: trim_(fields.preferred_timing),
+    marketing_status: 'Pre Listing',
+    last_updated_at: nowIso,
+    last_updated_by: trim_(payload.source) || 'seller_questionnaire_email'
+  };
+  writeMarketingRowUpdates_(sh, headers, rowNum, updates, created);
+  SpreadsheetApp.flush();
+  return { success: true, row: rowNum, created: created, address: address, fields: fields };
+}
+function moveMarketingRowBefore_(sh, sourceRow, beforeRow) {
+  if (!sh || sourceRow <= 1 || beforeRow <= 1 || sourceRow <= beforeRow) return sourceRow;
+  var lastCol = sh.getLastColumn();
+  var rowValues = sh.getRange(sourceRow, 1, 1, lastCol).getValues();
+  sh.insertRowBefore(beforeRow);
+  sh.getRange(beforeRow, 1, 1, lastCol).setValues(rowValues);
+  sh.deleteRow(sourceRow + 1);
+  return beforeRow;
+}
+function firstClosedMarketingRow_(values, idx) {
+  if (!values || values.length < 2) return -1;
+  var feedCol = idx.feed;
+  var statusCol = idx.status;
+  var dealCol = idx.deal_stage;
+  var marketingCol = idx.marketing_status;
+  var r, statusText;
+  for (r = 1; r < values.length; r++) {
+    statusText = [
+      feedCol == null ? '' : values[r][feedCol],
+      statusCol == null ? '' : values[r][statusCol],
+      dealCol == null ? '' : values[r][dealCol],
+      marketingCol == null ? '' : values[r][marketingCol]
+    ].join(' ');
+    if (marketingStatusLooksClosed_(statusText)) return r + 1;
+  }
+  return -1;
+}
+function marketingStatusLooksClosed_(statusText) {
+  var key = normalizeStatusKey_(statusText);
+  if (!key) return false;
+  if (idxSheetStatusLooksClosed_(statusText)) return true;
+  return /soldpending|sold|closed|clsd|cancel|withdraw|expired|offmarket/.test(key);
+}
+function findPreMlsMarketingRowByAddressKey_(values, idx, addressKey) {
+  if (!addressKey || !values || values.length < 2) return -1;
+  var addressKeyCol = idx.address_key;
+  var addressCol = idx.address;
+  var idCols = [idx.idx_key, idx.listing_id, idx.mls_number];
+  var r, i, hasIdentity, rowKey;
+  for (r = 1; r < values.length; r++) {
+    hasIdentity = false;
+    for (i = 0; i < idCols.length; i++) {
+      if (idCols[i] != null && trim_(values[r][idCols[i]])) {
+        hasIdentity = true;
+        break;
+      }
+    }
+    if (hasIdentity) continue;
+    rowKey = addressKeyCol == null ? '' : trim_(values[r][addressKeyCol]);
+    if (!rowKey && addressCol != null) rowKey = idxNormalizeAddressForMatch_(values[r][addressCol]) || normalizeAddress_(values[r][addressCol]);
+    if (rowKey === addressKey) return r + 1;
+  }
+  return -1;
+}
+function writeMarketingRowUpdates_(sh, headers, rowNum, updates, fillDefaults) {
+  var idx = idxOverlayHeaderIndex_(headers);
+  var defaults = fillDefaults ? idxBuildMarketingDefaults_({}, {}) : {};
+  var key, col, value;
+  for (key in defaults) {
+    if (!defaults.hasOwnProperty(key)) continue;
+    col = idx[key];
+    if (col != null && trim_(sh.getRange(rowNum, col + 1).getValue()) === '') sh.getRange(rowNum, col + 1).setValue(defaults[key]);
+  }
+  for (key in updates) {
+    if (!updates.hasOwnProperty(key)) continue;
+    col = idx[key];
+    if (col == null) continue;
+    value = updates[key];
+    if (value !== null && value !== undefined && String(value) !== '') sh.getRange(rowNum, col + 1).setValue(value);
+  }
+}
+function extractQuestionnaireAddress_(text) {
+  var s = String(text || '');
+  return formatQuestionnaireMarketingAddress_(questionnaireLabeledValue_(s, [
+    'property address',
+    'listing address',
+    'address',
+    'home address'
+  ]));
+}
+function extractQuestionnaireAddressFromSubject_(subject) {
+  var s = trim_(subject);
+  if (!s) return '';
+  var m = s.match(/\]\s*(.+)$/);
+  if (m && m[1]) return formatQuestionnaireMarketingAddress_(m[1]);
+  m = s.match(/seller\s+questionnaire\s+(.+)$/i);
+  return m && m[1] ? formatQuestionnaireMarketingAddress_(m[1]) : '';
+}
+function formatQuestionnaireMarketingAddress_(address) {
+  var s = trim_(address);
+  if (!s) return '';
+  s = s.replace(/\s+/g, ' ').trim();
+  s = s.replace(/,\s*(?:Chicago|CHICAGO)\s*,?\s*(?:IL|Illinois)?\s*\d{5}(?:-\d{4})?\s*$/i, '');
+  s = s.replace(/,\s*(?:IL|Illinois)\s*\d{5}(?:-\d{4})?\s*$/i, '');
+  s = s.replace(/\s+(?:Chicago|CHICAGO)\s*,?\s*(?:IL|Illinois)?\s*\d{5}(?:-\d{4})?\s*$/i, '');
+  s = s.replace(/,\s*(?:Chicago|CHICAGO)\s*$/i, '');
+  s = s.replace(/\b(unit|apt|apartment|suite|ste)\s*#?\s*([A-Za-z0-9-]+)\b/i, '#$2');
+  s = s.replace(/\s+#/g, ', #');
+  s = s.replace(/,\s*,+/g, ', ');
+  s = s.replace(/\s+,/g, ',');
+  s = s.replace(/,\s*$/g, '');
+  s = s.replace(/\s+/g, ' ').trim();
+  return s;
+}
+function extractQuestionnaireAgent_(text) {
+  var s = String(text || '');
+  var m = s.match(/submitted\s+through\s+(.+?)\s*-\s*seller\s+questionnaire/i);
+  if (m && m[1]) return trim_(m[1]);
+  m = s.match(/submitted\s+through\s+(.+?)\s+seller\s+questionnaire/i);
+  return m && m[1] ? trim_(m[1]) : '';
+}
+function questionnaireLabeledValue_(text, labels) {
+  var lines = String(text || '').split(/\r?\n/);
+  var i, j, k, line, next, label, rgx, m;
+  for (i = 0; i < lines.length; i++) {
+    line = String(lines[i] || '').replace(/\s+/g, ' ').trim();
+    if (!line) continue;
+    for (j = 0; j < labels.length; j++) {
+      label = labels[j].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      rgx = new RegExp('^' + label + '\\s*[:\\-]\\s*(.+)$', 'i');
+      m = line.match(rgx);
+      if (m && m[1]) return trim_(m[1]);
+      rgx = new RegExp('^' + label + '\\s*[:\\-]?\\s*$', 'i');
+      if (rgx.test(line)) {
+        for (k = i + 1; k < Math.min(lines.length, i + 4); k++) {
+          next = String(lines[k] || '').replace(/\s+/g, ' ').trim();
+          if (next) return next;
+        }
+      }
+    }
+  }
+  return '';
+}
+function questionnaireFieldsFromText_(text) {
+  var s = String(text || '');
+  var specs = [
+    { key: 'seller_first_name', labels: ['seller firstname', 'seller first name', 'first name'] },
+    { key: 'seller_last_name', labels: ['seller lastname', 'seller last name', 'last name'] },
+    { key: 'agent_name', labels: ['agent name', 'listing agent', 'agent'] },
+    { key: 'property_address', labels: ['property address', 'listing address', 'address', 'home address'] },
+    { key: 'property_type', labels: ['property type', 'type of property', 'what type of property is this'] },
+    { key: 'unit_number', labels: ['unit number', 'unit #', 'unit'] },
+    { key: 'bedrooms', labels: ['bedrooms', 'beds', 'number of bedrooms'] },
+    { key: 'bathrooms', labels: ['bathrooms', 'baths', 'number of bathrooms'] },
+    { key: 'parking', labels: ['parking', 'parking information', 'parking info', 'garage parking'] },
+    { key: 'storage', labels: ['storage', 'storage information', 'storage info'] },
+    { key: 'hoa_assessment', labels: ['hoa', 'hoa assessment', 'monthly assessment', 'assessment', 'assessments'] },
+    { key: 'rental_restrictions', labels: ['rental restrictions', 'rental restriction', 'rentals allowed', 'rental cap'] },
+    { key: 'lockbox_info', labels: ['lockbox', 'lockbox info', 'lockbox information', 'lock box'] },
+    { key: 'showing_instructions', labels: ['showing instructions', 'access instructions', 'access info'] },
+    { key: 'preferred_timing', labels: ['preferred timing', 'preferred timeline', 'when would you like to go live', 'go live', 'timeline'] }
+  ];
+  var out = {};
+  var i, val;
+  for (i = 0; i < specs.length; i++) {
+    val = questionnaireLabeledValue_(s, specs[i].labels);
+    if (val) out[specs[i].key] = val;
+  }
+  return out;
+}
+function installSellerQuestionnaireEmailTrigger() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var i;
+  for (i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'ingestSellerQuestionnaireEmails') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger('ingestSellerQuestionnaireEmails').timeBased().everyMinutes(5).create();
+  return { success: true, message: 'Installed 5-minute seller questionnaire email importer.' };
+}
+function ingestSellerQuestionnaireEmails() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return { success: false, error: 'Questionnaire email import already running' };
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var query = trim_(props.getProperty('SELLER_QUESTIONNAIRE_GMAIL_QUERY')) || SELLER_QUESTIONNAIRE_DEFAULT_GMAIL_QUERY;
+    var maxThreads = Number(props.getProperty('SELLER_QUESTIONNAIRE_MAX_THREADS') || '25');
+    var label = GmailApp.getUserLabelByName(SELLER_QUESTIONNAIRE_IMPORTED_LABEL) || GmailApp.createLabel(SELLER_QUESTIONNAIRE_IMPORTED_LABEL);
+    var threads = GmailApp.search(query, 0, Math.max(1, Math.min(maxThreads, 100)));
+    var imported = 0;
+    var skipped = 0;
+    var errors = [];
+    var importedRows = [];
+    var scannedSubjects = [];
+    var messagesSeen = 0;
+    var noAddress = 0;
+    var t, messages, m, parsed, res, threadImported, subject;
+    for (t = 0; t < threads.length; t++) {
+      threadImported = false;
+      messages = threads[t].getMessages();
+      for (m = 0; m < messages.length; m++) {
+        messagesSeen++;
+        subject = trim_(messages[m].getSubject && messages[m].getSubject());
+        if (subject && scannedSubjects.length < 10) scannedSubjects.push(subject);
+        parsed = questionnairePayloadFromGmailMessage_(messages[m]);
+        if (!parsed.address) {
+          noAddress++;
+          skipped++;
+          continue;
+        }
+        res = upsertMarketingQuestionnaireRow_(parsed);
+        if (res.success) {
+          imported++;
+          threadImported = true;
+          importedRows.push({ row: res.row, address: res.address, created: res.created });
+        }
+        else errors.push(res.error || ('Failed to import ' + messages[m].getId()));
+      }
+      if (threadImported) threads[t].addLabel(label);
+    }
+    return {
+      success: errors.length === 0,
+      query: query,
+      scannedThreads: threads.length,
+      messagesSeen: messagesSeen,
+      imported: imported,
+      skipped: skipped,
+      noAddress: noAddress,
+      importedRows: importedRows,
+      scannedSubjects: scannedSubjects,
+      errors: errors.slice(0, 10)
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+function debugMarketingQuestionnaireRows() {
+  var sh = idxEnsureOverlaySheet_(MARKETING_SHEET_NAME, IDX_MARKETING_HEADERS);
+  var values = sh.getDataRange().getValues();
+  if (values.length < 2) return { success: true, rows: [] };
+  var headers = values[0].map(function (h) { return String(h || '').trim(); });
+  var idx = idxOverlayHeaderIndex_(headers);
+  var out = [];
+  var r, address, status, questionnaireStatus, updated;
+  for (r = 1; r < values.length; r++) {
+    questionnaireStatus = idx.seller_questionnaire_status == null ? '' : trim_(values[r][idx.seller_questionnaire_status]);
+    if (!questionnaireStatus) continue;
+    address = idx.address == null ? '' : trim_(values[r][idx.address]);
+    status = idx.status == null ? '' : trim_(values[r][idx.status]);
+    updated = idx.last_updated_at == null ? '' : trim_(values[r][idx.last_updated_at]);
+    out.push({ row: r + 1, address: address, status: status, questionnaireStatus: questionnaireStatus, lastUpdatedAt: updated });
+  }
+  return { success: true, count: out.length, rows: out.slice(-25) };
+}
+function questionnairePayloadFromGmailMessage_(msg) {
+  var plain = trim_(msg.getPlainBody && msg.getPlainBody()) || stripHtml_(msg.getBody && msg.getBody());
+  var subject = trim_(msg.getSubject && msg.getSubject());
+  var from = trim_(msg.getFrom && msg.getFrom());
+  var contact = extractSellerContact_(plain);
+  var fields = questionnaireFieldsFromText_(plain);
+  var agentName = extractQuestionnaireAgent_(plain) || fields.agent_name;
+  var address = formatQuestionnaireMarketingAddress_(
+    extractQuestionnaireAddress_(plain) ||
+    extractQuestionnaireAddress_(subject) ||
+    extractQuestionnaireAddressFromSubject_(subject)
+  );
+  return {
+    address: address,
+    content: plain,
+    answers: plain,
+    fields: fields,
+    agentName: agentName,
+    sellerName: contact.name || trim_([fields.seller_first_name, fields.seller_last_name].filter(Boolean).join(' ')),
+    sellerEmail: contact.email || extractEmailFromHeader_(from),
+    sellerPhone: contact.phone,
+    messageId: msg.getId(),
+    receivedAt: msg.getDate() ? msg.getDate().toISOString() : new Date().toISOString(),
+    source: 'seller_questionnaire_email'
+  };
+}
+function extractEmailFromHeader_(value) {
+  var m = String(value || '').match(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/);
+  return m ? m[0] : '';
+}
 function createMarketingKickoffTask_(d) { return { success: true, queued: true, address: trim_(d.address) }; }
 function upsertAcuityBookingToSheet_(d) { return updateListingRowByAddress_(trim_(d.address), { photos_status: trim_(d.photos_status || d.status || 'Scheduled'), photos_datetime: trim_(d.photos_datetime || d.datetime), photos_booking_id: trim_(d.photos_booking_id || d.booking_id), photos_booking_url: trim_(d.photos_booking_url || d.booking_url) }); }
 function upsertAsanaToSheet_(d) { return updateListingRowByAddress_(trim_(d.address), { asana_task_id: trim_(d.asana_task_id || d.task_gid), asana_project_gid: trim_(d.asana_project_gid || d.project_gid), asana_open_tasks_count: numOrBlank_(d.asana_open_tasks_count), asana_done_tasks_count: numOrBlank_(d.asana_done_tasks_count), marketing_status: trim_(d.marketing_status), seller_questionnaire_content: trim_(d.seller_questionnaire_content), seller_questionnaire_last_sync_at: trim_(d.seller_questionnaire_content ? new Date().toISOString() : ''), asana_last_sync_at: new Date().toISOString() }); }
@@ -896,8 +2138,13 @@ function extractSellerContact_(text) {
     return m && m[1] ? trim_(m[1]).replace(/[\r\n].*$/, '') : '';
   }
   out.name = findLabeled(/(?:seller(?:'s)?\s*name|owner\s*name|full\s*name|^name)\s*[:\-]\s*([^\r\n]+)/i);
-  out.email = findLabeled(/email(?:\s*address)?\s*[:\-]\s*([^\s,;]+@[^\s,;]+)/i);
-  out.phone = findLabeled(/(?:phone|mobile|cell)(?:\s*number)?\s*[:\-]\s*([+\d][\d\s().\-]{6,})/i);
+  if (!out.name) {
+    var first = questionnaireLabeledValue_(s, ['seller first name', 'seller firstname']);
+    var last = questionnaireLabeledValue_(s, ['seller last name', 'seller lastname']);
+    out.name = trim_([first, last].filter(Boolean).join(' '));
+  }
+  out.email = findLabeled(/email(?:\s*address)?\s*[:\-]\s*([^\s,;]+@[^\s,;]+)/i) || questionnaireLabeledValue_(s, ['email address', 'email']);
+  out.phone = findLabeled(/(?:phone|mobile|cell)(?:\s*number)?\s*[:\-]\s*([+\d][\d\s().\-]{6,})/i) || questionnaireLabeledValue_(s, ['phone number', 'phone', 'mobile', 'cell']);
   if (!out.email) {
     var em = s.match(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/);
     if (em) out.email = em[0];
@@ -939,7 +2186,25 @@ function verifyWebhookSecret_(provided) { var expected = trim_(PropertiesService
 function gatherRecipients_(arr) { var x = CC_EMAILS.slice(0), extra = String(PropertiesService.getScriptProperties().getProperty('LISTING_NOTIFY_EMAILS') || '').split(','), i; for (i = 0; i < extra.length; i++) { var e = trim_(extra[i]); if (e) x.push(e); } return uniqueStrings_(x.concat(arr || [])); }
 function updateListingRowByAddress_(address, updates) { var sh = getListingsSheet_(); if (!sh) return { success: false, error: 'Listings sheet not found' }; var values = sh.getDataRange().getValues(); if (values.length < 2) return { success: false, error: 'Listings empty' }; var h = values[0], idxAddress = indexOfHeader_(h, 'Address'); if (idxAddress === -1) return { success: false, error: 'Address column not found' }; var target = normalizeAddress_(address), r, key; for (r = 1; r < values.length; r++) { if (normalizeAddress_(values[r][idxAddress]) !== target) continue; for (key in updates) if (updates.hasOwnProperty(key)) { var idx = indexOfHeader_(h, key); if (idx !== -1 && String(updates[key]) !== '') sh.getRange(r + 1, idx + 1).setValue(updates[key]); } return { success: true, row: r + 1 }; } return { success: false, error: 'Address not found: ' + address }; }
 function markEmailAsSent_(address) { updateListingRowByAddress_(address, { 'Email Sent': true }); }
-function isClosedListing_(item) { if (!item) return true; if (item.archived) return true; var st = normalizeStatusKey_(item.status || item.phaseKey); return !!STATUS_CLOSED[st]; }
+function isClosedListing_(item) {
+  if (!item) return true;
+  if (item.archived) return true;
+  var st = normalizeStatusKey_(item.status || item.phaseKey || item.idxMlsStatus || '');
+  if (!st) return false;
+  if (STATUS_CLOSED[st]) return true;
+  if (st.indexOf('sold') >= 0) return true;
+  if (st.indexOf('closed') >= 0) return true;
+  if (st.indexOf('withdraw') >= 0) return true;
+  if (st.indexOf('expired') >= 0) return true;
+  if (st.indexOf('cancel') >= 0) return true;
+  if (st.indexOf('offmarket') >= 0) return true;
+  return false;
+}
+function isUnderContractListing_(item) {
+  if (!item || isClosedListing_(item)) return false;
+  var st = normalizeStatusKey_(item.status || item.phaseKey || item.idxMlsStatus || '');
+  return st.indexOf('undercontract') >= 0 || (st.indexOf('under') >= 0 && st.indexOf('contract') >= 0);
+}
 function normalizeCheckbox_(v) { if (v === true) return true; if (v === false) return false; v = String(v || '').toLowerCase(); return v === 'true' || v === 'yes' || v === '1'; }
 function normalizeStatusKey_(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function normalizeAddress_(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^\w\s]/g, '').trim(); }
@@ -948,6 +2213,16 @@ function scoreMatch_(a, b) { if (!a || !b) return 0; if (a === b) return 1; var 
 function shouldUseVisualMock_(p) { var q = String((p && p.mock) || '').toLowerCase(); if (q === '1' || q === 'true' || q === 'yes') return true; var prop = String(PropertiesService.getScriptProperties().getProperty('LISTING_DETAIL_VISUAL_MOCK') || '').toLowerCase(); return prop === '1' || prop === 'true' || prop === 'yes'; }
 function getPublicWebAppUrl_() { var u = trim_(PropertiesService.getScriptProperties().getProperty('LISTING_WEB_APP_URL')); if (u) return u; try { var s = ScriptApp.getService(); return s ? String(s.getUrl() || '') : ''; } catch (err) { return ''; } }
 function buildListingDetailUrl_(address) { var base = getPublicWebAppUrl_(); return base ? base + '?view=detailpage&address=' + encodeURIComponent(address || '') : ''; }
+function buildListingMicrositeUrl_(listingOrAddress) {
+  var base = getPublicWebAppUrl_();
+  if (!base) return '';
+  if (listingOrAddress && typeof listingOrAddress === 'object') {
+    var slug = trim_(listingOrAddress.micrositeSlug) || lhSlugify_(listingOrAddress.address || '');
+    if (slug) return base + '?view=microsite&slug=' + encodeURIComponent(slug);
+    return base + '?view=microsite&address=' + encodeURIComponent(listingOrAddress.address || '');
+  }
+  return base + '?view=microsite&address=' + encodeURIComponent(listingOrAddress || '');
+}
 function extractDriveFolderId_(url) { var s = String(url || ''), m = s.match(/\/folders\/([a-zA-Z0-9_-]+)/); if (m && m[1]) return m[1]; m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/); return m && m[1] ? m[1] : ''; }
 function pick_(obj, keys) {
   // Build a case-insensitive index of the record's keys once so the caller
@@ -1096,8 +2371,54 @@ function syncAsanaSingleAddress(address) {
   }
 }
 
-function syncDrivePhotosToListings() {
-  var PARENT_FOLDER_ID = '1FY64_Fe-jVDUIb6hWzwPFdo6fotm7Ztn';
+var DEFAULT_LISTING_PHOTOS_PARENT_FOLDER_ID = '1FY64_Fe-jVDUIb6hWzwPFdo6fotm7Ztn';
+
+function getListingPhotosParentFolderId_(override) {
+  var direct = extractDriveFolderId_(override) || trim_(override);
+  if (direct) return direct;
+  var props = PropertiesService.getScriptProperties();
+  return (
+    trim_(props.getProperty('MARKETING_PHOTOS_PARENT_FOLDER_ID')) ||
+    trim_(props.getProperty('LISTING_PHOTOS_PARENT_FOLDER_ID')) ||
+    DEFAULT_LISTING_PHOTOS_PARENT_FOLDER_ID
+  );
+}
+
+/** Collect address-named photo folders under a Drive parent (scans nested folders). */
+function collectDrivePhotoFolders_(parentFolderId, maxDepth) {
+  maxDepth = maxDepth == null ? 3 : Number(maxDepth);
+  var parent = DriveApp.getFolderById(parentFolderId);
+  var out = [];
+  var seen = {};
+
+  function walk(folder, depth, path) {
+    var subfolders = folder.getFolders();
+    while (subfolders.hasNext()) {
+      var sub = subfolders.next();
+      var name = trim_(sub.getName());
+      var nextPath = path ? path + ' / ' + name : name;
+      if (name && (looksLikeAddress_(name) || idxNormalizeAddressForMatch_(name))) {
+        if (!seen[sub.getId()]) {
+          seen[sub.getId()] = true;
+          out.push({
+            name: name,
+            path: nextPath,
+            folderId: sub.getId(),
+            url: sub.getUrl()
+          });
+        }
+      } else if (depth < maxDepth) {
+        walk(sub, depth + 1, nextPath);
+      }
+    }
+  }
+
+  walk(parent, 0, '');
+  return out;
+}
+
+function syncDrivePhotosToListings(parentFolderUrlOrId) {
+  var parentFolderId = getListingPhotosParentFolderId_(parentFolderUrlOrId);
   var sh = getListingsSheet_();
   if (!sh) return { success: false, error: 'Listings sheet not found' };
 
@@ -1117,36 +2438,180 @@ function syncDrivePhotosToListings() {
   for (r = 1; r < values.length; r++) {
     var key = normalizeAddress_(values[r][idxAddress]);
     if (key) rowByAddress[key] = r + 1;
+    var unitKey = idxNormalizeAddressForMatch_(values[r][idxAddress]);
+    if (unitKey) rowByAddress[unitKey] = r + 1;
   }
 
-  var parent = DriveApp.getFolderById(PARENT_FOLDER_ID);
-  var folders = parent.getFolders();
+  var folders = collectDrivePhotoFolders_(parentFolderId, 3);
   var updated = 0;
   var skipped = 0;
+  var unmatched = [];
+  var i, folderInfo, addressKey, rowNum;
 
-  while (folders.hasNext()) {
-    var folder = folders.next();
-    var rawName = trim_(folder.getName());
-    if (!rawName || !looksLikeAddress_(rawName)) {
-      skipped++;
-      continue;
-    }
-    var addressKey = normalizeAddress_(rawName);
-    var rowNum = rowByAddress[addressKey];
+  for (i = 0; i < folders.length; i++) {
+    folderInfo = folders[i];
+    addressKey = idxNormalizeAddressForMatch_(folderInfo.name) || normalizeAddress_(folderInfo.name);
+    rowNum = rowByAddress[addressKey] || rowByAddress[normalizeAddress_(folderInfo.name)];
     if (!rowNum) {
       skipped++;
+      unmatched.push({ folder: folderInfo.name, path: folderInfo.path, url: folderInfo.url });
       continue;
     }
 
-    sh.getRange(rowNum, idxPhotos + 1).setValue(folder.getUrl());
+    sh.getRange(rowNum, idxPhotos + 1).setValue(folderInfo.url);
     if (idxCover !== -1) {
-      var cover = getFirstImageUrl_(folder);
+      var cover = getFirstImageUrl_(DriveApp.getFolderById(folderInfo.folderId));
       if (cover) sh.getRange(rowNum, idxCover + 1).setValue(cover);
     }
     updated++;
   }
 
-  return { success: true, updatedRows: updated, skippedFolders: skipped };
+  return {
+    success: true,
+    parentFolderId: parentFolderId,
+    scannedFolders: folders.length,
+    updatedRows: updated,
+    skippedFolders: skipped,
+    unmatched: unmatched.slice(0, 50)
+  };
+}
+
+/**
+ * Match address-named Drive photo folders to Marketing rows and write photos_url.
+ *
+ * @param {string=} parentFolderUrlOrId Google Drive folder URL or ID.
+ * @param {Object=} options
+ * @param {boolean=} options.onlyEmpty Only fill blank photos_url cells (default false for migrate).
+ * @param {boolean=} options.syncMicrosites Also write gallery_folder_url on Microsites tab.
+ * @param {boolean=} options.markDelivered Set photos_status to Delivered when a folder is linked.
+ */
+function syncDrivePhotosToMarketingTab_(parentFolderUrlOrId, options) {
+  options = options || {};
+  var onlyEmpty = options.onlyEmpty === true;
+  var syncMicrosites = options.syncMicrosites !== false;
+  var markDelivered = options.markDelivered !== false;
+  var parentFolderId = getListingPhotosParentFolderId_(parentFolderUrlOrId);
+
+  var marketingSh = getOptionalOverlaySheet_(MARKETING_SHEET_NAME);
+  if (!marketingSh) throw new Error('Marketing sheet not found');
+
+  var marketingValues = marketingSh.getDataRange().getValues();
+  if (marketingValues.length < 2) {
+    return {
+      success: false,
+      error: 'Marketing tab has no data rows yet — run syncIdxListingsToSheet() first.',
+      parentFolderId: parentFolderId
+    };
+  }
+
+  var marketingHeaders = marketingValues[0].map(function (h) { return String(h || '').trim(); });
+  var marketingIdx = idxOverlayHeaderIndex_(marketingHeaders);
+  var photosCol = marketingIdx['photos_url'];
+  var photosStatusCol = marketingIdx['photos_status'];
+  var photosDeliveredCol = marketingIdx['photos_delivered_at'];
+  var lastUpdatedCol = marketingIdx['last_updated_at'];
+  var lastUpdatedByCol = marketingIdx['last_updated_by'];
+  if (photosCol == null) throw new Error('Marketing sheet missing photos_url column');
+
+  var micrositesSh = syncMicrosites ? getOptionalOverlaySheet_(MICROSITES_SHEET_NAME) : null;
+  var micrositesValues = micrositesSh ? micrositesSh.getDataRange().getValues() : null;
+  var micrositesHeaders = micrositesValues && micrositesValues.length ? micrositesValues[0].map(function (h) { return String(h || '').trim(); }) : [];
+  var micrositesIdx = micrositesValues ? idxOverlayHeaderIndex_(micrositesHeaders) : {};
+  var galleryCol = micrositesIdx['gallery_folder_url'];
+  var heroCol = micrositesIdx['hero_image_url'];
+
+  var folders = collectDrivePhotoFolders_(parentFolderId, 3);
+  var now = new Date().toISOString();
+  var matched = 0;
+  var updatedMarketing = 0;
+  var updatedMicrosites = 0;
+  var skipped = 0;
+  var unmatched = [];
+  var i, folderInfo, listing, targetRow, folderUrl, current, folder, cover, microRow;
+
+  for (i = 0; i < folders.length; i++) {
+    folderInfo = folders[i];
+    listing = { address: folderInfo.name, addressKey: idxNormalizeAddressForMatch_(folderInfo.name) };
+    targetRow = idxFindMarketingRowForListing_(marketingValues, marketingIdx, listing);
+    if (targetRow < 0) {
+      skipped++;
+      unmatched.push({ folder: folderInfo.name, path: folderInfo.path, url: folderInfo.url });
+      continue;
+    }
+    matched++;
+    folderUrl = folderInfo.url;
+    current = trim_(marketingValues[targetRow][photosCol]);
+    if (!onlyEmpty || !current) {
+      if (current !== folderUrl) {
+        marketingSh.getRange(targetRow + 1, photosCol + 1).setValue(folderUrl);
+        marketingValues[targetRow][photosCol] = folderUrl;
+        updatedMarketing++;
+        if (markDelivered && photosStatusCol != null && !trim_(marketingValues[targetRow][photosStatusCol])) {
+          marketingSh.getRange(targetRow + 1, photosStatusCol + 1).setValue('Delivered');
+          marketingValues[targetRow][photosStatusCol] = 'Delivered';
+        }
+        if (markDelivered && photosDeliveredCol != null && !trim_(marketingValues[targetRow][photosDeliveredCol])) {
+          marketingSh.getRange(targetRow + 1, photosDeliveredCol + 1).setValue(now);
+          marketingValues[targetRow][photosDeliveredCol] = now;
+        }
+        if (lastUpdatedCol != null) {
+          marketingSh.getRange(targetRow + 1, lastUpdatedCol + 1).setValue(now);
+          marketingValues[targetRow][lastUpdatedCol] = now;
+        }
+        if (lastUpdatedByCol != null) {
+          marketingSh.getRange(targetRow + 1, lastUpdatedByCol + 1).setValue('Drive photo folder sync');
+          marketingValues[targetRow][lastUpdatedByCol] = 'Drive photo folder sync';
+        }
+      }
+    }
+
+    if (syncMicrosites && micrositesSh && micrositesValues && micrositesValues.length > 1 && galleryCol != null) {
+      microRow = idxFindMarketingRowForListing_(micrositesValues, micrositesIdx, listing);
+      if (microRow >= 0) {
+        current = trim_(micrositesValues[microRow][galleryCol]);
+        if (!onlyEmpty || !current) {
+          if (current !== folderUrl) {
+            micrositesSh.getRange(microRow + 1, galleryCol + 1).setValue(folderUrl);
+            micrositesValues[microRow][galleryCol] = folderUrl;
+            updatedMicrosites++;
+            if (heroCol != null && !trim_(micrositesValues[microRow][heroCol])) {
+              folder = DriveApp.getFolderById(folderInfo.folderId);
+              cover = getFirstImageUrl_(folder);
+              if (cover) {
+                micrositesSh.getRange(microRow + 1, heroCol + 1).setValue(cover);
+                micrositesValues[microRow][heroCol] = cover;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (updatedMarketing || updatedMicrosites) invalidateListingsActiveCache_();
+
+  return {
+    success: true,
+    parentFolderId: parentFolderId,
+    scannedFolders: folders.length,
+    matched: matched,
+    updatedMarketing: updatedMarketing,
+    updatedMicrosites: updatedMicrosites,
+    skippedFolders: skipped,
+    onlyEmpty: onlyEmpty,
+    unmatched: unmatched.slice(0, 50)
+  };
+}
+
+/** Run from Apps Script editor — pass your Drive folder URL or ID. */
+function migrateDrivePhotosToMarketingTab(parentFolderUrlOrId) {
+  var result = syncDrivePhotosToMarketingTab_(parentFolderUrlOrId, {
+    onlyEmpty: false,
+    syncMicrosites: true,
+    markDelivered: true
+  });
+  Logger.log(JSON.stringify(result, null, 2));
+  return result;
 }
 
 function syncListingsSheet() {

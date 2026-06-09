@@ -82,7 +82,8 @@
     font: inherit;
     font-size: 12px;
     font-weight: 700;
-    padding: 10px 14px;
+    padding: 5px 18px;
+    line-height: 1.3;
     cursor: pointer;
     transition: transform 0.16s ease, box-shadow 0.16s ease;
   }
@@ -218,12 +219,13 @@
     border: 0;
     background: transparent;
     color: #444;
-    padding: 8px 13px;
+    padding: 4px 18px;
     border-radius: 999px;
     white-space: nowrap;
     font: inherit;
     font-size: 12px;
     font-weight: 700;
+    line-height: 1.4;
     cursor: pointer;
   }
   #asg-admin-master-dashboard .amd-tab.is-active {
@@ -278,6 +280,17 @@
     font-size: 18px;
     font-weight: 800;
     letter-spacing: -0.02em;
+  }
+  #asg-admin-master-dashboard .amd-panel-head--workspace {
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  #asg-admin-master-dashboard .amd-panel-title--workspace {
+    font-size: clamp(24px, 4vw, 34px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    font-weight: 800;
   }
   #asg-admin-master-dashboard .amd-panel-title--listing {
     font-size: clamp(24px, 3vw, 32px);
@@ -1424,6 +1437,17 @@
     flex-wrap: wrap;
     margin: 12px 0 14px;
   }
+  #asg-admin-master-dashboard .amd-view-tools--workspace {
+    margin: 0;
+    flex: 0 1 430px;
+    width: min(430px, 100%);
+  }
+  #asg-admin-master-dashboard .amd-view-tools--workspace .amd-search-wrap {
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .amd-view-tools--workspace input[type="search"] {
+    min-height: 34px;
+  }
   #asg-admin-master-dashboard .amd-view-tools select,
   #asg-admin-master-dashboard .amd-view-tools input {
     min-height: 36px;
@@ -1439,6 +1463,52 @@
   #asg-admin-master-dashboard .amd-view-tools input {
     flex: 1;
     min-width: 220px;
+  }
+  #asg-admin-master-dashboard .amd-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+  }
+  #asg-admin-master-dashboard .amd-search-wrap input[type="search"] {
+    width: 100%;
+    padding-right: 34px;
+  }
+  #asg-admin-master-dashboard .amd-search-wrap input[type="search"]:focus {
+    outline: none;
+    border-color: rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+  }
+  #asg-admin-master-dashboard .amd-search-wrap input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  #asg-admin-master-dashboard .amd-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.12);
+    color: #fff;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  #asg-admin-master-dashboard .amd-search-wrap.has-value .amd-search-clear {
+    display: flex;
+  }
+  #asg-admin-master-dashboard .amd-search-clear:hover {
+    background: rgba(0, 0, 0, 0.55);
   }
   #asg-admin-master-dashboard .amd-sell-stats {
     display: grid;
@@ -1467,18 +1537,205 @@
     font-weight: 800;
     color: #111;
   }
+  #asg-admin-master-dashboard .amd-oh-weekend {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 76px;
+    padding: 12px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend > summary::-webkit-details-marker { display: none; }
+  #asg-admin-master-dashboard .amd-oh-weekend-preview {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-preview-title {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-preview-meta {
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #111;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-preview-sub {
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-chev {
+    width: 20px;
+    height: 20px;
+    color: rgba(60, 60, 67, 0.72);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend[open] > summary .amd-oh-weekend-chev {
+    transform: rotate(180deg);
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-body {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 12px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #111;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-sub {
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-sections {
+    display: grid;
+    gap: 10px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-day-title {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.7);
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-row {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    min-height: 112px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-photo {
+    width: 100%;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #eef2f7;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-photo-empty {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-main {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-addr {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1e;
+    line-height: 1.2;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-meta {
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.76);
+    line-height: 1.2;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-empty {
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.62);
+    font-weight: 600;
+    font-style: italic;
+    padding: 2px 0;
+  }
+  #asg-admin-master-dashboard .amd-oh-weekend-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(60, 60, 67, 0.72);
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 54px;
+  }
+  @media (max-width: 1280px) {
+    #asg-admin-master-dashboard .amd-oh-weekend-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 900px) {
+    #asg-admin-master-dashboard .amd-oh-weekend-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 680px) {
+    #asg-admin-master-dashboard .amd-oh-weekend-list {
+      grid-template-columns: 1fr;
+    }
+    #asg-admin-master-dashboard .amd-oh-weekend-row {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    #asg-admin-master-dashboard .amd-oh-weekend-photo {
+      height: 140px;
+    }
+  }
+  #asg-admin-master-dashboard .amd-lh-stat-action.amd-oh-marketing-delivered {
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+  }
   #asg-admin-master-dashboard .amd-sell-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
   #asg-admin-master-dashboard .amd-sell-card {
+    position: relative;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 18px;
     background: #fff;
-    padding: 10px;
+    padding: 8px;
     display: grid;
-    grid-template-columns: 170px minmax(0, 1fr);
+    grid-template-columns: 150px minmax(0, 1fr);
     gap: 10px;
     align-items: stretch;
     cursor: pointer;
@@ -1491,7 +1748,7 @@
   }
   #asg-admin-master-dashboard .amd-sell-card-cover {
     width: 100%;
-    height: 130px;
+    height: 110px;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.08);
@@ -1507,7 +1764,14 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    padding-right: 70px;
+  }
+  #asg-admin-master-dashboard .amd-sell-card .amd-sell-card-details {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
   }
   #asg-admin-master-dashboard .amd-sell-cover-empty {
     width: 100%;
@@ -2020,6 +2284,10 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    /* Push action buttons to the bottom so they line up across tiles even
+       when the stat values are different heights (Location vs Specs etc). */
+    justify-content: space-between;
+    min-height: 96px;
   }
   #asg-admin-master-dashboard .amd-lh-stat-k {
     font-size: 12px;
@@ -2051,8 +2319,13 @@
     padding: 8px 14px;
     cursor: pointer;
     align-self: flex-start;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     transition: background 0.14s ease, transform 0.12s ease;
   }
+  #asg-admin-master-dashboard a.amd-lh-stat-action:hover { color: #fff; }
   #asg-admin-master-dashboard .amd-lh-stat-action:hover {
     background: #000;
   }
@@ -2079,6 +2352,294 @@
   }
   #asg-admin-master-dashboard .amd-lh-card.is-marketing {
     grid-column: 1 / -1;
+  }
+  /* MLS Snapshot + MRED Details grids — dense stat tiles inside the bento. */
+  #asg-admin-master-dashboard .amd-lh-mls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px 14px;
+  }
+  #asg-admin-master-dashboard .amd-lh-mls-grid .amd-lh-stat {
+    background: rgba(118, 118, 128, 0.06);
+    border-radius: 12px;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-mls-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(60, 60, 67, 0.08);
+    flex-wrap: wrap;
+  }
+  #asg-admin-master-dashboard .amd-lh-mls-agent {
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.78);
+    font-weight: 500;
+  }
+  /* Hero strip — big price + status pill + MLS link + spec line. Sits at
+     the very top of the Listing Overview, replacing the old preview chips
+     bento for a more native, info-dense first read. */
+  #asg-admin-master-dashboard .amd-lh-hero {
+    padding: 4px 4px 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-price {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: #1c1c1e;
+    line-height: 1.05;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-loc {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.78);
+    letter-spacing: -0.006em;
+    margin-top: -2px;
+  }
+  /* Status pill anchored in the top-right of the listing overview (replaces
+     the old STATUS / TYPE edit chips). Sized larger than the inline pill
+     since it's the only visual anchor on the right side now. */
+  #asg-admin-master-dashboard .amd-lh-overview-status {
+    margin-left: auto;
+    display: flex;
+    align-items: flex-start;
+  }
+  #asg-admin-master-dashboard .amd-lh-overview-status .amd-lh-hero-pill {
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+  /* 2-up variant of the status grid for when Location + Financials live in
+     the hero — Open House and Seller sit strictly side-by-side at the same
+     width, no spanning, at every viewport. */
+  #asg-admin-master-dashboard .amd-lh-status-grid--duo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #asg-admin-master-dashboard .amd-lh-status-grid--trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  #asg-admin-master-dashboard .amd-lh-status-grid--duo > .amd-lh-stat,
+  #asg-admin-master-dashboard .amd-lh-status-grid--duo > .amd-lh-stat.is-seller,
+  #asg-admin-master-dashboard .amd-lh-status-grid--duo > .amd-lh-stat.is-openhouse,
+  #asg-admin-master-dashboard .amd-lh-status-grid--trio > .amd-lh-stat,
+  #asg-admin-master-dashboard .amd-lh-status-grid--trio > .amd-lh-stat.is-seller,
+  #asg-admin-master-dashboard .amd-lh-status-grid--trio > .amd-lh-stat.is-openhouse,
+  #asg-admin-master-dashboard .amd-lh-status-grid--trio > .amd-lh-stat.is-compass {
+    grid-column: auto;
+    min-width: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-compass .amd-lh-stat-v {
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-compass .amd-lh-stat-v a {
+    color: #007aff;
+    text-decoration: none;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-compass .amd-lh-stat-v a:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 720px) {
+    #asg-admin-master-dashboard .amd-lh-status-grid--trio {
+      grid-template-columns: 1fr;
+    }
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    font-size: 13.5px;
+    color: rgba(60, 60, 67, 0.78);
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(52, 199, 89, 0.12);
+    color: #1c7a3e;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: -0.005em;
+  }
+  /* Shared status-tone palette. Used by .amd-lh-hero-pill (detail overview)
+     and .amd-sell-badge.is-status-* (listing cards) so status colors match
+     across the master dashboard. Same opacity (0.12 fill) for every tone. */
+  #asg-admin-master-dashboard .is-status-active,
+  #asg-admin-master-dashboard .amd-lh-hero-pill.is-status-active {
+    background: rgba(52, 199, 89, 0.12);
+    color: #1c7a3e;
+    border-color: transparent;
+  }
+  #asg-admin-master-dashboard .is-status-pending,
+  #asg-admin-master-dashboard .amd-lh-hero-pill.is-status-pending {
+    background: rgba(255, 204, 0, 0.18);
+    color: #8a6a00;
+    border-color: transparent;
+  }
+  #asg-admin-master-dashboard .is-status-pre,
+  #asg-admin-master-dashboard .amd-lh-hero-pill.is-status-pre {
+    background: rgba(120, 120, 128, 0.16);
+    color: #4a4a4f;
+    border-color: transparent;
+  }
+  #asg-admin-master-dashboard .is-status-closed,
+  #asg-admin-master-dashboard .amd-lh-hero-pill.is-status-closed {
+    background: rgba(255, 59, 48, 0.12);
+    color: #b3261e;
+    border-color: transparent;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-meta-link {
+    color: rgba(60, 60, 67, 0.78);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed rgba(60, 60, 67, 0.25);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-meta-link:hover {
+    color: #007aff;
+    border-bottom-color: #007aff;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-meta-item {
+    font-weight: 500;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-specs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 0;
+    font-size: 14px;
+    color: rgba(28, 28, 30, 0.78);
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-specs > span { padding: 0 10px; }
+  #asg-admin-master-dashboard .amd-lh-hero-specs > span:first-child { padding-left: 0; }
+  #asg-admin-master-dashboard .amd-lh-hero-specs > span:last-child { padding-right: 0; }
+  #asg-admin-master-dashboard .amd-lh-hero-specs b {
+    color: #1c1c1e;
+    font-weight: 600;
+  }
+  #asg-admin-master-dashboard .amd-lh-hero-sep {
+    color: rgba(60, 60, 67, 0.3);
+    font-weight: 400;
+    user-select: none;
+  }
+
+  /* Native <details> fold-out — full Listing Details inline at the bottom
+     of the Listing Overview. No nested bento, no extra chrome, just a
+     summary row that opens to reveal the long-tail data. */
+  #asg-admin-master-dashboard .amd-lh-foldout {
+    margin-top: 14px;
+    border-top: 1px solid rgba(60, 60, 67, 0.08);
+    padding-top: 14px;
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout > summary:hover {
+    background: rgba(118, 118, 128, 0.06);
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout > summary::-webkit-details-marker { display: none; }
+  #asg-admin-master-dashboard .amd-lh-foldout-chev {
+    color: rgba(60, 60, 67, 0.7);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout[open] > summary .amd-lh-foldout-chev {
+    transform: rotate(180deg);
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout-summary > span:first-child {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.012em;
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout-hint {
+    font-size: 12.5px;
+    color: rgba(60, 60, 67, 0.55);
+    font-weight: 500;
+  }
+  #asg-admin-master-dashboard .amd-lh-foldout-body {
+    margin-top: 14px;
+    padding: 4px;
+  }
+  #asg-admin-master-dashboard .amd-lh-mred-remarks {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(28, 28, 30, 0.86);
+    background: rgba(118, 118, 128, 0.05);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+  }
+  /* Compact detail list — native iOS-Settings-style key/value rows. No
+     individual backgrounds, no chunky tiles. Two columns at wide widths,
+     single column at narrow. Used in the Listing Overview fold-out. */
+  #asg-admin-master-dashboard .amd-lh-detail-list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+    row-gap: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-detail-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+  }
+  #asg-admin-master-dashboard .amd-lh-detail-k {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.65);
+    letter-spacing: -0.005em;
+    flex: 0 0 auto;
+  }
+  #asg-admin-master-dashboard .amd-lh-detail-v {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.008em;
+    text-align: right;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  @media (max-width: 720px) {
+    #asg-admin-master-dashboard .amd-lh-detail-list { grid-template-columns: 1fr; }
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-openhouse {
+    background: rgba(118, 118, 128, 0.06);
+    border: 0;
+  }
+  #asg-admin-master-dashboard .amd-lh-stat.is-openhouse .amd-lh-stat-meta {
+    color: #1c1c1e;
+    font-weight: 600;
   }
   #asg-admin-master-dashboard .amd-lh-label {
     margin: 0 0 16px;
@@ -2822,7 +3383,11 @@
     #asg-admin-master-dashboard .amd-sell-detail-grid { grid-template-columns: 1fr; }
     #asg-admin-master-dashboard .amd-sell-assets { grid-template-columns: 1fr; }
     #asg-admin-master-dashboard .amd-lh-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    #asg-admin-master-dashboard .amd-lh-stat.is-seller { grid-column: span 2; }
+    /* In the 4-tile layout, seller spans both columns. In the duo layout
+       (Open House + Seller only) we want them strictly side-by-side. */
+    #asg-admin-master-dashboard .amd-lh-status-grid:not(.amd-lh-status-grid--duo) .amd-lh-stat.is-seller { grid-column: span 2; }
+    #asg-admin-master-dashboard .amd-lh-status-grid--duo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #asg-admin-master-dashboard .amd-lh-status-grid--duo .amd-lh-stat { grid-column: auto; }
     #asg-admin-master-dashboard .amd-lh-trio { grid-template-columns: 1fr; }
     #asg-admin-master-dashboard .amd-lh-card { min-height: 0; }
     #asg-admin-master-dashboard .amd-lh-assets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2847,11 +3412,15 @@
     if (!root) return;
 
     var STATS_API = "https://script.google.com/macros/s/AKfycbxwagjmBkLzuHyEmymm1MwtbwiqMAZjKcMLPb_RVD6Lo0hNfMEoXh-76MzJ3dk5NBPv9A/exec";
-    var LISTINGS_API = String(window.ASG_LISTINGS_API || "https://script.google.com/a/compass.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec").trim();
+    var LISTINGS_API = String(window.ASG_LISTINGS_API || "https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec").trim();
     var HUB_DATA_API = String(window.ASG_HUB_DATA_API || "https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec").trim();
     var ALL_TIME_CLOSED_API = String(window.ASG_ALL_TIME_CLOSED_API || STATS_API).trim();
     var REQUEST_TIMEOUT_MS = 12000;
     var ALL_TIME_ROWS_TIMEOUT_MS = 45000;
+    var CACHE_PREFIX = "amd-master-dashboard-cache-v3:";
+    var CACHE_TTL_CORE_MS = 5 * 60 * 1000;
+    var CACHE_TTL_LISTINGS_MS = 3 * 60 * 1000;
+    var CACHE_TTL_ALL_TIME_MS = 30 * 60 * 1000;
     var CHART_MIN_YEAR = 2018;
     var CHART_MAX_YEAR = 2026;
     var CHART_FONT_FAMILY = "Outfit, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
@@ -4563,8 +5132,8 @@
       "Matterport": "matterport",
       "Video": "video",
       "Floor Plan": "floor_plan",
-      "Fact Sheet": "marketing_materials",
-      "Open House Materials": "marketing_materials"
+      "Fact Sheet": "fact_sheet",
+      "Open House Materials": "open_house_materials"
     };
     var AGENT_TIERS = {
       "alex stoykov": "senior",
@@ -5856,57 +6425,234 @@
       var sellDashboardMetrics = null;
       if (state.tab === "sell") {
         if (!state.listingsLoaded && !state.listingsFetching) {
-          fetchListingsMaster();
+          fetchListingsMaster({ silentStart: true });
         }
         var allListings = (state.listingsRows || []).slice();
         var sellAgent = state.sellAgentFilter || "all";
         var sellSearch = state.sellSearch || "";
         var scopedRows = allListings.filter(function (row) {
-          var agent = normalizeListingAgent(row) || "Unknown";
+          var agent = listingAssignedAgent(row);
           return sellAgent === "all" || agent === sellAgent;
         });
         var scopedActiveRows = scopedRows.filter(function (row) { return !listingIsClosed(row); });
         var scopedClosedRows = scopedRows.filter(function (row) { return listingIsClosed(row); });
         var sellFiltered = scopedActiveRows.filter(function (row) {
-          var agent = normalizeListingAgent(row) || "Unknown";
+          var agent = listingAssignedAgent(row);
+          var facts = listingPropertyFacts(row);
           return matchesQuery(
             [
               row.address || "",
-              row.neighborhood || "",
-              row.status || "",
+              listingLocationLabel(row),
+              facts.areaMajor || "",
+              facts.township || "",
+              facts.mlsNumber || "",
+              facts.status || "",
+              facts.mlsStatus || "",
+              facts.propertyType || "",
               row.phaseKey || "",
-              row.listingType || "",
               agent
             ],
             sellSearch
           );
         });
-        var sellAgentOptions = makeAgentOptions(allListings, sellAgent, "All Agents · " + fmtNum(allListings.length));
+        sellFiltered.sort(function (a, b) {
+          var priceDiff = listingPriceNumber(b) - listingPriceNumber(a);
+          if (priceDiff) return priceDiff;
+          return listingListDateMs(b) - listingListDateMs(a);
+        });
+        var idxClosedRows = scopedRows.filter(function (row) {
+          var idxStatus = normalizeText(
+            (row && (
+              row.idxMlsStatus ||
+              row.mlsStatus ||
+              row.idxStatus ||
+              row.idxListingStatus ||
+              row.idxPropStatus
+            )) || ""
+          );
+          return idxStatus.indexOf("closed") > -1 || idxStatus.indexOf("sold") > -1;
+        });
         sellDashboardMetrics = {
           totalListings: allListings.length,
           activeListings: scopedActiveRows.length,
           closedListings: scopedClosedRows.length,
+          idxClosedListings: idxClosedRows.length,
           filteredActive: sellFiltered.length
         };
         var sellStatVal = function (n) {
           return !state.listingsLoaded ? dataSpinnerHtml("amd-data-spinner--sm") : fmtNum(n);
         };
+        var phaseKeyOf = function (row) {
+          return String((row && (row.phaseKey || row.status || row.phase)) || "").toLowerCase();
+        };
+        var preListingCount = scopedActiveRows.filter(function (row) {
+          var k = phaseKeyOf(row);
+          return k.indexOf("pre") === 0 || k.indexOf("pre-list") > -1 || k.indexOf("prelist") > -1 || k.indexOf("coming") > -1;
+        }).length;
+        var underContractCount = scopedActiveRows.filter(function (row) {
+          return listingIsUnderContract(row);
+        }).length;
+        function upcomingWeekendRange_() {
+          var start = new Date();
+          start.setHours(0, 0, 0, 0);
+          var day = start.getDay(); // Sun=0 ... Sat=6
+          var daysToSat = (6 - day + 7) % 7;
+          start.setDate(start.getDate() + daysToSat);
+          var end = new Date(start);
+          end.setDate(start.getDate() + 1);
+          end.setHours(23, 59, 59, 999);
+          return { start: start, end: end };
+        }
+        function parseOpenHouseSlotsFromRow_(row) {
+          var out = [];
+          var list = row && row.openHouses;
+          if (Array.isArray(list)) {
+            for (var i = 0; i < list.length; i++) {
+              var it = list[i] || {};
+              var dRaw = String(it.open_house_date || it.date || it.startDate || "").trim();
+              var sRaw = String(it.open_house_start || it.start_time || it.start || it.startTime || "").trim();
+              var eRaw = String(it.open_house_end || it.end_time || it.end || it.endTime || "").trim();
+              if (dRaw) out.push({ dateRaw: dRaw, startRaw: sRaw, endRaw: eRaw });
+            }
+          }
+          var d1 = String((row && row.nextOpenHouseDate) || "").trim();
+          if (d1) {
+            out.push({
+              dateRaw: d1,
+              startRaw: String((row && row.nextOpenHouseStart) || "").trim(),
+              endRaw: String((row && row.nextOpenHouseEnd) || "").trim()
+            });
+          }
+          return out;
+        }
+        function buildWeekendOpenHouseRows_(rows) {
+          var rng = upcomingWeekendRange_();
+          var seen = {};
+          var out = [];
+          for (var i = 0; i < rows.length; i++) {
+            var row = rows[i] || {};
+            var slots = parseOpenHouseSlotsFromRow_(row);
+            for (var j = 0; j < slots.length; j++) {
+              var slot = slots[j] || {};
+              var d = parseDate(slot.dateRaw);
+              if (!d || isNaN(d.getTime())) continue;
+              if (d < rng.start || d > rng.end) continue;
+              var key = normalizeText(row.address || "") + "|" + slot.dateRaw + "|" + slot.startRaw + "|" + slot.endRaw;
+              if (seen[key]) continue;
+              seen[key] = true;
+              out.push({
+                address: String(row.address || "").trim() || "Listing",
+                agent: listingAssignedAgent(row),
+                coverImage: String(row.coverImage || "").trim(),
+                date: d,
+                start: String(slot.startRaw || "").trim(),
+                end: String(slot.endRaw || "").trim()
+              });
+            }
+          }
+          out.sort(function (a, b) {
+            if (a.date.getTime() !== b.date.getTime()) return a.date - b.date;
+            return String(a.start || "").localeCompare(String(b.start || ""));
+          });
+          return { range: rng, rows: out };
+        }
+        function formatWeekendOhTime_(raw) {
+          var t = String(raw || "").trim();
+          if (!t) return "";
+          // If the value looks like a full datetime string, only show the time.
+          var d = parseDate(t);
+          if (d && !isNaN(d.getTime()) && /gmt|utc|t\d{2}:\d{2}|\d{4}/i.test(t)) {
+            try {
+              return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+            } catch (e) {}
+          }
+          return t;
+        }
+        function renderWeekendOhCard_(it) {
+          var dateLabel = "";
+          try {
+            dateLabel = it.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+          } catch (e) {
+            dateLabel = String(it.date || "");
+          }
+          var startLabel = formatWeekendOhTime_(it.start);
+          var endLabel = formatWeekendOhTime_(it.end);
+          var timeLabel = startLabel && endLabel ? (startLabel + " – " + endLabel) : (startLabel || endLabel || "Time TBD");
+          var cover = toDriveDirectImageUrl(it.coverImage);
+          var coverBackup = driveImageBackupUrl(it.coverImage);
+          var photoHtml = cover
+            ? '<img src="' + esc(cover) + '" data-backup="' + esc(coverBackup || "") + '" alt="' + esc(it.address || "Open house photo") + '" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.backup && this.src!==this.dataset.backup){this.src=this.dataset.backup;return;} this.onerror=null;this.parentNode.innerHTML=\'<div class=&quot;amd-oh-weekend-photo-empty&quot;>No photo</div>\'">'
+            : '<div class="amd-oh-weekend-photo-empty">No photo</div>';
+          return '<article class="amd-oh-weekend-row">' +
+            '<div class="amd-oh-weekend-photo">' + photoHtml + "</div>" +
+            '<div class="amd-oh-weekend-main">' +
+              '<div class="amd-oh-weekend-addr">' + esc(it.address) + "</div>" +
+              '<div class="amd-oh-weekend-meta">' + esc(dateLabel + " · " + timeLabel) + "</div>" +
+              '<div class="amd-oh-weekend-meta">' + esc(it.agent) + "</div>" +
+            "</div>" +
+          "</article>";
+        }
+        function renderWeekendSection_(title, items) {
+          var list = (items || []).slice(0, 5);
+          return '<section class="amd-oh-weekend-day">' +
+            '<h5 class="amd-oh-weekend-day-title">' + esc(title) + "</h5>" +
+            (list.length
+              ? '<div class="amd-oh-weekend-list">' + list.map(renderWeekendOhCard_).join("") + "</div>"
+              : '<div class="amd-oh-weekend-empty">No open houses scheduled.</div>') +
+          "</section>";
+        }
+        var weekendSchedule = buildWeekendOpenHouseRows_(scopedActiveRows);
+        var saturdayRows = weekendSchedule.rows.filter(function (it) { return it.date && it.date.getDay() === 6; });
+        var sundayRows = weekendSchedule.rows.filter(function (it) { return it.date && it.date.getDay() === 0; });
+        var weekendCount = weekendSchedule.rows.length;
+        var weekendPreviewMetaHtml = !state.listingsLoaded
+          ? '<span class="amd-oh-weekend-loading" style="min-height:0;">' + dataSpinnerHtml("amd-data-spinner--sm") + '</span>'
+          : esc(String(weekendCount) + (weekendCount === 1 ? " Open House" : " Open Houses"));
+        var weekendPreviewSub = (function () {
+          try {
+            return weekendSchedule.range.start.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+              " – " +
+              weekendSchedule.range.end.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          } catch (e) {
+            return "Upcoming weekend";
+          }
+        })();
+        var weekendScheduleBodyHtml = !state.listingsLoaded
+          ? '<div class="amd-oh-weekend-loading" aria-busy="true">' + dataSpinnerHtml("amd-data-spinner--sm") + " Loading open houses…</div>"
+          : '<div class="amd-oh-weekend-sections">' +
+              renderWeekendSection_("Saturday", saturdayRows) +
+              renderWeekendSection_("Sunday", sundayRows) +
+            "</div>";
+        var weekendScheduleHtml =
+          '<details class="amd-oh-weekend">' +
+            '<summary>' +
+              '<div class="amd-oh-weekend-preview">' +
+                '<h4 class="amd-oh-weekend-preview-title">Open House Schedule</h4>' +
+                '<div class="amd-oh-weekend-preview-meta">' + weekendPreviewMetaHtml + "</div>" +
+                '<div class="amd-oh-weekend-preview-sub">' + esc(weekendPreviewSub) + "</div>" +
+              "</div>" +
+              '<svg class="amd-oh-weekend-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+            "</summary>" +
+            '<div class="amd-oh-weekend-body">' + weekendScheduleBodyHtml + "</div>" +
+          "</details>";
         if (!state.sellActiveAddress) {
           panelHTML =
-          '<div class="amd-panel-head">' +
-            '<h3 class="amd-panel-title">Listings Workspace</h3>' +
-            '<p class="amd-panel-sub">Admin listing operations from the Listing Hub sheet. Click a card to open a full in-block workspace.</p>' +
-          "</div>" +
-          '<div class="amd-view-tools">' +
-            '<select data-sell-agent="' + esc(sellAgent) + '">' + sellAgentOptions + "</select>" +
-            '<input type="search" data-sell-search value="' + esc(sellSearch) + '" placeholder="Search by address, neighborhood, or agent...">' +
+          '<div class="amd-panel-head amd-panel-head--workspace">' +
+            '<h3 class="amd-panel-title amd-panel-title--workspace">Listings Workspace</h3>' +
+            '<div class="amd-view-tools amd-view-tools--workspace">' +
+              '<div class="amd-search-wrap' + (sellSearch ? " has-value" : "") + '">' +
+                '<input type="search" data-sell-search value="' + esc(sellSearch) + '" placeholder="Search by address, neighborhood, or agent...">' +
+                '<button type="button" class="amd-search-clear" data-sell-search-clear aria-label="Clear search">&times;</button>' +
+              "</div>" +
+            "</div>" +
           "</div>" +
           '<div class="amd-sell-stats">' +
             '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Active Listings</div><div class="amd-sell-stat-v">' + sellStatVal(scopedActiveRows.length) + "</div></article>" +
-            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed Listings</div><div class="amd-sell-stat-v">' + sellStatVal(scopedClosedRows.length) + "</div></article>" +
-            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Showing</div><div class="amd-sell-stat-v">' + sellStatVal(sellFiltered.length) + "</div></article>" +
-            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Total Scoped</div><div class="amd-sell-stat-v">' + sellStatVal(scopedRows.length) + "</div></article>" +
-          "</div>";
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Pre-Listing</div><div class="amd-sell-stat-v">' + sellStatVal(preListingCount) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Under Contract</div><div class="amd-sell-stat-v">' + sellStatVal(underContractCount) + "</div></article>" +
+            '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed</div><div class="amd-sell-stat-v">' + sellStatVal(scopedClosedRows.length) + "</div></article>" +
+          "</div>" +
+          weekendScheduleHtml;
         if (state.listingsFetching && !allListings.length) {
           panelHTML += '<div class="amd-loading" aria-busy="true">' + dataSpinnerHtml() + " Loading listings from Listing Hub…</div>";
         } else if (state.listingsError) {
@@ -5919,9 +6665,10 @@
             sellFiltered
               .map(function (row) {
                 var addr = String(row.address || "").trim();
-                var agent = normalizeListingAgent(row) || "Unknown";
+                var agent = listingAssignedAgent(row);
+                var neighborhood = listingLocationLabel(row);
                 var chipLabels = listingChipLabels(row);
-                var specsText = listingSpecsText(row);
+                var specsText = listingCardFactsText(row) || listingSpecsText(row);
                 var cover = toDriveDirectImageUrl(row.coverImage);
                 var coverBackup = driveImageBackupUrl(row.coverImage);
                 return (
@@ -5931,18 +6678,34 @@
                         ? '<img src="' + esc(cover) + '" data-backup="' + esc(coverBackup || "") + '" alt="' + esc(addr || "Listing cover") + '" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.backup && this.src!==this.dataset.backup){this.src=this.dataset.backup;return;} this.onerror=null;this.parentNode.innerHTML=\'<div class=&quot;amd-sell-cover-empty&quot;>No cover image</div>\'">'
                         : '<div class="amd-sell-cover-empty">No cover image</div>') +
                     "</div>" +
+                    '<button class="amd-mini-btn is-dark amd-sell-card-details" type="button" data-sell-open="' + esc(addr) + '">Details</button>' +
                     '<div class="amd-sell-main">' +
                     '<h4 class="amd-sell-address">' + esc(addr || "Untitled Listing") + "</h4>" +
-                    '<p class="amd-sell-meta">' + esc(agent) + (row.neighborhood ? " · " + esc(row.neighborhood) : "") + "</p>" +
+                    '<p class="amd-sell-meta">' + esc(agent) +
+                      (neighborhood ? " · " + esc(neighborhood) : "") +
+                    "</p>" +
                     '<div class="amd-sell-badges">' +
-                      chipLabels.map(function (chip) { return '<span class="amd-sell-badge">' + esc(chip) + "</span>"; }).join("") +
+                      chipLabels.map(function (chip, ci) {
+                        var tone = ci === 0 ? statusToneClass(chip) : "";
+                        return '<span class="amd-sell-badge' + (tone ? " " + tone : "") + '">' + esc(chip) + "</span>";
+                      }).join("") +
                     "</div>" +
                     '<p class="amd-sell-meta">' +
                       esc(specsText || "No bed/bath/sqft yet") +
                     "</p>" +
-                    '<div class="amd-sell-links">' +
-                      '<button class="amd-mini-btn is-dark" type="button" data-sell-open="' + esc(addr) + '">Details</button>' +
-                    "</div>" +
+                    (function () {
+                      // Closed cards: show sold-vs-ask snippet when IDX gives a sold price.
+                      var soldNum = Number(String(row.mlsSoldPrice || "").replace(/[^0-9.]/g, ""));
+                      if (!isFinite(soldNum) || soldNum <= 0) return "";
+                      var askNum = Number(String(row.listPrice || row.mlsPriceBeforeReduction || "").replace(/[^0-9.]/g, ""));
+                      var label = "Sold $" + soldNum.toLocaleString();
+                      if (isFinite(askNum) && askNum > 0) {
+                        var d = soldNum - askNum;
+                        var p = ((d / askNum) * 100).toFixed(1);
+                        label += " (vs ask $" + askNum.toLocaleString() + ", " + (d >= 0 ? "+" : "−") + Math.abs(p) + "%)";
+                      }
+                      return '<p class="amd-sell-meta amd-sell-meta--sold">' + esc(label) + "</p>";
+                    })() +
                     "</div>" +
                   "</article>"
                 );
@@ -5971,24 +6734,27 @@
             slideIdx = 0;
           }
           var slideItem = slidePhotos.length ? slidePhotos[slideIdx] : null;
+          var activeFacts = listingPropertyFacts(active);
+          var activeMarketing = listingMarketingStatus(active);
+          var activeAssets = listingAssetLinks(active);
           var assetRows = [
-            ["Photos", active.photos],
-            ["Matterport", active.matterport],
-            ["Video", active.video],
-            ["Floor Plan", active.floorPlan],
-            ["Fact Sheet", active.factSheet],
-            ["Open House Materials", active.openHouseMaterialsUrl]
+            ["Photos", activeAssets.photos],
+            ["Matterport", activeAssets.matterport],
+            ["Video", activeAssets.video],
+            ["Floor Plan", activeAssets.floorPlan],
+            ["Fact Sheet", activeAssets.factSheet],
+            ["Open House Materials", activeAssets.openHouseMaterials]
           ];
-          var mpRaw = String(active.matterport || "").trim();
+          var mpRaw = String(activeAssets.matterport || "").trim();
           var mpEmbed = matterportEmbedUrl(mpRaw);
           var specsText = listingSpecsText(active);
           var detailChips = listingChipLabels(active);
-          var activeAgentName = normalizeListingAgent(active) || active.agent || "—";
+          var activeAgentName = listingAssignedAgent(active);
           var agentPhoto = resolveAgentPhotoName(activeAgentName);
           var agentLinks = resolveAgentLinks(activeAgentName) || { book: "", request: "" };
           var agentBookUrl = String(agentLinks.book || "").trim();
           var agentRequestUrl = String(agentLinks.request || "").trim();
-          var photosAssetUrl = String(active.photos || "").trim();
+          var photosAssetUrl = String(activeAssets.photos || "").trim();
           var agentFirstName = String(activeAgentName || "").split(" ")[0] || "";
           panelHTML =
             '<div class="amd-panel-head amd-panel-head--listing">' +
@@ -6007,54 +6773,555 @@
                       : '<div class="amd-lh-agent-photo" aria-hidden="true"></div>') +
                     '<div><div class="amd-lh-agent-name">' + esc(activeAgentName) + '</div><div class="amd-lh-agent-role">Listing Agent</div></div>' +
                   "</div>" +
-                  renderListingEditChips(active) +
+                  (function () {
+                    var s = formatListingStatusDisplay(active.idxMlsStatus || active.mlsStatus || active.idxStatus || active.status || "");
+                    if (!s) return "";
+                    var tone = statusToneClass(s);
+                    return '<div class="amd-lh-overview-status"><span class="amd-lh-hero-pill' + (tone ? " " + tone : "") + '">' + esc(s) + "</span></div>";
+                  })() +
                 "</div>" +
                 (function () {
                   var sq = getSellerQuestionnaire(active);
                   var qLink = resolveAgentQuestionnaireLink(activeAgentName);
-                  var sellerLine =
-                    sq.name
-                      ? esc(sq.name)
-                      : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">No seller contact yet</span>';
-                  var metaBits = [];
-                  if (sq.email) metaBits.push(esc(sq.email));
-                  if (sq.phone) metaBits.push(esc(sq.phone));
-                  var metaHtml = metaBits.length
-                    ? '<div class="amd-lh-stat-meta">' + metaBits.join(" · ") + "</div>"
-                    : (sq.raw
-                        ? ""
-                        : '<div class="amd-lh-stat-meta">Seller questionnaire not received yet.</div>');
+
+                  // Two-state Seller Questionnaire tile:
+                  //   1) Awaiting answers — instruct the agent to send the
+                  //      questionnaire and offer the Copy-link CTA.
+                  //   2) Received — surface the seller contact + submitted
+                  //      timestamp, swap the CTA to "Questionnaire Details"
+                  //      which opens the answers modal.
+                  var sqReceived = sellerQuestionnaireReceived(active, sq);
+                  var sellerLine, sellerMetaHtml;
                   var actions = [];
-                  if (qLink) {
-                    var copiedClass = (state.sellQCopied && state.sellQCopied[state.sellActiveAddress]) ? " is-copied" : "";
+
+                  if (sqReceived) {
+                    sellerLine = sq.name
+                      ? esc(sq.name)
+                      : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">Details received</span>';
+                    var metaBits = [];
+                    if (sq.email) metaBits.push(esc(sq.email));
+                    if (sq.phone) metaBits.push(esc(sq.phone));
+                    var sellerMetaParts = [];
+                    if (metaBits.length) {
+                      sellerMetaParts.push('<div class="amd-lh-stat-meta">' + metaBits.join(" · ") + "</div>");
+                    }
+                    // Submitted-on line — pulled from sheet timestamps so we
+                    // can show "Submitted May 12 · 3:14 PM" style.
+                    var receivedRaw = String(
+                      active.sellerQuestionnaireReceivedAt ||
+                      active.sellerQuestionnaireLastSyncAt ||
+                      active.seller_questionnaire_received_at ||
+                      active.seller_questionnaire_last_sync_at ||
+                      active.questionnaire_received_at ||
+                      active.questionnaire_last_sync_at ||
+                      ""
+                    ).trim();
+                    if (receivedRaw) {
+                      var rd = parseDate(receivedRaw);
+                      if (rd && !isNaN(rd.getTime())) {
+                        var rdLabel = "";
+                        try {
+                          rdLabel = "Submitted " +
+                            rd.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+                            " · " +
+                            rd.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+                        } catch (e) { rdLabel = "Submitted " + receivedRaw; }
+                        sellerMetaParts.push('<div class="amd-lh-stat-meta is-muted">' + esc(rdLabel) + "</div>");
+                      }
+                    }
+                    sellerMetaHtml = sellerMetaParts.join("");
                     actions.push(
-                      '<button class="amd-lh-stat-action is-secondary is-icon' + copiedClass + '" type="button"' +
-                      ' data-sell-copy-questionnaire="' + esc(state.sellActiveAddress) + '"' +
-                      ' data-sell-copy-questionnaire-link="' + esc(qLink) + '"' +
-                      ' aria-label="Copy seller questionnaire link">' +
-                        '<svg class="amd-cta-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>' +
-                        '<svg class="amd-cta-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12.5 10 17.5 19 7.5"/></svg>' +
-                        "<span>Copy link</span>" +
-                      "</button>"
+                      '<button class="amd-lh-stat-action" type="button"' +
+                      ' data-sell-open-sq="' + esc(state.sellActiveAddress) + '">Questionnaire Details</button>'
                     );
-                  }
-                  if (sq.answers.length || sq.raw) {
-                    actions.push('<button class="amd-lh-stat-action" type="button" data-sell-open-sq="' + esc(state.sellActiveAddress) + '">More details</button>');
+                  } else {
+                    // Awaiting-answers state — instruct the agent. If there's
+                    // a personal link configured, the primary action becomes
+                    // Copy link; otherwise we tell them why it's disabled.
+                    sellerLine = '<span style="color:rgba(60,60,67,0.6);font-weight:500;">Not sent yet</span>';
+                    sellerMetaHtml = qLink
+                      ? '<div class="amd-lh-stat-meta">Send your personal questionnaire link to the seller so we can capture their goals before the listing goes live.</div>'
+                      : '<div class="amd-lh-stat-meta">Ask admin to wire your personal questionnaire link in AGENT_QUESTIONNAIRE_LINKS, then copy &amp; send to the seller.</div>';
+                    if (qLink) {
+                      var copied = !!(state.sellQCopied && state.sellQCopied[state.sellActiveAddress]);
+                      actions.push(
+                        '<button class="amd-lh-stat-action" type="button"' +
+                        ' data-sell-copy-questionnaire="' + esc(state.sellActiveAddress) + '"' +
+                        ' data-sell-copy-questionnaire-link="' + esc(qLink) + '">' +
+                          (copied ? "Copied!" : "Copy questionnaire link") +
+                        "</button>"
+                      );
+                    }
                   }
                   var actionsHtml = actions.length
                     ? '<div class="amd-lh-stat-actions">' + actions.join("") + "</div>"
                     : "";
-                  return (
-                    '<div class="amd-lh-status-grid">' +
-                      '<div class="amd-lh-stat"><div class="amd-lh-stat-k">Neighborhood</div><div class="amd-lh-stat-v">' + esc(active.neighborhood || "—") + "</div></div>" +
-                      '<div class="amd-lh-stat"><div class="amd-lh-stat-k">Specs</div><div class="amd-lh-stat-v">' + esc(specsText || "No bed/bath/sqft yet") + "</div></div>" +
-                      '<div class="amd-lh-stat is-seller">' +
-                        '<div class="amd-lh-stat-k">Seller Questionnaire</div>' +
-                        '<div class="amd-lh-stat-v">' + sellerLine + "</div>" +
-                        metaHtml +
-                        actionsHtml +
+                  // Keep `metaHtml` alias for downstream code that still
+                  // references it during seller tile assembly.
+                  var metaHtml = sellerMetaHtml;
+
+                  // ── Next Open House tile ──────────────────────────────────
+                  // If the listing has a future OH (from IDX `nextOpenHouseDate`)
+                  // we show the formatted slot + Copy / Add-to-calendar actions.
+                  // If not, we show a "Schedule open house" CTA that POSTs the
+                  // existing requestopenhouse action to Apps Script.
+                  var ohDateRaw   = String(active.nextOpenHouseDate || "").trim();
+                  var ohStartRaw  = String(active.nextOpenHouseStart || "").trim();
+                  var ohEndRaw    = String(active.nextOpenHouseEnd   || "").trim();
+                  var ohSlots = [];
+                  if (ohDateRaw) ohSlots.push({ dateRaw: ohDateRaw, startRaw: ohStartRaw, endRaw: ohEndRaw });
+                  // Temporary design stub for review: force two OH slots for
+                  // 511 N Grove Ave so we can validate multi-slot UI styling
+                  // before real upcoming open-house data lands.
+                  var addrKey = normalizeText(active.address || "");
+                  if (addrKey === "511 n grove ave") {
+                    ohSlots = [
+                      { dateRaw: "2026-06-06", startRaw: "10:00 AM", endRaw: "12:00 PM" }, // Saturday
+                      { dateRaw: "2026-06-07", startRaw: "1:00 PM", endRaw: "3:00 PM" }   // Sunday
+                    ];
+                  }
+                  var ohScheduled = ohSlots.length > 0;
+                  var ohValueHtml = "";
+                  if (ohScheduled) {
+                    for (var ohi = 0; ohi < ohSlots.length; ohi++) {
+                      var slot = ohSlots[ohi] || {};
+                      var slotDateRaw = String(slot.dateRaw || "").trim();
+                      var slotStartRaw = String(slot.startRaw || "").trim();
+                      var slotEndRaw = String(slot.endRaw || "").trim();
+                      var slotDateLabel = "";
+                      var slotTimeLabel = "";
+                      var ohD = parseDate(slotDateRaw);
+                      if (ohD && !isNaN(ohD.getTime())) {
+                        try {
+                          slotDateLabel = ohD.toLocaleDateString(undefined, {
+                            weekday: "short", month: "short", day: "numeric"
+                          });
+                        } catch (e) { slotDateLabel = slotDateRaw; }
+                      } else {
+                        slotDateLabel = slotDateRaw;
+                      }
+                      if (slotStartRaw && slotEndRaw) slotTimeLabel = slotStartRaw + " – " + slotEndRaw;
+                      else if (slotStartRaw) slotTimeLabel = slotStartRaw;
+                      if (slotDateLabel || slotTimeLabel) {
+                        var datePartEsc = esc(slotDateLabel || "Open House");
+                        var timePartEsc = esc(slotTimeLabel || "");
+                        var displayText = slotTimeLabel
+                          ? "<b>" + datePartEsc + "</b> · <b>" + timePartEsc + "</b>"
+                          : "<b>" + datePartEsc + "</b>";
+                        ohValueHtml +=
+                          '<div class="amd-lh-stat-meta" style="margin-top:' + (ohi === 0 ? "0" : "4px") + ';">' +
+                            displayText +
+                          "</div>";
+                      }
+                    }
+                    if (!ohValueHtml) ohValueHtml = "Open House scheduled";
+                  } else {
+                    ohValueHtml = '<span style="color:rgba(60,60,67,0.6);font-weight:500;">No open house scheduled</span>';
+                  }
+                  var ohMaterialsStatusRaw = String(activeMarketing.openHouseMaterialsStatus || active.openHouseMaterialsStatus || "").trim();
+                  var ohMaterialsStatusKey = normalizeText(ohMaterialsStatusRaw);
+                  var ohRequestedAtRaw = String(activeMarketing.openHouseMaterialsRequestedAt || active.openHouseMaterialsRequestedAt || "").trim();
+                  var ohDeliveredAtRaw = String(activeMarketing.openHouseMaterialsDeliveredAt || active.openHouseMaterialsDeliveredAt || "").trim();
+                  var ohDelivered =
+                    !!ohDeliveredAtRaw ||
+                    ohMaterialsStatusKey.indexOf("deliver") > -1 ||
+                    ohMaterialsStatusKey.indexOf("done") > -1 ||
+                    ohMaterialsStatusKey.indexOf("complete") > -1 ||
+                    ohMaterialsStatusKey.indexOf("ready") > -1 ||
+                    ohMaterialsStatusKey.indexOf("live") > -1;
+                  var ohRequested =
+                    ohDelivered ||
+                    !!ohRequestedAtRaw ||
+                    ohMaterialsStatusKey.indexOf("request") > -1 ||
+                    ohMaterialsStatusKey.indexOf("pending") > -1 ||
+                    ohMaterialsStatusKey.indexOf("progress") > -1 ||
+                    ohMaterialsStatusKey.indexOf("submit") > -1;
+
+                  var marketingState = ohDelivered ? "delivered" : (ohRequested ? "requested" : "not_requested");
+                  var ohMarketingStatusLabel =
+                    marketingState === "delivered"
+                      ? "Delivered"
+                      : marketingState === "requested"
+                        ? "Requested"
+                        : "Not Requested";
+
+                  ohValueHtml +=
+                    '<div class="amd-lh-stat-meta" style="margin-top:6px;">Marketing: <b>' +
+                    esc(ohMarketingStatusLabel) +
+                    "</b></div>";
+
+                  var ohActionsHtml = "";
+                  if (marketingState === "not_requested") {
+                    if (agentRequestUrl) {
+                      ohActionsHtml =
+                        '<div class="amd-lh-stat-actions">' +
+                        '<a class="amd-lh-stat-action" href="' + esc(agentRequestUrl) + '"' +
+                        ' target="_blank" rel="noopener">Request Marketing ↗</a>' +
+                        "</div>";
+                    } else {
+                      ohActionsHtml =
+                        '<div class="amd-lh-stat-actions">' +
+                        '<button class="amd-lh-stat-action is-secondary" type="button" disabled>Request Marketing</button>' +
+                        "</div>";
+                    }
+                  } else if (marketingState === "requested") {
+                    ohActionsHtml =
+                      '<div class="amd-lh-stat-actions">' +
+                      '<button class="amd-lh-stat-action is-secondary" type="button" disabled>✓ Requested</button>' +
+                      "</div>";
+                  } else {
+                    ohActionsHtml =
+                      '<div class="amd-lh-stat-actions">' +
+                      '<button class="amd-lh-stat-action is-secondary amd-oh-marketing-delivered" type="button" disabled>✓ Delivered</button>' +
+                      "</div>";
+                  }
+                  var ohTileHtml =
+                    '<div class="amd-lh-stat is-openhouse">' +
+                      '<div class="amd-lh-stat-k">Next Open House</div>' +
+                      '<div class="amd-lh-stat-v">' + ohValueHtml + "</div>" +
+                      ohActionsHtml +
+                    "</div>";
+
+                  // ── Location tile (replaces Neighborhood) ─────────────────
+                  // Primary line: neighborhood OR city. Meta: zip · county when
+                  // available, so the agent gets a real "where is this" answer
+                  // not just a vague tag.
+                  var locPrimary = listingLocationLabel(active);
+                  var locMetaBits = [];
+                  if (active.mlsZip) locMetaBits.push(String(active.mlsZip).trim());
+                  if (active.mlsCounty) locMetaBits.push(String(active.mlsCounty).trim() + " County");
+                  var locValueHtml = locPrimary
+                    ? esc(locPrimary)
+                    : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">—</span>';
+                  var locMetaHtml = locMetaBits.length
+                    ? '<div class="amd-lh-stat-meta">' + esc(locMetaBits.join(" · ")) + "</div>"
+                    : "";
+
+                  // ── Specs tile (beds · baths · sqft · rooms) ──────────────
+                  var specsBits = [];
+                  if (active.beds) specsBits.push(String(active.beds) + " bd");
+                  if (active.baths) specsBits.push(String(active.baths) + " ba");
+                  if (active.sqFt) specsBits.push(String(active.sqFt) + " sf");
+                  var specsValue = specsBits.join(" · ");
+
+                  // ── Hero metrics + property line ─────────────────────────
+                  // Absorbs the old "Listing Details" preview chips and the
+                  // standalone Specs tile so we have a single, dense, native-
+                  // feeling header. Falls back gracefully when MLS isn't
+                  // available — we only render what we have.
+                  function fmtListingMoney(raw) {
+                    var s = String(raw || "").trim();
+                    if (!s) return "";
+                    if (/^\$/.test(s)) return s;
+                    var n = Number(String(s).replace(/[^0-9.\-]/g, ""));
+                    if (!isFinite(n) || n === 0) return s;
+                    try { return "$" + n.toLocaleString(); } catch (e) { return "$" + n; }
+                  }
+                  function fmtListingDate(raw) {
+                    var s = String(raw || "").trim();
+                    if (!s) return "";
+                    var d = parseDate(s);
+                    if (!d || isNaN(d.getTime())) return s;
+                    try {
+                      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+                    } catch (e) { return s; }
+                  }
+                  var heroPrice  = fmtListingMoney(activeFacts.price);
+                  var heroStatus = formatListingStatusDisplay(activeFacts.mlsStatus || activeFacts.status || "");
+                  var heroMls    = String(activeFacts.mlsNumber || "").trim();
+                  var heroDom    = String(activeFacts.dom || "").trim();
+                  var heroDetailsUrl = String(active.mlsFullDetailsUrl || active.idxDetailsUrl || "").trim();
+                  var heroTaxes  = activeFacts.taxes ? fmtListingMoney(activeFacts.taxes) : "";
+                  var heroHoa    = activeFacts.hoa ? fmtListingMoney(activeFacts.hoa) : "";
+
+                  // Location subtitle — neighborhood + zip + county on one
+                  // line, sitting between the price and the status meta. Used
+                  // to be its own tile; now lives in the hero so it gets the
+                  // same visual weight as the rest of the property summary.
+                  var heroLocBits = [];
+                  var heroLocPrimary = listingLocationLabel(active);
+                  if (heroLocPrimary) heroLocBits.push(heroLocPrimary);
+                  if (active.mlsCity && active.mlsCity !== heroLocPrimary) heroLocBits.push(String(active.mlsCity).trim());
+                  if (active.mlsZip) heroLocBits.push(String(active.mlsZip).trim());
+                  if (active.mlsCounty) heroLocBits.push(String(active.mlsCounty).trim() + " County");
+
+                  // Meta line removed: status pill now lives in the top-right
+                  // of the overview, and MLS# / days / taxes / HOA have been
+                  // pushed down into the property spec line so there's only
+                  // one row of secondary facts under the price.
+                  var heroMetaBits = [];
+
+                  // Property facts line — beds · baths · rooms · sqft · lot ·
+                  // type · year · MLS# · days · taxes · HOA. Each fragment is
+                  // only rendered when populated, so the line scales gracefully
+                  // for off-MLS listings.
+                  var propBits = [];
+                  if (activeFacts.beds) propBits.push('<span><b>' + esc(activeFacts.beds) + '</b> bd</span>');
+                  if (activeFacts.baths) propBits.push('<span><b>' + esc(activeFacts.baths) + '</b> ba</span>');
+                  if (activeFacts.sqFt) propBits.push('<span><b>' + esc(activeFacts.sqFt) + '</b> sf</span>');
+                  var propTypeInline = activeFacts.propertyType;
+                  if (propTypeInline) propBits.push("<span>" + esc(propTypeInline) + "</span>");
+                  if (activeFacts.yearBuilt) propBits.push("<span>Built " + esc(activeFacts.yearBuilt) + "</span>");
+                  if (heroMls) {
+                    propBits.push(heroDetailsUrl
+                      ? '<span><a class="amd-lh-hero-meta-link" href="' + esc(heroDetailsUrl) + '" target="_blank" rel="noopener">MLS# ' + esc(heroMls) + " ↗</a></span>"
+                      : "<span>MLS# " + esc(heroMls) + "</span>");
+                  }
+                  if (heroDom) propBits.push("<span>" + esc(heroDom) + " days on market</span>");
+                  if (heroTaxes) propBits.push("<span>Taxes <b>" + esc(heroTaxes) + "</b>/yr</span>");
+                  if (heroHoa) propBits.push("<span>HOA <b>" + esc(heroHoa) + "</b></span>");
+
+                  var heroLocHtml = heroLocBits.length
+                    ? '<div class="amd-lh-hero-loc">' + esc(heroLocBits.join(" · ")) + "</div>"
+                    : "";
+                  var heroHtml = (heroPrice || heroLocHtml || heroMetaBits.length || propBits.length)
+                    ? '<div class="amd-lh-hero">' +
+                        (heroPrice ? '<div class="amd-lh-hero-price">' + esc(heroPrice) + "</div>" : "") +
+                        heroLocHtml +
+                        (heroMetaBits.length ? '<div class="amd-lh-hero-meta">' + heroMetaBits.join("") + "</div>" : "") +
+                        (propBits.length ? '<div class="amd-lh-hero-specs">' + propBits.join('<span class="amd-lh-hero-sep" aria-hidden="true">·</span>') + "</div>" : "") +
+                      "</div>"
+                    : "";
+
+                  // ── 4th tile: Financials (taxes + HOA), with smart fallback
+                  // to List Date / Days on Market when no MLS financials exist
+                  // so the tile never sits empty.
+                  var taxesFmt = activeFacts.taxes ? fmtListingMoney(activeFacts.taxes) : "";
+                  var hoaFmt   = activeFacts.hoa ? fmtListingMoney(activeFacts.hoa) : "";
+                  var financeTileK, financeTileV, financeTileMeta;
+                  if (taxesFmt) {
+                    financeTileK = "Annual Taxes";
+                    financeTileV = esc(taxesFmt);
+                    financeTileMeta = hoaFmt ? "HOA " + esc(hoaFmt) : "";
+                  } else if (hoaFmt) {
+                    financeTileK = "HOA / Assessments";
+                    financeTileV = esc(hoaFmt);
+                    financeTileMeta = "";
+                  } else if (activeFacts.listDate || heroDom) {
+                    financeTileK = "On Market";
+                    financeTileV = heroDom ? esc(heroDom) + " days" : esc(fmtListingDate(activeFacts.listDate));
+                    financeTileMeta = activeFacts.listDate
+                      ? "Listed " + esc(fmtListingDate(activeFacts.listDate))
+                      : "";
+                  } else {
+                    financeTileK = "Activity";
+                    financeTileV = '<span style="color:rgba(60,60,67,0.6);font-weight:500;">—</span>';
+                    financeTileMeta = "";
+                  }
+                  var financeTileHtml =
+                    '<div class="amd-lh-stat">' +
+                      '<div class="amd-lh-stat-k">' + esc(financeTileK) + "</div>" +
+                      '<div class="amd-lh-stat-v">' + financeTileV + "</div>" +
+                      (financeTileMeta ? '<div class="amd-lh-stat-meta">' + financeTileMeta + "</div>" : "") +
+                    "</div>";
+
+                  // Re-label Next Open House → Schedule, Seller Questionnaire
+                  // → Seller, for visual rhythm across short, punchy titles.
+                  var ohTileLabeled = ohTileHtml.replace(">Next Open House<", ">Open House<");
+                  var sellerTileHtml =
+                    '<div class="amd-lh-stat is-seller">' +
+                      '<div class="amd-lh-stat-k">Seller Questionnaire</div>' +
+                      '<div class="amd-lh-stat-v">' + sellerLine + "</div>" +
+                      metaHtml +
+                      actionsHtml +
+                    "</div>";
+
+                  // ── Compass listing link tile ─────────────────────────────
+                  // Mirrors the agent-personal-hub resolver: accept any of the
+                  // common column variants admins use in the sheet (compassLink
+                  // / compass_url / listingUrl / etc.). Empty state nudges the
+                  // admin to add the link in the Listing Hub sheet so the rest
+                  // of the dashboard stays in sync.
+                  var compassLink = String(
+                    active.compass_link ||
+                    active.compassLink ||
+                    active.compassUrl ||
+                    active.compass_url ||
+                    active.listingUrl ||
+                    active.listing_url ||
+                    ""
+                  ).trim();
+                  var compassTileHtml;
+                  if (compassLink) {
+                    var compassDisplay = compassLink.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+                    if (compassDisplay.length > 48) compassDisplay = compassDisplay.slice(0, 45) + "…";
+                    compassTileHtml =
+                      '<div class="amd-lh-stat is-compass">' +
+                        '<div class="amd-lh-stat-k">Compass Link</div>' +
+                        '<div class="amd-lh-stat-v">' +
+                          '<a href="' + esc(compassLink) + '" target="_blank" rel="noopener" title="' + esc(compassLink) + '">' + esc(compassDisplay) + " ↗</a>" +
+                        "</div>" +
+                        '<div class="amd-lh-stat-actions">' +
+                          '<button class="amd-lh-stat-action" type="button"' +
+                            ' data-sell-copy-compass="' + esc(compassLink) + '">Copy link</button>' +
+                          '<a class="amd-lh-stat-action is-secondary" href="' + esc(compassLink) + '"' +
+                            ' target="_blank" rel="noopener">Open ↗</a>' +
+                        "</div>" +
+                      "</div>";
+                  } else {
+                    compassTileHtml =
+                      '<div class="amd-lh-stat is-compass">' +
+                        '<div class="amd-lh-stat-k">Compass Link</div>' +
+                        '<div class="amd-lh-stat-v"><span style="color:rgba(60,60,67,0.6);font-weight:500;">Not posted yet</span></div>' +
+                        '<div class="amd-lh-stat-meta">Add the Compass listing URL in the Listing Hub sheet.</div>' +
+                      "</div>";
+                  }
+
+                  var micrositeUrl = listingMicrositePageUrl(active);
+                  var micrositeStatus = String(active.micrositeStatus || "Draft").trim() || "Draft";
+                  var micrositeTileHtml =
+                    '<div class="amd-lh-stat is-microsite">' +
+                      '<div class="amd-lh-stat-k">Microsite</div>' +
+                      '<div class="amd-lh-stat-v">' + esc(micrositeStatus) + "</div>" +
+                      (active.missingAssets ? '<div class="amd-lh-stat-meta">' + esc(active.missingAssets) + "</div>" : "") +
+                      '<div class="amd-lh-stat-actions">' +
+                        '<a class="amd-lh-stat-action is-secondary" href="' + esc(micrositeUrl) + '" target="_blank" rel="noopener">Preview ↗</a>' +
+                        '<button class="amd-lh-stat-action" type="button" data-sell-copy-microsite-url="' + esc(micrositeUrl) + '">Copy URL</button>' +
+                        '<button class="amd-lh-stat-action" type="button" data-sell-copy-microsite-embed="' + esc(listingMicrositeEmbedHtml(active)) + '">Copy embed</button>' +
                       "</div>" +
-                    "</div>"
+                    "</div>";
+
+                  var notesText = String(activeMarketing.notes || active.notes || "").trim();
+                  var notesTileHtml = notesText
+                    ? '<div class="amd-lh-stat is-notes">' +
+                        '<div class="amd-lh-stat-k">Hub Notes</div>' +
+                        '<div class="amd-lh-stat-v" style="font-size:13px;line-height:1.45;font-weight:500;">' + esc(notesText) + "</div>" +
+                      "</div>"
+                    : "";
+
+                  // ── Expandable details fold-out ───────────────────────────
+                  // Inline at the bottom of Listing Overview. Reveals public
+                  // remarks + every remaining MRED field. Replaces the old
+                  // standalone Listing Details bento.
+                  var detailsExpandHtml = "";
+                  if (active.idxMatched) {
+                    // Build a sold-vs-ask snippet for closed listings.
+                    var soldVsAskLabel = "";
+                    var soldPriceNum = Number(String(active.mlsSoldPrice || "").replace(/[^0-9.]/g, ""));
+                    var askPriceNum = Number(String(active.listPrice || active.mlsPriceBeforeReduction || "").replace(/[^0-9.]/g, ""));
+                    if (isFinite(soldPriceNum) && soldPriceNum > 0) {
+                      var soldLabel = "$" + soldPriceNum.toLocaleString();
+                      if (isFinite(askPriceNum) && askPriceNum > 0) {
+                        var diff = soldPriceNum - askPriceNum;
+                        var pct = ((diff / askPriceNum) * 100).toFixed(1);
+                        var sign = diff >= 0 ? "+" : "−";
+                        soldVsAskLabel = soldLabel + " (vs ask $" + askPriceNum.toLocaleString() + ", " + sign + Math.abs(pct) + "%)";
+                      } else {
+                        soldVsAskLabel = soldLabel;
+                      }
+                    }
+                    var priceReductionLabel = "";
+                    var priceReductionDateFmt = fmtListingDate(active.mlsPriceReductionDate);
+                    if (active.mlsPriceBeforeReduction) {
+                      var preNum = Number(String(active.mlsPriceBeforeReduction).replace(/[^0-9.]/g, ""));
+                      var preStr = isFinite(preNum) && preNum > 0 ? "$" + preNum.toLocaleString() : String(active.mlsPriceBeforeReduction);
+                      priceReductionLabel = preStr + (priceReductionDateFmt ? " (on " + priceReductionDateFmt + ")" : "");
+                    }
+                    var adv = (active.mlsAdvanced && typeof active.mlsAdvanced === "object") ? active.mlsAdvanced : {};
+                    function advPick(keys) {
+                      for (var i = 0; i < keys.length; i++) {
+                        if (adv[keys[i]] !== undefined && String(adv[keys[i]]).trim() !== "") return adv[keys[i]];
+                      }
+                      return "";
+                    }
+                    var fullRowsExp = [
+                      ["MLS #",             active.idxListingId || active.mlsNumber],
+                      ["Status",            heroStatus],
+                      ["List Price",        heroPrice],
+                      ["List Date",         fmtListingDate(activeFacts.listDate)],
+                      ["Days on Market",    activeFacts.dom],
+                      ["Property Type",     propTypeInline],
+                      ["Home Type",         active.mlsHomeType || advPick(["mrdTpc"])],
+                      ["Year Built",        active.mlsYearBuilt],
+                      ["Year Rehabbed",     active.mlsRehabYear || advPick(["mrdRehabYear"])],
+                      ["Stories",           active.mlsStories],
+                      ["Garage",            active.mlsGarageSpaces],
+                      ["Parking",           active.mlsParking],
+                      ["Open Houses",       active.mlsOhCount],
+                      ["Sold Price",        soldVsAskLabel],
+                      ["Sold Date",         fmtListingDate(active.mlsSoldDate)],
+                      ["Prior List Price",  priceReductionLabel],
+                      ["Annual Taxes",      taxesFmt],
+                      ["HOA / Assessments", hoaFmt],
+                      ["MLS Area",          cleanMlsAreaMajor(activeFacts.areaMajor)],
+                      ["Township",          formatTownship(activeFacts.township)],
+                      ["City",              active.mlsCity],
+                      ["County",            active.mlsCounty],
+                      ["Zip",               active.mlsZip],
+                      ["School District",   active.mlsSchoolDistrict],
+                      ["Elementary",        active.mlsElementarySchool],
+                      ["Middle",            active.mlsMiddleSchool],
+                      ["High",              active.mlsHighSchool],
+                      ["Marketing Status",  activeMarketing.marketingStatus],
+                      ["Photos Status",     activeMarketing.photosStatus],
+                      ["Photos Delivered",  fmtListingDate(activeMarketing.photosDeliveredAt)],
+                      ["Matterport Status", activeMarketing.matterportStatus],
+                      ["Matterport Delivered", fmtListingDate(activeMarketing.matterportDeliveredAt)],
+                      ["Floor Plan Status", activeMarketing.floorPlanStatus],
+                      ["Floor Plan Delivered", fmtListingDate(activeMarketing.floorPlanDeliveredAt)],
+                      ["Video Status",      activeMarketing.videoStatus],
+                      ["Video Delivered",   fmtListingDate(activeMarketing.videoDeliveredAt)],
+                      ["Fact Sheet Status", activeMarketing.factSheetStatus],
+                      ["Fact Sheet Requested", fmtListingDate(activeMarketing.factSheetRequestedAt)],
+                      ["Fact Sheet Delivered", fmtListingDate(activeMarketing.factSheetDeliveredAt)],
+                      ["Open House Materials", activeMarketing.openHouseMaterialsStatus],
+                      ["OH Materials Requested", fmtListingDate(activeMarketing.openHouseMaterialsRequestedAt)],
+                      ["OH Materials Delivered", fmtListingDate(activeMarketing.openHouseMaterialsDeliveredAt)],
+                      ["Last Marketing Update", activeMarketing.lastUpdatedAt],
+                      ["Listing Agent ID",  active.mlsListingAgentId || active.mlsListingAgentMlsId]
+                    ].filter(function (r) { return String(r[1] || "").trim(); });
+                    var remarksExp = String(active.mlsRemarks || "").trim();
+                    var fullGridExp = fullRowsExp
+                      .map(function (r) {
+                        return '<div class="amd-lh-detail-row">' +
+                          '<dt class="amd-lh-detail-k">' + esc(r[0]) + "</dt>" +
+                          '<dd class="amd-lh-detail-v">' + esc(r[1]) + "</dd>" +
+                        "</div>";
+                      })
+                      .join("");
+                    var mlsAgentLineExp = String(active.mlsListAgentName || "").trim();
+                    if (active.mlsListOffice) mlsAgentLineExp += (mlsAgentLineExp ? " · " : "") + active.mlsListOffice;
+                    var mlsFootBtn = heroDetailsUrl
+                      ? '<a class="amd-mini-btn is-dark" href="' + esc(heroDetailsUrl) + '" target="_blank" rel="noopener">Open MLS Detail ↗</a>'
+                      : "";
+                    if (remarksExp || fullRowsExp.length) {
+                      detailsExpandHtml =
+                        '<details class="amd-lh-foldout">' +
+                          '<summary class="amd-lh-foldout-summary">' +
+                            '<span>Full listing details</span>' +
+                            '<span class="amd-lh-foldout-hint">Description, schools, taxes &amp; more</span>' +
+                            '<svg class="amd-lh-foldout-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                              '<polyline points="6 9 12 15 18 9"></polyline>' +
+                            "</svg>" +
+                          "</summary>" +
+                          '<div class="amd-lh-foldout-body">' +
+                            (remarksExp
+                              ? '<div class="amd-lh-mred-remarks">' + esc(remarksExp) + "</div>"
+                              : "") +
+                            (fullGridExp
+                              ? '<dl class="amd-lh-detail-list">' + fullGridExp + "</dl>"
+                              : "") +
+                            (mlsAgentLineExp || mlsFootBtn
+                              ? '<div class="amd-lh-mls-foot">' +
+                                  (mlsAgentLineExp ? '<div class="amd-lh-mls-agent">Listed by ' + esc(mlsAgentLineExp) + "</div>" : '<div></div>') +
+                                  mlsFootBtn +
+                                "</div>"
+                              : "") +
+                          "</div>" +
+                        "</details>";
+                    }
+                  }
+
+                  return (
+                    heroHtml +
+                    '<div class="amd-lh-status-grid amd-lh-status-grid--trio">' +
+                      ohTileLabeled +
+                      sellerTileHtml +
+                      compassTileHtml +
+                      micrositeTileHtml +
+                      notesTileHtml +
+                    "</div>" +
+                    detailsExpandHtml
                   );
                 })() +
               "</section>" +
@@ -6062,7 +7329,7 @@
                 var plan = getMarketingActionPlanState(active, state.sellActiveAddress);
                 var questionnaireLink = resolveAgentQuestionnaireLink(activeAgentName);
                 var photoBooked = !!parseListingBookingDate(active) ||
-                  String(active.photosStatus || "").toLowerCase().indexOf("book") >= 0;
+                  String(activeMarketing.photosStatus || active.photosStatus || "").toLowerCase().indexOf("book") >= 0;
                 var bookingDateLabelStr = formatBookingDate(parseListingBookingDate(active));
                 var photosEtaLabel = formatBookingDate(computeServiceEta("photos", parseListingBookingDate(active)));
                 var matterportEtaLabel = formatBookingDate(computeServiceEta("matterport", parseListingBookingDate(active)));
@@ -6125,33 +7392,26 @@
                           if (serviceKey) {
                             var bookingForEta = parseListingBookingDate(active);
                             var assetState, assetStatusLabel, assetEtaLabel = "";
-                            if (serviceKey === "marketing_materials") {
-                              assetState = getMarketingMaterialsState(active);
-                              if (assetState === "delivered") {
-                                assetStatusLabel = "Delivered";
-                              } else if (assetState === "building") {
-                                assetStatusLabel = "Marketing is on it";
-                                assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
-                              } else if (assetState === "requested") {
-                                assetStatusLabel = "Requested";
-                                assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
-                              } else {
-                                assetStatusLabel = "Not Requested";
-                              }
+                            var rawAssetStatus = getMarketingServiceRawStatus(active, serviceKey);
+                            if (serviceKey === "fact_sheet" || serviceKey === "open_house_materials") {
+                              assetState = getCaptureServiceState(active, serviceKey);
+                              assetStatusLabel = rawAssetStatus || (assetState === "not_requested" ? "Not Requested" : serviceStateLabel(assetState));
+                              if (assetState === "building") assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
+                              if (assetState === "requested") assetEtaLabel = formatBookingDate(computeServiceEta("marketing_materials", new Date()));
                             } else {
                               assetState = getCaptureServiceState(active, serviceKey);
                               if (assetState === "delivered") {
-                                assetStatusLabel = "Delivered";
+                                assetStatusLabel = rawAssetStatus || "Delivered";
                               } else if (assetState === "editing") {
-                                assetStatusLabel = "Editing";
+                                assetStatusLabel = rawAssetStatus || "Editing";
                                 assetEtaLabel = formatBookingDate(computeServiceEta(serviceKey, bookingForEta));
                               } else if (assetState === "booked") {
-                                assetStatusLabel = bookingForEta
+                                assetStatusLabel = rawAssetStatus || (bookingForEta
                                   ? "Booked · " + formatBookingDate(bookingForEta)
-                                  : "Booked";
+                                  : "Booked");
                                 assetEtaLabel = formatBookingDate(computeServiceEta(serviceKey, bookingForEta));
                               } else {
-                                assetStatusLabel = "Not Booked";
+                                assetStatusLabel = rawAssetStatus || "Not Booked";
                               }
                             }
                             var assetTone = SERVICE_STATE_TONE[assetState] || "pending";
@@ -6251,6 +7511,8 @@
                     '</div>' +
                   "</article>";
 
+                // Listing Details now lives inside the Listing Overview as a
+                // collapsible fold-out — no separate bento needed.
                 var stageContent =
                   '<div class="amd-lh-stage-content">' +
                     marketingStatusHtml +
@@ -6528,7 +7790,7 @@
         kpisHTML =
           '<article class="amd-kpi"><div class="amd-kpi-head"><div class="amd-kpi-label">Listings Pipeline</div><span class="amd-kpi-chip pipeline">Listings</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.totalListings) + '</div><div class="amd-kpi-meta">total listings in Listing Hub</div></article>' +
           '<article class="amd-kpi pending"><div class="amd-kpi-head"><div class="amd-kpi-label">Active Listings</div><span class="amd-kpi-chip pending">Live</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.activeListings) + '</div><div class="amd-kpi-meta">currently active scope</div></article>' +
-          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed Listings</div><span class="amd-kpi-chip closed">Closed</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.closedListings) + '</div><div class="amd-kpi-meta">historical + archived scope</div></article>' +
+          '<article class="amd-kpi closed"><div class="amd-kpi-head"><div class="amd-kpi-label">Closed Listings</div><span class="amd-kpi-chip closed">Closed</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.closedListings) + '</div><div class="amd-kpi-meta">Listing Hub: ' + fmtNum(sellDashboardMetrics.closedListings) + ' · IDX: ' + fmtNum(sellDashboardMetrics.idxClosedListings || 0) + "</div></article>" +
           '<article class="amd-kpi forecast next-close"><div class="amd-kpi-head"><div class="amd-kpi-label">Filtered Active</div><span class="amd-kpi-chip next">Search</span></div><div class="amd-kpi-value">' + fmtNum(sellDashboardMetrics.filteredActive) + '</div><div class="amd-kpi-meta">cards currently visible below</div></article>';
       } else if (state.coreFeedsPending) {
         kpisHTML =
@@ -6549,7 +7811,7 @@
           '<div class="amd-head">' +
             "<div>" +
               '<h2 class="amd-title">Team Performance</h2>' +
-              '<p class="amd-subtitle">Master operations workspace for Buy, Sell, Closed, and Data Viz.</p>' +
+              '<p class="amd-subtitle">Master operations workspace for Buy, Sell, Closed, and Data.</p>' +
             "</div>" +
             '<div class="amd-actions">' +
               '<div class="amd-updated">Last refresh: ' + esc(updated) + "</div>" +
@@ -6566,7 +7828,7 @@
             '<button class="amd-tab ' + (state.tab === "buy" ? "is-active" : "") + '" data-tab="buy" type="button">Buy</button>' +
             '<button class="amd-tab ' + (state.tab === "sell" ? "is-active" : "") + '" data-tab="sell" type="button">Sell</button>' +
             '<button class="amd-tab ' + (state.tab === "closed" ? "is-active" : "") + '" data-tab="closed" type="button">Closed</button>' +
-            '<button class="amd-tab ' + (state.tab === "viz" ? "is-active" : "") + '" data-tab="viz" type="button">Data Viz</button>' +
+            '<button class="amd-tab ' + (state.tab === "viz" ? "is-active" : "") + '" data-tab="viz" type="button">Data</button>' +
           "</div>" +
           '<section class="amd-panel">' + panelHTML + "</section>" +
           overlayHTML +
@@ -6582,15 +7844,20 @@
             } else {
               render();
             }
+          } else if ((state.tab === "closed" || state.tab === "summary" || state.tab === "leaderboard") && !state.allTimeSummary) {
+            state.coreFeedsPending = true;
+            render();
+            load();
           } else {
             render();
           }
         });
       }
-      var sellAgentEl = root.querySelector("[data-sell-agent]");
-      if (sellAgentEl) {
-        sellAgentEl.addEventListener("change", function () {
-          state.sellAgentFilter = this.value || "all";
+      state.sellAgentFilter = "all";
+      var sellSearchClearEl = root.querySelector("[data-sell-search-clear]");
+      if (sellSearchClearEl) {
+        sellSearchClearEl.addEventListener("click", function () {
+          state.sellSearch = "";
           render();
         });
       }
@@ -6692,6 +7959,42 @@
           }
         });
       }
+      var copyCompassBtns = root.querySelectorAll("[data-sell-copy-compass]");
+      for (var cc = 0; cc < copyCompassBtns.length; cc++) {
+        copyCompassBtns[cc].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var link = this.getAttribute("data-sell-copy-compass") || "";
+          if (!link) return;
+          var btn = this;
+          var orig = btn.textContent;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function () {
+              btn.textContent = "Copied!";
+              setTimeout(function () { btn.textContent = orig; }, 1400);
+            }, function () {});
+          }
+        });
+      }
+      function bindCopyButton(selector, attrName) {
+        var buttons = root.querySelectorAll(selector);
+        for (var bi = 0; bi < buttons.length; bi++) {
+          buttons[bi].addEventListener("click", function (evt) {
+            evt.stopPropagation();
+            var text = this.getAttribute(attrName) || "";
+            if (!text) return;
+            var btn = this;
+            var orig = btn.textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = "Copied!";
+                setTimeout(function () { btn.textContent = orig; }, 1400);
+              }, function () {});
+            }
+          });
+        }
+      }
+      bindCopyButton("[data-sell-copy-microsite-url]", "data-sell-copy-microsite-url");
+      bindCopyButton("[data-sell-copy-microsite-embed]", "data-sell-copy-microsite-embed");
       var copyMpBtns = root.querySelectorAll("[data-sell-copy-mp]");
       for (var cm = 0; cm < copyMpBtns.length; cm++) {
         copyMpBtns[cm].addEventListener("click", function (evt) {
@@ -6779,6 +8082,134 @@
           evt.stopPropagation();
           var addr = this.getAttribute("data-sell-open-sq") || state.sellActiveAddress || "";
           openSellerQuestionnaireModal(addr);
+        });
+      }
+      // Safety net: delegated handler for dynamically re-rendered questionnaire
+      // detail buttons, so clicks still open the modal even if a per-node
+      // listener is missed during a rapid render cycle.
+      if (!root.__sellSqDelegatedBound) {
+        root.__sellSqDelegatedBound = true;
+        root.addEventListener("click", function (evt) {
+          var btn = evt.target && evt.target.closest ? evt.target.closest("[data-sell-open-sq]") : null;
+          if (!btn || !root.contains(btn)) return;
+          evt.stopPropagation();
+          var addr = btn.getAttribute("data-sell-open-sq") || state.sellActiveAddress || "";
+          openSellerQuestionnaireModal(addr);
+        });
+      }
+      // ── Open House tile actions ───────────────────────────────────────────
+      // Copy formatted "address · date · time" string to clipboard for quick
+      // pasting into Slack / Asana / email.
+      var copyOhBtns = root.querySelectorAll("[data-sell-copy-oh]");
+      for (var coh = 0; coh < copyOhBtns.length; coh++) {
+        copyOhBtns[coh].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var text = this.getAttribute("data-sell-copy-oh") || "";
+          if (!text) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {}, function () {});
+          }
+          var btn = this;
+          var prev = btn.textContent;
+          btn.textContent = "Copied";
+          setTimeout(function () { btn.textContent = prev; }, 1200);
+        });
+      }
+      // Build a minimal .ics file from the OH slot and trigger a download.
+      // Apple Calendar / Google Calendar / Outlook all accept this format.
+      var addOhCalBtns = root.querySelectorAll("[data-sell-add-oh-cal]");
+      for (var aoh = 0; aoh < addOhCalBtns.length; aoh++) {
+        addOhCalBtns[aoh].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var addr  = this.getAttribute("data-sell-add-oh-cal") || "";
+          var date  = this.getAttribute("data-sell-oh-date") || "";
+          var start = this.getAttribute("data-sell-oh-start") || "";
+          var end   = this.getAttribute("data-sell-oh-end") || "";
+          if (!addr || !date) return;
+          var d = parseDate(date);
+          if (!d || isNaN(d.getTime())) return;
+          function toIcsDateTime(dObj, timeStr) {
+            var hh = 12, mm = 0;
+            var m = String(timeStr || "").match(/(\d{1,2})(?::(\d{2}))?\s*([ap]m)?/i);
+            if (m) {
+              hh = Number(m[1]) || 12;
+              mm = Number(m[2] || 0);
+              var mer = (m[3] || "").toLowerCase();
+              if (mer === "pm" && hh < 12) hh += 12;
+              if (mer === "am" && hh === 12) hh = 0;
+            }
+            var out = new Date(dObj.getFullYear(), dObj.getMonth(), dObj.getDate(), hh, mm, 0);
+            function pad(n) { return n < 10 ? "0" + n : "" + n; }
+            return out.getFullYear() + pad(out.getMonth() + 1) + pad(out.getDate()) +
+              "T" + pad(out.getHours()) + pad(out.getMinutes()) + "00";
+          }
+          var dtStart = toIcsDateTime(d, start || "12:00 PM");
+          var dtEnd   = toIcsDateTime(d, end   || start || "2:00 PM");
+          var uid = "oh-" + dtStart + "-" + String(addr).replace(/[^a-z0-9]/gi, "") + "@asg";
+          var ics = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//ASG Admin Hub//Open House//EN",
+            "BEGIN:VEVENT",
+            "UID:" + uid,
+            "DTSTAMP:" + dtStart,
+            "DTSTART:" + dtStart,
+            "DTEND:" + dtEnd,
+            "SUMMARY:Open House — " + String(addr).replace(/[\r\n,;]/g, " "),
+            "LOCATION:" + String(addr).replace(/[\r\n,;]/g, " "),
+            "DESCRIPTION:Scheduled open house at " + String(addr).replace(/[\r\n,;]/g, " "),
+            "END:VEVENT",
+            "END:VCALENDAR"
+          ].join("\r\n");
+          var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+          var url = URL.createObjectURL(blob);
+          try {
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "open-house-" + dtStart + ".ics";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          } finally {
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+          }
+        });
+      }
+      // POST requestopenhouse to Apps Script — admin gets the email + the
+      // listing gets flagged so the open-house schedule bento (next pass)
+      // can pick it up. Optimistic UI: button flips to "Requested ✓".
+      var requestOhBtns = root.querySelectorAll("[data-sell-request-oh]");
+      for (var roh = 0; roh < requestOhBtns.length; roh++) {
+        requestOhBtns[roh].addEventListener("click", function (evt) {
+          evt.stopPropagation();
+          var btn = this;
+          if (btn.disabled) return;
+          var addr = btn.getAttribute("data-sell-request-oh") || "";
+          if (!addr) return;
+          btn.disabled = true;
+          var prev = btn.textContent;
+          btn.textContent = "Requesting…";
+          fetch(LISTINGS_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "requestopenhouse", address: addr, secret: (window.ASG_WEBHOOK_SECRET || "") }),
+            redirect: "follow"
+          })
+            .then(function (r) { return r.json().catch(function () { return { success: r.ok }; }); })
+            .then(function (resp) {
+              if (resp && resp.success) {
+                btn.textContent = "Requested ✓";
+              } else {
+                btn.textContent = prev;
+                btn.disabled = false;
+                console.error("Open house request failed:", resp && resp.error);
+              }
+            })
+            .catch(function (err) {
+              btn.textContent = prev;
+              btn.disabled = false;
+              console.error("Open house request error:", err);
+            });
         });
       }
       // Listing Overview: persistent copy-questionnaire-link button. Animates
@@ -7028,8 +8459,9 @@
       if (refreshBtn) {
         refreshBtn.addEventListener("click", function () {
           state.coreFeedsPending = true;
+          state.listingsLoaded = false;
           render();
-          load();
+          load({ force: true });
         });
       }
       var qtBtns = root.querySelectorAll('.amd-qt-legend-btn[data-qtf]');
@@ -7234,6 +8666,37 @@
         return r.json();
       });
     }
+    function dashboardCacheKey(url) {
+      return CACHE_PREFIX + String(url || "");
+    }
+    function readDashboardCache(url, maxAgeMs) {
+      try {
+        var raw = localStorage.getItem(dashboardCacheKey(url));
+        if (!raw) return null;
+        var entry = JSON.parse(raw);
+        if (!entry || !entry.savedAt) return null;
+        if (maxAgeMs && Date.now() - Number(entry.savedAt) > maxAgeMs) return null;
+        return entry.value == null ? null : entry.value;
+      } catch (e) {
+        return null;
+      }
+    }
+    function writeDashboardCache(url, value) {
+      try {
+        localStorage.setItem(dashboardCacheKey(url), JSON.stringify({ savedAt: Date.now(), value: value }));
+      } catch (e) {}
+    }
+    function fetchJSONCached(url, maxAgeMs, options) {
+      options = options || {};
+      if (!options.force) {
+        var cached = readDashboardCache(url, maxAgeMs);
+        if (cached) return Promise.resolve(cached);
+      }
+      return fetchJSON(url).then(function (payload) {
+        writeDashboardCache(url, payload);
+        return payload;
+      });
+    }
 
     // POST helper for inline listing edits. Uses text/plain content type so
     // the request stays "simple" (no CORS preflight) while still landing in
@@ -7272,6 +8735,15 @@
       "Sale + Lease",
       "Land"
     ];
+    function formatListingStatusDisplay(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      var k = s.toLowerCase().replace(/\s+/g, " ");
+      if (k.indexOf("active under contract") >= 0 || k === "under contract" || k.indexOf("under contract") >= 0) {
+        return "Under Contract";
+      }
+      return listingPhaseLabel({ status: s, phaseKey: s, phase: s });
+    }
     function listingPhaseLabel(row) {
       var raw = String((row && (row.phaseKey || row.status || row.phase)) || "").trim();
       if (!raw) return "—";
@@ -7344,9 +8816,307 @@
       var sep = LISTINGS_API.indexOf("?") >= 0 ? "&" : "?";
       return LISTINGS_API + sep + "view=detailpage&address=" + encodeURIComponent(a);
     }
+    function listingMicrositeSlug(row) {
+      var explicit = String((row && row.micrositeSlug) || "").trim();
+      if (explicit) return explicit;
+      return String((row && row.address) || "")
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/#/g, " ")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80);
+    }
+    function listingMicrositePageUrl(row) {
+      var sep = LISTINGS_API.indexOf("?") >= 0 ? "&" : "?";
+      var slug = listingMicrositeSlug(row);
+      if (slug) return LISTINGS_API + sep + "view=microsite&slug=" + encodeURIComponent(slug);
+      return LISTINGS_API + sep + "view=microsite&address=" + encodeURIComponent((row && row.address) || "");
+    }
+    function listingMicrositeEmbedHtml(row) {
+      var url = listingMicrositePageUrl(row);
+      return '<iframe src="' + url.replace(/"/g, "&quot;") + '" style="width:100%;min-height:1400px;border:0;" loading="lazy"></iframe>';
+    }
 
+    // Directory is the agent source of truth (`mred_number` + `name`).
+    var directoryAgentByMredCache = { rows: null, map: {} };
+    var directoryAgentByNameCache = { rows: null, map: {} };
+    function normalizeMredLookupKey(id) {
+      return String(id || "").replace(/\D/g, "").trim();
+    }
+    function getListingCoListAgentId(row) {
+      if (!row) return "";
+      var idxObj = row.idx && typeof row.idx === "object" ? row.idx : null;
+      return normalizeMredLookupKey(
+        row.coListAgentID ||
+        row.mlsCoListAgentId ||
+        (idxObj && (idxObj.coListAgentID || idxObj.coListAgentId)) ||
+        ""
+      );
+    }
+    function getListingPrimaryAgentId(row) {
+      if (!row) return "";
+      var idxObj = row.idx && typeof row.idx === "object" ? row.idx : null;
+      return normalizeMredLookupKey(
+        row.listingAgentID ||
+        row.mlsListingAgentId ||
+        (idxObj && (idxObj.listingAgentID || idxObj.listingAgentId)) ||
+        ""
+      );
+    }
+    function getListingMredAgentId(row) {
+      if (!row) return "";
+      var coId = getListingCoListAgentId(row);
+      var primaryId = getListingPrimaryAgentId(row);
+      var byMred = buildDirectoryAgentByMredNumberMap();
+      if (coId && byMred[coId]) return coId;
+      if (coId) return coId;
+      return primaryId;
+    }
+    function getListingMlsAgentName(row) {
+      if (!row) return "";
+      var idxObj = row.idx && typeof row.idx === "object" ? row.idx : null;
+      var coId = getListingCoListAgentId(row);
+      var byMred = buildDirectoryAgentByMredNumberMap();
+      if (coId && byMred[coId]) return byMred[coId];
+      var coName = String(row.mlsCoListAgentName || row.coListAgentName || "").trim();
+      if (coName) return coName;
+      return String(
+        row.mlsListAgentName ||
+        (idxObj && (idxObj.listingAgentName || idxObj.listAgentName)) ||
+        ""
+      ).trim();
+    }
+    function buildDirectoryAgentByMredNumberMap() {
+      var rows = state.directoryRows || [];
+      if (directoryAgentByMredCache.rows === rows) return directoryAgentByMredCache.map;
+      var map = {};
+      rows.forEach(function (row) {
+        if (!row) return;
+        var mredNum = normalizeMredLookupKey(
+          row.mred_number != null ? row.mred_number :
+          (row.mredNumber != null ? row.mredNumber :
+          (row.mred_agent_id != null ? row.mred_agent_id :
+          (row.idx_agent_id != null ? row.idx_agent_id : "")))
+        );
+        if (!mredNum) return;
+        var name = String(row.name || row.display_name || row.full_name || "").trim();
+        if (!name) return;
+        map[mredNum] = name;
+      });
+      directoryAgentByMredCache = { rows: rows, map: map };
+      return map;
+    }
+    function buildDirectoryAgentByNameMap() {
+      var rows = state.directoryRows || [];
+      if (directoryAgentByNameCache.rows === rows) return directoryAgentByNameCache.map;
+      var map = {};
+      rows.forEach(function (row) {
+        if (!row) return;
+        var name = String(row.name || row.display_name || row.full_name || "").trim();
+        if (!name) return;
+        var key = normalizeAgentKey(name);
+        if (key) map[key] = name;
+      });
+      directoryAgentByNameCache = { rows: rows, map: map };
+      return map;
+    }
+    function resolveAgentFromMlsName(mlsName) {
+      var raw = String(mlsName || "").trim();
+      if (!raw) return "";
+      var key = normalizeAgentKey(raw);
+      var byName = buildDirectoryAgentByNameMap();
+      if (key && byName[key]) return byName[key];
+      var best = "";
+      var bestScore = 0;
+      var k, score;
+      for (k in byName) {
+        if (!byName.hasOwnProperty(k)) continue;
+        score = 0;
+        if (key === k) score = 1;
+        else if (key && (key.indexOf(k) >= 0 || k.indexOf(key) >= 0)) score = 0.85;
+        if (score > bestScore) {
+          bestScore = score;
+          best = byName[k];
+        }
+      }
+      return bestScore >= 0.85 ? best : raw;
+    }
+    function listingListDateMs(row) {
+      if (!row) return 0;
+      var raw = String(row.listDate || row.mlsListDate || "").trim();
+      if (!raw) return 0;
+      var d = parseDate(raw);
+      var ms = d && !isNaN(d.getTime()) ? d.getTime() : 0;
+      if (ms) return ms;
+      var n = Number(String(raw).replace(/[^0-9]/g, ""));
+      return isFinite(n) && n > 19000101 ? n : 0;
+    }
+    function listingPriceNumber(row) {
+      if (!row) return 0;
+      var raw =
+        row.listPrice != null ? row.listPrice :
+        (row.price != null ? row.price :
+        (row.idxPrice != null ? row.idxPrice : ""));
+      if (typeof raw === "number" && isFinite(raw)) return raw;
+      var n = Number(String(raw || "").replace(/[^0-9.\-]/g, ""));
+      return isFinite(n) ? n : 0;
+    }
+    function listingPriceLabel(row) {
+      var raw = firstListingValue(row, ["listPrice", "price", "idxPrice"]);
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      if (/^\$/.test(s)) return s;
+      var n = Number(s.replace(/[^0-9.\-]/g, ""));
+      if (!isFinite(n) || n === 0) return s;
+      try { return "$" + n.toLocaleString(); } catch (e) { return "$" + n; }
+    }
+    function listingCardFactsText(row) {
+      var facts = listingPropertyFacts(row);
+      var bits = [];
+      var price = listingPriceLabel(row);
+      if (price) bits.push(price);
+      if (facts.beds) bits.push(String(facts.beds) + " bd");
+      if (facts.baths) bits.push(String(facts.baths) + " ba");
+      if (facts.sqFt) bits.push(String(facts.sqFt) + " sf");
+      if (facts.dom) bits.push(String(facts.dom) + " DOM");
+      var location = listingLocationLabel(row);
+      if (location) bits.push(location);
+      return bits.join(" · ");
+    }
     function normalizeListingAgent(row) {
-      return String((row && (row.agentCanonical || row.agent)) || "").trim();
+      var direct = String((row && (row.agentCanonical || row.agent)) || "").trim();
+      if (direct) return direct;
+      var byMred = buildDirectoryAgentByMredNumberMap();
+      var coId = getListingCoListAgentId(row);
+      var primaryId = getListingPrimaryAgentId(row);
+      if (coId && byMred[coId]) return byMred[coId];
+      if (primaryId && byMred[primaryId]) return byMred[primaryId];
+      return resolveAgentFromMlsName(getListingMlsAgentName(row));
+    }
+    function listingAssignedAgent(row) {
+      if (!row) return "Alex Stoykov";
+      var addrKey = normalizeText(row.address || "").replace(/[^a-z0-9]+/g, " ").trim();
+      if ((addrKey === "1541 w montana street 1" || addrKey === "1541 w montana st 1") && !listingIsClosed(row)) return "Sam Abadi";
+      var directAgent = String(row.agentCanonical || row.agent || row.agent_name || "").trim();
+      if (directAgent) return resolveAgentFromMlsName(directAgent);
+      var coName = String(row.co_list_agent || row.coListAgentName || row.mlsCoListAgentName || "").trim();
+      if (coName) return resolveAgentFromMlsName(coName);
+      var byMred = buildDirectoryAgentByMredNumberMap();
+      var coId = getListingCoListAgentId(row);
+      if (coId && byMred[coId]) return byMred[coId];
+      return "Alex Stoykov";
+    }
+    function cleanMlsAreaMajor(raw) {
+      return String(raw || "").replace(/^CHI\s*-\s*/i, "").trim();
+    }
+    function formatTownship(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      return /township$/i.test(s) ? s : s + " Township";
+    }
+    function listingLocationLabel(row) {
+      if (!row) return "";
+      var rawArea = String(
+        row.mlsAreaMajor ||
+        row.mlsareamajor ||
+        row.idxMlsAreaMajor ||
+        row.neighborhood ||
+        row.idxNeighborhood ||
+        row.mlsNeighborhood ||
+        row.subdivision ||
+        row.community ||
+        row.area ||
+        ""
+      ).trim();
+      var township = formatTownship(row.mlsTownship || row.township || row.idxTownship || "");
+      if (!rawArea && township) return township;
+      if (!rawArea) return "";
+      var isChicagoArea = /^CHI\s*-/i.test(rawArea);
+      var area = cleanMlsAreaMajor(rawArea);
+      if (!area) return township;
+      if (!isChicagoArea) return area;
+      var city = String(row.mlsCity || row.city || row.cityName || "").trim();
+      var stateName = String(row.mlsState || row.state || row.stateName || "").trim();
+      var key = normalizeText(area).replace(/[,\s]+/g, " ");
+      var cityStateKey = normalizeText([city, stateName].filter(Boolean).join(" ")).replace(/[,\s]+/g, " ");
+      var cityOnlyKey = normalizeText(city).replace(/[,\s]+/g, " ");
+      if (key && (key === cityOnlyKey || key === cityStateKey)) return "";
+      if (/,?\s*(illinois|il)$/i.test(area) && city && normalizeText(area).indexOf(normalizeText(city)) === 0) return "";
+      return area;
+    }
+    function listingNeighborhoodLabel(row) {
+      return listingLocationLabel(row);
+    }
+    function firstListingValue(row, keys) {
+      if (!row) return "";
+      for (var i = 0; i < keys.length; i++) {
+        var v = row[keys[i]];
+        if (v != null && String(v).trim() !== "") return v;
+      }
+      return "";
+    }
+    function listingPropertyFacts(row) {
+      return {
+        price: firstListingValue(row, ["listPrice", "price", "idxPrice"]),
+        status: firstListingValue(row, ["workflowStatus", "status", "idxMlsStatus"]),
+        mlsStatus: firstListingValue(row, ["idxMlsStatus", "mlsStatus"]),
+        mlsNumber: firstListingValue(row, ["idxListingId", "mlsNumber", "listingId"]),
+        listDate: firstListingValue(row, ["mlsListDate", "listDate"]),
+        dom: firstListingValue(row, ["mlsDaysOnMarket", "mlsCumulativeDom"]),
+        beds: firstListingValue(row, ["beds", "bedrooms"]),
+        baths: firstListingValue(row, ["baths", "bathrooms"]),
+        sqFt: firstListingValue(row, ["sqFt"]),
+        propertyType: [firstListingValue(row, ["mlsPropType", "propertyType", "listingType"]), firstListingValue(row, ["mlsPropSubType"])].filter(Boolean).join(" · "),
+        yearBuilt: firstListingValue(row, ["mlsYearBuilt"]),
+        taxes: firstListingValue(row, ["mlsTaxes"]),
+        hoa: firstListingValue(row, ["mlsHoaDues"]),
+        garage: firstListingValue(row, ["mlsGarageSpaces"]),
+        parking: firstListingValue(row, ["mlsParking"]),
+        township: firstListingValue(row, ["mlsTownship", "township", "idxTownship"]),
+        areaMajor: firstListingValue(row, ["mlsAreaMajor", "mlsareamajor", "idxMlsAreaMajor"]),
+        schoolDistrict: firstListingValue(row, ["mlsSchoolDistrict"]),
+        elementary: firstListingValue(row, ["mlsElementarySchool"]),
+        middle: firstListingValue(row, ["mlsMiddleSchool"]),
+        high: firstListingValue(row, ["mlsHighSchool"])
+      };
+    }
+    function listingMarketingStatus(row) {
+      return {
+        dealStage: firstListingValue(row, ["dealStage", "status", "phase"]),
+        marketingStatus: firstListingValue(row, ["marketingStatus", "marketing_status"]),
+        photosStatus: firstListingValue(row, ["photosStatus", "photos_status"]),
+        photosDeliveredAt: firstListingValue(row, ["photosDeliveredAt", "photos_delivered_at"]),
+        matterportStatus: firstListingValue(row, ["matterportStatus", "matterport_status"]),
+        matterportDeliveredAt: firstListingValue(row, ["matterportDeliveredAt", "matterport_delivered_at"]),
+        floorPlanStatus: firstListingValue(row, ["floorPlanStatus", "floor_plan_status"]),
+        floorPlanDeliveredAt: firstListingValue(row, ["floorPlanDeliveredAt", "floor_plan_delivered_at"]),
+        videoStatus: firstListingValue(row, ["videoStatus", "video_status"]),
+        videoDeliveredAt: firstListingValue(row, ["videoDeliveredAt", "video_delivered_at"]),
+        factSheetStatus: firstListingValue(row, ["factSheetStatus", "fact_sheet_status"]),
+        factSheetRequestedAt: firstListingValue(row, ["factSheetRequestedAt", "fact_sheet_requested_at"]),
+        factSheetDeliveredAt: firstListingValue(row, ["factSheetDeliveredAt", "fact_sheet_delivered_at"]),
+        openHouseMaterialsStatus: firstListingValue(row, ["openHouseMaterialsStatus", "open_house_materials_status"]),
+        openHouseMaterialsRequestedAt: firstListingValue(row, ["openHouseMaterialsRequestedAt", "open_house_materials_requested_at"]),
+        openHouseMaterialsDeliveredAt: firstListingValue(row, ["openHouseMaterialsDeliveredAt", "open_house_materials_delivered_at"]),
+        lastUpdatedAt: firstListingValue(row, ["lastUpdatedAt"]),
+        lastUpdatedBy: firstListingValue(row, ["lastUpdatedBy"]),
+        notes: firstListingValue(row, ["notes"])
+      };
+    }
+    function listingAssetLinks(row) {
+      return {
+        photos: firstListingValue(row, ["photos", "photosUrl", "photos_url"]),
+        matterport: firstListingValue(row, ["matterport", "matterportUrl", "matterport_url"]),
+        video: firstListingValue(row, ["video", "videoUrl", "video_url"]),
+        floorPlan: firstListingValue(row, ["floorPlan", "floorPlanUrl", "floor_plan_url"]),
+        factSheet: firstListingValue(row, ["factSheet", "factSheetUrl", "fact_sheet_url"]),
+        openHouseMaterials: firstListingValue(row, ["openHouseMaterialsUrl", "openHouseMaterials", "open_house_materials_url"])
+      };
+    }
+    function invalidateDirectoryAgentCaches() {
+      directoryAgentByMredCache = { rows: null, map: {} };
+      directoryAgentByNameCache = { rows: null, map: {} };
     }
     function normalizeText(v) {
       return String(v || "").toLowerCase().trim();
@@ -7354,8 +9124,17 @@
     function listingIsClosed(row) {
       if (!row) return false;
       if (row.archived === true || String(row.archived).toLowerCase() === "true") return true;
-      var key = normalizeText(row.phaseKey || row.status || row.phase || "");
-      return key.indexOf("closed") > -1;
+      var key = normalizeText(row.phaseKey || row.status || row.phase || row.idxMlsStatus || "");
+      if (!key) return false;
+      if (key.indexOf("closed") > -1 || key.indexOf("sold") > -1) return true;
+      if (key.indexOf("withdraw") > -1 || key.indexOf("expired") > -1) return true;
+      if (key.indexOf("cancel") > -1 || key.indexOf("off market") > -1 || key.indexOf("offmarket") > -1) return true;
+      return false;
+    }
+    function listingIsUnderContract(row) {
+      if (!row || listingIsClosed(row)) return false;
+      var key = normalizeText(row.status || row.phaseKey || row.phase || row.idxMlsStatus || "");
+      return key.indexOf("under contract") > -1 || key.indexOf("undercontract") > -1;
     }
     function listingSpecsText(row) {
       var specs = [];
@@ -7364,12 +9143,23 @@
       if (row && row.sqFt) specs.push(String(row.sqFt) + " sf");
       return specs.join(" · ");
     }
+    function statusToneClass(rawStatus) {
+      var k = String(rawStatus || "").toLowerCase();
+      if (!k) return "";
+      if (k.indexOf("pre") === 0 || k.indexOf("coming") > -1) return "is-status-pre";
+      if (k.indexOf("under") > -1 || k.indexOf("contract") > -1 || k.indexOf("pending") > -1) return "is-status-pending";
+      if (k.indexOf("closed") > -1 || k.indexOf("sold") > -1 || k.indexOf("withdraw") > -1 || k.indexOf("expired") > -1 || k.indexOf("off") > -1) return "is-status-closed";
+      if (k.indexOf("active") > -1 || k.indexOf("live") > -1) return "is-status-active";
+      return "";
+    }
     function listingChipLabels(row) {
       var out = [];
-      var phase = listingPhaseLabel(row);
-      var status = String((row && row.status) || "").trim();
-      if (phase && phase !== "—") out.push("Phase: " + phase);
-      if (status && normalizeText(status) !== normalizeText(phase)) out.push("Status: " + status);
+      var status = formatListingStatusDisplay((row && (row.idxMlsStatus || row.mlsStatus || row.idxStatus || row.status)) || "");
+      if (!status) {
+        var phase = listingPhaseLabel(row);
+        if (phase && phase !== "—") status = formatListingStatusDisplay(phase);
+      }
+      if (status) out.push(status);
       if (row && row.listingType) out.push(String(row.listingType).trim());
       return out.filter(Boolean);
     }
@@ -7381,18 +9171,22 @@
       if (!row) row = {};
       var sentRaw = String(row.sellerQuestionnaireSent || row.sellerQuestionnaireSentAt || "").trim();
       var questionnaireSent = !!sentRaw && sentRaw.toLowerCase() !== "false" && sentRaw !== "0";
+      var questionnaireReceived = sellerQuestionnaireReceived(row);
+      var questionnaireDone = questionnaireReceived || questionnaireSent;
       var bookingDate = parseListingBookingDate(row);
-      var bookedStatus = String(row.photosStatus || "").trim().toLowerCase();
+      var bookedStatus = String(firstListingValue(row, ["photosStatus", "photos_status"]) || "").trim().toLowerCase();
       var bookedByStatus = bookedStatus.indexOf("book") >= 0 || bookedStatus.indexOf("schedul") >= 0;
       var marketingBooked = !!bookingDate || bookedByStatus;
       var override = state.sellStageOverride && state.sellStageOverride[address] === 2;
-      var bothDone = questionnaireSent && marketingBooked;
+      var bothDone = questionnaireDone && marketingBooked;
       // Stage 2 if either: both steps confirmed on the sheet, OR user clicked
       // Continue locally (override). Otherwise show the action plan overlay.
       var stage = override || bothDone ? 2 : 1;
       return {
         stage: stage,
         questionnaireSent: questionnaireSent,
+        questionnaireReceived: questionnaireReceived,
+        questionnaireDone: questionnaireDone,
         marketingBooked: marketingBooked,
         bookingDate: bookingDate,
         bothDone: bothDone
@@ -7433,7 +9227,8 @@
     function renderMarketingActionPlan(active, address, plan, agentBookUrl, agentRequestUrl, questionnaireLink) {
       var safeAddr = String(address || "").trim();
       var qSentLocal = !!(state.sellQCopied && state.sellQCopied[safeAddr]);
-      var qDone = plan.questionnaireSent || qSentLocal;
+      var qReceived = !!plan.questionnaireReceived;
+      var qDone = qReceived || plan.questionnaireSent || qSentLocal;
       var bookDone = plan.marketingBooked;
       var continueEnabled = qDone && bookDone;
 
@@ -7447,7 +9242,7 @@
       var qCta;
       if (qDone) {
         qCta = '<button type="button" class="amd-lh-stage-step-cta is-done" disabled>' +
-          '<span class="amd-cta-check">' + checkSvg() + "</span>Sent</button>";
+          '<span class="amd-cta-check">' + checkSvg() + "</span>" + (qReceived ? "Received" : "Sent") + "</button>";
       } else if (questionnaireLink) {
         qCta = '<button type="button" class="amd-lh-stage-step-cta" data-sell-ap-copy-q="' + esc(safeAddr) + '" data-sell-ap-q-link="' + esc(questionnaireLink) + '">Copy link</button>';
       } else {
@@ -7466,7 +9261,9 @@
         bookCta = '<button type="button" class="amd-lh-stage-step-cta is-secondary" disabled>Book Marketing</button>';
       }
 
-      var qMeta = qDone
+      var qMeta = qReceived
+        ? "Complete · seller questionnaire details received."
+        : qDone
         ? "Sent · seller has the questionnaire link."
         : "Copy the seller questionnaire link and send it to your seller.";
       var bookMeta = bookDone
@@ -7568,23 +9365,42 @@
         photos: "photosStatus",
         matterport: "matterportStatus",
         floor_plan: "floorPlanStatus",
-        video: "videoStatus"
+        video: "videoStatus",
+        fact_sheet: "factSheetStatus",
+        open_house_materials: "openHouseMaterialsStatus"
       }[key];
       var urlField = {
         photos: "photos",
         matterport: "matterport",
         floor_plan: "floorPlan",
-        video: "video"
+        video: "video",
+        fact_sheet: "factSheet",
+        open_house_materials: "openHouseMaterials"
       }[key];
-      var raw = String((row && row[statusField]) || "").trim().toLowerCase();
+      var rawOriginal = String((row && (row[statusField] || row[statusField && statusField.replace(/[A-Z]/g, function (m) { return "_" + m.toLowerCase(); })])) || "").trim();
+      var raw = rawOriginal.toLowerCase();
       var hasAsset = !!String((row && row[urlField]) || "").trim();
-      var booked = !!parseListingBookingDate(row) && listingHasService(row, key);
+      var booked = key === "fact_sheet" || key === "open_house_materials" ? false : (!!parseListingBookingDate(row) && listingHasService(row, key));
       if (hasAsset || raw.indexOf("deliver") >= 0 || raw.indexOf("done") >= 0 || raw.indexOf("complete") >= 0 || raw.indexOf("ready") >= 0) {
         return "delivered";
       }
       if (raw.indexOf("edit") >= 0 || raw.indexOf("retouch") >= 0 || raw.indexOf("post") >= 0) return "editing";
+      if (raw.indexOf("build") >= 0 || raw.indexOf("progress") >= 0 || raw.indexOf("working") >= 0 || raw.indexOf("on it") >= 0) return "building";
+      if (raw.indexOf("request") >= 0 || raw.indexOf("new") >= 0 || raw.indexOf("pending") >= 0) return "requested";
       if (raw.indexOf("book") >= 0 || raw.indexOf("schedul") >= 0 || booked) return "booked";
-      return "not_booked";
+      return key === "fact_sheet" || key === "open_house_materials" ? "not_requested" : "not_booked";
+    }
+    function getMarketingServiceRawStatus(row, key) {
+      var statusField = {
+        photos: "photosStatus",
+        matterport: "matterportStatus",
+        floor_plan: "floorPlanStatus",
+        video: "videoStatus",
+        fact_sheet: "factSheetStatus",
+        open_house_materials: "openHouseMaterialsStatus",
+        marketing_materials: "marketingStatus"
+      }[key];
+      return statusField ? firstListingValue(row, [statusField]) : "";
     }
     // Returns the *next* (soonest-future) open-house request from a row's
     // marketingRequests JSON array, or null. We sort future requests
@@ -7659,54 +9475,34 @@
       var bookingDate = parseListingBookingDate(active);
       var bookingLabel = bookingDate ? formatBookingDate(bookingDate) : "";
       var sq = getSellerQuestionnaire(active);
+      var qReceived = sellerQuestionnaireReceived(active, sq);
       var qSent = !!String(active && (active.sellerQuestionnaireSent || active.sellerQuestionnaireSentAt) || "").trim() ||
-                  !!(sq.answers && sq.answers.length) ||
+                  qReceived ||
                   !!(state.sellQCopied && state.sellQCopied[address]);
 
       function buildCaptureNode(key, label, icon) {
         var serviceState = getCaptureServiceState(active, key);
+        var rawServiceStatus = getMarketingServiceRawStatus(active, key);
         var statusLabel;
         var metaLabel = "";
         if (serviceState === "delivered") {
-          statusLabel = "Delivered";
+          statusLabel = rawServiceStatus || "Delivered";
         } else if (serviceState === "editing") {
-          statusLabel = "Editing";
+          statusLabel = rawServiceStatus || "Editing";
           var eta = computeServiceEta(key, bookingDate);
           if (eta) metaLabel = "Ready " + formatBookingDate(eta);
+        } else if (serviceState === "building") {
+          statusLabel = rawServiceStatus || "Building";
+        } else if (serviceState === "requested") {
+          statusLabel = rawServiceStatus || "Requested";
         } else if (serviceState === "booked") {
-          statusLabel = bookingLabel ? "Booked · " + bookingLabel : "Booked";
+          statusLabel = rawServiceStatus || (bookingLabel ? "Booked · " + bookingLabel : "Booked");
           var etaB = computeServiceEta(key, bookingDate);
           if (etaB) metaLabel = "Delivers " + formatBookingDate(etaB);
         } else {
-          statusLabel = "Not Booked";
+          statusLabel = rawServiceStatus || (key === "fact_sheet" || key === "open_house_materials" ? "Not Requested" : "Not Booked");
         }
         return { key: key, label: label, icon: icon, tone: SERVICE_STATE_TONE[serviceState], statusLabel: statusLabel, metaLabel: metaLabel };
-      }
-
-      // Marketing Materials: not_requested / requested / building / delivered.
-      // When marketing_requests JSON is populated we anchor the ETA to the
-      // *next upcoming open house* so the agent sees the real deadline.
-      var matState = getMarketingMaterialsState(active);
-      var nextReq = getNextOpenHouseRequest(active);
-      var matLabel;
-      var matMeta = "";
-      if (matState === "delivered") {
-        matLabel = "Delivered";
-      } else if (matState === "building") {
-        matLabel = "Marketing is on it";
-        var matEta = computeServiceEta("marketing_materials", new Date());
-        if (matEta) matMeta = "Ready " + formatBookingDate(matEta);
-      } else if (matState === "requested") {
-        matLabel = "Requested";
-        var matEta2 = computeServiceEta("marketing_materials", new Date());
-        if (matEta2) matMeta = "Delivers " + formatBookingDate(matEta2);
-      } else {
-        matLabel = "Not Requested";
-        matMeta = "Fact Sheet · Open House Materials";
-      }
-      if (nextReq && nextReq.open_house_date) {
-        var ohDate = parseDate(nextReq.open_house_date);
-        if (ohDate) matMeta = "Open House " + formatBookingDate(ohDate) + (matMeta ? " · " + matMeta : "");
       }
 
       var nodes = [
@@ -7715,21 +9511,15 @@
           label: "Seller Questionnaire",
           icon: "doc",
           tone: qSent ? "done" : "pending",
-          statusLabel: qSent ? "Sent" : "Pending",
-          metaLabel: qSent ? "" : "Awaiting seller"
+          statusLabel: qReceived ? "Received" : (qSent ? "Sent" : "Pending"),
+          metaLabel: qReceived ? "Details in Marketing" : (qSent ? "" : "Awaiting seller")
         },
         buildCaptureNode("photos",     "Photos",     "camera"),
         buildCaptureNode("matterport", "Matterport", "cube"),
         buildCaptureNode("floor_plan", "Floor Plan", "plan"),
         buildCaptureNode("video",      "Video",      "video"),
-        {
-          key: "marketing_materials",
-          label: "Marketing Materials",
-          icon: "doc",
-          tone: SERVICE_STATE_TONE[matState],
-          statusLabel: matLabel,
-          metaLabel: matMeta
-        }
+        buildCaptureNode("fact_sheet", "Fact Sheet", "doc"),
+        buildCaptureNode("open_house_materials", "Open House Materials", "doc")
       ];
 
       // Progress accumulator → drives the green→blue gradient rail width.
@@ -7773,8 +9563,9 @@
       );
     }
 
-    // Render the seller-questionnaire modal overlay on the body so it floats
-    // above the dashboard panel and respects the page scroll context.
+    // Render the seller-questionnaire modal overlay inside the dashboard root.
+    // CSS is namespaced under #asg-admin-master-dashboard, so mounting it here
+    // ensures the modal receives the intended fixed-position styling.
     function openSellerQuestionnaireModal(address) {
       closeSellerQuestionnaireModal();
       var row = null;
@@ -7819,7 +9610,7 @@
       });
       var closeBtn = overlay.querySelector("[data-sq-close]");
       if (closeBtn) closeBtn.addEventListener("click", closeSellerQuestionnaireModal);
-      document.body.appendChild(overlay);
+      root.appendChild(overlay);
       document.addEventListener("keydown", sqEscHandler);
     }
     function closeSellerQuestionnaireModal() {
@@ -7881,13 +9672,35 @@
     // an integration provides one.
     function getSellerQuestionnaire(row) {
       if (!row) return { name: "", email: "", phone: "", answers: [], raw: "" };
-      var raw = String(row.sellerQuestionnaireContent || row.sellerQuestionnaireAnswers || "").trim();
+      var raw = String(
+        row.seller_questionnaire_answers ||
+        row.sellerQuestionnaireAnswers ||
+        row.sellerQuestionnaireContent ||
+        row.seller_questionnaire_content ||
+        row.seller_questionnaire ||
+        row.questionnaire_content ||
+        row.questionnaire_answers ||
+        ""
+      ).trim();
       var answers = [];
-      var name = String(row.sellerName || "").trim();
-      var email = String(row.sellerEmail || "").trim();
-      var phone = String(row.sellerPhone || "").trim();
+      var name = String(row.sellerName || row.seller_name || "").trim();
+      var email = String(row.sellerEmail || row.seller_email || "").trim();
+      var phone = String(row.sellerPhone || row.seller_phone || "").trim();
+      var fieldsRaw = String(row.sellerQuestionnaireFieldsJson || row.seller_questionnaire_fields_json || "").trim();
+      if (fieldsRaw) {
+        try {
+          var parsedFields = JSON.parse(fieldsRaw);
+          if (parsedFields && typeof parsedFields === "object") {
+            Object.keys(parsedFields).forEach(function (key) {
+              var value = parsedFields[key];
+              if (value == null || String(value).trim() === "") return;
+              answers.push({ question: titleCase(key), answer: String(value) });
+            });
+          }
+        } catch (e) {}
+      }
       // Try JSON first (preferred): [{question, answer}, ...] or {q:a}.
-      if (raw && (raw.charAt(0) === "[" || raw.charAt(0) === "{")) {
+      if (!answers.length && raw && (raw.charAt(0) === "[" || raw.charAt(0) === "{")) {
         try {
           var parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) {
@@ -7936,9 +9749,32 @@
         return "";
       }
       if (!name) name = findAnswer(/seller.*name|owner.*name|^name$|full.?name/i);
+      if (!name) {
+        var first = String(row.sellerFirstName || row.seller_first_name || findAnswer(/seller.*first|first.?name/i) || "").trim();
+        var last = String(row.sellerLastName || row.seller_last_name || findAnswer(/seller.*last|last.?name/i) || "").trim();
+        name = [first, last].filter(Boolean).join(" ");
+      }
       if (!email) email = findAnswer(/email/i);
       if (!phone) phone = findAnswer(/phone|mobile|cell/i);
       return { name: name, email: email, phone: phone, answers: answers, raw: raw };
+    }
+    function sellerQuestionnaireReceived(row, sq) {
+      if (!row) return false;
+      sq = sq || getSellerQuestionnaire(row);
+      if (sq && (sq.raw || sq.name || sq.email || sq.phone || (sq.answers && sq.answers.length))) return true;
+      var status = String(
+        row.sellerQuestionnaireStatus ||
+        row.seller_questionnaire_status ||
+        ""
+      ).toLowerCase();
+      if (status.indexOf("received") >= 0 || status.indexOf("complete") >= 0 || status.indexOf("submitted") >= 0) return true;
+      return !!String(
+        row.sellerQuestionnaireReceivedAt ||
+        row.seller_questionnaire_received_at ||
+        row.sellerQuestionnaireLastSyncAt ||
+        row.seller_questionnaire_last_sync_at ||
+        ""
+      ).trim();
     }
     function listingPhotosScheduled(row) {
       var v = normalizeText((row && row.photosStatus) || "").trim();
@@ -7965,7 +9801,7 @@
     function makeAgentOptions(rows, selected, includeAllLabel) {
       var counts = {};
       (rows || []).forEach(function (row) {
-        var name = normalizeListingAgent(row) || String(row.agent || "").trim() || "Unknown";
+        var name = listingAssignedAgent(row);
         if (!name) return;
         counts[name] = (counts[name] || 0) + 1;
       });
@@ -8125,7 +9961,7 @@
       var out = [];
       for (var i = 0; i < (rows || []).length; i++) {
         var row = rows[i] || {};
-        var key = normalizeText(row.address || "") + "|" + normalizeText(normalizeListingAgent(row) || "");
+        var key = normalizeText(row.address || "") + "|" + normalizeText(listingAssignedAgent(row) || "");
         if (!key || key === "|") continue;
         if (seen[key]) continue;
         seen[key] = true;
@@ -8133,26 +9969,19 @@
       }
       return out;
     }
-    function fetchListingsMaster() {
+    function fetchListingsMaster(options) {
+      options = options || {};
       if (state.listingsFetching) {
         render();
         return;
       }
       state.listingsFetching = true;
       state.listingsError = null;
-      render();
-      fetchJSON(appendApiQuery(LISTINGS_API, "view=all"))
-        .then(function (allPayload) {
-          var rows = extractListingsRows(allPayload);
-          if (rows.length) return { rows: rows, source: "all" };
-          return Promise.all([
-            fetchJSON(appendApiQuery(LISTINGS_API, "view=active")).catch(function () { return null; }),
-            fetchJSON(appendApiQuery(LISTINGS_API, "view=archive")).catch(function () { return null; })
-          ]).then(function (parts) {
-            var activeRows = extractListingsRows(parts[0]);
-            var archiveRows = extractListingsRows(parts[1]);
-            return { rows: uniqueListingRows(activeRows.concat(archiveRows)), source: "active+archive" };
-          });
+      if (!options.silentStart) render();
+      fetchJSONCached(appendApiQuery(LISTINGS_API, "view=active"), CACHE_TTL_LISTINGS_MS, { force: !!options.force })
+        .then(function (payload) {
+          var rows = extractListingsRows(payload);
+          return { rows: rows, source: "active" };
         })
         .then(function (result) {
           var rows = (result && result.rows) || [];
@@ -8161,11 +9990,9 @@
           state.listingsFetching = false;
           if (!rows.length) {
             state.listingsError =
-              "Listings API responded but returned 0 rows. Active endpoint: " +
-              LISTINGS_API +
-              " (diag: " +
+              "Listings API returned 0 active rows. Check IdxListings sync and featured listings (" +
               appendApiQuery(LISTINGS_API, "view=diag") +
-              "). Confirm this is the same deployment that reads your live Listing Hub sheet.";
+              ").";
           } else {
             state.listingsError = null;
           }
@@ -8205,20 +10032,32 @@
       });
     }
 
-    function load() {
-      var allTimeRowsPromise = withTimeout(
-        fetchAllTimeClosedRowsFromScript(),
-        ALL_TIME_ROWS_TIMEOUT_MS,
-        "All-time closed rows feed"
-      ).catch(function () {
-        return [];
-      });
+    function load(options) {
+      options = options || {};
+      if (!state.listingsLoaded && !state.listingsFetching) {
+        fetchListingsMaster({ force: !!options.force, silentStart: true });
+      }
+
+      var needsAllTimeCore = state.tab === "closed" || state.tab === "summary" || state.tab === "leaderboard";
+      var allTimeSummaryUrl = STATS_API + "?period=allTime";
+      var allTimeRowsPromise = Promise.resolve([]);
+      if (needsAllTimeCore) {
+        allTimeRowsPromise = withTimeout(
+          fetchAllTimeClosedRowsFromScript(),
+          ALL_TIME_ROWS_TIMEOUT_MS,
+          "All-time closed rows feed"
+        ).catch(function () {
+          return [];
+        });
+      }
 
       Promise.allSettled([
-        withTimeout(fetchJSON(STATS_API + "?view=pipeline"), REQUEST_TIMEOUT_MS, "Pipeline feed"),
-        withTimeout(fetchJSON(STATS_API + "?period=ytd2026"), REQUEST_TIMEOUT_MS, "YTD summary feed"),
-        withTimeout(fetchJSON(STATS_API + "?period=allTime"), REQUEST_TIMEOUT_MS, "All-time summary feed"),
-        withTimeout(fetchJSON(HUB_DATA_API + "?view=directory"), REQUEST_TIMEOUT_MS, "Directory feed")
+        withTimeout(fetchJSONCached(STATS_API + "?view=pipeline", CACHE_TTL_CORE_MS, { force: !!options.force }), REQUEST_TIMEOUT_MS, "Pipeline feed"),
+        withTimeout(fetchJSONCached(STATS_API + "?period=ytd2026", CACHE_TTL_CORE_MS, { force: !!options.force }), REQUEST_TIMEOUT_MS, "YTD summary feed"),
+        needsAllTimeCore
+          ? withTimeout(fetchJSONCached(allTimeSummaryUrl, CACHE_TTL_ALL_TIME_MS, { force: !!options.force }), REQUEST_TIMEOUT_MS, "All-time summary feed")
+          : Promise.resolve(readDashboardCache(allTimeSummaryUrl, CACHE_TTL_ALL_TIME_MS)),
+        withTimeout(fetchJSONCached(HUB_DATA_API + "?view=directory", CACHE_TTL_CORE_MS, { force: !!options.force }), REQUEST_TIMEOUT_MS, "Directory feed")
       ])
         .then(function (results) {
           var pipelineJSON = results[0].status === "fulfilled" ? results[0].value : null;
@@ -8256,11 +10095,22 @@
           state.statsAgentsAllTime = allTimeJSON && Array.isArray(allTimeJSON.agents) ? allTimeJSON.agents : [];
           state.allTimeClosedDeals = extractAllTimeClosedDeals(allTimeJSON);
           state.directoryRows = extractDirectoryRows(directoryJSON);
+          invalidateDirectoryAgentCaches();
           state.ytdSummary = ytdJSON && ytdJSON.summary ? ytdJSON.summary : null;
           state.allTimeSummary = allTimeJSON && allTimeJSON.summary ? allTimeJSON.summary : null;
           state.coreFeedsPending = false;
           state.loadedAt = new Date();
           try { render(); } catch (e) { console.error("render:", e); setError(e); }
+
+          if (!needsAllTimeCore && !allTimeJSON) {
+            fetchJSONCached(allTimeSummaryUrl, CACHE_TTL_ALL_TIME_MS, { force: !!options.force })
+              .then(function (payload) {
+                state.statsAgentsAllTime = payload && Array.isArray(payload.agents) ? payload.agents : state.statsAgentsAllTime;
+                state.allTimeClosedDeals = extractAllTimeClosedDeals(payload);
+                state.allTimeSummary = payload && payload.summary ? payload.summary : state.allTimeSummary;
+              })
+              .catch(function () {});
+          }
 
           allTimeRowsPromise.then(function (allTimeRowsFromScript) {
             if (!Array.isArray(allTimeRowsFromScript) || !allTimeRowsFromScript.length) return;

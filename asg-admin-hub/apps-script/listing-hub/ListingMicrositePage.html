@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+      :root {
+        --asg-bg: #fafafa;
+        --asg-surface: #ffffff;
+        --asg-soft: #f7f7f5;
+        --asg-text: #111111;
+        --asg-muted: rgba(17, 17, 17, 0.62);
+        --asg-subtle: rgba(17, 17, 17, 0.42);
+        --asg-line: rgba(17, 17, 17, 0.1);
+        --asg-line-strong: rgba(17, 17, 17, 0.18);
+        --asg-shadow-card: 0 14px 42px rgba(17, 17, 17, 0.07);
+        --asg-shadow-hover: 0 18px 52px rgba(17, 17, 17, 0.11);
+        --asg-radius-xl: 32px;
+        --asg-radius-lg: 24px;
+        --asg-radius-md: 18px;
+        --asg-pill: 999px;
+        --asg-font: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--asg-bg);
+        color: var(--asg-text);
+        font-family: var(--asg-font);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      body.asg-lightbox-open { overflow: hidden; }
+      * { box-sizing: border-box; }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; }
+      .asg-wrap {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: clamp(34px, 6vw, 84px) 20px;
+      }
+      .asg-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        padding: 9px 14px;
+        border: 1px solid var(--asg-line);
+        border-radius: var(--asg-pill);
+        background: #fff;
+        color: var(--asg-muted);
+        font-size: 0.74rem;
+        font-weight: 650;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .asg-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #111;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        max-width: 920px;
+        margin-bottom: 24px;
+        font-size: clamp(3rem, 7.2vw, 6.9rem);
+        line-height: 0.94;
+        letter-spacing: -0.06em;
+        font-weight: 600;
+      }
+      h2 {
+        margin-bottom: 18px;
+        font-size: clamp(2rem, 4vw, 3.9rem);
+        line-height: 1;
+        letter-spacing: -0.045em;
+        font-weight: 600;
+      }
+      h3 {
+        margin-bottom: 10px;
+        font-size: clamp(1.2rem, 1.9vw, 1.6rem);
+        line-height: 1.12;
+        letter-spacing: -0.025em;
+        font-weight: 600;
+      }
+      p {
+        color: var(--asg-muted);
+        font-size: clamp(1rem, 1.25vw, 1.12rem);
+      }
+      .asg-section {
+        background: var(--asg-bg);
+        border-top: 1px solid var(--asg-line);
+      }
+      .asg-section[hidden] { display: none !important; }
+      .asg-card {
+        background: #fff;
+        border: 1px solid var(--asg-line);
+        border-radius: var(--asg-radius-xl);
+        box-shadow: var(--asg-shadow-card);
+        overflow: hidden;
+      }
+      .asg-card-pad { padding: clamp(24px, 4vw, 42px); }
+      .asg-hero .asg-wrap {
+        display: grid;
+        gap: 16px;
+        padding-top: 0;
+      }
+      .asg-hero-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 20px;
+        align-items: stretch;
+      }
+      .asg-hero-media {
+        min-height: clamp(360px, 54vw, 720px);
+        background: #e9e9e4;
+        position: relative;
+      }
+      .asg-hero-media img {
+        width: 100%;
+        height: 100%;
+        min-height: clamp(360px, 54vw, 720px);
+        object-fit: cover;
+      }
+      .asg-dark {
+        background: #111;
+        color: #fff;
+      }
+      .asg-dark p, .asg-dark .asg-mini-label { color: rgba(255,255,255,0.7); }
+      .asg-mini-label {
+        margin-bottom: 12px;
+        color: var(--asg-muted);
+        font-size: 0.74rem;
+        font-weight: 650;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .asg-address {
+        margin: 0 0 10px;
+        font-size: clamp(1.7rem, 2.8vw, 2.45rem);
+        line-height: 1.02;
+        letter-spacing: -0.045em;
+        font-weight: 600;
+      }
+      .asg-list-price {
+        min-height: 2.6rem;
+        margin: 20px 0 0;
+        font-size: clamp(1.55rem, 2.4vw, 2rem);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+        color: #fff;
+      }
+      .asg-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 16px;
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255,255,255,0.14);
+      }
+      .asg-stat-value {
+        display: block;
+        font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+        color: #fff;
+      }
+      .asg-stat-label {
+        font-size: 0.78rem;
+        font-weight: 550;
+        color: rgba(255,255,255,0.62);
+        letter-spacing: 0.02em;
+      }
+      .asg-pill, button.asg-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 43px;
+        padding: 0 17px;
+        border: 1px solid var(--asg-line);
+        border-radius: var(--asg-pill);
+        background: #fff;
+        color: #111;
+        box-shadow: 0 8px 20px rgba(17,17,17,0.045);
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.93rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+      .asg-pill:hover {
+        background: #111;
+        border-color: #111;
+        color: #fff;
+        box-shadow: var(--asg-shadow-hover);
+        transform: translateY(-1px);
+      }
+      .asg-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        margin: 20px 0 0;
+        width: 100%;
+        overflow-x: auto;
+      }
+      .asg-nav .asg-pill {
+        flex: 1 0 auto;
+        min-height: 50px;
+        padding: 0 12px;
+      }
+      .asg-section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 0.72fr) minmax(280px, 0.5fr);
+        gap: 20px;
+        align-items: end;
+        margin-bottom: 30px;
+      }
+      .asg-section-head--solo { grid-template-columns: minmax(0, 1fr); }
+      .asg-open-house-strip {
+        display: grid;
+        gap: 12px;
+        margin-top: 8px;
+        padding: clamp(16px, 2.4vw, 22px) clamp(18px, 3vw, 28px);
+      }
+      .asg-open-house-strip[hidden] { display: none !important; }
+      .asg-open-house-dates {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .asg-open-house-date {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .asg-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        background: var(--asg-soft);
+        color: #111;
+      }
+      .asg-compass-btn {
+        width: 100%;
+        margin-top: 20px;
+      }
+      .asg-gallery-shell {
+        display: grid;
+        gap: 16px;
+      }
+      .asg-gallery-stage {
+        position: relative;
+        width: 100%;
+        min-height: clamp(360px, 62vw, 720px);
+        border: 0;
+        padding: 0;
+        background: #e8e8e2;
+        border-radius: var(--asg-radius-xl);
+        overflow: hidden;
+        cursor: zoom-in;
+      }
+      .asg-gallery-stage img {
+        width: 100%;
+        height: clamp(360px, 62vw, 720px);
+        object-fit: cover;
+      }
+      .asg-gallery-arrow {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        border: 1px solid rgba(255,255,255,0.72);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.86);
+        cursor: pointer;
+      }
+      .asg-gallery-arrow--prev { left: 16px; }
+      .asg-gallery-arrow--next { right: 16px; }
+      .asg-gallery-counter {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        z-index: 2;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.9);
+        font-size: 0.84rem;
+        font-weight: 650;
+      }
+      .asg-gallery-thumbs {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .asg-gallery-slot {
+        flex: 0 0 118px;
+        height: 78px;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 0;
+        overflow: hidden;
+        background: #e8e8e2;
+        cursor: pointer;
+      }
+      .asg-gallery-slot.is-active { border-color: #111; }
+      .asg-gallery-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .asg-media-frame {
+        border-radius: var(--asg-radius-xl);
+        overflow: hidden;
+        background: #111;
+        box-shadow: var(--asg-shadow-card);
+      }
+      .asg-media-frame video,
+      .asg-media-frame iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 0;
+        display: block;
+        background: #111;
+      }
+      .asg-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .asg-highlight-card {
+        padding: 26px;
+        min-height: 220px;
+      }
+      .asg-map-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+        gap: 20px;
+      }
+      #asg-map {
+        min-height: 520px;
+        border-radius: var(--asg-radius-xl);
+        overflow: hidden;
+        border: 1px solid var(--asg-line);
+      }
+      .asg-place-list {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+      .asg-place-card {
+        padding: 18px;
+      }
+      .asg-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .asg-detail-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--asg-line);
+      }
+      .asg-detail-term {
+        color: var(--asg-muted);
+        font-size: 0.88rem;
+        font-weight: 650;
+      }
+      .asg-detail-value {
+        text-align: right;
+        font-weight: 650;
+      }
+      .asg-agent-widget {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 20;
+        width: min(420px, calc(100vw - 32px));
+      }
+      .asg-agent-card {
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+      .asg-agent-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .asg-agent-photo {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px !important;
+        object-fit: cover;
+        background: var(--asg-soft);
+      }
+      .asg-agent-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .asg-contact-card .asg-agent-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .asg-lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.9);
+        padding: 28px;
+      }
+      .asg-lightbox.is-open { display: flex; }
+      .asg-lightbox img {
+        max-height: 88vh;
+        width: auto;
+        border-radius: 20px;
+      }
+      .asg-lightbox-close {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        width: 46px;
+        height: 46px;
+        border-radius: 999px;
+        border: 0;
+        background: #fff;
+        cursor: pointer;
+      }
+      .asg-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        z-index: 60;
+        transform: translateX(-50%);
+        padding: 12px 16px;
+        border-radius: 999px;
+        background: #111;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .asg-toast.is-visible { opacity: 1; }
+      @media (max-width: 880px) {
+        .asg-hero-card,
+        .asg-section-head,
+        .asg-map-shell,
+        .asg-details-grid {
+          grid-template-columns: 1fr;
+        }
+        .asg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 640px) {
+        h1 { font-size: clamp(2.6rem, 15vw, 4.4rem); }
+        .asg-wrap { padding-left: 16px; padding-right: 16px; }
+        .asg-grid { grid-template-columns: 1fr; }
+        .asg-agent-widget {
+          position: static;
+          width: auto;
+          margin: 0 16px 18px;
+        }
+        .asg-contact-card .asg-agent-actions { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="asg-listing-microsite">
+      <section class="asg-hero" id="asg-hero">
+        <div class="asg-wrap">
+          <div>
+            <div class="asg-eyebrow"><span class="asg-dot"></span><span data-status-label>Listing Microsite</span></div>
+            <h1 data-headline>Listing</h1>
+          </div>
+          <div id="asg-open-house-strip" class="asg-open-house-strip asg-card" hidden>
+            <div class="asg-mini-label">Open House</div>
+            <div class="asg-open-house-dates" id="asg-open-house-dates"></div>
+          </div>
+          <div class="asg-hero-card">
+            <div class="asg-card asg-hero-media"><img data-hero-image alt=""></div>
+            <aside class="asg-card asg-card-pad asg-dark">
+              <div class="asg-mini-label">The Address</div>
+              <div class="asg-address" data-address></div>
+              <p data-subheadline></p>
+              <div class="asg-list-price" data-price></div>
+              <div class="asg-stats">
+                <div><span class="asg-stat-value" data-beds>—</span><span class="asg-stat-label">Beds</span></div>
+                <div><span class="asg-stat-value" data-baths>—</span><span class="asg-stat-label">Baths</span></div>
+                <div><span class="asg-stat-value" data-sqft>—</span><span class="asg-stat-label">Sq Ft</span></div>
+                <div><span class="asg-stat-value" data-type>—</span><span class="asg-stat-label">Property Type</span></div>
+              </div>
+              <a class="asg-pill asg-compass-btn" data-compass-link target="_blank" rel="noopener noreferrer">View On Compass</a>
+              <a class="asg-pill asg-compass-btn" data-call-link>Schedule A Private Showing</a>
+            </aside>
+          </div>
+          <nav class="asg-nav" aria-label="Listing page sections" id="asg-nav">
+            <a class="asg-pill" href="#asg-gallery">Gallery</a>
+            <a class="asg-pill" href="#asg-video">Video</a>
+            <a class="asg-pill" href="#asg-tour">Tour</a>
+            <a class="asg-pill" href="#asg-highlights">Highlights</a>
+            <a class="asg-pill" href="#asg-neighborhood">Neighborhood</a>
+            <a class="asg-pill" href="#asg-details">Details</a>
+            <a class="asg-pill" href="#asg-contact">Contact</a>
+          </nav>
+        </div>
+      </section>
+
+      <section id="asg-gallery" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head asg-section-head--solo">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Gallery</div><h2>Photos</h2></div>
+          </div>
+          <div class="asg-gallery-shell" data-gallery>
+            <div class="asg-gallery-stage">
+              <button type="button" class="asg-gallery-arrow asg-gallery-arrow--prev" aria-label="Previous photo"><i data-lucide="chevron-left"></i></button>
+              <img data-gallery-main alt="">
+              <button type="button" class="asg-gallery-arrow asg-gallery-arrow--next" aria-label="Next photo"><i data-lucide="chevron-right"></i></button>
+              <span class="asg-gallery-counter" data-gallery-counter>1 / 1</span>
+            </div>
+            <div class="asg-gallery-thumbs" data-gallery-thumbs></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="asg-video" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head asg-section-head--solo">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Video</div><h2>See the home in motion.</h2></div>
+          </div>
+          <div class="asg-media-frame"><video controls playsinline preload="metadata" data-video></video></div>
+        </div>
+      </section>
+
+      <section id="asg-tour" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Tour The Home</div><h2>Explore the home.</h2></div>
+            <p>Walk through the home virtually when a Matterport or tour link is available.</p>
+          </div>
+          <div class="asg-media-frame"><iframe data-matterport allowfullscreen allow="autoplay; fullscreen; web-share; xr-spatial-tracking;" title="Virtual listing tour"></iframe></div>
+        </div>
+      </section>
+
+      <section id="asg-highlights" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Highlights</div><h2 data-highlights-title>What stands out.</h2></div>
+            <p data-overview></p>
+          </div>
+          <div class="asg-grid" data-highlights></div>
+        </div>
+      </section>
+
+      <section id="asg-neighborhood" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Tour The Neighborhood</div><h2 data-neighborhood-title>Neighborhood access nearby.</h2></div>
+            <p>Explore the area around the listing and nearby destinations.</p>
+          </div>
+          <div class="asg-map-shell">
+            <div id="asg-map"></div>
+            <div class="asg-place-list" data-place-list></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="asg-details" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Details</div><h2>Property details.</h2></div>
+            <p data-details-intro>Key facts and listing information, refreshed from Listing Hub where available.</p>
+          </div>
+          <div class="asg-details-grid" data-details></div>
+        </div>
+      </section>
+
+      <section id="asg-contact" class="asg-section">
+        <div class="asg-wrap">
+          <div class="asg-section-head asg-section-head--solo">
+            <div><div class="asg-eyebrow"><span class="asg-dot"></span> Contact</div><h2>Schedule a private showing.</h2><p data-contact-copy></p></div>
+          </div>
+          <div class="asg-card asg-card-pad asg-contact-card" data-contact-card></div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="asg-agent-widget" data-agent-widget></aside>
+    <div class="asg-lightbox" data-lightbox>
+      <button type="button" class="asg-lightbox-close" data-lightbox-close aria-label="Close gallery"><i data-lucide="x"></i></button>
+      <img data-lightbox-image alt="">
+    </div>
+    <div class="asg-toast" data-toast></div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      window.ASG_MICROSITE_DATA = {
+        listing: <?!= listingJson ?>,
+        photos: <?!= photosJson ?>,
+        ops: <?!= opsJson ?>,
+        agents: <?!= agentsJson ?>,
+        micrositeUrl: <?!= JSON.stringify(micrositeUrl) ?>,
+        api: <?!= JSON.stringify(defaultListingsApi) ?>
+      };
+    </script>
+    <script>
+      (function () {
+        var data = window.ASG_MICROSITE_DATA || {};
+        var listing = data.listing || {};
+        var photos = Array.isArray(data.photos) ? data.photos : [];
+        var agents = normalizeAgents(data.agents);
+        var root = document.getElementById("asg-listing-microsite");
+        var galleryItems = [];
+        var galleryIndex = 0;
+        var map;
+
+        function $(selector, scope) { return (scope || document).querySelector(selector); }
+        function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
+        function esc(value) {
+          return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
+            return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
+          });
+        }
+        function text(selector, value) {
+          var node = $(selector);
+          if (node) node.textContent = value || "";
+        }
+        function attr(selector, name, value) {
+          var node = $(selector);
+          if (!node) return;
+          if (value == null || value === "") node.removeAttribute(name);
+          else node.setAttribute(name, value);
+        }
+        function normalizeMoney(raw) {
+          var s = String(raw || "").replace(/[^0-9.]/g, "");
+          var n = Number(s);
+          if (!n || !isFinite(n)) return String(raw || "");
+          return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+        }
+        function valueFrom(keys) {
+          for (var i = 0; i < keys.length; i++) {
+            var v = listing[keys[i]];
+            if (v != null && String(v).trim() !== "") return v;
+          }
+          return "";
+        }
+        function parseJsonArray(raw) {
+          if (Array.isArray(raw)) return raw;
+          var s = String(raw || "").trim();
+          if (!s) return [];
+          try {
+            var parsed = JSON.parse(s);
+            if (Array.isArray(parsed)) return parsed;
+            if (parsed && typeof parsed === "object") return [parsed];
+          } catch (_err) {}
+          return [];
+        }
+        function renderIcons() {
+          if (window.lucide && window.lucide.createIcons) {
+            window.lucide.createIcons({ attrs: { "aria-hidden": "true", focusable: "false" } });
+          }
+        }
+        function hideSection(id) {
+          var node = document.getElementById(id);
+          if (node) node.hidden = true;
+          var nav = $('#asg-nav a[href="#' + id + '"]');
+          if (nav) nav.hidden = true;
+        }
+        function slugify(value) {
+          return String(value || "").toLowerCase().replace(/&/g, " and ").replace(/#/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+        }
+        function normalizeAgents(raw) {
+          if (Array.isArray(raw)) return raw;
+          if (raw && Array.isArray(raw.agents)) return raw.agents;
+          if (raw && Array.isArray(raw.rows)) return raw.rows;
+          return [];
+        }
+        function findAgent() {
+          var wanted = String(listing.agentCanonical || listing.agent || listing.agent_name || "").trim().toLowerCase();
+          var agent = null;
+          agents.some(function (row) {
+            var name = String(row.name || row.agent || row.agent_name || row.fullName || "").trim();
+            if (wanted && name.toLowerCase() === wanted) {
+              agent = row;
+              return true;
+            }
+            return false;
+          });
+          return {
+            name: (agent && (agent.name || agent.agent || agent.agent_name || agent.fullName)) || listing.agentCanonical || listing.agent || "Alex Stoykov Group",
+            role: (agent && (agent.role || agent.title)) || "Listing Agent",
+            phone: (agent && (agent.phone || agent.mobile || agent.cell)) || listing.agentPhone || "312-600-1957",
+            email: (agent && (agent.email || agent.mail)) || listing.agentEmail || "team@alexstoykovgroup.com",
+            photo: (agent && (agent.photo || agent.image || agent.headshot || agent.photoUrl)) || ""
+          };
+        }
+        function buildPhotoUrl(photo) {
+          if (!photo) return "";
+          return photo.full || photo.url || photo.src || photo.image || "";
+        }
+        function isDriveUrl(url) {
+          return /(^|\.)drive\.google\.com/i.test(String(url || ""));
+        }
+        function isEmbeddableTourUrl(url) {
+          var s = String(url || "").trim();
+          if (!s || isDriveUrl(s)) return false;
+          return /my\.matterport\.com|kuula\.co|cloudpano\.com|matterport\.com/i.test(s);
+        }
+        function isEmbeddableVideoUrl(url) {
+          var s = String(url || "").trim();
+          if (!s || isDriveUrl(s)) return false;
+          return /\.(mp4|m4v|webm|mov)(\?|#|$)|\.m3u8(\?|#|$)|player\.vimeo\.com|youtube\.com\/embed/i.test(s);
+        }
+        function buildGalleryItems() {
+          var curated = parseJsonArray(listing.galleryJson);
+          var items = curated.map(function (item, idx) {
+            return {
+              full: buildPhotoUrl(item),
+              thumb: item.thumb || item.thumbnail || buildPhotoUrl(item),
+              alt: item.alt || ("Photo " + (idx + 1) + " of " + (listing.address || "the property")),
+              isFloorPlan: !!item.isFloorPlan
+            };
+          }).filter(function (item) { return !!item.full; });
+
+          if (!items.length) {
+            items = photos.map(function (photo, idx) {
+              var url = buildPhotoUrl(photo);
+              return {
+                full: url,
+                thumb: url,
+                alt: photo.name || ("Photo " + (idx + 1) + " of " + (listing.address || "the property")),
+                isFloorPlan: false
+              };
+            }).filter(function (item) { return !!item.full; });
+          }
+
+          var floorPlan = valueFrom(["floorPlan", "floor_plan_url"]);
+          if (floorPlan) {
+            items.push({ full: floorPlan, thumb: floorPlan, alt: "Floor plan for " + (listing.address || "the property"), isFloorPlan: true });
+          }
+          if (!items.length && listing.heroImageUrl) {
+            items.push({ full: listing.heroImageUrl, thumb: listing.heroImageUrl, alt: listing.address || "Property photo" });
+          }
+          return items;
+        }
+        function paintGallery() {
+          galleryItems = buildGalleryItems();
+          if (!galleryItems.length) {
+            hideSection("asg-gallery");
+            return;
+          }
+          var thumbs = $("[data-gallery-thumbs]");
+          if (thumbs) {
+            thumbs.innerHTML = galleryItems.map(function (item, idx) {
+              return '<button type="button" class="asg-gallery-slot" data-gallery-index="' + idx + '" aria-label="' + esc(item.alt) + '">' +
+                '<img src="' + esc(item.thumb || item.full) + '" alt="' + esc(item.alt) + '" loading="lazy">' +
+                "</button>";
+            }).join("");
+          }
+          $all("[data-gallery-index]").forEach(function (button) {
+            button.addEventListener("click", function () {
+              setGalleryIndex(Number(button.getAttribute("data-gallery-index") || 0));
+            });
+          });
+          var stage = $(".asg-gallery-stage");
+          if (stage) {
+            stage.addEventListener("click", function (event) {
+              if (event.target.closest(".asg-gallery-arrow")) return;
+              openLightbox();
+            });
+          }
+          $(".asg-gallery-arrow--prev").addEventListener("click", function () { setGalleryIndex(galleryIndex - 1); });
+          $(".asg-gallery-arrow--next").addEventListener("click", function () { setGalleryIndex(galleryIndex + 1); });
+          setGalleryIndex(0);
+        }
+        function setGalleryIndex(next) {
+          if (!galleryItems.length) return;
+          galleryIndex = (next + galleryItems.length) % galleryItems.length;
+          var item = galleryItems[galleryIndex];
+          attr("[data-gallery-main]", "src", item.thumb || item.full);
+          attr("[data-gallery-main]", "alt", item.alt);
+          text("[data-gallery-counter]", (galleryIndex + 1) + " / " + galleryItems.length);
+          $all(".asg-gallery-slot").forEach(function (btn, idx) {
+            btn.classList.toggle("is-active", idx === galleryIndex);
+          });
+        }
+        function openLightbox() {
+          var item = galleryItems[galleryIndex];
+          if (!item) return;
+          attr("[data-lightbox-image]", "src", item.full);
+          attr("[data-lightbox-image]", "alt", item.alt);
+          $("[data-lightbox]").classList.add("is-open");
+          document.body.classList.add("asg-lightbox-open");
+        }
+        function closeLightbox() {
+          $("[data-lightbox]").classList.remove("is-open");
+          document.body.classList.remove("asg-lightbox-open");
+        }
+        function renderHero() {
+          var address = listing.address || "Address available soon";
+          var headline = listing.micrositeHeadline || address;
+          var sub = listing.micrositeSubheadline || listing.micrositeNeighborhood || listing.mlsCity || "";
+          var price = normalizeMoney(listing.listPrice || listing.mlsListPrice || listing.price);
+          var hero = listing.heroImageUrl || (buildGalleryItems()[0] && buildGalleryItems()[0].full) || listing.coverImage || "";
+          text("[data-status-label]", listing.micrositeStatus || listing.workflowStatus || listing.status || "Listing");
+          text("[data-headline]", headline);
+          text("[data-address]", address);
+          text("[data-subheadline]", sub);
+          text("[data-price]", price || "Price available on request");
+          text("[data-beds]", valueFrom(["mlsBeds", "bedrooms", "beds"]) || "—");
+          text("[data-baths]", valueFrom(["mlsBaths", "totalBaths", "baths"]) || "—");
+          text("[data-sqft]", valueFrom(["mlsSqft", "sqFt", "sqft"]) || "—");
+          text("[data-type]", listing.listingType || listing.mlsPropertyType || "—");
+          attr("[data-hero-image]", "src", hero);
+          attr("[data-hero-image]", "alt", address);
+          var compass = listing.compassLink || listing.compass_link || listing.compassUrl || listing.idxDetailsUrl || "";
+          if (compass) attr("[data-compass-link]", "href", compass);
+          else $("[data-compass-link]").hidden = true;
+        }
+        function renderMedia() {
+          var videoUrl = valueFrom(["video", "video_url"]);
+          if (isEmbeddableVideoUrl(videoUrl)) attr("[data-video]", "src", videoUrl);
+          else hideSection("asg-video");
+
+          var tourUrl = valueFrom(["matterport", "matterport_url"]);
+          if (isEmbeddableTourUrl(tourUrl)) {
+            if (tourUrl.indexOf("my.matterport.com") >= 0 && tourUrl.indexOf("/show/") < 0 && tourUrl.indexOf("m=") < 0) {
+              tourUrl = tourUrl.replace(/\/?$/, "/show/");
+            }
+            attr("[data-matterport]", "src", tourUrl);
+          } else {
+            hideSection("asg-tour");
+          }
+        }
+        function renderHighlights() {
+          var overview = listing.micrositeOverview || listing.publicRemarks || listing.mlsRemarks || "";
+          text("[data-overview]", overview || "A polished, listing-specific microsite generated from Listing Hub.");
+          var highlights = parseJsonArray(listing.micrositeHighlightsJson);
+          if (!highlights.length) {
+            highlights = [
+              { label: "Location", title: listing.micrositeNeighborhood || "Neighborhood access", text: "Explore the home's setting, nearby restaurants, parks, groceries, and daily conveniences.", icon: "map-pin" },
+              { label: "Media", title: "Marketing assets", text: "Photos, video, floor plan, and virtual tour sections appear automatically as assets are delivered.", icon: "images" },
+              { label: "Live Data", title: "Synced listing facts", text: "Price and open house information stay connected to Listing Hub and IDX.", icon: "refresh-cw" }
+            ];
+          }
+          $("[data-highlights]").innerHTML = highlights.map(function (item) {
+            return '<article class="asg-card asg-highlight-card">' +
+              '<div class="asg-icon"><i data-lucide="' + esc(item.icon || "star") + '"></i></div>' +
+              '<div class="asg-mini-label">' + esc(item.label || "Highlight") + '</div>' +
+              '<h3>' + esc(item.title || item.headline || "Listing Highlight") + '</h3>' +
+              '<p>' + esc(item.text || item.description || "") + '</p>' +
+              '</article>';
+          }).join("");
+        }
+        function renderDetails() {
+          var custom = parseJsonArray(listing.micrositeDetailsJson);
+          var rows = custom.length ? custom : [
+            { term: "Price", value: normalizeMoney(listing.listPrice || listing.mlsListPrice || listing.price) },
+            { term: "MLS #", value: listing.mlsNumber || listing.idxListingId || listing.listingId },
+            { term: "Status", value: listing.workflowStatus || listing.status || listing.idxMlsStatus },
+            { term: "Property Type", value: listing.mlsPropertyType || listing.listingType },
+            { term: "Beds", value: valueFrom(["mlsBeds", "bedrooms", "beds"]) },
+            { term: "Baths", value: valueFrom(["mlsBaths", "totalBaths", "baths"]) },
+            { term: "Square Feet", value: valueFrom(["mlsSqft", "sqFt", "sqft"]) },
+            { term: "Agent", value: listing.agentCanonical || listing.agent }
+          ];
+          rows = rows.filter(function (row) { return row && (row.value || row.text); });
+          $("[data-details]").innerHTML = rows.map(function (row) {
+            return '<div class="asg-card asg-card-pad"><div class="asg-detail-item">' +
+              '<span class="asg-detail-term">' + esc(row.term || row.label || "Detail") + '</span>' +
+              '<span class="asg-detail-value">' + esc(row.value || row.text || "") + '</span>' +
+              '</div></div>';
+          }).join("");
+        }
+        function renderOpenHouses(slots) {
+          var upcoming = Array.isArray(slots) ? slots : [];
+          var strip = $("#asg-open-house-strip");
+          var dates = $("#asg-open-house-dates");
+          if (!strip || !dates) return;
+          if (!upcoming.length) {
+            strip.hidden = true;
+            dates.innerHTML = "";
+            return;
+          }
+          dates.innerHTML = upcoming.slice(0, 4).map(function (slot) {
+            var date = slot.dateRaw || slot.date || slot.open_house_date || listing.nextOpenHouseDate || "";
+            var start = slot.startRaw || slot.start || slot.open_house_start || listing.nextOpenHouseStart || "";
+            var end = slot.endRaw || slot.end || slot.open_house_end || listing.nextOpenHouseEnd || "";
+            var label = [start, end].filter(Boolean).join(" to ");
+            return '<div class="asg-open-house-date">' +
+              '<div class="asg-icon"><i data-lucide="calendar"></i></div>' +
+              '<div><h3>' + esc(date || "Open House") + '</h3><p>' + esc(label || "Public") + '</p></div>' +
+              '</div>';
+          }).join("");
+          strip.hidden = false;
+          renderIcons();
+        }
+        function renderMap() {
+          var lat = Number(listing.micrositeLat || listing.latitude || listing.mlsLatitude);
+          var lng = Number(listing.micrositeLng || listing.longitude || listing.mlsLongitude);
+          if (!window.L || !isFinite(lat) || !isFinite(lng)) {
+            hideSection("asg-neighborhood");
+            return;
+          }
+          text("[data-neighborhood-title]", (listing.micrositeNeighborhood || "Neighborhood") + " access nearby.");
+          map = window.L.map("asg-map", { scrollWheelZoom: false, attributionControl: false }).setView([lat, lng], 15);
+          window.L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { maxZoom: 20, subdomains: "abcd" }).addTo(map);
+          window.L.marker([lat, lng]).addTo(map).bindPopup(esc(listing.address || "Home"));
+          renderPlaces(lat, lng);
+          window.setTimeout(function () { if (map) map.invalidateSize(); }, 300);
+        }
+        function renderPlaces(lat, lng) {
+          var curated = parseJsonArray(listing.micrositeCuratedPlacesJson);
+          if (curated.length) {
+            paintPlaces(curated);
+            return;
+          }
+          var fallback = [
+            { name: "Nearby restaurants", type: "Dining", icon: "utensils" },
+            { name: "Coffee and cafes", type: "Cafe", icon: "coffee" },
+            { name: "Grocery and essentials", type: "Grocery", icon: "shopping-basket" },
+            { name: "Parks and lakefront access", type: "Outdoors", icon: "trees" }
+          ];
+          paintPlaces(fallback);
+          var query = '[out:json][timeout:12];(node["amenity"="restaurant"](around:900,' + lat + ',' + lng + ');node["amenity"="cafe"](around:900,' + lat + ',' + lng + ');node["shop"="supermarket"](around:1400,' + lat + ',' + lng + ');way["leisure"="park"](around:1200,' + lat + ',' + lng + '););out center 12;';
+          fetch("https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query))
+            .then(function (res) { return res.json(); })
+            .then(function (payload) {
+              var places = (payload.elements || []).map(function (el) {
+                var tags = el.tags || {};
+                return {
+                  name: tags.name,
+                  type: tags.amenity || tags.shop || tags.leisure || "Nearby",
+                  lat: el.lat || el.center && el.center.lat,
+                  lng: el.lon || el.center && el.center.lon,
+                  icon: tags.amenity === "cafe" ? "coffee" : tags.shop ? "shopping-basket" : tags.leisure ? "trees" : "utensils"
+                };
+              }).filter(function (p) { return p.name && p.lat && p.lng; });
+              if (places.length) paintPlaces(places.slice(0, 8));
+            }).catch(function () {});
+        }
+        function paintPlaces(places) {
+          var list = $("[data-place-list]");
+          list.innerHTML = places.map(function (place) {
+            return '<article class="asg-card asg-place-card">' +
+              '<div class="asg-icon"><i data-lucide="' + esc(place.icon || "map-pin") + '"></i></div>' +
+              '<div class="asg-mini-label">' + esc(place.type || place.category || "Nearby") + '</div>' +
+              '<h3>' + esc(place.name || "Nearby destination") + '</h3>' +
+              (place.walk ? '<p>' + esc(place.walk) + '</p>' : '') +
+              '</article>';
+          }).join("");
+          if (map) {
+            places.forEach(function (place) {
+              if (place.lat && place.lng) window.L.marker([place.lat, place.lng]).addTo(map).bindPopup(esc(place.name || "Nearby"));
+            });
+          }
+          renderIcons();
+        }
+        function showToast(message) {
+          var toast = $("[data-toast]");
+          toast.textContent = message;
+          toast.classList.add("is-visible");
+          window.setTimeout(function () { toast.classList.remove("is-visible"); }, 1800);
+        }
+        function copyText(value, message) {
+          if (!value) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(value).then(function () { showToast(message); }).catch(function () { showToast("Copy unavailable"); });
+          } else {
+            showToast(value);
+          }
+        }
+        function renderAgent() {
+          var agent = findAgent();
+          var phoneHref = "tel:" + String(agent.phone || "").replace(/[^\d+]/g, "");
+          var mailHref = "mailto:" + agent.email;
+          attr("[data-call-link]", "href", phoneHref);
+          text("[data-contact-copy]", agent.name + " will coordinate a private tour of " + (listing.address || "the home") + " at a time that works for you.");
+          var html =
+            '<div class="asg-agent-card asg-card">' +
+              '<div class="asg-agent-head">' +
+                (agent.photo ? '<img class="asg-agent-photo" src="' + esc(agent.photo) + '" alt="' + esc(agent.name) + '">' : '<div class="asg-agent-photo"></div>') +
+                '<div><div class="asg-mini-label">' + esc(agent.role || "Listing Agent") + '</div><h3>' + esc(agent.name) + '</h3><p>Alex Stoykov Group at Compass</p></div>' +
+              '</div>' +
+              '<div class="asg-agent-actions">' +
+                '<a class="asg-pill" href="' + esc(phoneHref) + '">Call</a>' +
+                '<button type="button" class="asg-pill" data-copy-agent-email="' + esc(agent.email) + '">Copy Email</button>' +
+              '</div>' +
+            '</div>';
+          $("[data-agent-widget]").innerHTML = html;
+          $("[data-contact-card]").innerHTML =
+            '<div class="asg-agent-head">' +
+              (agent.photo ? '<img class="asg-agent-photo" src="' + esc(agent.photo) + '" alt="' + esc(agent.name) + '">' : '<div class="asg-agent-photo"></div>') +
+              '<div><div class="asg-mini-label">' + esc(agent.role || "Listing Agent") + '</div><h3>' + esc(agent.name) + '</h3><p>' + esc(agent.phone) + ' · ' + esc(agent.email) + '</p></div>' +
+            '</div>' +
+            '<div class="asg-agent-actions" style="margin-top:18px;">' +
+              '<a class="asg-pill" href="' + esc(phoneHref) + '">Call</a>' +
+              '<a class="asg-pill" href="' + esc(mailHref) + '">Email</a>' +
+              '<button type="button" class="asg-pill" data-copy-microsite>Copy Page Link</button>' +
+            '</div>';
+          $all("[data-copy-agent-email]").forEach(function (button) {
+            button.addEventListener("click", function () { copyText(button.getAttribute("data-copy-agent-email"), "Email copied"); });
+          });
+          $all("[data-copy-microsite]").forEach(function (button) {
+            button.addEventListener("click", function () { copyText(data.micrositeUrl || window.location.href, "Microsite link copied"); });
+          });
+        }
+        function syncLiveListingData() {
+          var api = String(data.api || "").trim();
+          if (!api || !listing.address) {
+            renderOpenHouses(listing.openHouses || []);
+            return;
+          }
+          var sep = api.indexOf("?") >= 0 ? "&" : "?";
+          fetch(api + sep + "view=listing&address=" + encodeURIComponent(listing.address), { cache: "no-store" })
+            .then(function (res) { return res.json(); })
+            .then(function (payload) {
+              if (!payload || !payload.success || !payload.listing) return;
+              var live = payload.listing;
+              var price = normalizeMoney(live.listPrice || live.price);
+              if (price) text("[data-price]", price);
+              renderOpenHouses(live.openHouses || []);
+              if (live.micrositeStatus && /paused|archived/i.test(live.micrositeStatus)) {
+                root.innerHTML = '<section class="asg-section"><div class="asg-wrap"><h1>Listing unavailable.</h1><p>This microsite is not currently published.</p></div></section>';
+              }
+            })
+            .catch(function () { renderOpenHouses(listing.openHouses || []); });
+        }
+
+        renderHero();
+        paintGallery();
+        renderMedia();
+        renderHighlights();
+        renderDetails();
+        renderMap();
+        renderAgent();
+        syncLiveListingData();
+        window.setInterval(syncLiveListingData, 5 * 60 * 1000);
+        $("[data-lightbox-close]").addEventListener("click", closeLightbox);
+        $("[data-lightbox]").addEventListener("click", function (event) { if (event.target === this) closeLightbox(); });
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") closeLightbox();
+          if (event.key === "ArrowLeft") setGalleryIndex(galleryIndex - 1);
+          if (event.key === "ArrowRight") setGalleryIndex(galleryIndex + 1);
+        });
+        renderIcons();
+      })();
+    </script>
+  </body>
+</html>
