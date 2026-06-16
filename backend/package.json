@@ -1,0 +1,44 @@
+{
+  "name": "asg-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Unified backend for the Alex Stoykov Group: Supabase system-of-record that ingests every endpoint (Follow Up Boss, IDX/MLS, Google Drive photos, Asana, Acuity, pipeline CSVs) and serves every ASG UI surface.",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "sync": "tsx src/sync/cli.ts",
+    "sync:all": "tsx src/sync/cli.ts all",
+    "sync:idx": "tsx src/sync/cli.ts idx",
+    "sync:photos": "tsx src/sync/cli.ts photos",
+    "sync:fub": "tsx src/sync/cli.ts fub",
+    "sync:pipeline": "tsx src/sync/cli.ts pipeline",
+    "sync:directory": "tsx src/sync/cli.ts directory",
+    "sync:marketing": "tsx src/sync/cli.ts marketing",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "@supabase/supabase-js": "^2.45.4",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "googleapis": "^140.0.1",
+    "node-cron": "^3.0.3",
+    "postgres": "^3.4.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}

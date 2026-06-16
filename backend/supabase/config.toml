@@ -1,0 +1,74 @@
+# Supabase CLI config for the ASG Backend project.
+# Lets you run `supabase db push` to apply supabase/migrations/* to the remote
+# project after `supabase link --project-ref <your-project-ref>`.
+# The project-ref is the subdomain of your Project URL (e.g. abcdefghijklmno
+# from https://abcdefghijklmno.supabase.co).
+
+project_id = "asg-backend"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 16
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[storage.buckets.listing-photos]
+public = true
+file_size_limit = "25MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"]
+
+[storage.buckets.headshots]
+public = true
+file_size_limit = "10MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+
+[storage.buckets.brand-assets]
+public = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+# Set this to your live site so password-reset / magic-link / confirmation emails
+# redirect correctly. Update before going to production.
+site_url = "https://www.alexstoykovgroup.com"
+additional_redirect_urls = [
+  "https://www.alexstoykovgroup.com",
+  "https://alexstoykovgroup.com",
+  "http://localhost:8787",
+]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# Keep email confirmation ON in production so accounts verify ownership.
+enable_confirmations = true
+double_confirm_changes = true
+
+[analytics]
+enabled = false
