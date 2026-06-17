@@ -478,6 +478,105 @@ export async function getListingDetail(listingId: string): Promise<
   return { ...listing, appointments, requests, activity };
 }
 
+/**
+ * Public MLS search inventory, read straight from the IDX mirror (idx_listings).
+ * Shaped to match the field names the /search-homes page's normalize() expects
+ * (mls* keys), so wiring it in is a pure endpoint swap. Sold/closed rows are
+ * dropped at the DB level; the page treats pending/contingent as "under contract".
+ * Photos are capped to the first two per listing (cover + hover-alt) to keep the
+ * payload small over 1,000+ listings.
+ */
+export async function getSearchInventory(): Promise<Array<Record<string, unknown>>> {
+  const rows = await sql<Row[]>`
+    select
+      i.idx_listing_id, i.mls_number, i.address, i.status, i.property_type,
+      i.list_price, i.beds, i.baths, i.sq_ft, i.year_built,
+      i.neighborhood, i.area_major, i.city, i.zip, i.remarks,
+      i.cover_image_url, i.details_url, i.full_details_url,
+      i.price_drop_amount, i.next_open_house,
+      coalesce(i.raw->>'listingAgentName', i.raw->>'listingAgentFullName', i.raw->>'agentName') as agent,
+      coalesce(i.raw->>'listingOfficeName', i.raw->>'officeName', i.raw->>'listOfficeName') as office,
+      coalesce(i.raw->>'daysOnMarket', i.raw->>'cumulativeDaysOnMarket', i.raw->>'propertyDaysOnMarket') as dom,
+      coalesce(i.raw->>'listingDate', i.raw->>'listDate', i.raw->>'dateAdded') as list_date,
+      coalesce(i.raw->>'propSubType', i.raw->>'idxPropType', i.raw->>'propType') as prop_sub_type,
+      coalesce(i.raw->>'garageSpaces', i.raw->>'garage') as garage,
+      coalesce(i.raw->>'parkingTotal', i.raw->>'totalParking', i.raw->>'parking') as parking
+    from idx_listings i
+    where i.address is not null
+      and coalesce(i.status,'') !~* 'sold|closed|cancel|expired|withdrawn|rented|leased'
+    order by i.list_price desc nulls last
+  `;
+
+  const ids = rows.map((r) => String(r.idx_listing_id));
+  const photoBy = new Map<string, string[]>();
+  if (ids.length) {
+    const photos = await sql<Row[]>`
+      select idx_listing_id, public_url from (
+        select idx_listing_id, public_url,
+               row_number() over (partition by idx_listing_id order by position asc) as rn
+        from listing_photos
+        where source = 'idx' and idx_listing_id = any(${ids})
+      ) t where rn <= 2 order by idx_listing_id, rn
+    `;
+    for (const p of photos) {
+      const key = String(p.idx_listing_id);
+      const arr = photoBy.get(key) ?? [];
+      if (p.public_url) arr.push(String(p.public_url));
+      photoBy.set(key, arr);
+    }
+  }
+
+  return rows.map((r) => {
+    const propType = String(r.property_type ?? '');
+    const subType = String(r.prop_sub_type ?? '');
+    const isLease = /lease|rent/i.test(propType + ' ' + subType);
+    const gallery = photoBy.get(String(r.idx_listing_id)) ?? [];
+    const cover = (r.cover_image_url as string) ?? gallery[0] ?? '';
+    const mlsPhotos = (cover ? [cover, ...gallery] : gallery)
+      .filter((u, i, a) => u && a.indexOf(u) === i)
+      .slice(0, 2)
+      .map((url) => ({ url }));
+    const drop = num(r.price_drop_amount);
+    const price = num(r.list_price);
+    return {
+      idxListingId: String(r.idx_listing_id),
+      mlsNumber: (r.mls_number as string) ?? null,
+      address: String(r.address ?? ''),
+      status: (r.status as string) ?? null,
+      idxMlsStatus: (r.status as string) ?? null,
+      listPrice: price,
+      price,
+      mlsPriceBeforeReduction: drop && price ? price + drop : null,
+      beds: num(r.beds),
+      baths: num(r.baths),
+      sqFt: num(r.sq_ft),
+      mlsYearBuilt: num(r.year_built),
+      neighborhood: (r.neighborhood as string) ?? null,
+      mlsAreaMajor: (r.area_major as string) ?? null,
+      mlsCity: (r.city as string) ?? null,
+      mlsZip: (r.zip as string) ?? null,
+      mlsRemarks: (r.remarks as string) ?? null,
+      coverImage: cover || null,
+      idxCoverImage: (r.cover_image_url as string) ?? null,
+      mlsPhotos,
+      mlsFullDetailsUrl: (r.full_details_url as string) ?? null,
+      idxDetailsUrl: (r.details_url as string) ?? (r.full_details_url as string) ?? null,
+      mlsPropType: propType || null,
+      mlsHomeType: subType || propType || null,
+      mlsPropSubType: subType || null,
+      listingType: isLease ? 'lease' : 'sale',
+      mlsListDate: (r.list_date as string) ?? null,
+      listDate: (r.list_date as string) ?? null,
+      mlsDaysOnMarket: num(r.dom),
+      mlsGarageSpaces: num(r.garage),
+      mlsParking: num(r.parking),
+      mlsListOffice: (r.office as string) ?? null,
+      agent: (r.agent as string) ?? null,
+      nextOpenHouseDate: iso(r.next_open_house),
+    };
+  });
+}
+
 export async function getIdxSyncStatus() {
   const [meta] = await sql<Row[]>`
     select max(synced_at) as last_sync, count(*)::int as row_count from idx_listings

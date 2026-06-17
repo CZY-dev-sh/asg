@@ -11,6 +11,7 @@ export interface IntakeResult {
   listingId?: string;
   personId?: unknown;
   noteId?: unknown;
+  dealId?: unknown;
   assignedTo?: { id?: unknown; name?: unknown; email?: unknown };
   preview?: boolean;
   error?: string;
@@ -86,6 +87,14 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
         fub_synced = true, status = 'synced', updated_at = now()
       where id = ${leadId}
     `;
+    // Tie the FUB deal back to the Pre-Listing so the workshop and FUB stay linked.
+    if (listingId && result.dealId != null) {
+      try {
+        await sql`update listings set fub_deal_id = ${String(result.dealId)}, updated_at = now() where id = ${listingId}`;
+      } catch (err) {
+        log.warn(`lead ${leadId} listing/deal link failed: ${String(err)}`);
+      }
+    }
     return { success: true, leadId, listingId, ...result };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -205,13 +214,44 @@ async function pushLeadToFub(
     noteId = note.id;
   }
 
+  // A seller onboarding is the start of a sale: open a deal in the Sellers
+  // pipeline so the agent tracks it from the first touch. Best-effort.
+  let dealId: unknown = null;
+  if (isSeller && env.FUB_CREATE_SELLER_DEAL && personId != null) {
+    try {
+      const property = (body.property as Rec) ?? {};
+      const address = String(property.address ?? '').trim();
+      const dealName = address || `${who.name ?? 'Seller'} — Listing`;
+      const price = parsePrice(property.price ?? property.estimatedValue ?? property.listPrice);
+      const deal: Rec = {
+        name: dealName,
+        stageId: env.FUB_SELLER_DEAL_STAGE_ID,
+        peopleIds: [personId],
+      };
+      if (assignedUser?.id != null) deal.userIds = [assignedUser.id];
+      if (price != null) deal.price = price;
+      const created = await fub.createDeal(deal);
+      dealId = (created as Rec).id ?? null;
+    } catch (err) {
+      log.warn(`seller deal create failed for person ${String(personId)}: ${String(err)}`);
+    }
+  }
+
   return {
     personId,
     noteId,
+    dealId,
     assignedTo: assignedUser
       ? { id: assignedUser.id, name: assignedUser.name, email: assignedUser.email }
       : undefined,
   };
+}
+
+/** Coerce a loose price value (e.g. "$1,250,000") into an integer dollar amount. */
+function parsePrice(value: unknown): number | null {
+  if (value == null) return null;
+  const n = Number(String(value).replace(/[^0-9.]/g, ''));
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
 }
 
 /** Render the full questionnaire payload as a readable FUB note body. */

@@ -43,6 +43,9 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
           return { success: true, listings: await listings.getHome() };
         case 'active':
           return { success: true, listings: await listings.getActive() };
+        case 'search':
+          // Public /search-homes feed — full MLS inventory straight from IDX.
+          return { success: true, listings: await listings.getSearchInventory() };
         case 'archive':
         case 'closed':
           return { success: true, listings: await listings.getArchive() };

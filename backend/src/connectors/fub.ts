@@ -123,6 +123,19 @@ export class FubClient {
       body: JSON.stringify(body),
     });
   }
+  deal(id: string | number) {
+    return this.req<Record<string, unknown>>(`/deals/${id}`);
+  }
+  /** Create a deal. `stageId` is required and implies the pipeline. */
+  createDeal(body: Record<string, unknown>) {
+    return this.req<Record<string, unknown>>('/deals', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+  deleteDeal(id: string | number) {
+    return this.req<Record<string, unknown>>(`/deals/${id}`, { method: 'DELETE' });
+  }
 }
 
 export function fubClient(): FubClient | null {

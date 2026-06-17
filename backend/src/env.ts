@@ -45,6 +45,9 @@ const schema = z.object({
   SELLER_INTAKE_SOURCE: z.string().default('ASG Website - Seller Onboarding'),
   SELLER_INTAKE_SYSTEM: z.string().default('ASG Website'),
   SELLER_INTAKE_FALLBACK_EMAIL: z.string().optional().default(''),
+  // Seller onboarding -> FUB deal. Stage 33 = "Seller A/I" in the Sellers pipeline.
+  FUB_CREATE_SELLER_DEAL: bool(true),
+  FUB_SELLER_DEAL_STAGE_ID: z.coerce.number().int().default(33),
 
   // IDX Broker
   IDX_ACCESS_KEY: z.string().optional().default(''),

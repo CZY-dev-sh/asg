@@ -1,0 +1,21 @@
+---
+description: Never use em dashes in website copy
+globs: asg-admin-hub/components/**/*.html
+alwaysApply: false
+---
+
+# No Em Dashes in Website Copy
+
+Never use em dashes (—, `\u2014`, `&mdash;`) in any user-facing copy: bios, headlines, descriptions, button labels, taglines, toasts, etc.
+
+Rewrite with a period, comma, colon, or restructure the sentence instead.
+
+```text
+❌ He began at 20—flipping properties while in school.
+✅ He began at 20, flipping properties while in school.
+
+❌ Great agents are made, not found—that idea built ASG.
+✅ Great agents are made, not found. That idea built ASG.
+```
+
+This applies to copy in HTML, strings in inline JavaScript, and any text rendered to visitors. Code comments are exempt.

@@ -7,10 +7,10 @@
   same pattern as asg-homepage-redesign.html — do NOT also add the
   asg-page-main wrapper, or the injected site nav will double up.
 
-  DATA: reads the Listing Hub web app (?view=active) — the IdxListings
-  sheet mirror that IdxSync.gs refreshes from the IDX/Elm Street API
-  every minute on change (hourly safety net). Override the endpoint by
-  setting window.ASG_LISTINGS_API before this block.
+  DATA: reads the ASG backend (?view=search) — the idx_listings mirror
+  the backend refreshes from the IDX/Elm Street API on a schedule. The
+  payload is shaped to match this page's normalize() field names. Override
+  the endpoint by setting window.ASG_LISTINGS_API before this block.
 
   ENTRY POINTS:
     /search-homes                → blank search, all live inventory
@@ -26,8 +26,8 @@
 (function () {
   'use strict';
   var API = String(window.ASG_LISTINGS_API ||
-    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec').trim();
-  var CACHE_KEY = 'asg_search_cache_v1';
+    'https://asg-production.up.railway.app/api/listings').trim();
+  var CACHE_KEY = 'asg_search_cache_v2';
   var CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
   var boot = { api: API, cachedRows: null, promise: null, cacheKey: CACHE_KEY };
@@ -44,7 +44,7 @@
   } catch (e) {}
 
   var sep = API.indexOf('?') >= 0 ? '&' : '?';
-  boot.promise = fetch(API + sep + 'view=active')
+  boot.promise = fetch(API + sep + 'view=search')
     .then(function (res) { return res.json(); })
     .then(function (payload) {
       var rows = payload && Array.isArray(payload.listings) ? payload.listings : null;
@@ -341,6 +341,22 @@ a{ color:inherit; }
   border:1px solid var(--line-strong); color:var(--ink); border-radius:var(--r-pill);
   padding:11px 38px 11px 18px; font-family:var(--font); font-size:.9rem; font-weight:700;
 }
+
+/* ════════════ FULL-MLS HAND-OFF BAR ════════════ */
+.sh-mls-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  margin:16px 0 2px; padding:15px 22px; text-decoration:none;
+  background:linear-gradient(100deg, #101010, #232323); color:#fff;
+  border-radius:var(--r-input); font-size:.92rem;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.sh-mls-bar:hover{ transform:translateY(-1px); box-shadow:var(--shadow-hover); }
+.sh-mls-bar-txt{ color:rgba(255,255,255,.82); font-weight:500; }
+.sh-mls-bar-txt b{ color:#fff; font-weight:700; }
+.sh-mls-bar-cta{ display:inline-flex; align-items:center; gap:7px; white-space:nowrap; font-weight:700; }
+.sh-mls-bar-cta svg{ transition:transform .2s ease; }
+.sh-mls-bar:hover .sh-mls-bar-cta svg{ transform:translateX(3px); }
+@media (max-width:560px){ .sh-mls-bar{ flex-direction:column; align-items:flex-start; gap:8px; padding:14px 18px; } }
 
 /* ════════════ FILTER PANEL ════════════ */
 .sh-filters{
@@ -697,6 +713,14 @@ a{ color:inherit; }
       </div>
     </div>
 
+    <!-- full-MLS hand-off: same search, run against every active MLS listing -->
+    <a class="sh-mls-bar" id="mlsBar" href="https://search.alexstoykovgroup.com/idx/results/listings?idxID=c019" target="_blank" rel="noopener noreferrer">
+      <span class="sh-mls-bar-txt" id="mlsBarTxt">Browse every active listing across the full MLS</span>
+      <span class="sh-mls-bar-cta">Search the full MLS
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </span>
+    </a>
+
     <div class="sh-grid" id="grid" aria-live="polite"></div>
 
     <!-- concierge band -->
@@ -766,7 +790,68 @@ a{ color:inherit; }
      ════════════════════════════════════════════════════════════════ */
   var boot = window.__ASG_SEARCH_BOOT || { promise: Promise.resolve(null), cachedRows: null, api: '' };
   var IDX_PORTAL = 'https://search.alexstoykovgroup.com';
+  var IDX_RESULTS = IDX_PORTAL + '/idx/results/listings';
+  var IDX_MLS_ID = 'c019';                 /* Midwest Real Estate Data (MRED) */
   var FAV_KEY = 'asg_search_favs_v1';
+
+  /* Build a full-MLS hosted-search URL from the current filters. IDX Broker
+     reads price (lp/hp), beds (bd), baths (tb), status (a_propStatus[]),
+     zip (zipcode[]), sort (srt) and property type (pt: 1=Residential,
+     2=Residential Lease). Neighborhood/feature terms aren't standard MLS
+     search fields, so they refine our local grid only — the hand-off carries
+     the structured filters that map cleanly to the MLS. */
+  function buildMlsUrl(f) {
+    var pairs = [['idxID', IDX_MLS_ID]];
+    var onlyRental = f.types.length === 1 && f.types[0] === 'rental';
+    var hasRental = f.types.indexOf('rental') >= 0;
+    if (onlyRental) pairs.push(['pt', '2']);
+    else if (f.types.length && !hasRental) pairs.push(['pt', '1']);
+    if (f.priceMin !== null) pairs.push(['lp', String(Math.round(f.priceMin))]);
+    if (f.priceMax !== null) pairs.push(['hp', String(Math.round(f.priceMax))]);
+    if (f.beds !== null && f.beds > 0) pairs.push(['bd', String(f.beds)]);
+    if (f.baths !== null) pairs.push(['tb', String(Math.floor(f.baths))]);
+    if (f.status === 'uc') {
+      pairs.push(['a_propStatus[]', 'Active Under Contract']);
+      pairs.push(['a_propStatus[]', 'Pending']);
+      pairs.push(['a_propStatus[]', 'Contingent']);
+    } else {
+      pairs.push(['a_propStatus[]', 'Active']);
+    }
+    f.zips.forEach(function (z) { pairs.push(['zipcode[]', z]); });
+    var srt = { 'price-asc': 'pra', 'price-desc': 'prd', 'newest': 'newest' }[f.sort];
+    if (srt) pairs.push(['srt', srt]);
+    return IDX_RESULTS + '?' + pairs.map(function (kv) {
+      return encodeURIComponent(kv[0]) + '=' + encodeURIComponent(kv[1]);
+    }).join('&');
+  }
+
+  function activeFilterCount(f) {
+    var n = 0;
+    if (f.priceMin !== null || f.priceMax !== null) n++;
+    if (f.beds !== null) n++;
+    if (f.baths !== null) n++;
+    if (f.sqftMin !== null) n++;
+    n += f.types.length + f.hoods.length + f.zips.length + f.features.length + f.text.length;
+    if (f.status !== 'any') n++;
+    if (f.openHouse) n++;
+    if (f.priceDrop) n++;
+    if (f.newConstruction) n++;
+    return n;
+  }
+
+  function syncMlsLinks() {
+    var url = buildMlsUrl(state);
+    var bar = $('mlsBar');
+    if (bar) bar.href = url;
+    var txt = $('mlsBarTxt');
+    if (txt) {
+      txt.innerHTML = activeFilterCount(state) > 0
+        ? 'Only seeing <b>Alex Stoykov Group</b> listings? Run this exact search across the <b>full MLS</b>'
+        : 'Browse every active listing across the <b>full MLS</b>';
+    }
+    var concierge = $('fullMlsLink');
+    if (concierge) concierge.href = url;
+  }
 
   var SUGGESTIONS = [
     '3 bed condo in West Loop under $750k',
@@ -911,7 +996,7 @@ a{ color:inherit; }
   }
 
   /* ════════════════════════════════════════════════════════════════
-     NORMALIZE listings from ?view=active payload
+     NORMALIZE listings from ?view=search payload
      ════════════════════════════════════════════════════════════════ */
   function normalize(rows) {
     var out = [];
@@ -1385,7 +1470,7 @@ a{ color:inherit; }
             : 'Our feed covers Alex Stoykov Group and partner inventory. Your criteria may match homes elsewhere in the MLS \u2014 run the same search on the full portal, or let us find it for you.') + '</p>' +
           '<div class="row">' +
             (favMode ? '' :
-              '<a class="btn btn-dark" id="emptyMlsBtn" href="' + esc(IDX_PORTAL) + '/" target="_blank" rel="noopener noreferrer">Search the full MLS</a>' +
+              '<a class="btn btn-dark" id="emptyMlsBtn" href="' + esc(buildMlsUrl(state)) + '" target="_blank" rel="noopener noreferrer">Search the full MLS</a>' +
               '<a class="btn btn-light" href="/buyer-onboarding">Get matched with an agent</a>') +
             '<button class="btn btn-light" id="emptyClearBtn" type="button">Clear filters</button>' +
           '</div>' +
@@ -1436,6 +1521,7 @@ a{ color:inherit; }
   function refresh() {
     renderChips();
     syncPanelFromState();
+    syncMlsLinks();
     var rows = applyFilters(ALL, state);
     var label = rows.length === 1 ? '1 home' : rows.length.toLocaleString() + ' homes';
     $('resultCount').textContent = state.favoritesOnly ? label + ' saved' : label;
@@ -1754,7 +1840,7 @@ a{ color:inherit; }
           '<h3>We couldn&rsquo;t load the live feed</h3>' +
           '<p>The MLS portal still has every listing \u2014 or tell us what you need and we&rsquo;ll send a curated list.</p>' +
           '<div class="row">' +
-            '<a class="btn btn-dark" href="' + esc(IDX_PORTAL) + '/" target="_blank" rel="noopener noreferrer">Open MLS search</a>' +
+            '<a class="btn btn-dark" href="' + esc(buildMlsUrl(state)) + '" target="_blank" rel="noopener noreferrer">Open MLS search</a>' +
             '<a class="btn btn-light" href="/buyer-onboarding">Get matched with an agent</a>' +
           '</div>' +
         '</div>';
@@ -1769,7 +1855,7 @@ a{ color:inherit; }
     fetch(api + sep + 'view=idxsync')
       .then(function (r) { return r.json(); })
       .then(function (p) {
-        var at = p && p.idx && p.idx.lastSyncedAt;
+        var at = p && (p.lastSync || (p.idx && p.idx.lastSyncedAt));
         if (!at) return;
         var mins = Math.max(0, Math.round((Date.now() - Date.parse(at)) / 60000));
         $('syncMeta').textContent = 'MLS data synced ' + (mins < 1 ? 'just now' : mins + ' min ago');
