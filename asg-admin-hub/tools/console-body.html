@@ -1,0 +1,156 @@
+<div id="asgc-app" data-state="loading">
+
+  <!-- ── Login gate ─────────────────────────────────────────── -->
+  <div id="asgc-login">
+    <div class="asgc-login-card">
+      <div class="asgc-login-logo">AS</div>
+      <h1>ASG Admin Console</h1>
+      <p>Sign in with your Compass account to manage deals, listings, and the team.</p>
+
+      <button class="asgc-google-btn" id="asgcGoogle" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.2 13.6 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.9 6.7-17.4z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.5-5.6l-7.3-5.7c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-4.1-13.6-9.9l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="asgc-divider">or</div>
+
+      <form id="asgcEmailForm" autocomplete="on">
+        <div class="asgc-field" id="asgcNameField" hidden>
+          <label for="asgcName">Full name</label>
+          <input class="asgc-input" id="asgcName" type="text" autocomplete="name" placeholder="Jane Admin">
+        </div>
+        <div class="asgc-field">
+          <label for="asgcEmail">Email</label>
+          <input class="asgc-input" id="asgcEmail" type="email" autocomplete="username" placeholder="you@compass.com" required>
+        </div>
+        <div class="asgc-field">
+          <label for="asgcPassword">Password</label>
+          <input class="asgc-input" id="asgcPassword" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        </div>
+        <button class="asgc-primary" id="asgcEmailSubmit" type="submit">Sign in</button>
+      </form>
+
+      <div class="asgc-login-toggle">
+        <span id="asgcToggleText">Need an account?</span>
+        <button type="button" id="asgcToggleMode">Create one</button>
+      </div>
+      <div class="asgc-msg" id="asgcLoginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ── Floating pill nav (mirrors the ASG homepage) ───────── -->
+  <div class="asgc-nav-frost" id="asgcNavFrost" aria-hidden="true"></div>
+  <div class="asgc-nav-wrap">
+    <div class="asgc-nav-inner">
+      <nav class="asgc-nav" id="asgcNav" aria-label="Admin Hub">
+        <button class="asgc-nav-logo" id="asgcLogoBtn" data-go="overview" type="button" aria-label="Overview">
+          <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+          <span>Admin Hub</span>
+        </button>
+
+        <div class="asgc-nav-links" id="asgcChips" role="navigation" aria-label="Surfaces">
+          <div class="asgc-nav-ghost" id="asgcNavGhost" aria-hidden="true"></div>
+          <button class="asgc-nav-link is-active" data-go="overview" type="button">Overview</button>
+          <button class="asgc-nav-link" data-go="deals" type="button">Deals</button>
+          <button class="asgc-nav-link" data-go="listings" type="button">Listings</button>
+          <button class="asgc-nav-link" data-go="directory" type="button">Team Directory</button>
+        </div>
+
+        <div class="asgc-nav-cta">
+          <button class="asgc-profile" id="asgcAcctBtn" type="button" aria-label="Your profile">
+            <span class="asgc-pname" id="asgcAcctName">Account<small id="asgcAcctRole">signed out</small></span>
+            <span class="asgc-avatar" id="asgcAvatar">··</span>
+          </button>
+        </div>
+
+        <button class="asgc-burger" id="asgcBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="asgcMpanel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ── Mobile menu panel ──────────────────────────────────── -->
+  <div class="asgc-mpanel" id="asgcMpanel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="asgc-mprofile">
+      <span class="asgc-avatar" id="asgcAvatarM">··</span>
+      <span class="asgc-pname" id="asgcMname">Account<small id="asgcMrole"></small></span>
+    </div>
+    <button class="asgc-mlink is-active" data-go="overview" type="button">Overview</button>
+    <button class="asgc-mlink" data-go="deals" type="button">Deals</button>
+    <button class="asgc-mlink" data-go="listings" type="button">Listings</button>
+    <button class="asgc-mlink" data-go="directory" type="button">Team Directory</button>
+    <button class="asgc-mlink" data-go="account" type="button">My profile</button>
+    <button class="asgc-msignout" id="asgcSignOutM" type="button">Sign out</button>
+  </div>
+
+  <!-- ── Surfaces ───────────────────────────────────────────── -->
+  <main id="asgc-main">
+    <!--SURFACE:overview-->
+    <!--SURFACE:deals-->
+    <!--SURFACE:listings-->
+    <!--SURFACE:directory-->
+    <!--SURFACE:command-->
+
+    <section class="asgc-surface" data-surface="account" hidden>
+      <div class="asgc-acct-wrap">
+        <div class="asgc-acct-head">
+          <span class="asgc-avatar" id="asgcAcctBig">··</span>
+          <div><h2 id="asgcAcctH2">Your account</h2><p id="asgcAcctSub">Manage your profile and review your activity.</p></div>
+        </div>
+        <div class="asgc-acct-grid">
+          <div class="asgc-panel">
+            <h3>Profile</h3>
+            <div class="asgc-form-row"><label>Full name</label><input class="asgc-input" id="asgcPfName" type="text"></div>
+            <div class="asgc-form-row"><label>Phone</label><input class="asgc-input" id="asgcPfPhone" type="text" placeholder="312-555-0100"></div>
+            <div class="asgc-form-row"><label>Email</label><input class="asgc-input" id="asgcPfEmail" type="text" disabled></div>
+            <div class="asgc-form-row"><label>Role</label><input class="asgc-input" id="asgcPfRole" type="text" disabled></div>
+            <button class="asgc-primary" id="asgcSaveProfile" type="button">Save profile</button>
+            <button class="asgc-signout" id="asgcSignOut" type="button">Sign out</button>
+          </div>
+          <div class="asgc-panel">
+            <h3>Your recent activity</h3>
+            <div class="asgc-activity" id="asgcActivity"><p style="color:rgba(0,0,0,.4);font-size:13px">Loading activity…</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Floating action button ─────────────────────────────── -->
+  <button id="asgc-fab" type="button" aria-label="Take action" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+  </button>
+
+  <!-- ── Action center (glass bento modal) ──────────────────── -->
+  <div id="asgc-action" aria-hidden="true">
+    <div class="asgc-action-scrim" id="asgcActionScrim"></div>
+    <div class="asgc-action-modal" role="dialog" aria-modal="true" aria-label="Take action">
+      <button class="asgc-action-x" id="asgcActionX" aria-label="Close">×</button>
+
+      <!-- picker view: bento of actions -->
+      <div class="asgc-action-view" id="asgcActionPicker">
+        <div class="asgc-action-head">
+          <h2>Take action</h2>
+          <p>Create and update records across the hub.</p>
+        </div>
+        <div class="asgc-bento" id="asgcBento"></div>
+      </div>
+
+      <!-- form view: selected action -->
+      <div class="asgc-action-view" id="asgcActionForm" hidden>
+        <button class="asgc-back" id="asgcActionBack" type="button">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          All actions
+        </button>
+        <h2 id="asgcActionFormTitle">Action</h2>
+        <div class="asgc-drawer-body" id="asgcDrawerBody"></div>
+        <div class="asgc-action-foot">
+          <button class="asgc-primary" id="asgcDrawerSave" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="asgc-toast"></div>
+</div>

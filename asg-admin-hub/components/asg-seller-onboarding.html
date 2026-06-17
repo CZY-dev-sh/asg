@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Seller Onboarding | Alex Stoykov Group</title>
+<meta name="description" content="Tell us about your home and the Alex Stoykov Group will build your personalized listing and marketing strategy.">
+
+<!--
+  ASG SELLER ONBOARDING WIZARD
+  Host on a Squarespace page at /seller-onboarding (single code block).
+  Questions mirror the Alex Stoykov Group Seller Questionnaire (Asana),
+  with branching routes per property type (Single Family, Condo/Townhome,
+  Multi-Unit, Land).
+  Data sources:
+    - Agent roster:  Hub Data API  ?view=directory  (window.ASG_HUB_DATA_API)
+    - Lead intake:   Seller Intake Apps Script doPost (window.ASG_SELLER_INTAKE_API)
+      -> creates the lead in Follow Up Boss and assigns it to the chosen agent.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   ASG design tokens (matches asg-homepage-redesign.html)
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --bg-deep:#101010;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --ob-accent:#16a34a;
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --shadow-deep:0 24px 60px rgba(17,17,17,.10);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-bento:22px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1080px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; overflow-anchor:none; }
+body{
+  margin:0; background:var(--bg-alt); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SQUARESPACE OVERRIDES: this page only (CSS ships in the code block)
+   ════════════════════════════════════════════════════════════ */
+#header,
+header.Header,
+.Header,
+.Header-inner,
+header#header,
+.header-announcement-bar-wrapper,
+.Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone,
+#announcement-bar-text-inner-id,
+#headerSpacer,
+.header-spacer,
+#footer,
+footer.Footer,
+.Footer,
+.Footer-inner,
+#footer-sections,
+footer.sections{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper,
+.Main,
+.Content-outer,
+.Content-inner,
+.Index,
+.Index-page-content,
+#page,
+.page-section,
+article.sections,
+main#page article{
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+  max-width:none !important;
+}
+.page-section .content-wrapper{
+  padding:0 !important;
+  max-width:none !important;
+}
+
+/* Ignore Squarespace's global image rounding. */
+main img,
+.nav img,
+.nav-logo img,
+.mobile-panel img,
+.footer img,
+.agent-card img,
+.agent-pick img,
+.success-agent img{
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+.agent-card .agent-photo,
+.agent-pick .agent-photo,
+.success-agent .agent-photo{ overflow:hidden !important; border-radius:50% !important; }
+.agent-card .agent-photo img,
+.agent-pick .agent-photo img,
+.success-agent .agent-photo img{ border-radius:50% !important; }
+.info-photo{ border-radius:var(--r-bento) !important; overflow:hidden !important; }
+.info-photo img{ border-radius:0 !important; }
+
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* Lucide sizing */
+.lucide, svg[data-lucide]{ width:18px; height:18px; stroke-width:2; flex-shrink:0; }
+
+/* ════════════════ NAV: floating pill (matches homepage) ════════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);
+  -webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom, rgba(246,246,243,.78), rgba(246,246,243,.42) 50%, rgba(246,246,243,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  transition:opacity .3s ease;
+  opacity:0;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease, min-height .35s var(--ease), padding .35s var(--ease);
+}
+.nav.is-scrolled{
+  box-shadow:0 10px 32px rgba(17,17,17,.10);
+  min-height:66px;
+}
+.nav-logo{
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; flex-shrink:0;
+}
+.nav-logo img{
+  width:58px; height:58px;
+  transition:width .35s var(--ease), height .35s var(--ease), transform .3s ease;
+}
+.nav.is-scrolled .nav-logo img{ width:50px; height:50px; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{
+  font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap;
+}
+.nav-links{
+  display:flex; align-items:center; gap:4px;
+  position:relative;
+}
+.nav-link{
+  position:relative; z-index:1;
+  border-radius:var(--r-pill);
+  padding:14px 24px;
+  font-size:1.12rem; font-weight:600;
+  color:var(--muted);
+  text-decoration:none; white-space:nowrap;
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+.nav-pill-ghost{
+  position:absolute; z-index:0;
+  border-radius:var(--r-pill);
+  background:rgba(17,17,17,.05);
+  border:1px solid rgba(17,17,17,.07);
+  opacity:0; pointer-events:none;
+  transition:left .28s var(--ease), width .28s var(--ease), opacity .2s ease;
+  top:0; bottom:0;
+}
+.nav-pill-ghost.is-on{ opacity:1; }
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+.nav-burger{
+  display:none;
+  background:transparent; border:1px solid var(--line);
+  width:50px; height:50px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; color:var(--ink);
+}
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+
+/* Mobile panel */
+.mobile-panel{
+  position:fixed; inset:0; z-index:110;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  padding:100px 22px 40px;
+  display:flex; flex-direction:column; gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  overflow-y:auto;
+}
+.mobile-panel.is-open{ opacity:1; pointer-events:auto; }
+.mobile-panel a.m-link{
+  display:block; padding:17px 20px; border-radius:20px;
+  font-size:1.25rem; font-weight:700; text-decoration:none;
+  border:1px solid var(--line); background:#fff;
+  transform:translateY(14px); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s ease;
+}
+.mobile-panel.is-open a.m-link{ transform:translateY(0); opacity:1; }
+.mobile-panel.is-open a.m-link:nth-child(2){ transition-delay:.05s; }
+.mobile-panel.is-open a.m-link:nth-child(3){ transition-delay:.10s; }
+.mobile-panel.is-open a.m-link:nth-child(4){ transition-delay:.15s; }
+.mobile-panel.is-open a.m-link:nth-child(5){ transition-delay:.20s; }
+.mobile-panel-close{
+  position:absolute; top:22px; right:22px;
+  width:46px; height:46px; border-radius:var(--r-pill);
+  border:1px solid var(--line); background:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.mobile-panel-cta{
+  margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+
+/* ════════════════ BUTTONS (site language) ════════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1; border:none;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+.btn-lg{ padding:18px 44px; font-size:1.14rem; }
+
+/* ════════════════ PAGE HERO + SELLING-WITH-ASG INFO ════════════════ */
+.sell-hero{
+  padding:168px var(--pad-x) 26px;
+}
+@media (max-width: 720px){ .sell-hero{ padding-top:136px; } }
+.sell-hero-inner{ max-width:var(--max); margin:0 auto; }
+.sell-hero .ob-eyebrow{ font-size:.84rem; }
+.sell-hero-h1{
+  font-weight:800; font-size:clamp(2.6rem, 5.4vw, 4.6rem);
+  line-height:.98; letter-spacing:-.05em; margin:0 0 18px; max-width:18ch;
+}
+.sell-hero-lead{
+  font-size:clamp(1.1rem, 1.7vw, 1.3rem); line-height:1.6; color:var(--muted);
+  max-width:62ch; margin:0 0 26px;
+}
+.sell-hero-ctas{ display:flex; gap:10px; flex-wrap:wrap; }
+.sell-hero-stats{
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;
+  margin-top:34px; max-width:680px;
+}
+@media (max-width: 560px){ .sell-hero-stats{ grid-template-columns:1fr; max-width:none; } }
+.sell-stat{
+  background:#fff; border:1px solid var(--line); border-radius:20px;
+  padding:16px 18px; box-shadow:var(--shadow-card);
+}
+.sell-stat .stat-label{
+  font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--muted); margin:0 0 4px;
+}
+.sell-stat .stat-val{
+  font-size:1.6rem; font-weight:800; letter-spacing:-.03em; margin:0; line-height:1;
+}
+
+.sell-info{ padding:26px var(--pad-x) 10px; }
+.sell-info-inner{ max-width:var(--max); margin:0 auto; }
+.sell-info-head{ margin:0 0 22px; }
+.sell-info-head h2{
+  font-weight:800; font-size:clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing:-.04em; line-height:1.05; margin:0 0 8px;
+}
+.info-photo{
+  grid-column:span 5;
+  border-radius:var(--r-bento); overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-card);
+  position:relative; min-height:330px;
+}
+.info-photo img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+}
+.value-stack{
+  grid-column:span 7;
+  display:flex; flex-direction:column; gap:14px;
+}
+@media (max-width: 860px){
+  .info-photo,.value-stack{ grid-column:span 12; }
+  .info-photo{ min-height:230px; }
+}
+.value-row{
+  flex:1; display:flex; align-items:center; gap:16px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-bento);
+  padding:18px 22px; box-shadow:var(--shadow-card);
+}
+.value-icon{
+  width:46px; height:46px; border-radius:14px; flex-shrink:0;
+  background:var(--bg-soft); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.value-icon .lucide{ width:21px; height:21px; }
+.value-row h4{ font-size:1.12rem; font-weight:800; letter-spacing:-.02em; margin:0 0 2px; }
+.value-row p{ font-size:.93rem; line-height:1.5; color:var(--muted); margin:0; }
+.process-strip{
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
+}
+@media (max-width: 860px){ .process-strip{ grid-template-columns:1fr 1fr; } }
+@media (max-width: 520px){ .process-strip{ grid-template-columns:1fr; } }
+.process-step .p-num{
+  font-size:.78rem; font-weight:800; letter-spacing:.08em; color:var(--muted-soft); margin:0 0 8px;
+}
+.process-step h5{ font-size:1.04rem; font-weight:800; letter-spacing:-.02em; margin:0 0 6px; }
+.process-step p{ font-size:.9rem; line-height:1.55; color:var(--muted); margin:0; }
+
+/* ════════════════ WIZARD SECTION ════════════════ */
+.ob-wizard{
+  padding:34px var(--pad-x) 0;
+  scroll-margin-top:108px;
+}
+.ob-wizard-inner{ max-width:var(--max); margin:0 auto; }
+.ob-wizard-head{ margin:0 0 20px; }
+.ob-wizard-head h2{
+  font-weight:800; font-size:clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing:-.04em; line-height:1.05; margin:0 0 8px;
+}
+
+/* ════════════════ PROGRESS ════════════════ */
+.ob-progress{ flex:1; min-width:0; margin:0; }
+.ob-progress-track{
+  height:8px; border-radius:var(--r-pill); background:rgba(17,17,17,.08);
+  overflow:hidden;
+}
+.ob-progress-fill{
+  height:100%; width:0%; border-radius:var(--r-pill);
+  background:var(--ob-accent);
+  box-shadow:0 1px 6px rgba(22,163,74,.4);
+  transition:width .6s var(--ease);
+}
+.ob-progress-meta{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  margin:0 0 8px; font-size:.84rem; font-weight:600; color:var(--muted);
+}
+.ob-progress-meta .step-name{
+  display:inline-flex; align-items:center; gap:7px; color:var(--ink); font-weight:700;
+}
+
+/* ════════════════ WIZARD SHELL ════════════════ */
+.ob-shell{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--r-shell);
+  box-shadow:var(--shadow-deep);
+  padding:26px 26px 30px;
+}
+@media (max-width:640px){
+  .ob-shell{ padding:18px 16px 22px; border-radius:26px; }
+}
+/* Cards nest on the white shell: keep them white, lift them with layered shadows. */
+.ob-shell .bento-card{
+  background:#fff;
+  border:1px solid rgba(17,17,17,.06);
+  box-shadow:0 1px 2px rgba(17,17,17,.05), 0 10px 26px rgba(17,17,17,.07);
+  transition:box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+.ob-shell .bento-card:hover{
+  box-shadow:0 2px 4px rgba(17,17,17,.05), 0 16px 38px rgba(17,17,17,.10);
+}
+/* Guided flow: subtly hint at the component the user should fill next. */
+.bento-card{ position:relative; }
+.bento-card.is-guiding{
+  border-color:rgba(22,163,74,.35) !important;
+  box-shadow:0 0 0 1px rgba(22,163,74,.18), 0 10px 26px rgba(17,17,17,.07) !important;
+}
+.ob-main{ padding:22px 0 0; }
+.ob-step{ display:none; }
+.ob-step.is-active{
+  display:block;
+  animation:stepIn .55s var(--ease);
+}
+@keyframes stepIn{
+  from{ opacity:0; transform:translateY(22px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.ob-step-head{ margin:8px 0 26px; }
+.ob-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--muted); margin:0 0 10px;
+}
+.ob-h1{
+  font-weight:800; font-size:clamp(1.55rem, 2.8vw, 2.25rem);
+  letter-spacing:-.04em; line-height:1.04; margin:0 0 10px;
+}
+.ob-sub{ font-size:1.05rem; color:var(--muted); margin:0; max-width:58ch; }
+
+/* Bento grid */
+.bento{
+  display:grid; grid-template-columns:repeat(12, 1fr); gap:14px;
+}
+.bento-card{
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-bento);
+  padding:22px; box-shadow:var(--shadow-card);
+}
+.bento-card h3{
+  display:flex; align-items:center; gap:9px;
+  font-size:.92rem; font-weight:700; margin:0 0 16px;
+}
+.bento-card h3 .lucide{ color:var(--muted); }
+.bento-card h3 .opt{ font-weight:500; color:var(--muted-soft); text-transform:none; letter-spacing:0; }
+.span-12{ grid-column:span 12; }
+.span-8{ grid-column:span 8; }
+.span-7{ grid-column:span 7; }
+.span-6{ grid-column:span 6; }
+.span-5{ grid-column:span 5; }
+.span-4{ grid-column:span 4; }
+@media (max-width: 860px){
+  .span-8,.span-7,.span-6,.span-5,.span-4{ grid-column:span 12; }
+}
+
+/* Inputs */
+.ob-label{
+  display:block; font-size:.8rem; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em; margin:0 0 7px;
+}
+.ob-input{
+  width:100%; border:1px solid var(--line-strong); border-radius:var(--r-input);
+  background:#fff; padding:14px 16px; font-family:var(--font);
+  font-size:1.02rem; color:var(--ink); outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
+.ob-input::placeholder{ color:var(--muted-soft); }
+.ob-input:focus{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.ob-field + .ob-field{ margin-top:16px; }
+.ob-field-err{
+  display:none; margin:6px 2px 0; font-size:.82rem; font-weight:600; color:#b00020;
+}
+.ob-field.has-error .ob-field-err{ display:block; }
+.ob-field.has-error .ob-input{ border-color:#b00020; }
+.ob-help{ font-size:.85rem; color:var(--muted); margin:0 0 10px; }
+
+/* Reveal blocks */
+.ob-reveal{ display:none; }
+.ob-reveal.is-on{ display:block; }
+.ob-reveal.is-on.grid-reveal{ display:grid; }
+
+/* Choice chips (single + multi) */
+.chip-row{ display:flex; flex-wrap:wrap; gap:9px; }
+.chip{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line-strong); background:#fff; color:var(--ink);
+  border-radius:var(--r-pill); padding:11px 18px;
+  font-family:var(--font); font-size:.95rem; font-weight:600;
+  cursor:pointer; user-select:none;
+  transition:background .18s, color .18s, border-color .18s, transform .18s var(--ease);
+}
+.chip:hover{ transform:translateY(-1px); border-color:var(--ink); }
+.chip.is-on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.chip .lucide{ width:16px; height:16px; }
+
+/* Toggle switch */
+.toggle-row{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 2px;
+}
+.toggle-row + .toggle-row{ border-top:1px solid var(--line); }
+.toggle-label{ display:flex; align-items:center; gap:11px; font-weight:600; font-size:1rem; }
+.toggle-label .lucide{ color:var(--muted); width:20px; height:20px; }
+.toggle{
+  position:relative; width:54px; height:32px; border-radius:var(--r-pill);
+  background:rgba(17,17,17,.14); border:none; cursor:pointer; flex-shrink:0;
+  transition:background .25s var(--ease); padding:0;
+}
+.toggle::after{
+  content:''; position:absolute; top:3px; left:3px;
+  width:26px; height:26px; border-radius:50%; background:#fff;
+  box-shadow:0 2px 6px rgba(17,17,17,.22);
+  transition:transform .25s var(--ease);
+}
+.toggle.is-on{ background:var(--ink); }
+.toggle.is-on::after{ transform:translateX(22px); }
+
+/* Property type cards (route selector) */
+.proptype-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
+}
+@media (max-width:560px){ .proptype-grid{ grid-template-columns:1fr; } }
+.proptype-card{
+  display:flex; align-items:flex-start; gap:14px; text-align:left;
+  background:#fff; border:1.5px solid var(--line-strong); border-radius:18px;
+  padding:18px 18px; cursor:pointer; font-family:var(--font);
+  transition:border-color .18s, box-shadow .18s, transform .18s var(--ease);
+}
+.proptype-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-card); }
+.proptype-card.is-on{ border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+.proptype-icon{
+  width:44px; height:44px; border-radius:13px; flex-shrink:0;
+  background:var(--bg-soft); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.proptype-card .pt-name{ display:block; font-weight:800; font-size:1.05rem; letter-spacing:-.02em; margin:0 0 3px; }
+.proptype-card .pt-desc{ display:block; font-size:.86rem; color:var(--muted); margin:0; line-height:1.45; }
+
+/* Mechanicals checklist */
+.mech-list{ display:flex; flex-direction:column; gap:10px; }
+.mech-row{ display:flex; align-items:center; gap:10px; }
+.mech-name{ flex:1; font-weight:600; font-size:.98rem; }
+.mech-name-input{ flex:1; }
+.mech-year{ width:170px; flex-shrink:0; }
+.mech-remove{
+  width:38px; height:38px; flex-shrink:0; border-radius:12px;
+  border:1px solid var(--line-strong); background:#fff; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:border-color .18s, color .18s;
+}
+.mech-remove:hover{ border-color:#b00020; color:#b00020; }
+.mech-add{
+  display:inline-flex; align-items:center; gap:8px; margin-top:14px;
+  border:1px dashed var(--line-strong); background:#fff; color:var(--ink);
+  border-radius:var(--r-pill); padding:11px 18px;
+  font-family:var(--font); font-size:.95rem; font-weight:600; cursor:pointer;
+  transition:border-color .18s, transform .18s var(--ease);
+}
+.mech-add:hover{ border-color:var(--ink); transform:translateY(-1px); }
+.mech-add .lucide{ width:16px; height:16px; }
+@media (max-width:520px){ .mech-year{ width:120px; } }
+
+/* Unit blocks (multi-unit) */
+.unit-card{ background:var(--bg-alt); border:1px solid var(--line); border-radius:18px; padding:18px; }
+.unit-card + .unit-card{ margin-top:12px; }
+.unit-card .unit-title{
+  display:flex; align-items:center; gap:8px;
+  font-weight:800; font-size:1rem; letter-spacing:-.02em; margin:0 0 14px;
+}
+.unit-card .unit-title .lucide{ color:var(--muted); }
+
+/* Agent step */
+.agent-search-wrap{ position:relative; margin-bottom:16px; }
+.agent-search-wrap > .lucide{
+  position:absolute; left:16px; top:50%; transform:translateY(-50%);
+  color:var(--muted-soft); width:19px; height:19px; pointer-events:none;
+}
+.agent-search-wrap .ob-input{ padding-left:46px; padding-right:44px; }
+/* Reusable clear (x) button for search inputs. */
+.search-clear{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  width:24px; height:24px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--bg-soft); color:var(--muted);
+  display:none; place-items:center; padding:0; line-height:0;
+  transition:background .15s, color .15s;
+}
+.search-clear.is-visible{ display:grid; }
+.search-clear:hover{ background:var(--line); color:var(--ink); }
+.search-clear .lucide{ width:14px; height:14px; stroke-width:2.25; display:block; }
+.agent-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:10px; max-height:430px; overflow-y:auto; padding:2px;
+}
+.agent-card{
+  display:flex; align-items:center; gap:12px; text-align:left;
+  background:#fff; border:1.5px solid var(--line); border-radius:18px;
+  padding:12px 14px; cursor:pointer; font-family:var(--font);
+  transition:border-color .18s, box-shadow .18s, transform .18s var(--ease);
+}
+.agent-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-card); border-color:var(--line-strong); }
+.agent-card.is-on{ border-color:var(--ink); box-shadow:none; }
+.agent-photo{
+  width:46px; height:46px; border-radius:50%; overflow:hidden;
+  background:var(--bg-soft); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1rem; color:var(--muted);
+}
+.agent-photo img{ width:100%; height:100%; object-fit:cover; }
+.agent-card .agent-name{ font-weight:700; font-size:.97rem; margin:0; }
+.agent-card .agent-role{ font-size:.8rem; color:var(--muted); margin:1px 0 0; }
+.agent-card .agent-check{
+  margin-left:auto; width:22px; height:22px; border-radius:50%;
+  border:1.5px solid var(--line-strong); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  color:transparent; transition:all .18s;
+}
+.agent-card.is-on .agent-check{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.agent-check .lucide{ width:13px; height:13px; stroke-width:3; }
+.agent-empty{
+  grid-column:1/-1; text-align:center; color:var(--muted);
+  font-size:.94rem; padding:26px 0;
+}
+
+/* Review step */
+.review-list{ display:flex; flex-direction:column; gap:0; }
+.review-row{
+  display:flex; align-items:flex-start; gap:13px;
+  padding:15px 2px;
+}
+.review-row + .review-row{ border-top:1px solid var(--line); }
+.review-row .lucide{ color:var(--muted); margin-top:2px; width:19px; height:19px; }
+.review-row .rv-label{
+  font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--muted); margin:0 0 2px;
+}
+.review-row .rv-val{ font-size:1rem; font-weight:600; margin:0; line-height:1.45; white-space:pre-line; }
+.review-row .rv-edit{
+  margin-left:auto; flex-shrink:0;
+  background:none; border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  font-family:var(--font); font-size:.8rem; font-weight:700; color:var(--muted);
+  padding:6px 14px; cursor:pointer; transition:all .18s;
+}
+.review-row .rv-edit:hover{ border-color:var(--ink); color:var(--ink); }
+
+/* Footer controls */
+.ob-controls{
+  display:flex; justify-content:space-between; align-items:center; gap:32px;
+  margin-top:28px;
+}
+.ob-controls-btns{ display:flex; align-items:center; gap:12px; flex-shrink:0; }
+@media (max-width: 560px){
+  .ob-controls{ gap:18px; }
+}
+.ob-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  font-family:var(--font); font-weight:700; font-size:1.02rem;
+  border-radius:var(--r-pill); padding:16px 32px;
+  cursor:pointer; text-decoration:none; border:none;
+  transition:transform .25s var(--ease), box-shadow .25s, opacity .2s;
+}
+.ob-btn:active{ transform:scale(.97); }
+.ob-btn-dark{ background:var(--ink); color:#fff; box-shadow:0 6px 20px rgba(17,17,17,.2); }
+.ob-btn-dark:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(17,17,17,.28); }
+.ob-btn-ghost{
+  background:transparent; color:var(--muted);
+  border:1px solid var(--line-strong); box-shadow:none;
+}
+.ob-btn-ghost:hover{ color:var(--ink); border-color:var(--ink); }
+.ob-btn[disabled]{ opacity:.55; cursor:default; transform:none !important; box-shadow:none; }
+.ob-btn .lucide{ width:18px; height:18px; }
+
+/* Success */
+.success-wrap{
+  max-width:620px; margin:0 auto; text-align:center; padding:30px 0 10px;
+}
+.success-check{
+  width:84px; height:84px; border-radius:50%; background:var(--ink);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+  animation:popIn .6s var(--ease);
+}
+.success-check .lucide{ width:38px; height:38px; color:#fff; stroke-width:2.6; }
+@keyframes popIn{
+  from{ transform:scale(.4); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+.success-agent{
+  display:inline-flex; align-items:center; gap:13px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:10px 22px 10px 12px; margin-top:22px; box-shadow:var(--shadow-card);
+}
+.success-agent .agent-photo{ width:52px; height:52px; }
+.success-agent p{ margin:0; text-align:left; }
+
+/* Honeypot */
+.ob-honeypot{
+  position:absolute !important; left:-9999px !important;
+  width:1px; height:1px; opacity:0; pointer-events:none;
+}
+
+/* ════════════════ FOOTER (matches homepage) ════════════════ */
+.footer{
+  padding:52px var(--pad-x) 28px; margin-top:60px;
+  border-top:1px solid var(--line);
+}
+.footer-inner{
+  max-width:var(--max); margin:0 auto;
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px;
+}
+@media (max-width:980px){
+  .footer-inner{ grid-template-columns:1fr 1fr; }
+  .footer-brand{ grid-column:1/-1; }
+}
+.footer-brand{ display:flex; flex-direction:column; gap:14px; }
+.footer-logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; text-decoration:none; }
+.footer-logo img{ width:38px; height:38px; }
+.footer-tag{ font-size:.92rem; line-height:1.55; color:var(--muted); max-width:38ch; margin:0; }
+.footer h4{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted-soft); margin:0 0 14px;
+}
+.footer ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.footer ul a{ font-size:.94rem; text-decoration:none; transition:opacity .18s; }
+.footer ul a:hover{ opacity:.55; }
+.footer-bottom{
+  max-width:var(--max); margin:34px auto 0; padding-top:22px;
+  border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:14px; font-size:.84rem; color:var(--muted);
+}
+.footer-bottom a{ color:var(--muted); text-decoration:none; }
+.footer-bottom a:hover{ color:var(--ink); }
+
+@media (max-width: 640px){
+  .agent-grid{ max-height:340px; }
+  .ob-btn{ padding:14px 24px; font-size:.96rem; }
+  /* Smaller chips + toggles on mobile only */
+  .chip{ padding:8px 13px; font-size:.85rem; gap:6px; }
+  .chip .lucide{ width:14px; height:14px; }
+  .chip-row{ gap:7px; }
+  .toggle{ width:46px; height:27px; }
+  .toggle::after{ width:21px; height:21px; top:3px; left:3px; }
+  .toggle.is-on::after{ transform:translateX(19px); }
+  .toggle-label{ font-size:.94rem; gap:9px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .ob-step.is-active{ animation:none; }
+  .success-check{ animation:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-frost" aria-hidden="true" id="navFrost"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span class="nav-wordmark">Alex Stoykov Group</span>
+      </a>
+
+      <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary">
+        <div class="nav-pill-ghost" id="navGhost" aria-hidden="true"></div>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+        <a class="nav-link" href="/blog">Blog</a>
+        <a class="nav-link" href="/#asg-home-contact">Contact Us</a>
+      </div>
+
+      <div class="nav-cta">
+        <a class="btn btn-dark btn-sm" href="#onboarding">Start Onboarding</a>
+      </div>
+
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <button class="mobile-panel-close" id="mobileClose" type="button" aria-label="Close menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <a class="m-link" href="/about">About</a>
+  <a class="m-link" href="/team">Team</a>
+  <a class="m-link" href="/blog">Blog</a>
+  <a class="m-link" href="/#asg-home-contact">Contact Us</a>
+  <div class="mobile-panel-cta">
+    <a class="btn btn-dark" href="#onboarding">Start Onboarding</a>
+    <a class="btn btn-light" href="/">Back Home</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- ═══════════ HERO: SELLING WITH ASG ═══════════ -->
+  <section class="sell-hero">
+    <div class="sell-hero-inner">
+      <p class="ob-eyebrow"><i data-lucide="home"></i>For Sellers</p>
+      <h1 class="sell-hero-h1">Selling with the Alex Stoykov Group.</h1>
+      <p class="sell-hero-lead">
+        Selling a home in Chicago is part strategy, part storytelling, and part hard negotiation. We handle all three. The more we know about what makes your home special, the sharper the pricing, the marketing, and the offers we bring to your table.
+      </p>
+      <div class="sell-hero-ctas">
+        <a href="#onboarding" class="btn btn-dark btn-lg">Start My Seller Profile</a>
+      </div>
+      <div class="sell-hero-stats">
+        <div class="sell-stat">
+          <p class="stat-label">All Time Volume</p>
+          <p class="stat-val">$659M+</p>
+        </div>
+        <div class="sell-stat">
+          <p class="stat-label">Avg. Days on Market</p>
+          <p class="stat-val">18</p>
+        </div>
+        <div class="sell-stat">
+          <p class="stat-label">Avg. Sale-to-List</p>
+          <p class="stat-val">99%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ ONBOARDING WIZARD ═══════════ -->
+  <section class="ob-wizard" id="onboarding">
+    <div class="ob-wizard-inner">
+      <div class="ob-wizard-head">
+        <p class="ob-eyebrow"><i data-lucide="clipboard-list"></i>Seller Onboarding</p>
+        <h2>Build your seller profile.</h2>
+        <p class="ob-sub">A few quick steps tailored to your property type. Your answers go directly to your agent.</p>
+      </div>
+
+      <div class="ob-shell">
+      <div class="ob-main">
+
+  <!-- ═══════════ STEP: CONTACT ═══════════ -->
+  <section class="ob-step is-active" data-step="contact" aria-label="Contact information">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="user"></i>General information</p>
+      <h1 class="ob-h1">First, how do we reach you?</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-7">
+        <h3><i data-lucide="id-card"></i>Your Details</h3>
+        <div class="ob-field" data-field="name">
+          <label class="ob-label" for="obName">Seller Full Name(s)</label>
+          <input class="ob-input" id="obName" type="text" placeholder="Jordan Smith, or 123 Main LLC" autocomplete="name" data-required data-bind="contact.name">
+          <p class="ob-help">Seller's legal name or entity.</p>
+          <p class="ob-field-err">Please enter the seller's full name or entity.</p>
+        </div>
+        <div class="ob-field" data-field="email">
+          <label class="ob-label" for="obEmail">Preferred Email Address(es)</label>
+          <input class="ob-input" id="obEmail" type="email" placeholder="jordan@email.com" autocomplete="email" data-required="email" data-bind="contact.email">
+          <p class="ob-help">Documents will be sent here for signatures.</p>
+          <p class="ob-field-err">Please enter a valid email address.</p>
+        </div>
+        <div class="ob-field" data-field="phone">
+          <label class="ob-label" for="obPhone">Preferred Phone Number(s)</label>
+          <input class="ob-input" id="obPhone" type="tel" placeholder="(312) 555-0142" autocomplete="tel" data-required data-bind="contact.phone">
+          <p class="ob-help">Used for showing and access coordination.</p>
+          <p class="ob-field-err">A phone number is needed for calls or texts.</p>
+        </div>
+      </div>
+      <div class="bento-card span-5">
+        <h3><i data-lucide="message-circle"></i>Preferred Contact Method</h3>
+        <div class="chip-row" id="obMethodChips" data-required role="group" aria-label="Preferred contact methods">
+          <button type="button" class="chip" data-value="Text" aria-pressed="false"><i data-lucide="message-square"></i>Text</button>
+          <button type="button" class="chip" data-value="Call" aria-pressed="false"><i data-lucide="phone"></i>Call</button>
+          <button type="button" class="chip" data-value="Email" aria-pressed="false"><i data-lucide="mail"></i>Email</button>
+        </div>
+        <p class="ob-help" style="margin:8px 0 0;">Select all that apply.</p>
+        <div class="ob-field" data-field="method" style="margin-top:6px;">
+          <p class="ob-field-err">Pick at least one way to hear from us.</p>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:16px 0 14px;"></div>
+
+        <div class="ob-field" data-field="howHeard">
+          <label class="ob-label">How did you hear about us?</label>
+          <div class="chip-row" data-single="howHeard">
+            <button type="button" class="chip" data-value="Zillow">Zillow</button>
+            <button type="button" class="chip" data-value="Friend/Family">Friend/Family</button>
+            <button type="button" class="chip" data-value="Google Search">Google Search</button>
+            <button type="button" class="chip" data-value="Instagram">Instagram</button>
+            <button type="button" class="chip" data-value="Facebook">Facebook</button>
+            <button type="button" class="chip" data-value="TikTok">TikTok</button>
+            <button type="button" class="chip" data-value="Other">Other</button>
+          </div>
+          <div class="ob-reveal" data-show-when="howHeard=Other" style="margin-top:12px;">
+            <input class="ob-input" type="text" placeholder="Tell us how you found us" data-bind="howHeardOther">
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-card span-12">
+        <h3><i data-lucide="mail"></i>Email Preferences</h3>
+        <div class="toggle-row" style="border-top:none;">
+          <span class="toggle-label"><i data-lucide="megaphone"></i>General marketing outreach</span>
+          <button type="button" class="toggle is-on" id="obMktToggle" role="switch" aria-checked="true" aria-label="Opt in to general marketing outreach"></button>
+        </div>
+        <div id="obMktFreqWrap" style="padding:0 2px 14px;">
+          <p class="ob-label" style="margin:2px 0 8px;">How often?</p>
+          <div class="chip-row" id="obMktFreqChips" role="radiogroup" aria-label="Marketing email frequency">
+            <button type="button" class="chip" data-value="Weekly">Weekly</button>
+            <button type="button" class="chip is-on" data-value="Monthly">Monthly</button>
+            <button type="button" class="chip" data-value="Quarterly">Quarterly</button>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label"><i data-lucide="home"></i>Market and home value updates</span>
+          <button type="button" class="toggle is-on" id="obSearchMailToggle" role="switch" aria-checked="true" aria-label="Opt in to market and home value email updates"></button>
+        </div>
+        <p class="ob-help" style="margin:2px 0 0;">Local market reports and what your home could be worth. Nothing else.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP: AGENT ═══════════ -->
+  <section class="ob-step" data-step="agent" aria-label="Choose your agent">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="users"></i>Your guide</p>
+      <h1 class="ob-h1">Who are you working with?</h1>
+      <p class="ob-sub">Start typing a name to find your agent, or let us match you with the right one.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="agent-search-wrap">
+          <i data-lucide="search"></i>
+          <input class="ob-input" id="obAgentSearch" type="text" placeholder="Search our agents by name..." autocomplete="off">
+          <button type="button" class="search-clear" aria-label="Clear search"><i data-lucide="x"></i></button>
+        </div>
+        <div class="agent-grid" id="obAgentGrid" data-required role="listbox" aria-label="Agents">
+          <p class="agent-empty">Loading our agent directory...</p>
+        </div>
+        <div class="ob-field" data-field="agent" style="margin-top:10px;">
+          <p class="ob-field-err">Select an agent, or choose "Match me with an agent".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP: PROPERTY TYPE + ADDRESS ═══════════ -->
+  <section class="ob-step" data-step="property" aria-label="Your property">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="home"></i>Property overview</p>
+      <h1 class="ob-h1">Tell us about the property.</h1>
+      <p class="ob-sub">Pick the property type. We'll tailor the rest of the questions to it.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="building-2"></i>Property Type</h3>
+        <div class="proptype-grid" id="obPropTypeGrid" data-required role="group" aria-label="Property type">
+          <button type="button" class="proptype-card" data-value="Single Family Home">
+            <span class="proptype-icon"><i data-lucide="home"></i></span>
+            <span><span class="pt-name">Single Family Home</span><span class="pt-desc">A standalone house on its own lot.</span></span>
+          </button>
+          <button type="button" class="proptype-card" data-value="Condominium / Townhome">
+            <span class="proptype-icon"><i data-lucide="building"></i></span>
+            <span><span class="pt-name">Condominium / Townhome</span><span class="pt-desc">A unit in an association or attached home.</span></span>
+          </button>
+          <button type="button" class="proptype-card" data-value="Multi-Unit">
+            <span class="proptype-icon"><i data-lucide="layers"></i></span>
+            <span><span class="pt-name">Multi-Unit</span><span class="pt-desc">A 2 to 6 unit investment building.</span></span>
+          </button>
+          <button type="button" class="proptype-card" data-value="Land">
+            <span class="proptype-icon"><i data-lucide="trees"></i></span>
+            <span><span class="pt-name">Land</span><span class="pt-desc">A vacant lot or buildable parcel.</span></span>
+          </button>
+        </div>
+        <div class="ob-field" data-field="propertyType" style="margin-top:10px;">
+          <p class="ob-field-err">Choose a property type to continue.</p>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <div class="ob-field" data-field="address">
+          <label class="ob-label" for="obAddress">Full Property Address</label>
+          <input class="ob-input" id="obAddress" type="text" placeholder="123 Main St, Chicago, IL 60610" data-required data-bind="property.address">
+          <p class="ob-help" id="obAddressHelp">Include unit, parking, and storage numbers if applicable.</p>
+          <p class="ob-field-err">Please enter the property address.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SINGLE FAMILY: ACCESS ═══════════ -->
+  <section class="ob-step" data-step="sf-access" aria-label="Access and showings">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="key-round"></i>Access and showings</p>
+      <h1 class="ob-h1">How do we get in?</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="ob-field">
+          <label class="ob-label" for="sfAccess">Access Instructions</label>
+          <input class="ob-input" id="sfAccess" type="text" placeholder="Lockbox code, keys, fobs, garage entry..." data-bind="sf.access">
+          <p class="ob-help">Code(s), keys/fobs needed for the home, garage, etc.</p>
+        </div>
+        <div class="ob-field">
+          <label class="ob-label" for="sfShowings">Showing availability</label>
+          <textarea class="ob-input" id="sfShowings" placeholder="Best times for showings, or times the property will not be available" data-bind="sf.showings"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SINGLE FAMILY: SYSTEMS ═══════════ -->
+  <section class="ob-step" data-step="sf-systems" aria-label="Systems and history">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="wrench"></i>Systems and history</p>
+      <h1 class="ob-h1">The home's systems.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="thermometer"></i>Age of Mechanicals</h3>
+        <p class="ob-help">Enter the year each was installed. Leave blank if it does not apply or you're unsure.</p>
+        <div class="mech-list" data-mech="sf.mechanicals"></div>
+        <button type="button" class="mech-add" data-mech-add="sf.mechanicals"><i data-lucide="plus"></i>Add another mechanical</button>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="hammer"></i>Updates / Renovations</h3>
+        <textarea class="ob-input" placeholder="List updates or renovations and any transferable warranties." data-bind="sf.updates"></textarea>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="zap"></i>ComEd Account #</h3>
+        <input class="ob-input" type="text" placeholder="ComEd account number" data-bind="sf.comed">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="flame"></i>Gas Account #</h3>
+        <input class="ob-input" type="text" placeholder="Gas account number" data-bind="sf.gas">
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SINGLE FAMILY: UTILITIES + HOA + OCCUPANCY ═══════════ -->
+  <section class="ob-step" data-step="sf-utilities" aria-label="Utilities, association, and occupancy">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="plug"></i>Utilities and occupancy</p>
+      <h1 class="ob-h1">A few key details.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="droplets"></i>Type of Utilities</h3>
+        <div class="chip-row" data-required data-multi="sf.utilities">
+          <button type="button" class="chip" data-value="Public Water">Public Water</button>
+          <button type="button" class="chip" data-value="Well Water">Well Water</button>
+          <button type="button" class="chip" data-value="Public Sewer">Public Sewer</button>
+          <button type="button" class="chip" data-value="Private Septic">Private Septic</button>
+        </div>
+        <div class="ob-field" data-field="sfUtilities" style="margin-top:8px;">
+          <p class="ob-field-err">Select at least one utility type.</p>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="users-round"></i>Homeowner's Association?</h3>
+        <div class="chip-row" data-required data-single="sf.hoa">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-field" data-field="sfHoa" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know if there is an HOA.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="sf.hoa=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="sfHoaDetails">
+            <label class="ob-label">Amount, frequency, and what it includes</label>
+            <input class="ob-input" type="text" placeholder="e.g. $250/month, covers landscaping and snow" data-required data-bind="sf.hoaDetails">
+            <p class="ob-field-err">Please share the HOA amount and frequency.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="key"></i>Is the property currently occupied?</h3>
+        <div class="chip-row" data-required data-single="sf.occupancy">
+          <button type="button" class="chip" data-value="Owner Occupied">Owner Occupied</button>
+          <button type="button" class="chip" data-value="Tenant Occupied">Tenant Occupied</button>
+          <button type="button" class="chip" data-value="Vacant">Vacant</button>
+        </div>
+        <div class="ob-field" data-field="sfOccupancy" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know the occupancy status.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="sf.occupancy=Tenant Occupied" style="margin-top:12px;">
+          <div class="ob-field" data-field="sfRent">
+            <label class="ob-label">Monthly Rent</label>
+            <input class="ob-input" type="text" placeholder="e.g. $2,200" data-required data-bind="sf.rent">
+            <p class="ob-field-err">Please enter the monthly rent.</p>
+          </div>
+          <div class="ob-field" data-field="sfLease">
+            <label class="ob-label">Lease Expiration</label>
+            <input class="ob-input" type="text" placeholder="Expiration date or month to month" data-required data-bind="sf.leaseExp">
+            <p class="ob-field-err">Please enter the lease expiration.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="message-square-text"></i>Anything else we should know about the home?</h3>
+        <textarea class="ob-input" placeholder="Quirks, recent issues, features buyers should know..." data-bind="sf.anythingElse"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONDO: OCCUPANCY + ASSESSMENTS ═══════════ -->
+  <section class="ob-step" data-step="condo-occupancy" aria-label="Occupancy and assessments">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="circle-dollar-sign"></i>Occupancy and assessments</p>
+      <h1 class="ob-h1">Occupancy and assessments.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="key"></i>Is the property currently occupied?</h3>
+        <div class="chip-row" data-required data-single="condo.occupancy">
+          <button type="button" class="chip" data-value="Owner Occupied">Owner Occupied</button>
+          <button type="button" class="chip" data-value="Tenant Occupied">Tenant Occupied</button>
+          <button type="button" class="chip" data-value="Vacant">Vacant</button>
+        </div>
+        <div class="ob-field" data-field="condoOccupancy" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know the occupancy status.</p>
+        </div>
+        <div class="ob-reveal grid-reveal" data-show-when="condo.occupancy=Tenant Occupied" style="grid-template-columns:1fr 1fr; gap:14px; margin-top:12px;">
+          <div class="ob-field" data-field="condoRent">
+            <label class="ob-label">Monthly Rent</label>
+            <input class="ob-input" type="text" placeholder="e.g. $2,200" data-required data-bind="condo.rent">
+            <p class="ob-field-err">Please enter the monthly rent.</p>
+          </div>
+          <div class="ob-field" data-field="condoLease">
+            <label class="ob-label">Lease Expiration</label>
+            <input class="ob-input" type="text" placeholder="Expiration date or month to month" data-required data-bind="condo.leaseExp">
+            <p class="ob-field-err">Please enter the lease expiration.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <div class="ob-field" data-field="condoAssessment">
+          <label class="ob-label" for="condoAssessment">Monthly Assessment</label>
+          <textarea class="ob-input" id="condoAssessment" placeholder="Amount, or N/A if not applicable. Include a breakdown if it covers parking, cable, reserves, etc." data-required data-bind="condo.assessment"></textarea>
+          <p class="ob-field-err">Please enter the monthly assessment (or N/A).</p>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="list-checks"></i>What is included in the monthly assessment?</h3>
+        <div class="chip-row" data-multi="condo.included">
+          <button type="button" class="chip" data-value="Heat">Heat</button>
+          <button type="button" class="chip" data-value="Water">Water</button>
+          <button type="button" class="chip" data-value="Air Conditioning">Air Conditioning</button>
+          <button type="button" class="chip" data-value="Electric">Electric</button>
+          <button type="button" class="chip" data-value="Gas">Gas</button>
+          <button type="button" class="chip" data-value="Parking">Parking</button>
+          <button type="button" class="chip" data-value="Tax">Tax</button>
+          <button type="button" class="chip" data-value="Common Insurance">Common Insurance</button>
+          <button type="button" class="chip" data-value="Security">Security</button>
+          <button type="button" class="chip" data-value="Security System">Security System</button>
+          <button type="button" class="chip" data-value="Doorman">Doorman</button>
+          <button type="button" class="chip" data-value="TV/Cable">TV/Cable</button>
+          <button type="button" class="chip" data-value="Clubhouse">Clubhouse</button>
+          <button type="button" class="chip" data-value="Exercise Facilities">Exercise Facilities</button>
+          <button type="button" class="chip" data-value="Pool">Pool</button>
+          <button type="button" class="chip" data-value="Exterior Maintenance">Exterior Maintenance</button>
+          <button type="button" class="chip" data-value="Wifi">Wifi</button>
+          <button type="button" class="chip" data-value="Internet Access">Internet Access</button>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="circle-alert"></i>Any current or upcoming special assessments?</h3>
+        <div class="chip-row" data-single="condo.specialAssess">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-reveal" data-show-when="condo.specialAssess=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="condoSpecialDesc">
+            <label class="ob-label">Describe the special assessment</label>
+            <textarea class="ob-input" placeholder="What it is for, the amount due from your unit, and the payment schedule." data-required data-bind="condo.specialDesc"></textarea>
+            <p class="ob-field-err">Please describe the special assessment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONDO: ACCESS + SYSTEMS ═══════════ -->
+  <section class="ob-step" data-step="condo-systems" aria-label="Access and systems">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="wrench"></i>Access and systems</p>
+      <h1 class="ob-h1">Access and systems.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="ob-field">
+          <label class="ob-label" for="condoAccess">Access Instructions</label>
+          <input class="ob-input" id="condoAccess" type="text" placeholder="Code(s), keys/fobs for the home or building, etc." data-bind="condo.access">
+        </div>
+        <div class="ob-field">
+          <label class="ob-label" for="condoShowings">Showing availability</label>
+          <textarea class="ob-input" id="condoShowings" placeholder="Best times for showings, or times the property will not be available" data-bind="condo.showings"></textarea>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="zap"></i>ComEd Account #</h3>
+        <input class="ob-input" type="text" placeholder="ComEd account number" data-bind="condo.comed">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="flame"></i>Gas Account #</h3>
+        <input class="ob-input" type="text" placeholder="Gas account number" data-bind="condo.gas">
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="thermometer"></i>Age of Mechanicals</h3>
+        <p class="ob-help">Enter the year each was installed. Leave blank if it does not apply or you're unsure.</p>
+        <div class="mech-list" data-mech="condo.mechanicals"></div>
+        <button type="button" class="mech-add" data-mech-add="condo.mechanicals"><i data-lucide="plus"></i>Add another mechanical</button>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="hammer"></i>Updates / Renovations</h3>
+        <textarea class="ob-input" placeholder="List updates or renovations and any transferable warranties." data-bind="condo.updates"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONDO: ASSOCIATION ═══════════ -->
+  <section class="ob-step" data-step="condo-association" aria-label="Association details">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="building-2"></i>The association</p>
+      <h1 class="ob-h1">Items pertaining to the association.</h1>
+      <p class="ob-sub">All optional. Fill in whatever you have, if applicable.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="user-cog"></i>Property Manager</h3>
+        <input class="ob-input" type="text" placeholder="Company, name, and contact information" data-bind="condo.propertyManager">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="door-open"></i>Are open houses allowed?</h3>
+        <div class="chip-row" data-single="condo.openHouses">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="signpost"></i>Are "For Sale" signs allowed?</h3>
+        <div class="chip-row" data-single="condo.forSaleSigns">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="file-lock"></i>Rental Restrictions</h3>
+        <input class="ob-input" type="text" placeholder="Rental cap, minimum ownership period, etc." data-bind="condo.rentalRestrictions">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="paw-print"></i>Pet Restrictions</h3>
+        <input class="ob-input" type="text" placeholder="Weight, breed, number of pets, type of pets, etc." data-bind="condo.petRestrictions">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="piggy-bank"></i>Reserve Amount</h3>
+        <input class="ob-input" type="text" placeholder="Association reserve amount" data-bind="condo.reserveAmount">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="construction"></i>Recent Capital Improvements</h3>
+        <input class="ob-input" type="text" placeholder="Recent capital improvements in the building" data-bind="condo.capitalImprovements">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="file-text"></i>Building Budget</h3>
+        <input class="ob-input" type="text" placeholder="Budget, minutes, docs, rules, bylaws availability" data-bind="condo.buildingBudget">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="truck"></i>Move In/Out Fees</h3>
+        <input class="ob-input" type="text" placeholder="Building move in/out fees" data-bind="condo.moveFees">
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONDO: STORAGE + BIKES + AMENITIES ═══════════ -->
+  <section class="ob-step" data-step="condo-storage" aria-label="Storage, bikes, and amenities">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="package"></i>Storage and amenities</p>
+      <h1 class="ob-h1">Storage, bikes, and amenities.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-6">
+        <h3><i data-lucide="archive"></i>Storage locker/closet?</h3>
+        <p class="ob-help">Typically in the basement.</p>
+        <div class="chip-row" data-required data-single="condo.storage">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-field" data-field="condoStorage" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know if there is a storage unit.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="condo.storage=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="condoStorageType">
+            <label class="ob-label">Private or common access?</label>
+            <div class="chip-row" data-required data-single="condo.storageType">
+              <button type="button" class="chip" data-value="Private">Private</button>
+              <button type="button" class="chip" data-value="Common Access">Common Access</button>
+              <button type="button" class="chip" data-value="Other">Other</button>
+            </div>
+            <p class="ob-field-err">Please select the storage access type.</p>
+          </div>
+          <div class="ob-reveal" data-show-when="condo.storageType=Other" style="margin-top:12px;">
+            <div class="ob-field" data-field="condoStorageDesc">
+              <label class="ob-label">Describe access to the storage unit</label>
+              <input class="ob-input" type="text" placeholder="How is the storage unit accessed?" data-required data-bind="condo.storageDesc">
+              <p class="ob-field-err">Please describe the storage access.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="bike"></i>Bike storage?</h3>
+        <div class="chip-row" data-required data-single="condo.bike">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-field" data-field="condoBike" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know if there is bike storage.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="condo.bike=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="condoBikeWhere">
+            <label class="ob-label">Where?</label>
+            <input class="ob-input" type="text" placeholder="Location of bike storage" data-required data-bind="condo.bikeWhere">
+            <p class="ob-field-err">Please share where the bike storage is.</p>
+          </div>
+          <div class="ob-field" data-field="condoBikeFee" style="margin-top:12px;">
+            <label class="ob-label">Is there a fee?</label>
+            <div class="chip-row" data-required data-single="condo.bikeFee">
+              <button type="button" class="chip" data-value="Yes">Yes</button>
+              <button type="button" class="chip" data-value="No">No</button>
+            </div>
+            <p class="ob-field-err">Let us know if there is a bike storage fee.</p>
+          </div>
+          <div class="ob-reveal" data-show-when="condo.bikeFee=Yes" style="margin-top:12px;">
+            <div class="ob-field" data-field="condoBikeFeeAmount">
+              <label class="ob-label">What is the fee?</label>
+              <input class="ob-input" type="text" placeholder="e.g. $50/year" data-required data-bind="condo.bikeFeeAmount">
+              <p class="ob-field-err">Please enter the bike storage fee.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="dumbbell"></i>Building Amenities?</h3>
+        <p class="ob-help">Such as pool, gym, door staff, package room, tennis courts, rooftop deck, playgrounds, etc.</p>
+        <div class="chip-row" data-required data-single="condo.amenities">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-field" data-field="condoAmenities" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know if the building has amenities.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="condo.amenities=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="condoAmenitiesList">
+            <label class="ob-label">Select amenities that apply</label>
+            <div class="chip-row" data-required data-multi="condo.amenitiesList">
+              <button type="button" class="chip" data-value="Pool">Pool</button>
+              <button type="button" class="chip" data-value="Gym">Gym</button>
+              <button type="button" class="chip" data-value="Package Room">Package Room</button>
+              <button type="button" class="chip" data-value="Door Staff">Door Staff</button>
+              <button type="button" class="chip" data-value="Tennis Courts">Tennis Courts</button>
+              <button type="button" class="chip" data-value="Playgrounds">Playgrounds</button>
+              <button type="button" class="chip" data-value="Rooftop Deck">Rooftop Deck</button>
+              <button type="button" class="chip" data-value="Sauna">Sauna</button>
+            </div>
+            <p class="ob-field-err">Select at least one amenity.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="message-square-text"></i>Anything else we should know about the building?</h3>
+        <textarea class="ob-input" placeholder="Anything notable about the building or association..." data-bind="condo.anythingElse"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MULTI-UNIT: UNITS ═══════════ -->
+  <section class="ob-step" data-step="multi-units" aria-label="Units and rent roll">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="layers"></i>Units and rent roll</p>
+      <h1 class="ob-h1">Tell us about the units.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="hash"></i>Number of Units</h3>
+        <div class="chip-row" data-required data-single="multi.numUnits">
+          <button type="button" class="chip" data-value="2 Units">2 Units</button>
+          <button type="button" class="chip" data-value="3 Units">3 Units</button>
+          <button type="button" class="chip" data-value="4 Units">4 Units</button>
+          <button type="button" class="chip" data-value="5 Units">5 Units</button>
+          <button type="button" class="chip" data-value="6 Units">6 Units</button>
+        </div>
+        <div class="ob-field" data-field="multiNumUnits" style="margin-top:8px;">
+          <p class="ob-field-err">Select the number of units.</p>
+        </div>
+      </div>
+      <div class="bento-card span-12" id="multiUnitsWrap" style="display:none;"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MULTI-UNIT: BUILDING ═══════════ -->
+  <section class="ob-step" data-step="multi-building" aria-label="Building economics and systems">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="building"></i>Building economics and systems</p>
+      <h1 class="ob-h1">The building overall.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <h3><i data-lucide="receipt"></i>What utilities are paid for by tenants?</h3>
+        <div class="chip-row" data-required data-multi="multi.tenantUtilities">
+          <button type="button" class="chip" data-value="Electric">Electric</button>
+          <button type="button" class="chip" data-value="Gas">Gas</button>
+          <button type="button" class="chip" data-value="Cable">Cable</button>
+          <button type="button" class="chip" data-value="Internet Access">Internet Access</button>
+          <button type="button" class="chip" data-value="Water">Water</button>
+          <button type="button" class="chip" data-value="Sewer">Sewer</button>
+          <button type="button" class="chip" data-value="Trash">Trash</button>
+        </div>
+        <div class="ob-field" data-field="multiTenantUtilities" style="margin-top:8px;">
+          <p class="ob-field-err">Select at least one tenant-paid utility.</p>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="wallet"></i>Owner expenses</h3>
+        <textarea class="ob-input" placeholder="Most recent costs: insurance, provided utilities (water, etc.), common electric/gas, janitorial, general maintenance..." data-bind="multi.ownerExpenses"></textarea>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="thermometer"></i>Age of Mechanicals</h3>
+        <p class="ob-help">Enter the year each was installed (per unit if they differ). Leave blank if it does not apply or you're unsure.</p>
+        <div class="mech-list" data-mech="multi.mechanicals"></div>
+        <button type="button" class="mech-add" data-mech-add="multi.mechanicals"><i data-lucide="plus"></i>Add another mechanical</button>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="house"></i>Age of Roof</h3>
+        <input class="ob-input" type="text" placeholder="Approximate age of the roof" data-bind="multi.roof">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="car"></i>Parking Availability</h3>
+        <input class="ob-input" type="text" placeholder="Garage, parking pad, etc. (if applicable)" data-bind="multi.parking">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="washing-machine"></i>Laundry</h3>
+        <input class="ob-input" type="text" placeholder="Common/shared, in-unit for all or some units, etc." data-bind="multi.laundry">
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="triangle-alert"></i>Are there any non-conforming units?</h3>
+        <div class="chip-row" data-required data-single="multi.nonConforming">
+          <button type="button" class="chip" data-value="Yes">Yes</button>
+          <button type="button" class="chip" data-value="No">No</button>
+        </div>
+        <div class="ob-field" data-field="multiNonConforming" style="margin-top:8px;">
+          <p class="ob-field-err">Let us know if there are non-conforming units.</p>
+        </div>
+        <div class="ob-reveal" data-show-when="multi.nonConforming=Yes" style="margin-top:12px;">
+          <div class="ob-field" data-field="multiNonConformingDetails">
+            <label class="ob-label">Which unit, and details</label>
+            <input class="ob-input" type="text" placeholder="Provide details on which unit" data-required data-bind="multi.nonConformingDetails">
+            <p class="ob-field-err">Please provide details on the non-conforming unit.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ LAND: DETAILS ═══════════ -->
+  <section class="ob-step" data-step="land-details" aria-label="Land details">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="trees"></i>Land details</p>
+      <h1 class="ob-h1">About the land.</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-6">
+        <h3><i data-lucide="ruler"></i>Lot Dimensions</h3>
+        <input class="ob-input" type="text" placeholder="e.g. 25 x 125" data-required data-bind="land.lotDimensions">
+        <div class="ob-field" data-field="landLot" style="margin-top:8px;">
+          <p class="ob-field-err">Please enter the lot dimensions.</p>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="key-round"></i>Access Instructions</h3>
+        <input class="ob-input" type="text" placeholder="Code(s), keys/fobs needed for the community" data-required data-bind="land.access">
+        <div class="ob-field" data-field="landAccess" style="margin-top:8px;">
+          <p class="ob-field-err">Please share access instructions.</p>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="droplets"></i>Type of Utilities</h3>
+        <div class="chip-row" data-required data-multi="land.utilities">
+          <button type="button" class="chip" data-value="Public Water">Public Water</button>
+          <button type="button" class="chip" data-value="Well Water">Well Water</button>
+          <button type="button" class="chip" data-value="Public Sewer">Public Sewer</button>
+          <button type="button" class="chip" data-value="Private Septic">Private Septic</button>
+        </div>
+        <div class="ob-field" data-field="landUtilities" style="margin-top:8px;">
+          <p class="ob-field-err">Select at least one utility type.</p>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="message-square-text"></i>Anything else we should know?</h3>
+        <textarea class="ob-input" placeholder="Zoning, surveys, easements, anything notable..." data-bind="land.anythingElse"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP: REVIEW ═══════════ -->
+  <section class="ob-step" data-step="review" aria-label="Review and submit">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="clipboard-check"></i>Almost there</p>
+      <h1 class="ob-h1">Does this look right?</h1>
+      <p class="ob-sub">Review your seller profile. Tap edit on anything you'd like to change.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="review-list" id="obReviewList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SUCCESS ═══════════ -->
+  <section class="ob-step" data-step="success" aria-label="Submission received">
+    <div class="success-wrap">
+      <div class="success-check"><i data-lucide="check"></i></div>
+      <h1 class="ob-h1">You're all set.</h1>
+      <p class="ob-sub" style="margin:0 auto;">Your seller profile is on its way to your agent. Expect a personal follow-up within one business day, by <span id="obSuccessMethod">your preferred method</span>.</p>
+      <div class="success-agent" id="obSuccessAgent" style="display:none;">
+        <div class="agent-photo" id="obSuccessAgentPhoto"></div>
+        <p><strong id="obSuccessAgentName"></strong><br><span style="color:var(--muted); font-size:.85rem;">Your ASG agent</span></p>
+      </div>
+      <div style="margin-top:30px;">
+        <a class="ob-btn ob-btn-dark" href="/">Back to Home<i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honeypot (spam trap, stays empty) -->
+  <input class="ob-honeypot" type="text" name="company" id="obHoneypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+  <!-- ═══════════ CONTROLS ═══════════ -->
+  <div class="ob-controls" id="obControls">
+    <div class="ob-progress" id="obProgress">
+      <div class="ob-progress-meta">
+        <span class="step-name" id="obStepName"><i data-lucide="user"></i>Contact</span>
+        <span id="obStepCount">Step 1 of 5</span>
+      </div>
+      <div class="ob-progress-track"><div class="ob-progress-fill" id="obProgressFill"></div></div>
+    </div>
+    <div class="ob-controls-btns">
+      <button type="button" class="ob-btn ob-btn-ghost" id="obBack" style="visibility:hidden;">
+        <i data-lucide="arrow-left"></i>Back
+      </button>
+      <button type="button" class="ob-btn ob-btn-dark" id="obNext">
+        Continue<i data-lucide="arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+      </div><!-- /.ob-main -->
+      </div><!-- /.ob-shell -->
+    </div><!-- /.ob-wizard-inner -->
+  </section><!-- /#onboarding -->
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="footer-logo" href="/">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="">
+        Alex Stoykov Group
+      </a>
+      <p class="footer-tag">A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance, from first showing to final close.</p>
+      <p class="footer-tag">Brokered by Compass · Chicago, IL</p>
+    </div>
+    <div>
+      <h4>Real Estate</h4>
+      <ul>
+        <li><a href="/listings">Our Listings</a></li>
+        <li><a href="/buyers">Buyers</a></li>
+        <li><a href="/sellers">Sellers</a></li>
+        <li><a href="/neighborhoods">Neighborhoods</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/team">Team</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="/#asg-home-contact">Contact Us</a></li>
+        <li><a href="/client-portal">Client Portal</a></li>
+        <li><a href="https://www.instagram.com/alexstoykovgroup" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+        <li><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© Alex Stoykov Group · All rights reserved</span>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/accessibility">Accessibility</a>
+      <a href="/fair-housing">Fair Housing</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ════════════════ NAV (matches homepage behavior) ════════════════ */
+  var nav = document.getElementById('nav');
+  var frost = document.getElementById('navFrost');
+  var lastScrolled = false;
+  function onScroll(){
+    var scrolled = (window.scrollY || 0) > 24;
+    if (scrolled !== lastScrolled) {
+      nav.classList.toggle('is-scrolled', scrolled);
+      frost.classList.toggle('is-scrolled', scrolled);
+      lastScrolled = scrolled;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var linksWrap = document.getElementById('navLinks');
+  var ghost = document.getElementById('navGhost');
+  linksWrap.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('mouseenter', function () {
+      var wrapBox = linksWrap.getBoundingClientRect();
+      var box = link.getBoundingClientRect();
+      ghost.style.left = (box.left - wrapBox.left) + 'px';
+      ghost.style.width = box.width + 'px';
+      ghost.classList.add('is-on');
+    });
+  });
+  linksWrap.addEventListener('mouseleave', function () {
+    ghost.classList.remove('is-on');
+  });
+
+  var burger = document.getElementById('navBurger');
+  var panel = document.getElementById('mobilePanel');
+  var closeBtn = document.getElementById('mobileClose');
+  function openMobile(){
+    panel.classList.add('is-open');
+    burger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobile(){
+    panel.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', openMobile);
+  closeBtn.addEventListener('click', closeMobile);
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') closeMobile();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+  });
+
+  /* Smooth scroll for in-page anchors (Start Onboarding CTAs) */
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!link) return;
+    var id = (link.getAttribute('href') || '').slice(1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, true);
+
+  /* ════════════════ CONFIG ════════════════ */
+  var HUB_DATA_API = String(window.ASG_HUB_DATA_API ||
+    'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
+  /* Seller Intake Apps Script (SellerIntake.gs doPost). Leave empty for preview mode. */
+  var INTAKE_API = String(window.ASG_SELLER_INTAKE_API || '').trim();
+
+  var renderedAt = Date.now();
+
+  var STEP_META = {
+    'contact':           { name: 'Contact',     icon: 'user' },
+    'agent':             { name: 'Your Agent',  icon: 'users' },
+    'property':          { name: 'Property',    icon: 'home' },
+    'sf-access':         { name: 'Access',      icon: 'key-round' },
+    'sf-systems':        { name: 'Systems',     icon: 'wrench' },
+    'sf-utilities':      { name: 'Utilities',   icon: 'plug' },
+    'condo-occupancy':   { name: 'Assessments', icon: 'circle-dollar-sign' },
+    'condo-systems':     { name: 'Systems',     icon: 'wrench' },
+    'condo-association': { name: 'Association',  icon: 'building-2' },
+    'condo-storage':     { name: 'Building',    icon: 'package' },
+    'multi-units':       { name: 'Units',       icon: 'layers' },
+    'multi-building':    { name: 'Building',    icon: 'building' },
+    'land-details':      { name: 'Land',        icon: 'trees' },
+    'review':            { name: 'Review',      icon: 'clipboard-check' }
+  };
+
+  /* Per-route step ordering. Base steps then route steps then review. */
+  var BASE_STEPS = ['contact', 'agent', 'property'];
+  var ROUTE_STEPS = {
+    'Single Family Home':       ['sf-access', 'sf-systems', 'sf-utilities'],
+    'Condominium / Townhome':   ['condo-occupancy', 'condo-systems', 'condo-association', 'condo-storage'],
+    'Multi-Unit':               ['multi-units', 'multi-building'],
+    'Land':                     ['land-details']
+  };
+
+  /* ════════════════ STATE ════════════════ */
+  var state = {
+    contact: { name: '', email: '', phone: '', methods: [] },
+    howHeard: '', howHeardOther: '',
+    marketing: { generalOptIn: true, frequency: 'Monthly', searchOptIn: true },
+    agent: { name: '', email: '', photo: '', matchMe: false, selected: false },
+    property: { type: '', address: '' },
+    sf: { access: '', showings: '', mechanicals: [], updates: '', comed: '', gas: '',
+          utilities: [], hoa: '', hoaDetails: '', occupancy: '', rent: '', leaseExp: '', anythingElse: '' },
+    condo: { occupancy: '', rent: '', leaseExp: '', assessment: '', included: [],
+             specialAssess: '', specialDesc: '', access: '', showings: '', comed: '', gas: '',
+             mechanicals: [], updates: '', propertyManager: '', openHouses: '', forSaleSigns: '',
+             rentalRestrictions: '', petRestrictions: '', reserveAmount: '', capitalImprovements: '',
+             buildingBudget: '', moveFees: '', storage: '', storageType: '', storageDesc: '',
+             bike: '', bikeWhere: '', bikeFee: '', bikeFeeAmount: '',
+             amenities: '', amenitiesList: [], anythingElse: '' },
+    multi: { numUnits: '', units: [], tenantUtilities: [], ownerExpenses: '', mechanicals: [],
+             roof: '', parking: '', laundry: '', nonConforming: '', nonConformingDetails: '' },
+    land: { lotDimensions: '', access: '', utilities: [], anythingElse: '' }
+  };
+
+  var stepList = buildStepList();
+  var current = 0; /* index into stepList, or 'success' */
+
+  function buildStepList(){
+    var route = ROUTE_STEPS[state.property.type] || [];
+    return BASE_STEPS.concat(route).concat(['review']);
+  }
+
+  function refreshIcons(){
+    if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  /* ════════════════ NESTED STATE PATH HELPERS ════════════════ */
+  function getPath(path){
+    var parts = String(path).split('.');
+    var node = state;
+    for (var i = 0; i < parts.length; i++) {
+      if (node == null) return undefined;
+      node = node[parts[i]];
+    }
+    return node;
+  }
+  function setPath(path, value){
+    var parts = String(path).split('.');
+    var node = state;
+    for (var i = 0; i < parts.length - 1; i++) {
+      var key = parts[i];
+      var nextKey = parts[i + 1];
+      if (node[key] == null) node[key] = /^\d+$/.test(nextKey) ? [] : {};
+      node = node[key];
+    }
+    node[parts[parts.length - 1]] = value;
+  }
+
+  /* ════════════════ WIZARD ENGINE ════════════════ */
+  var steps = document.querySelectorAll('.ob-step');
+  var fill = document.getElementById('obProgressFill');
+  var stepName = document.getElementById('obStepName');
+  var stepCount = document.getElementById('obStepCount');
+  var btnBack = document.getElementById('obBack');
+  var btnNext = document.getElementById('obNext');
+  var controls = document.getElementById('obControls');
+  var progressWrap = document.getElementById('obProgress');
+
+  var wizardSection = document.getElementById('onboarding');
+  var booted = false;
+
+  function scrollToWizard(){
+    if (!booted) return;
+    if (wizardSection) wizardSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function activateStepEl(id){
+    steps.forEach(function (s) {
+      s.classList.toggle('is-active', s.getAttribute('data-step') === String(id));
+    });
+  }
+
+  function showSuccessScreen(){
+    current = 'success';
+    activateStepEl('success');
+    controls.style.display = 'none';
+    progressWrap.style.display = 'none';
+    scrollToWizard();
+    refreshIcons();
+  }
+
+  function showStep(index){
+    /* Clamp + rebuild guard */
+    stepList = buildStepList();
+    if (index < 0) index = 0;
+    if (index > stepList.length - 1) index = stepList.length - 1;
+    current = index;
+
+    var id = stepList[index];
+    activateStepEl(id);
+
+    var meta = STEP_META[id] || { name: '', icon: 'circle' };
+    fill.style.width = (((index + 1) / stepList.length) * 100) + '%';
+    stepName.innerHTML = '<i data-lucide="' + meta.icon + '"></i>' + escapeHtml(meta.name);
+    stepCount.textContent = 'Step ' + (index + 1) + ' of ' + stepList.length;
+
+    btnBack.style.visibility = index === 0 ? 'hidden' : 'visible';
+    btnNext.innerHTML = (id === 'review')
+      ? 'Submit My Profile<i data-lucide="send"></i>'
+      : 'Continue<i data-lucide="arrow-right"></i>';
+
+    if (id === 'review') renderReview();
+    updateReveals();
+    updateGuide();
+    scrollToWizard();
+    refreshIcons();
+  }
+
+  function goToStepId(id){
+    stepList = buildStepList();
+    var idx = stepList.indexOf(id);
+    if (idx >= 0) showStep(idx);
+  }
+
+  function setFieldError(field, on){
+    var el = document.querySelector('.ob-field[data-field="' + field + '"]');
+    if (el) el.classList.toggle('has-error', !!on);
+  }
+
+  /* ════════════════ GENERIC BINDINGS (delegated) ════════════════ */
+  /* Text / textarea inputs with data-bind */
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el && el.hasAttribute && el.hasAttribute('data-bind')) {
+      setPath(el.getAttribute('data-bind'), el.value);
+      updateGuide();
+    }
+  });
+
+  /* Single + multi select chip rows with data-single / data-multi */
+  document.addEventListener('click', function (e) {
+    var chip = e.target.closest ? e.target.closest('.chip') : null;
+    if (!chip) return;
+    var single = chip.closest('.chip-row[data-single]');
+    var multi = chip.closest('.chip-row[data-multi]');
+    if (single) {
+      var sPath = single.getAttribute('data-single');
+      var val = chip.getAttribute('data-value');
+      var cur = getPath(sPath);
+      var deselect = cur === val;
+      setPath(sPath, deselect ? '' : val);
+      single.querySelectorAll('.chip').forEach(function (c) {
+        c.classList.toggle('is-on', !deselect && c === chip);
+      });
+      onStateChange(sPath);
+    } else if (multi) {
+      var mPath = multi.getAttribute('data-multi');
+      var arr = getPath(mPath);
+      if (!Array.isArray(arr)) { arr = []; setPath(mPath, arr); }
+      var mval = chip.getAttribute('data-value');
+      var i = arr.indexOf(mval);
+      var on = i < 0;
+      if (on) arr.push(mval); else arr.splice(i, 1);
+      chip.classList.toggle('is-on', on);
+      onStateChange(mPath);
+    }
+  });
+
+  function onStateChange(path){
+    /* Clear any matching field error when a value is provided */
+    updateReveals();
+    if (path === 'multi.numUnits') renderUnitBlocks();
+    if (path === 'property.type') {
+      updateAddressHelp();
+      setFieldError('propertyType', false);
+    }
+    updateGuide();
+  }
+
+  /* Show/hide conditional reveal blocks based on data-show-when="path=value" */
+  function updateReveals(){
+    document.querySelectorAll('[data-show-when]').forEach(function (el) {
+      var cond = el.getAttribute('data-show-when');
+      var eq = cond.indexOf('=');
+      if (eq < 0) return;
+      var path = cond.slice(0, eq);
+      var want = cond.slice(eq + 1);
+      el.classList.toggle('is-on', getPath(path) === want);
+    });
+  }
+
+  /* ════════════════ GUIDED FLOW ════════════════ */
+  /* Spotlight the first component in the active step whose required fields
+     are not yet satisfied, then advance as the user fills things in. */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function inHiddenReveal(el){
+    var node = el.parentElement;
+    while (node) {
+      if (node.classList && node.classList.contains('ob-reveal') && !node.classList.contains('is-on')) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+  function controlSatisfied(el){
+    if (el.id === 'obPropTypeGrid') return !!req(state.property.type);
+    if (el.id === 'obAgentGrid') return !!state.agent.selected;
+    if (el.id === 'obMethodChips') return state.contact.methods.length > 0;
+    if (el.matches('.chip-row[data-single]')) return !!req(getPath(el.getAttribute('data-single')));
+    if (el.matches('.chip-row[data-multi]')) {
+      var arr = getPath(el.getAttribute('data-multi'));
+      return Array.isArray(arr) && arr.length > 0;
+    }
+    if (el.matches('input, textarea, select')) {
+      var v = el.value;
+      if (el.getAttribute('data-required') === 'email') return EMAIL_RE.test(String(v || '').trim());
+      return !!req(v);
+    }
+    return true;
+  }
+  function cardDone(card){
+    var ctrls = card.querySelectorAll('[data-required]');
+    for (var i = 0; i < ctrls.length; i++) {
+      if (inHiddenReveal(ctrls[i])) continue;
+      if (!controlSatisfied(ctrls[i])) return false;
+    }
+    return true;
+  }
+  function cardHasRequired(card){
+    var ctrls = card.querySelectorAll('[data-required]');
+    for (var i = 0; i < ctrls.length; i++) {
+      if (!inHiddenReveal(ctrls[i])) return true;
+    }
+    return false;
+  }
+  function updateGuide(){
+    var stepEl = document.querySelector('.ob-step.is-active');
+    if (!stepEl) return;
+    var cards = stepEl.querySelectorAll('.bento-card');
+    var target = null;
+    for (var i = 0; i < cards.length; i++) {
+      if (!cardHasRequired(cards[i])) continue;
+      if (!cardDone(cards[i])) { target = cards[i]; break; }
+    }
+    for (var j = 0; j < cards.length; j++) {
+      cards[j].classList.toggle('is-guiding', cards[j] === target);
+    }
+  }
+
+  function updateAddressHelp(){
+    var help = document.getElementById('obAddressHelp');
+    if (!help) return;
+    var t = state.property.type;
+    if (t === 'Condominium / Townhome') help.textContent = 'Include parking space number(s) and storage space number(s) if applicable.';
+    else if (t === 'Land' || t === 'Single Family Home' || t === 'Multi-Unit') help.textContent = 'Note if you have a double lot or two street addresses.';
+    else help.textContent = 'Include unit, parking, and storage numbers if applicable.';
+  }
+
+  btnNext.addEventListener('click', function () {
+    var id = stepList[current];
+    if (id === 'review') { submit(); return; }
+    if (!validateStep(id)) return;
+    showStep(current + 1);
+  });
+  btnBack.addEventListener('click', function () {
+    if (current !== 'success' && current > 0) showStep(current - 1);
+  });
+
+  /* ════════════════ STEP: CONTACT ════════════════ */
+  var methodChips = document.getElementById('obMethodChips');
+  methodChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    var val = chip.getAttribute('data-value');
+    var idx = state.contact.methods.indexOf(val);
+    var on = idx < 0;
+    if (on) state.contact.methods.push(val);
+    else state.contact.methods.splice(idx, 1);
+    chip.classList.toggle('is-on', on);
+    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (state.contact.methods.length) setFieldError('method', false);
+    updateGuide();
+  });
+
+  var mktToggle = document.getElementById('obMktToggle');
+  var mktFreqWrap = document.getElementById('obMktFreqWrap');
+  var mktFreqChips = document.getElementById('obMktFreqChips');
+  var searchMailToggle = document.getElementById('obSearchMailToggle');
+
+  mktToggle.addEventListener('click', function () {
+    state.marketing.generalOptIn = !state.marketing.generalOptIn;
+    mktToggle.classList.toggle('is-on', state.marketing.generalOptIn);
+    mktToggle.setAttribute('aria-checked', state.marketing.generalOptIn ? 'true' : 'false');
+    mktFreqWrap.style.display = state.marketing.generalOptIn ? '' : 'none';
+  });
+  mktFreqChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    state.marketing.frequency = chip.getAttribute('data-value');
+    mktFreqChips.querySelectorAll('.chip').forEach(function (c) {
+      c.classList.toggle('is-on', c === chip);
+    });
+  });
+  searchMailToggle.addEventListener('click', function () {
+    state.marketing.searchOptIn = !state.marketing.searchOptIn;
+    searchMailToggle.classList.toggle('is-on', state.marketing.searchOptIn);
+    searchMailToggle.setAttribute('aria-checked', state.marketing.searchOptIn ? 'true' : 'false');
+  });
+
+  /* ════════════════ STEP: AGENT TYPEAHEAD ════════════════ */
+  var agents = [];
+  var agentGrid = document.getElementById('obAgentGrid');
+  var agentSearch = document.getElementById('obAgentSearch');
+
+  function agentPhotoUrl(row){
+    return String((row && (
+      row.icon_photo_url || row.icon_photo || row.iconphoto ||
+      row.image_url || row.photo || row.headshot_url || row.headshot
+    )) || '').trim();
+  }
+  function agentInitials(name){
+    return String(name || '').split(/\s+/).slice(0, 2)
+      .map(function (w) { return w.charAt(0).toUpperCase(); }).join('');
+  }
+  function normalizeTier(row){
+    var t = String((row && (row.computed_tier || row.tier || row.role_group)) || '').trim().toLowerCase();
+    if (/senior/.test(t)) return 'Senior';
+    if (/junior/.test(t)) return 'Junior';
+    if (/admin/.test(t)) return 'Admin';
+    return 'Other';
+  }
+  function loadAgents(){
+    fetch(HUB_DATA_API + '?view=directory', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('directory'); return r.json(); })
+      .then(function (payload) {
+        var rows = (payload && payload.success && payload.data && payload.data.directory &&
+                    Array.isArray(payload.data.directory.rows)) ? payload.data.directory.rows : [];
+        agents = rows
+          .map(function (row) {
+            var tier = normalizeTier(row);
+            return {
+              name: String(row.name || row.display_name || '').trim(),
+              email: String(row.email || row.agent_email || '').trim(),
+              tier: tier,
+              role: tier === 'Other' ? (String(row.tier || row.role_group || 'Agent').trim() || 'Agent') : tier,
+              photo: agentPhotoUrl(row)
+            };
+          })
+          /* Sellers pick an agent only: exclude admin / non-producing staff. */
+          .filter(function (a) { return a.name && a.tier !== 'Admin'; })
+          /* Seniors first, then everyone else, alphabetical within each group. */
+          .sort(function (a, b) {
+            var ar = a.tier === 'Senior' ? 0 : 1;
+            var br = b.tier === 'Senior' ? 0 : 1;
+            if (ar !== br) return ar - br;
+            return a.name.localeCompare(b.name);
+          });
+        renderAgents('');
+      })
+      .catch(function () {
+        agents = [];
+        renderAgents('');
+      });
+  }
+  function agentCardHtml(a){
+    var on = state.agent.selected && !state.agent.matchMe && state.agent.email === a.email && state.agent.name === a.name;
+    var photo = a.photo
+      ? '<img src="' + escapeHtml(a.photo) + '" alt="" loading="lazy" decoding="async">'
+      : escapeHtml(agentInitials(a.name));
+    return '' +
+      '<button type="button" class="agent-card' + (on ? ' is-on' : '') + '" role="option"' +
+        ' data-name="' + escapeHtml(a.name) + '" data-email="' + escapeHtml(a.email) + '" data-photo="' + escapeHtml(a.photo) + '">' +
+        '<span class="agent-photo">' + photo + '</span>' +
+        '<span><span class="agent-name">' + escapeHtml(a.name) + '</span>' +
+        '<span class="agent-role" style="display:block;">' + escapeHtml(a.role) + '</span></span>' +
+        '<span class="agent-check"><i data-lucide="check"></i></span>' +
+      '</button>';
+  }
+  function matchMeCardHtml(){
+    var on = state.agent.selected && state.agent.matchMe;
+    return '' +
+      '<button type="button" class="agent-card' + (on ? ' is-on' : '') + '" role="option" data-matchme="1">' +
+        '<span class="agent-photo"><i data-lucide="sparkles" style="width:20px;height:20px;"></i></span>' +
+        '<span><span class="agent-name">No preference</span>' +
+        '<span class="agent-role" style="display:block;">Match me with an agent</span></span>' +
+        '<span class="agent-check"><i data-lucide="check"></i></span>' +
+      '</button>';
+  }
+  function renderAgents(query){
+    var q = String(query || '').trim().toLowerCase();
+    var list = q
+      ? agents.filter(function (a) { return a.name.toLowerCase().indexOf(q) >= 0; })
+      : agents;
+    var html = list.map(agentCardHtml).join('') + matchMeCardHtml();
+    if (!list.length && q) {
+      html = '<p class="agent-empty">No agents match "' + escapeHtml(query) + '". Try a different spelling, or choose "Match me".</p>' + matchMeCardHtml();
+    }
+    if (!agents.length && !q) {
+      html = '<p class="agent-empty">Couldn\'t load the directory right now. Choose "Match me" and we\'ll pair you up.</p>' +
+        matchMeCardHtml();
+    }
+    agentGrid.innerHTML = html;
+    refreshIcons();
+  }
+  agentSearch.addEventListener('input', function () { renderAgents(agentSearch.value); });
+  agentGrid.addEventListener('click', function (e) {
+    var card = e.target.closest('.agent-card');
+    if (!card) return;
+    if (card.hasAttribute('data-matchme')) {
+      state.agent = { name: '', email: '', photo: '', matchMe: true, selected: true };
+    } else {
+      state.agent = {
+        name: card.getAttribute('data-name') || '',
+        email: card.getAttribute('data-email') || '',
+        photo: card.getAttribute('data-photo') || '',
+        matchMe: false,
+        selected: true
+      };
+    }
+    agentGrid.querySelectorAll('.agent-card').forEach(function (c) {
+      c.classList.toggle('is-on', c === card);
+    });
+    setFieldError('agent', false);
+    updateGuide();
+  });
+  loadAgents();
+
+  /* ════════════════ STEP: PROPERTY TYPE ════════════════ */
+  var propTypeGrid = document.getElementById('obPropTypeGrid');
+  propTypeGrid.addEventListener('click', function (e) {
+    var card = e.target.closest('.proptype-card');
+    if (!card) return;
+    state.property.type = card.getAttribute('data-value');
+    propTypeGrid.querySelectorAll('.proptype-card').forEach(function (c) {
+      c.classList.toggle('is-on', c === card);
+    });
+    onStateChange('property.type');
+  });
+
+  /* ════════════════ MULTI-UNIT: UNIT BLOCKS ════════════════ */
+  var multiUnitsWrap = document.getElementById('multiUnitsWrap');
+  function unitCount(){
+    var m = /^(\d+)/.exec(state.multi.numUnits || '');
+    return m ? Number(m[1]) : 0;
+  }
+  function renderUnitBlocks(){
+    var n = unitCount();
+    if (!n) { multiUnitsWrap.style.display = 'none'; multiUnitsWrap.innerHTML = ''; return; }
+    /* Preserve existing unit data, resize the array */
+    var units = state.multi.units;
+    if (!Array.isArray(units)) units = [];
+    while (units.length < n) units.push({ bedsBaths: '', rented: '', leaseDate: '', rent: '' });
+    units.length = n;
+    state.multi.units = units;
+
+    var html = '';
+    for (var i = 0; i < n; i++) {
+      var u = units[i];
+      html += '' +
+        '<div class="unit-card">' +
+          '<p class="unit-title"><i data-lucide="door-closed"></i>Unit #' + (i + 1) + '</p>' +
+          '<div class="ob-field" data-field="unit-' + i + '-beds">' +
+            '<label class="ob-label">Number of Beds/Baths</label>' +
+            '<input class="ob-input" type="text" placeholder="e.g. 2 bed / 1 bath" data-required data-bind="multi.units.' + i + '.bedsBaths" value="' + escapeHtml(u.bedsBaths) + '">' +
+            '<p class="ob-field-err">Please enter beds/baths for this unit.</p>' +
+          '</div>' +
+          '<div class="ob-field" data-field="unit-' + i + '-rented" style="margin-top:14px;">' +
+            '<label class="ob-label">Is the unit currently rented?</label>' +
+            '<div class="chip-row" data-required data-single="multi.units.' + i + '.rented">' +
+              '<button type="button" class="chip' + (u.rented === 'Yes' ? ' is-on' : '') + '" data-value="Yes">Yes</button>' +
+              '<button type="button" class="chip' + (u.rented === 'No' ? ' is-on' : '') + '" data-value="No">No</button>' +
+            '</div>' +
+            '<p class="ob-field-err">Let us know if this unit is rented.</p>' +
+          '</div>' +
+          '<div class="ob-reveal grid-reveal" data-show-when="multi.units.' + i + '.rented=Yes" style="grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">' +
+            '<div class="ob-field" data-field="unit-' + i + '-lease">' +
+              '<label class="ob-label">Lease expiration date</label>' +
+              '<input class="ob-input" type="date" data-required data-bind="multi.units.' + i + '.leaseDate" value="' + escapeHtml(u.leaseDate) + '">' +
+              '<p class="ob-field-err">Please enter the lease expiration.</p>' +
+            '</div>' +
+            '<div class="ob-field" data-field="unit-' + i + '-rent">' +
+              '<label class="ob-label">Monthly Rent</label>' +
+              '<input class="ob-input" type="text" placeholder="Include parking if applicable" data-required data-bind="multi.units.' + i + '.rent" value="' + escapeHtml(u.rent) + '">' +
+              '<p class="ob-field-err">Please enter the monthly rent.</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+    multiUnitsWrap.innerHTML = html;
+    multiUnitsWrap.style.display = '';
+    setFieldError('multiNumUnits', false);
+    updateReveals();
+    updateGuide();
+    refreshIcons();
+  }
+
+  /* ════════════════ AGE OF MECHANICALS ════════════════ */
+  var STANDARD_MECHANICALS = [
+    'Furnace', 'Air Conditioner / Condenser', 'Water Heater',
+    'Boiler', 'Sump Pump', 'Electrical Panel'
+  ];
+  function seedMechanicals(){
+    ['sf.mechanicals', 'condo.mechanicals', 'multi.mechanicals'].forEach(function (p) {
+      setPath(p, STANDARD_MECHANICALS.map(function (n) {
+        return { name: n, year: '', custom: false };
+      }));
+    });
+  }
+  function renderMechanicals(path){
+    var box = document.querySelector('.mech-list[data-mech="' + path + '"]');
+    if (!box) return;
+    var arr = getPath(path) || [];
+    var html = '';
+    for (var i = 0; i < arr.length; i++) {
+      var m = arr[i] || {};
+      if (m.custom) {
+        html += '' +
+          '<div class="mech-row">' +
+            '<input class="ob-input mech-name-input" type="text" placeholder="Mechanical name"' +
+              ' data-bind="' + path + '.' + i + '.name" value="' + escapeHtml(m.name) + '">' +
+            '<input class="ob-input mech-year" type="text" inputmode="numeric" placeholder="Year installed"' +
+              ' data-bind="' + path + '.' + i + '.year" value="' + escapeHtml(m.year) + '">' +
+            '<button type="button" class="mech-remove" data-mech-remove="' + path + '" data-mech-index="' + i + '" aria-label="Remove mechanical">' +
+              '<i data-lucide="x"></i></button>' +
+          '</div>';
+      } else {
+        html += '' +
+          '<div class="mech-row">' +
+            '<span class="mech-name">' + escapeHtml(m.name) + '</span>' +
+            '<input class="ob-input mech-year" type="text" inputmode="numeric" placeholder="Year installed"' +
+              ' data-bind="' + path + '.' + i + '.year" value="' + escapeHtml(m.year) + '">' +
+          '</div>';
+      }
+    }
+    box.innerHTML = html;
+    refreshIcons();
+  }
+  function renderAllMechanicals(){
+    renderMechanicals('sf.mechanicals');
+    renderMechanicals('condo.mechanicals');
+    renderMechanicals('multi.mechanicals');
+  }
+  function formatMechanicals(arr){
+    if (!Array.isArray(arr)) return '';
+    return arr
+      .filter(function (m) { return m && String(m.name || '').trim() && String(m.year || '').trim(); })
+      .map(function (m) { return String(m.name).trim() + ': ' + String(m.year).trim(); })
+      .join(', ');
+  }
+  document.addEventListener('click', function (e) {
+    var addBtn = e.target.closest ? e.target.closest('[data-mech-add]') : null;
+    if (addBtn) {
+      var ap = addBtn.getAttribute('data-mech-add');
+      var arr = getPath(ap);
+      if (!Array.isArray(arr)) { arr = []; setPath(ap, arr); }
+      arr.push({ name: '', year: '', custom: true });
+      renderMechanicals(ap);
+      return;
+    }
+    var rmBtn = e.target.closest ? e.target.closest('[data-mech-remove]') : null;
+    if (rmBtn) {
+      var rp = rmBtn.getAttribute('data-mech-remove');
+      var idx = Number(rmBtn.getAttribute('data-mech-index'));
+      var a = getPath(rp);
+      if (Array.isArray(a) && idx >= 0 && idx < a.length) { a.splice(idx, 1); renderMechanicals(rp); }
+      return;
+    }
+  });
+
+  /* ════════════════ VALIDATION ════════════════ */
+  function req(v){ return !!String(v == null ? '' : v).trim(); }
+
+  function validateStep(id){
+    var ok = true;
+
+    if (id === 'contact') {
+      var nameOk = req(state.contact.name) && state.contact.name.trim().length >= 2;
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(state.contact.email || '').trim());
+      var methodOk = state.contact.methods.length > 0;
+      var phoneNeeded = state.contact.methods.indexOf('Call') >= 0 || state.contact.methods.indexOf('Text') >= 0;
+      var phoneOk = !phoneNeeded || String(state.contact.phone || '').replace(/[^0-9]/g, '').length >= 10;
+      setFieldError('name', !nameOk);
+      setFieldError('email', !emailOk);
+      setFieldError('method', !methodOk);
+      setFieldError('phone', !phoneOk);
+      ok = nameOk && emailOk && methodOk && phoneOk;
+    }
+
+    else if (id === 'agent') {
+      ok = state.agent.selected;
+      setFieldError('agent', !ok);
+    }
+
+    else if (id === 'property') {
+      var typeOk = req(state.property.type);
+      var addrOk = req(state.property.address);
+      setFieldError('propertyType', !typeOk);
+      setFieldError('address', !addrOk);
+      ok = typeOk && addrOk;
+    }
+
+    else if (id === 'sf-utilities') {
+      var utilOk = state.sf.utilities.length > 0;
+      var hoaOk = req(state.sf.hoa);
+      var hoaDetailOk = state.sf.hoa !== 'Yes' || req(state.sf.hoaDetails);
+      var occOk = req(state.sf.occupancy);
+      var tenantOk = state.sf.occupancy !== 'Tenant Occupied' || (req(state.sf.rent) && req(state.sf.leaseExp));
+      setFieldError('sfUtilities', !utilOk);
+      setFieldError('sfHoa', !hoaOk);
+      setFieldError('sfHoaDetails', !(state.sf.hoa !== 'Yes' || req(state.sf.hoaDetails)));
+      setFieldError('sfOccupancy', !occOk);
+      setFieldError('sfRent', !(state.sf.occupancy !== 'Tenant Occupied' || req(state.sf.rent)));
+      setFieldError('sfLease', !(state.sf.occupancy !== 'Tenant Occupied' || req(state.sf.leaseExp)));
+      ok = utilOk && hoaOk && hoaDetailOk && occOk && tenantOk;
+    }
+
+    else if (id === 'condo-occupancy') {
+      var cOccOk = req(state.condo.occupancy);
+      var cTenantOk = state.condo.occupancy !== 'Tenant Occupied' || (req(state.condo.rent) && req(state.condo.leaseExp));
+      var assessOk = req(state.condo.assessment);
+      var specialOk = state.condo.specialAssess !== 'Yes' || req(state.condo.specialDesc);
+      setFieldError('condoOccupancy', !cOccOk);
+      setFieldError('condoRent', !(state.condo.occupancy !== 'Tenant Occupied' || req(state.condo.rent)));
+      setFieldError('condoLease', !(state.condo.occupancy !== 'Tenant Occupied' || req(state.condo.leaseExp)));
+      setFieldError('condoAssessment', !assessOk);
+      setFieldError('condoSpecialDesc', !specialOk);
+      ok = cOccOk && cTenantOk && assessOk && specialOk;
+    }
+
+    else if (id === 'condo-storage') {
+      var storageOk = req(state.condo.storage);
+      var storageTypeOk = state.condo.storage !== 'Yes' || req(state.condo.storageType);
+      var storageDescOk = !(state.condo.storage === 'Yes' && state.condo.storageType === 'Other') || req(state.condo.storageDesc);
+      var bikeOk = req(state.condo.bike);
+      var bikeWhereOk = state.condo.bike !== 'Yes' || req(state.condo.bikeWhere);
+      var bikeFeeOk = state.condo.bike !== 'Yes' || req(state.condo.bikeFee);
+      var bikeFeeAmtOk = !(state.condo.bike === 'Yes' && state.condo.bikeFee === 'Yes') || req(state.condo.bikeFeeAmount);
+      var amenOk = req(state.condo.amenities);
+      var amenListOk = state.condo.amenities !== 'Yes' || state.condo.amenitiesList.length > 0;
+      setFieldError('condoStorage', !storageOk);
+      setFieldError('condoStorageType', !storageTypeOk);
+      setFieldError('condoStorageDesc', !storageDescOk);
+      setFieldError('condoBike', !bikeOk);
+      setFieldError('condoBikeWhere', !bikeWhereOk);
+      setFieldError('condoBikeFee', !bikeFeeOk);
+      setFieldError('condoBikeFeeAmount', !bikeFeeAmtOk);
+      setFieldError('condoAmenities', !amenOk);
+      setFieldError('condoAmenitiesList', !amenListOk);
+      ok = storageOk && storageTypeOk && storageDescOk && bikeOk && bikeWhereOk && bikeFeeOk && bikeFeeAmtOk && amenOk && amenListOk;
+    }
+
+    else if (id === 'multi-units') {
+      var nUnits = unitCount();
+      var numOk = nUnits > 0;
+      setFieldError('multiNumUnits', !numOk);
+      ok = numOk;
+      if (numOk) {
+        for (var i = 0; i < nUnits; i++) {
+          var u = state.multi.units[i] || {};
+          var bedsOk = req(u.bedsBaths);
+          var rentedOk = req(u.rented);
+          var rentDetailOk = u.rented !== 'Yes' || (req(u.leaseDate) && req(u.rent));
+          setFieldError('unit-' + i + '-beds', !bedsOk);
+          setFieldError('unit-' + i + '-rented', !rentedOk);
+          setFieldError('unit-' + i + '-lease', !(u.rented !== 'Yes' || req(u.leaseDate)));
+          setFieldError('unit-' + i + '-rent', !(u.rented !== 'Yes' || req(u.rent)));
+          if (!(bedsOk && rentedOk && rentDetailOk)) ok = false;
+        }
+      }
+    }
+
+    else if (id === 'multi-building') {
+      var tenUtilOk = state.multi.tenantUtilities.length > 0;
+      var nonConfOk = req(state.multi.nonConforming);
+      var nonConfDetailOk = state.multi.nonConforming !== 'Yes' || req(state.multi.nonConformingDetails);
+      setFieldError('multiTenantUtilities', !tenUtilOk);
+      setFieldError('multiNonConforming', !nonConfOk);
+      setFieldError('multiNonConformingDetails', !nonConfDetailOk);
+      ok = tenUtilOk && nonConfOk && nonConfDetailOk;
+    }
+
+    else if (id === 'land-details') {
+      var lotOk = req(state.land.lotDimensions);
+      var accessOk = req(state.land.access);
+      var landUtilOk = state.land.utilities.length > 0;
+      setFieldError('landLot', !lotOk);
+      setFieldError('landAccess', !accessOk);
+      setFieldError('landUtilities', !landUtilOk);
+      ok = lotOk && accessOk && landUtilOk;
+    }
+
+    return ok;
+  }
+
+  /* ════════════════ REVIEW ════════════════ */
+  function reviewRow(icon, label, value, stepId){
+    return '' +
+      '<div class="review-row">' +
+        '<i data-lucide="' + icon + '"></i>' +
+        '<div><p class="rv-label">' + escapeHtml(label) + '</p>' +
+        '<p class="rv-val">' + escapeHtml(value || 'Not specified') + '</p></div>' +
+        '<button type="button" class="rv-edit" data-goto="' + stepId + '">Edit</button>' +
+      '</div>';
+  }
+
+  function listOrDash(arr){ return (arr && arr.length) ? arr.join(', ') : ''; }
+
+  function renderReview(){
+    var rows = '';
+
+    var contactLine = state.contact.name + ' · ' + state.contact.email +
+      (state.contact.phone ? ' · ' + state.contact.phone : '') +
+      (state.contact.methods.length ? ' · Prefers ' + state.contact.methods.join(' + ').toLowerCase() : '');
+    if (state.howHeard) {
+      contactLine += '\nHeard about us: ' + state.howHeard + (state.howHeard === 'Other' && state.howHeardOther ? ' (' + state.howHeardOther + ')' : '');
+    }
+    rows += reviewRow('user', 'Contact', contactLine, 'contact');
+
+    var mkt = [];
+    mkt.push(state.marketing.generalOptIn
+      ? 'General marketing: opted in (' + state.marketing.frequency.toLowerCase() + ')'
+      : 'General marketing: opted out');
+    mkt.push(state.marketing.searchOptIn ? 'Market and value updates: opted in' : 'Market and value updates: opted out');
+    rows += reviewRow('megaphone', 'Email Preferences', mkt.join(' · '), 'contact');
+
+    rows += reviewRow('users', 'Agent', state.agent.matchMe ? 'Match me with an agent' : state.agent.name, 'agent');
+    rows += reviewRow('home', 'Property', state.property.type + ' · ' + state.property.address, 'property');
+
+    if (state.property.type === 'Single Family Home') {
+      var sf = state.sf;
+      var sfLines = [];
+      if (sf.access) sfLines.push('Access: ' + sf.access);
+      if (sf.showings) sfLines.push('Showings: ' + sf.showings);
+      var sfMech = formatMechanicals(sf.mechanicals);
+      if (sfMech) sfLines.push('Mechanicals: ' + sfMech);
+      if (sf.updates) sfLines.push('Updates: ' + sf.updates);
+      if (sf.comed) sfLines.push('ComEd #: ' + sf.comed);
+      if (sf.gas) sfLines.push('Gas #: ' + sf.gas);
+      if (sfLines.length) rows += reviewRow('wrench', 'Access and Systems', sfLines.join('\n'), 'sf-access');
+
+      var sfU = [];
+      sfU.push('Utilities: ' + (listOrDash(sf.utilities) || 'Not specified'));
+      sfU.push('HOA: ' + (sf.hoa || 'Not specified') + (sf.hoa === 'Yes' && sf.hoaDetails ? ' (' + sf.hoaDetails + ')' : ''));
+      sfU.push('Occupancy: ' + (sf.occupancy || 'Not specified') +
+        (sf.occupancy === 'Tenant Occupied' ? ' (Rent ' + sf.rent + ', lease ' + sf.leaseExp + ')' : ''));
+      if (sf.anythingElse) sfU.push('Notes: ' + sf.anythingElse);
+      rows += reviewRow('plug', 'Utilities and Occupancy', sfU.join('\n'), 'sf-utilities');
+    }
+
+    else if (state.property.type === 'Condominium / Townhome') {
+      var c = state.condo;
+      var cOcc = [];
+      cOcc.push('Occupancy: ' + (c.occupancy || 'Not specified') +
+        (c.occupancy === 'Tenant Occupied' ? ' (Rent ' + c.rent + ', lease ' + c.leaseExp + ')' : ''));
+      cOcc.push('Monthly assessment: ' + (c.assessment || 'Not specified'));
+      if (c.included.length) cOcc.push('Includes: ' + c.included.join(', '));
+      cOcc.push('Special assessment: ' + (c.specialAssess || 'Not specified') + (c.specialAssess === 'Yes' && c.specialDesc ? ' (' + c.specialDesc + ')' : ''));
+      rows += reviewRow('circle-dollar-sign', 'Occupancy and Assessments', cOcc.join('\n'), 'condo-occupancy');
+
+      var cSys = [];
+      if (c.access) cSys.push('Access: ' + c.access);
+      if (c.showings) cSys.push('Showings: ' + c.showings);
+      if (c.comed) cSys.push('ComEd #: ' + c.comed);
+      if (c.gas) cSys.push('Gas #: ' + c.gas);
+      var cMech = formatMechanicals(c.mechanicals);
+      if (cMech) cSys.push('Mechanicals: ' + cMech);
+      if (c.updates) cSys.push('Updates: ' + c.updates);
+      if (cSys.length) rows += reviewRow('wrench', 'Access and Systems', cSys.join('\n'), 'condo-systems');
+
+      var cAssoc = [];
+      if (c.propertyManager) cAssoc.push('Property manager: ' + c.propertyManager);
+      if (c.openHouses) cAssoc.push('Open houses allowed: ' + c.openHouses);
+      if (c.forSaleSigns) cAssoc.push('For Sale signs allowed: ' + c.forSaleSigns);
+      if (c.rentalRestrictions) cAssoc.push('Rental restrictions: ' + c.rentalRestrictions);
+      if (c.petRestrictions) cAssoc.push('Pet restrictions: ' + c.petRestrictions);
+      if (c.reserveAmount) cAssoc.push('Reserve: ' + c.reserveAmount);
+      if (c.capitalImprovements) cAssoc.push('Capital improvements: ' + c.capitalImprovements);
+      if (c.buildingBudget) cAssoc.push('Building budget: ' + c.buildingBudget);
+      if (c.moveFees) cAssoc.push('Move in/out fees: ' + c.moveFees);
+      if (cAssoc.length) rows += reviewRow('building-2', 'Association', cAssoc.join('\n'), 'condo-association');
+
+      var cStor = [];
+      cStor.push('Storage: ' + (c.storage || 'Not specified') +
+        (c.storage === 'Yes' ? ' (' + c.storageType + (c.storageType === 'Other' && c.storageDesc ? ': ' + c.storageDesc : '') + ')' : ''));
+      cStor.push('Bike storage: ' + (c.bike || 'Not specified') +
+        (c.bike === 'Yes' ? ' (' + c.bikeWhere + (c.bikeFee === 'Yes' ? ', fee ' + c.bikeFeeAmount : ', no fee') + ')' : ''));
+      cStor.push('Building amenities: ' + (c.amenities || 'Not specified') + (c.amenities === 'Yes' && c.amenitiesList.length ? ' (' + c.amenitiesList.join(', ') + ')' : ''));
+      if (c.anythingElse) cStor.push('Notes: ' + c.anythingElse);
+      rows += reviewRow('package', 'Storage and Amenities', cStor.join('\n'), 'condo-storage');
+    }
+
+    else if (state.property.type === 'Multi-Unit') {
+      var m = state.multi;
+      var uLines = [];
+      uLines.push('Units: ' + (m.numUnits || 'Not specified'));
+      (m.units || []).forEach(function (u, i) {
+        var line = 'Unit #' + (i + 1) + ': ' + (u.bedsBaths || '?');
+        if (u.rented === 'Yes') line += ', rented (lease ' + (u.leaseDate || '?') + ', rent ' + (u.rent || '?') + ')';
+        else if (u.rented === 'No') line += ', not rented';
+        uLines.push(line);
+      });
+      rows += reviewRow('layers', 'Units', uLines.join('\n'), 'multi-units');
+
+      var mB = [];
+      mB.push('Tenant-paid utilities: ' + (listOrDash(m.tenantUtilities) || 'Not specified'));
+      if (m.ownerExpenses) mB.push('Owner expenses: ' + m.ownerExpenses);
+      var mMech = formatMechanicals(m.mechanicals);
+      if (mMech) mB.push('Mechanicals: ' + mMech);
+      if (m.roof) mB.push('Roof: ' + m.roof);
+      if (m.parking) mB.push('Parking: ' + m.parking);
+      if (m.laundry) mB.push('Laundry: ' + m.laundry);
+      mB.push('Non-conforming units: ' + (m.nonConforming || 'Not specified') + (m.nonConforming === 'Yes' && m.nonConformingDetails ? ' (' + m.nonConformingDetails + ')' : ''));
+      rows += reviewRow('building', 'Building', mB.join('\n'), 'multi-building');
+    }
+
+    else if (state.property.type === 'Land') {
+      var l = state.land;
+      var lLines = [];
+      lLines.push('Lot dimensions: ' + (l.lotDimensions || 'Not specified'));
+      lLines.push('Access: ' + (l.access || 'Not specified'));
+      lLines.push('Utilities: ' + (listOrDash(l.utilities) || 'Not specified'));
+      if (l.anythingElse) lLines.push('Notes: ' + l.anythingElse);
+      rows += reviewRow('trees', 'Land', lLines.join('\n'), 'land-details');
+    }
+
+    document.getElementById('obReviewList').innerHTML = rows;
+    refreshIcons();
+  }
+
+  document.getElementById('obReviewList').addEventListener('click', function (e) {
+    var btn = e.target.closest('.rv-edit');
+    if (!btn) return;
+    goToStepId(btn.getAttribute('data-goto'));
+  });
+
+  /* ════════════════ SUBMIT ════════════════ */
+  function buildPayload(){
+    var prop = state.property.type;
+    var routeData = {};
+    if (prop === 'Single Family Home') routeData = { singleFamily: state.sf };
+    else if (prop === 'Condominium / Townhome') routeData = { condo: state.condo };
+    else if (prop === 'Multi-Unit') routeData = { multiUnit: state.multi };
+    else if (prop === 'Land') routeData = { land: state.land };
+
+    return Object.assign({
+      _formType: 'seller-onboarding',
+      _page: window.location.pathname || '/seller-onboarding',
+      _submittedAt: new Date().toISOString(),
+      _renderMs: Date.now() - renderedAt,
+      company: document.getElementById('obHoneypot').value || '',
+      contact: state.contact,
+      howHeard: state.howHeard,
+      howHeardOther: state.howHeardOther,
+      marketing: state.marketing,
+      agent: { name: state.agent.name, email: state.agent.email, matchMe: state.agent.matchMe },
+      property: state.property
+    }, routeData);
+  }
+
+  function showSuccess(){
+    document.getElementById('obSuccessMethod').textContent =
+      state.contact.methods.length ? state.contact.methods.join(' or ').toLowerCase() : 'your preferred method';
+    if (!state.agent.matchMe && state.agent.name) {
+      var wrap = document.getElementById('obSuccessAgent');
+      var photoEl = document.getElementById('obSuccessAgentPhoto');
+      document.getElementById('obSuccessAgentName').textContent = state.agent.name;
+      photoEl.innerHTML = state.agent.photo
+        ? '<img src="' + escapeHtml(state.agent.photo) + '" alt="">'
+        : escapeHtml(agentInitials(state.agent.name));
+      wrap.style.display = 'inline-flex';
+    }
+    showSuccessScreen();
+  }
+
+  var submitting = false;
+  function submit(){
+    if (submitting) return;
+    if (document.getElementById('obHoneypot').value) return;          /* honeypot: bot */
+    if (Date.now() - renderedAt < 4000) return;                       /* time-trap: bot */
+    submitting = true;
+    btnNext.disabled = true;
+    btnNext.innerHTML = 'Sending...<i data-lucide="loader"></i>';
+    refreshIcons();
+
+    var payload = buildPayload();
+    if (!INTAKE_API) {
+      /* Preview mode: backend not wired yet */
+      setTimeout(showSuccess, 700);
+      return;
+    }
+    fetch(INTAKE_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(showSuccess).catch(function () {
+      submitting = false;
+      btnNext.disabled = false;
+      btnNext.innerHTML = 'Submit My Profile<i data-lucide="send"></i>';
+      refreshIcons();
+      alert('Something went wrong sending your profile. Please try again, or email contact@alexstoykovgroup.com.');
+    });
+  }
+
+  /* ════════════════ SEARCH CLEAR (X) BUTTONS ════════════════ */
+  /* Reusable: any wrapper holding an input + a .search-clear button gets a
+     clear control that appears once the user types and wipes the field. */
+  function initSearchClears(){
+    document.querySelectorAll('.search-clear').forEach(function (btn) {
+      var wrap = btn.parentElement;
+      var input = wrap && wrap.querySelector('input');
+      if (!input) return;
+      var sync = function () { btn.classList.toggle('is-visible', !!input.value); };
+      input.addEventListener('input', sync);
+      btn.addEventListener('click', function () {
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+        sync();
+      });
+      sync();
+    });
+  }
+
+  /* ════════════════ BOOT ════════════════ */
+  seedMechanicals();
+  renderAllMechanicals();
+  updateAddressHelp();
+  updateReveals();
+  initSearchClears();
+  refreshIcons();
+  showStep(0);
+  booted = true;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Listing | Alex Stoykov Group</title>
+<meta name="description" content="Property details from the Alex Stoykov Group, Chicago's modern real estate team.">
+
+<!--
+  ASG LISTING DETAILS PAGE
+  Host this on a Squarespace page at /listing (one page serves every listing).
+  Open with ?address=1912%20N%20Orchard%20St to load a specific property.
+  Data source: ListingHub.gs Apps Script API (IdxListings tab), view=listing.
+-->
+
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --shadow-deep:0 24px 60px rgba(17,17,17,.10);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1480px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* Squarespace overrides: hide native chrome on this page only */
+#header, header.Header, .Header, .Header-inner, header#header,
+.header-announcement-bar-wrapper, .Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone, #announcement-bar-text-inner-id,
+#headerSpacer, .header-spacer,
+#footer, footer.Footer, .Footer, .Footer-inner, #footer-sections, footer.sections{
+  display:none !important; visibility:hidden !important;
+  height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper, .Main, .Content-outer, .Content-inner, .Index, .Index-page-content,
+#page, .page-section, article.sections, main#page article{
+  background:transparent !important; margin:0 !important; padding:0 !important; max-width:none !important;
+}
+.page-section .content-wrapper{ padding:0 !important; max-width:none !important; }
+
+/* Ignore Squarespace's global image/iframe rounding (img{border-radius:30px
+   !important} in site-wide Custom CSS). Class-scoped selectors outrank that
+   bare-element rule; our wrappers (.gallery-main, .gallery-thumb, .tour-frame)
+   define the only radii that apply. */
+main img,
+.nav img,
+.nav-logo img,
+.footer img,
+.gallery-main img,
+.gallery-thumb img,
+.work-photo img{
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+.lightbox img{ border-radius:18px !important; }
+.tour-frame{ border-radius:var(--r-card) !important; overflow:hidden !important; }
+
+/* ════════ NAV (pill, matches home page) ════════ */
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+}
+.nav-logo{ display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.nav-logo img{ width:58px; height:58px; transition:transform .3s ease; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{ font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap; }
+.nav-links{ display:flex; align-items:center; gap:4px; }
+.nav-link{
+  border-radius:var(--r-pill); padding:14px 24px;
+  font-size:1.12rem; font-weight:600; color:var(--muted);
+  text-decoration:none; white-space:nowrap; transition:color .2s ease, background .2s ease;
+}
+.nav-link:hover{ color:var(--ink); background:rgba(17,17,17,.04); }
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+}
+
+/* ════════ BUTTONS ════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+
+/* ════════ SHELLS / TYPE ════════ */
+.section{ margin:0 auto 20px; padding:0 var(--pad-x); }
+.shell{
+  max-width:var(--max); margin:0 auto;
+  background:var(--bg); border:1px solid var(--line);
+  border-radius:var(--r-shell); padding:32px;
+}
+.shell-alt{ background:var(--bg-alt); }
+@media (max-width: 980px){ .shell{ padding:22px; } }
+.eyebrow{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted-soft); margin:0 0 8px;
+}
+.pill-tag{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:8px 14px; background:var(--bg-soft);
+  font-size:.74rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted);
+}
+
+/* ════════ PAGE LAYOUT ════════ */
+.page{ padding-top:128px; }
+.crumb{
+  max-width:var(--max); margin:0 auto 16px; padding:0 var(--pad-x);
+  font-size:.9rem; color:var(--muted);
+}
+.crumb a{ text-decoration:none; color:var(--muted); transition:color .18s; }
+.crumb a:hover{ color:var(--ink); }
+
+/* ════════ GALLERY ════════ */
+.gallery{
+  display:grid; grid-template-columns:2.2fr 1fr; gap:12px;
+  border-radius:var(--r-shell); overflow:hidden;
+}
+@media (max-width: 860px){ .gallery{ grid-template-columns:1fr; } }
+.gallery-main{
+  position:relative; aspect-ratio:16/10; background:#e9e9e4;
+  border-radius:var(--r-shell); overflow:hidden; cursor:zoom-in;
+  border:1px solid var(--line);
+}
+.gallery-main img{ width:100%; height:100%; object-fit:cover; transition:transform .6s var(--ease); }
+.gallery-main:hover img{ transform:scale(1.025); }
+.gallery-count{
+  position:absolute; bottom:14px; right:14px;
+  background:rgba(17,17,17,.78); color:#fff;
+  border-radius:var(--r-pill); padding:8px 14px;
+  font-size:.8rem; font-weight:700;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.gallery-side{ display:grid; grid-template-rows:1fr 1fr; gap:12px; }
+@media (max-width: 860px){ .gallery-side{ grid-template-columns:1fr 1fr; grid-template-rows:1fr; } }
+.gallery-thumb{
+  position:relative; background:#e9e9e4; border-radius:24px; overflow:hidden;
+  cursor:pointer; border:1px solid var(--line); min-height:120px;
+}
+.gallery-thumb img{ width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease); position:absolute; inset:0; }
+.gallery-thumb:hover img{ transform:scale(1.05); }
+.gallery-thumb .more{
+  position:absolute; inset:0; background:rgba(17,17,17,.55);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:800; font-size:1.2rem; letter-spacing:-.01em;
+}
+
+/* Lightbox */
+.lightbox{
+  position:fixed; inset:0; z-index:200;
+  background:rgba(10,10,10,.94);
+  display:none; align-items:center; justify-content:center;
+  padding:24px;
+}
+.lightbox.is-open{ display:flex; }
+.lightbox img{
+  max-width:92vw; max-height:84vh; width:auto; height:auto;
+  border-radius:18px; object-fit:contain;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+.lightbox-btn{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:52px; height:52px; border-radius:var(--r-pill);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+  color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .2s ease;
+}
+.lightbox-btn:hover{ background:rgba(255,255,255,.25); }
+.lightbox-prev{ left:22px; }
+.lightbox-next{ right:22px; }
+.lightbox-close{
+  position:absolute; top:22px; right:22px;
+  width:48px; height:48px; border-radius:var(--r-pill);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+  color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.lightbox-counter{
+  position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+  color:rgba(255,255,255,.75); font-size:.9rem; font-weight:600;
+}
+
+/* ════════ SUMMARY ════════ */
+.summary-grid{
+  display:grid; grid-template-columns:1.5fr 1fr; gap:32px; align-items:start;
+}
+@media (max-width: 980px){ .summary-grid{ grid-template-columns:1fr; } }
+.listing-h1{
+  font-weight:800; font-size:clamp(1.9rem, 3.4vw, 3.2rem);
+  letter-spacing:-.045em; line-height:1; margin:0;
+}
+.listing-price-xl{
+  font-weight:800; font-size:clamp(2rem, 3.6vw, 3.4rem);
+  letter-spacing:-.045em; line-height:1; margin:0;
+}
+.spec-row{ display:flex; gap:10px; flex-wrap:wrap; }
+.spec{
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:18px; padding:13px 18px;
+  display:flex; flex-direction:column; gap:2px; min-width:96px;
+}
+.spec b{ font-size:1.25rem; font-weight:800; letter-spacing:-.03em; line-height:1; }
+.spec span{ font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-soft); }
+
+/* ════════ FACTS ════════ */
+.facts-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+  border:1px solid var(--line); border-radius:var(--r-card); overflow:hidden;
+}
+@media (max-width: 860px){ .facts-grid{ grid-template-columns:1fr 1fr; } }
+@media (max-width: 520px){ .facts-grid{ grid-template-columns:1fr; } }
+.fact{
+  padding:18px 20px; border-bottom:1px solid var(--line); border-right:1px solid var(--line);
+  background:#fff;
+}
+.fact span{
+  display:block; font-size:.72rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--muted-soft); margin-bottom:5px;
+}
+.fact b{ font-size:1rem; font-weight:700; letter-spacing:-.01em; }
+
+.remarks{
+  color:var(--muted); font-size:1.02rem; line-height:1.7; margin:0;
+  white-space:pre-line;
+}
+
+/* Open house chips */
+.oh-list{ display:flex; flex-direction:column; gap:10px; }
+.oh-chip{
+  display:flex; align-items:center; gap:14px;
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:18px; padding:14px 18px;
+}
+.oh-chip .cal{
+  width:44px; height:44px; border-radius:14px; background:var(--ink); color:#fff;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-weight:800; line-height:1; flex-shrink:0;
+}
+.oh-chip .cal small{ font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; opacity:.7; }
+.oh-chip .cal b{ font-size:1.05rem; }
+.oh-chip p{ margin:0; font-weight:700; font-size:.95rem; }
+.oh-chip span{ color:var(--muted); font-size:.85rem; }
+
+/* Sidebar inquiry card */
+.side-card{
+  background:#fff; border:1px solid var(--line);
+  border-radius:var(--r-card); padding:24px;
+  box-shadow:var(--shadow-card);
+  position:sticky; top:120px;
+}
+.input,.select,.textarea{
+  width:100%; min-height:50px; border-radius:var(--r-input);
+  border:1px solid rgba(17,17,17,.1); background:#fafaf9;
+  color:var(--ink); padding:0 15px;
+  font-family:var(--font); font-size:.95rem; outline:none;
+  transition:border-color .2s, background .2s;
+}
+.textarea{ min-height:96px; padding:14px 15px; resize:vertical; line-height:1.5; }
+.input:focus,.select:focus,.textarea:focus{ border-color:rgba(17,17,17,.3); background:#fff; }
+.input::placeholder,.textarea::placeholder{ color:var(--muted-soft); }
+.honeypot{
+  position:absolute !important; left:-9999px !important;
+  width:1px !important; height:1px !important;
+  opacity:0 !important; pointer-events:none !important;
+}
+.form-success{
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:12px; padding:28px 14px;
+}
+.form-success.is-on{ display:flex; }
+.form-success .check{
+  width:54px; height:54px; border-radius:50%;
+  background:var(--bg-soft); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* Matterport */
+.tour-frame{
+  width:100%; aspect-ratio:16/9; border:0;
+  border-radius:var(--r-card); overflow:hidden;
+  background:#e9e9e4;
+}
+
+/* ════════ STATES ════════ */
+.state-wrap{
+  max-width:680px; margin:0 auto; text-align:center;
+  padding:80px 20px;
+}
+.skeleton{
+  background:linear-gradient(90deg, #f0f0ed 25%, #e6e6e2 50%, #f0f0ed 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:var(--r-card);
+}
+@keyframes shimmer{ from{ background-position:200% 0; } to{ background-position:-200% 0; } }
+
+.reveal{
+  opacity:0; transform:translateY(30px);
+  transition:opacity .8s var(--ease), transform .8s var(--ease);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity:1; transform:none; transition:none; }
+  .nav-wrap{ animation:none; }
+}
+
+/* ════════ FOOTER ════════ */
+.footer{
+  padding:52px var(--pad-x) 28px; margin-top:36px;
+  border-top:1px solid var(--line);
+}
+.footer-inner{
+  max-width:var(--max); margin:0 auto;
+  display:flex; justify-content:space-between; align-items:center;
+  gap:20px; flex-wrap:wrap;
+  font-size:.9rem; color:var(--muted);
+}
+.footer-inner a{ color:var(--muted); text-decoration:none; }
+.footer-inner a:hover{ color:var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span>Alex Stoykov Group</span>
+      </a>
+      <div class="nav-links" role="navigation" aria-label="Primary">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+        <a class="nav-link" href="/blog">Blog</a>
+        <a class="nav-link" href="#inquire">Contact Us</a>
+      </div>
+      <div class="nav-cta">
+        <a class="btn btn-dark btn-sm" href="#inquire">Contact Us</a>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<main class="page">
+
+  <!-- Loading state -->
+  <div id="loadingState">
+    <div class="crumb"><a href="/">Home</a> / <a href="/listings">Listings</a> / Loading...</div>
+    <div class="section">
+      <div class="skeleton" style="max-width:var(--max); margin:0 auto; aspect-ratio:21/9;"></div>
+    </div>
+    <div class="section">
+      <div class="shell" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="skeleton" style="height:48px; width:60%;"></div>
+        <div class="skeleton" style="height:26px; width:40%;"></div>
+        <div class="skeleton" style="height:90px; width:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error / not found state -->
+  <div id="errorState" class="state-wrap" hidden>
+    <p class="pill-tag" style="margin-bottom:18px;">Listing Not Found</p>
+    <h1 style="font-weight:800; font-size:clamp(1.8rem,3.4vw,2.8rem); letter-spacing:-.04em; line-height:1.02; margin:0 0 14px;">We couldn't find that property.</h1>
+    <p style="color:var(--muted); font-size:1.02rem; line-height:1.6; margin:0 0 26px;">It may have just sold, or the link may be out of date. Browse our current inventory or reach out and we'll track it down for you.</p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="/listings" class="btn btn-dark">See All Listings</a>
+      <a href="/#asg-home-contact" class="btn btn-light">Contact Us</a>
+    </div>
+  </div>
+
+  <!-- Listing content -->
+  <div id="listingContent" hidden>
+
+    <div class="crumb"><a href="/">Home</a> / <a href="/listings">Listings</a> / <span id="crumbAddr"></span></div>
+
+    <!-- Gallery -->
+    <section class="section">
+      <div style="max-width:var(--max); margin:0 auto;">
+        <div class="gallery" id="gallery">
+          <div class="gallery-main" id="galleryMain" role="button" tabindex="0" aria-label="Open photo gallery">
+            <img id="galleryMainImg" src="" alt="">
+            <span class="gallery-count" id="galleryCount"></span>
+          </div>
+          <div class="gallery-side" id="gallerySide"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary + inquiry -->
+    <section class="section">
+      <div class="shell">
+        <div class="summary-grid">
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;" id="badgeRow"></div>
+            <h1 class="listing-h1" id="addrLine"></h1>
+            <p style="color:var(--muted); font-size:1.05rem; margin:0;" id="subAddrLine"></p>
+            <p class="listing-price-xl" id="priceLine"></p>
+            <div class="spec-row" id="specRow"></div>
+
+            <div id="remarksBlock" hidden>
+              <p class="eyebrow" style="margin-top:10px;">About This Home</p>
+              <p class="remarks" id="remarksText"></p>
+            </div>
+
+            <div id="ohBlock" hidden>
+              <p class="eyebrow" style="margin-top:10px;">Upcoming Open Houses</p>
+              <div class="oh-list" id="ohList"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="side-card" id="inquire">
+              <p class="eyebrow">Inquire About This Home</p>
+              <p style="font-weight:800; font-size:1.3rem; letter-spacing:-.025em; margin:0 0 16px;" id="inquireAddr"></p>
+              <form id="inquiryForm" novalidate>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  <input class="input" name="name" type="text" required placeholder="Full name" autocomplete="name">
+                  <input class="input" name="email" type="email" required placeholder="Email address" autocomplete="email">
+                  <input class="input" name="phone" type="tel" placeholder="Phone number" autocomplete="tel">
+                  <textarea class="textarea" name="message" placeholder="I'd like a showing, more photos, or pricing guidance..."></textarea>
+                  <input class="honeypot" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+                  <button type="submit" class="btn btn-dark" style="width:100%; margin-top:4px;">Request a Showing</button>
+                </div>
+              </form>
+              <div class="form-success" id="formSuccess">
+                <div class="check">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-9" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <p style="font-weight:700; font-size:1.05rem; margin:0;">Request received</p>
+                <p style="color:var(--muted); font-size:.9rem; line-height:1.5; max-width:32ch; margin:0;">A member of the Alex Stoykov Group will reach out within one business day.</p>
+              </div>
+              <p style="color:var(--muted-soft); font-size:.8rem; line-height:1.5; margin:16px 0 0;" id="agentLine"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Property facts -->
+    <section class="section">
+      <div class="shell shell-alt">
+        <p class="eyebrow">The Details</p>
+        <h2 style="font-weight:800; font-size:clamp(1.5rem,2.4vw,2.1rem); letter-spacing:-.035em; line-height:1.02; margin:0 0 22px;">Property Facts</h2>
+        <div class="facts-grid" id="factsGrid"></div>
+      </div>
+    </section>
+
+    <!-- 3D tour -->
+    <section class="section" id="tourSection" hidden>
+      <div class="shell">
+        <p class="eyebrow">Walk Through</p>
+        <h2 style="font-weight:800; font-size:clamp(1.5rem,2.4vw,2.1rem); letter-spacing:-.035em; line-height:1.02; margin:0 0 22px;">3D Virtual Tour</h2>
+        <iframe class="tour-frame" id="tourFrame" src="" title="3D virtual tour" allow="fullscreen; vr" loading="lazy"></iframe>
+      </div>
+    </section>
+
+    <!-- CTA back -->
+    <section class="section">
+      <div class="shell" style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div>
+          <p class="eyebrow" style="margin:0 0 6px;">Keep Looking</p>
+          <p style="font-weight:800; font-size:1.4rem; letter-spacing:-.03em; margin:0;">Explore the rest of our inventory.</p>
+        </div>
+        <a href="/listings" class="btn btn-dark">View All Listings</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo gallery">
+  <button class="lightbox-close" id="lbClose" type="button" aria-label="Close gallery">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <button class="lightbox-btn lightbox-prev" id="lbPrev" type="button" aria-label="Previous photo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <img id="lbImg" src="" alt="">
+  <button class="lightbox-btn lightbox-next" id="lbNext" type="button" aria-label="Next photo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <span class="lightbox-counter" id="lbCounter"></span>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span id="copyrightLine">© Alex Stoykov Group · All rights reserved · Brokered by Compass · Chicago, IL</span>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="/privacy">Privacy</a>
+      <a href="/fair-housing">Fair Housing</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Single source of truth: ListingHub.gs Apps Script (IdxListings tab). */
+  var LISTINGS_API = String(window.ASG_LISTINGS_API ||
+    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec').trim();
+
+  /* Photo model: each photo carries a chain of candidate URLs so Drive
+     images keep rendering even if one Google endpoint rejects the request. */
+  var photos = [];
+  var lbIndex = 0;
+  var listingAddr = '';
+
+  function photoObj(srcList){
+    var srcs = (srcList || []).map(function (s) { return String(s || '').trim(); }).filter(Boolean);
+    return srcs.length ? { srcs: srcs, pos: 0 } : null;
+  }
+  function photoSrc(p){
+    return p.srcs[Math.min(p.pos, p.srcs.length - 1)];
+  }
+  /* HTTPS only; advance to the next candidate URL when one fails to load. */
+  function bindImg(img, p){
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = function () {
+      if (p.pos < p.srcs.length - 1) {
+        p.pos += 1;
+        img.src = photoSrc(p);
+      } else {
+        img.onerror = null;
+      }
+    };
+    img.src = photoSrc(p);
+  }
+  function drivePhotoObj(d){
+    var id = String((d && d.id) || '').trim().replace(/[^A-Za-z0-9_-]/g, '');
+    var srcs = [];
+    if (d && d.url) srcs.push(d.url);
+    if (id) srcs.push('https://drive.google.com/thumbnail?id=' + id + '&sz=w1600');
+    if (d && d.driveUrl) srcs.push(d.driveUrl);
+    return photoObj(srcs);
+  }
+
+  function qs(name){
+    var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+  }
+
+  function priceNumber(row){
+    var raw = row.listPrice != null && row.listPrice !== '' ? row.listPrice : row.price;
+    if (typeof raw === 'number' && isFinite(raw)) return raw;
+    var n = Number(String(raw || '').replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? n : 0;
+  }
+
+  function isRental(row){
+    if (String(row.listingType || '').toLowerCase() === 'lease') return true;
+    var pt = String(row.mlsPropType || '').toLowerCase();
+    return pt.indexOf('lease') >= 0 || pt.indexOf('rental') >= 0;
+  }
+
+  function priceLabel(row){
+    var n = priceNumber(row);
+    if (!n) return String(row.listPrice || row.price || '');
+    var s;
+    try { s = '$' + n.toLocaleString(); } catch (e) { s = '$' + n; }
+    return isRental(row) ? s + '/mo' : s;
+  }
+
+  /* mls.majorarea, CHI- prefix stripped to just the neighborhood */
+  function locationLabel(row){
+    var raw = String(row.mlsAreaMajor || row.neighborhood || row.mlsCity || '').trim();
+    return raw.replace(/^CHI\s*-\s*/i, '').trim();
+  }
+
+  function bedsLabel(row){
+    var raw = String(row.beds != null ? row.beds : '').trim();
+    if (raw === '') return '';
+    return Number(raw) === 0 ? 'Studio' : raw;
+  }
+
+  function fmtNum(raw){
+    var n = Number(String(raw || '').replace(/[^0-9.]/g, ''));
+    if (!isFinite(n) || n === 0) return '';
+    try { return n.toLocaleString(); } catch (e) { return String(n); }
+  }
+
+  function setText(id, value){
+    document.getElementById(id).textContent = value;
+  }
+
+  /* ───── Gallery ─────
+     The cover renders instantly from the IDX CDN URL (image.firstUrl in the
+     IdxListings tab). The rest of the gallery streams in from the listing's
+     Google Drive folder via view=listingphotos and merges when ready. */
+  function renderGalleryCover(row){
+    photos = [];
+    var cover = photoObj([row.coverImage || row.idxCoverImage]);
+    if (cover) photos.push(cover);
+
+    var main = document.getElementById('galleryMainImg');
+    if (!photos.length) {
+      document.getElementById('gallery').style.display = 'none';
+      return;
+    }
+    main.alt = (row.address || 'Listing') + ' photo';
+    main.loading = 'eager';
+    main.decoding = 'async';
+    main.setAttribute('fetchpriority', 'high');
+    bindImg(main, photos[0]);
+    updateGalleryCount();
+
+    var mainWrap = document.getElementById('galleryMain');
+    mainWrap.addEventListener('click', function () { openLightbox(0); });
+    mainWrap.addEventListener('keydown', function (e) { if (e.key === 'Enter') openLightbox(0); });
+  }
+
+  function updateGalleryCount(){
+    document.getElementById('galleryCount').textContent =
+      photos.length + ' Photo' + (photos.length === 1 ? '' : 's');
+  }
+
+  function mergeDrivePhotos(driveList){
+    var added = (driveList || []).map(drivePhotoObj).filter(Boolean);
+    if (!added.length) {
+      if (photos.length <= 1) {
+        document.getElementById('gallery').style.gridTemplateColumns = '1fr';
+        document.getElementById('gallerySide').style.display = 'none';
+      }
+      return;
+    }
+    if (!photos.length) {
+      /* No IDX cover: promote the first Drive photo to the main slot. */
+      photos = added;
+      document.getElementById('gallery').style.display = '';
+      var main = document.getElementById('galleryMainImg');
+      main.alt = (listingAddr || 'Listing') + ' photo';
+      bindImg(main, photos[0]);
+      var mainWrap = document.getElementById('galleryMain');
+      mainWrap.addEventListener('click', function () { openLightbox(0); });
+    } else {
+      photos = photos.concat(added);
+    }
+    updateGalleryCount();
+    renderSideThumbs();
+  }
+
+  function renderSideThumbs(){
+    var side = document.getElementById('gallerySide');
+    side.innerHTML = '';
+    var thumbs = photos.slice(1, 3);
+    if (!thumbs.length) {
+      document.getElementById('gallery').style.gridTemplateColumns = '1fr';
+      side.style.display = 'none';
+      return;
+    }
+    document.getElementById('gallery').style.gridTemplateColumns = '';
+    side.style.display = '';
+    thumbs.forEach(function (p, i) {
+      var div = document.createElement('div');
+      div.className = 'gallery-thumb';
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
+      var img = document.createElement('img');
+      img.alt = (listingAddr || 'Listing') + ' photo ' + (i + 2);
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      bindImg(img, p);
+      div.appendChild(img);
+      var isLastThumb = i === thumbs.length - 1 && photos.length > 3;
+      if (isLastThumb) {
+        var more = document.createElement('div');
+        more.className = 'more';
+        more.textContent = '+' + (photos.length - 3) + ' more';
+        div.appendChild(more);
+      }
+      var openAt = i + 1;
+      div.addEventListener('click', function () { openLightbox(openAt); });
+      div.addEventListener('keydown', function (e) { if (e.key === 'Enter') openLightbox(openAt); });
+      side.appendChild(div);
+    });
+  }
+
+  /* ───── Lightbox ───── */
+  var lightbox = document.getElementById('lightbox');
+  function openLightbox(i){
+    lbIndex = i;
+    updateLightbox();
+    lightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+  function updateLightbox(){
+    bindImg(document.getElementById('lbImg'), photos[lbIndex]);
+    document.getElementById('lbCounter').textContent = (lbIndex + 1) + ' / ' + photos.length;
+  }
+  function lbStep(dir){
+    lbIndex = (lbIndex + dir + photos.length) % photos.length;
+    updateLightbox();
+  }
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click', function () { lbStep(-1); });
+  document.getElementById('lbNext').addEventListener('click', function () { lbStep(1); });
+  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lbStep(-1);
+    if (e.key === 'ArrowRight') lbStep(1);
+  });
+
+  /* ───── Render ───── */
+  function badge(text, dark){
+    var s = document.createElement('span');
+    s.className = 'pill-tag';
+    if (dark) { s.style.background = '#111'; s.style.color = '#fff'; s.style.borderColor = '#111'; }
+    s.textContent = text;
+    return s;
+  }
+
+  function specCard(value, label){
+    var d = document.createElement('div');
+    d.className = 'spec';
+    var b = document.createElement('b');
+    b.textContent = value;
+    var s = document.createElement('span');
+    s.textContent = label;
+    d.appendChild(b); d.appendChild(s);
+    return d;
+  }
+
+  function factCell(label, value){
+    if (!String(value || '').trim()) return null;
+    var d = document.createElement('div');
+    d.className = 'fact';
+    var s = document.createElement('span');
+    s.textContent = label;
+    var b = document.createElement('b');
+    b.textContent = value;
+    d.appendChild(s); d.appendChild(b);
+    return d;
+  }
+
+  function renderListing(row){
+    var addr = String(row.address || '').trim();
+    listingAddr = addr;
+    var loc = locationLabel(row);
+
+    document.title = addr + ' | Alex Stoykov Group';
+    setText('crumbAddr', addr);
+    setText('addrLine', addr);
+    setText('subAddrLine', [loc, row.mlsCity, row.mlsZip].filter(function (v) { return String(v || '').trim(); }).join(', '));
+    setText('priceLine', priceLabel(row));
+    setText('inquireAddr', addr);
+
+    /* Badges */
+    var badges = document.getElementById('badgeRow');
+    var status = String(row.status || row.idxMlsStatus || '').trim();
+    if (status) badges.appendChild(badge(status, true));
+    if (isRental(row)) badges.appendChild(badge('For Rent'));
+    if (loc) badges.appendChild(badge(loc));
+
+    /* Spec chips */
+    var specs = document.getElementById('specRow');
+    var beds = bedsLabel(row);
+    if (beds) specs.appendChild(specCard(beds, beds === 'Studio' ? 'Layout' : 'Beds'));
+    if (String(row.baths || '').trim() && Number(row.baths) !== 0) specs.appendChild(specCard(String(row.baths), 'Baths'));
+    var sqft = fmtNum(row.sqFt);
+    if (sqft) specs.appendChild(specCard(sqft, 'Sq Ft'));
+    if (String(row.mlsDaysOnMarket || '').trim()) specs.appendChild(specCard(String(row.mlsDaysOnMarket), 'Days on Mkt'));
+
+    /* Remarks */
+    var remarks = String(row.mlsRemarks || '').trim();
+    if (remarks) {
+      document.getElementById('remarksBlock').hidden = false;
+      setText('remarksText', remarks);
+    }
+
+    /* Open houses */
+    var oh = row.openHouses || [];
+    if (oh.length) {
+      document.getElementById('ohBlock').hidden = false;
+      var list = document.getElementById('ohList');
+      oh.slice(0, 4).forEach(function (o) {
+        var chip = document.createElement('div');
+        chip.className = 'oh-chip';
+        var d = new Date(String(o.date || ''));
+        var valid = d && !isNaN(d.getTime());
+        var cal = document.createElement('div');
+        cal.className = 'cal';
+        cal.innerHTML = valid
+          ? '<small>' + d.toLocaleDateString('en-US', { month: 'short' }) + '</small><b>' + d.getDate() + '</b>'
+          : '<small>Open</small><b>•</b>';
+        var txt = document.createElement('div');
+        var p = document.createElement('p');
+        p.textContent = valid ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : String(o.date || 'Open House');
+        var span = document.createElement('span');
+        span.textContent = [o.start, o.end].filter(Boolean).join(' to ');
+        txt.appendChild(p); txt.appendChild(span);
+        chip.appendChild(cal); chip.appendChild(txt);
+        list.appendChild(chip);
+      });
+    }
+
+    /* Facts grid */
+    var facts = document.getElementById('factsGrid');
+    [
+      factCell('Price', priceLabel(row)),
+      factCell('Status', status),
+      factCell('Property Type', [row.mlsPropType, row.mlsPropSubType].filter(function (v) { return String(v || '').trim(); }).join(' · ')),
+      factCell('Beds', beds),
+      factCell('Baths', String(row.baths || '')),
+      factCell('Square Feet', sqft),
+      factCell('Year Built', String(row.mlsYearBuilt || '')),
+      factCell('Neighborhood', loc),
+      factCell('Township', String(row.mlsTownship || '')),
+      factCell('Annual Taxes', row.mlsTaxes ? '$' + fmtNum(row.mlsTaxes) : ''),
+      factCell('HOA Dues', row.mlsHoaDues ? '$' + fmtNum(row.mlsHoaDues) + '/mo' : ''),
+      factCell('Garage Spaces', String(row.mlsGarageSpaces || '')),
+      factCell('Parking', String(row.mlsParking || '')),
+      factCell('School District', String(row.mlsSchoolDistrict || '')),
+      factCell('Elementary School', String(row.mlsElementarySchool || '')),
+      factCell('High School', String(row.mlsHighSchool || '')),
+      factCell('MLS #', String(row.mlsNumber || row.idxListingId || '')),
+      factCell('Days on Market', String(row.mlsDaysOnMarket || ''))
+    ].forEach(function (cell) { if (cell) facts.appendChild(cell); });
+
+    /* 3D tour */
+    var tour = String(row.matterport || '').trim();
+    if (/^https?:\/\//i.test(tour)) {
+      document.getElementById('tourSection').hidden = false;
+      document.getElementById('tourFrame').src = tour;
+    }
+
+    /* Agent attribution */
+    var agent = String(row.agent || row.agentCanonical || row.mlsListAgentName || '').trim();
+    if (agent) setText('agentLine', 'Listed by ' + agent + ' · Alex Stoykov Group · Compass');
+
+    renderGalleryCover(row);
+
+    document.getElementById('loadingState').hidden = true;
+    document.getElementById('listingContent').hidden = false;
+  }
+
+  function showError(){
+    document.getElementById('loadingState').hidden = true;
+    document.getElementById('errorState').hidden = false;
+  }
+
+  /* ───── Inquiry form (preview mode + optional endpoint) ───── */
+  var form = document.getElementById('inquiryForm');
+  var renderedAt = Date.now();
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var hp = form.querySelector('input[name="company"]');
+    if (hp && hp.value) return;
+    if (Date.now() - renderedAt < 1500) return;
+    if (!form.reportValidity()) return;
+
+    var data = { _page: window.location.pathname + window.location.search, _formType: 'listing-inquiry', _submittedAt: new Date().toISOString(), address: qs('address') };
+    Array.prototype.forEach.call(form.elements, function (field) {
+      if (!field.name || field.name === 'company') return;
+      data[field.name] = field.value;
+    });
+
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    function showSuccess(){
+      form.style.display = 'none';
+      document.getElementById('formSuccess').classList.add('is-on');
+    }
+    var endpoint = (window.ASG_LEAD_ENDPOINT || '').trim();
+    if (!endpoint) { setTimeout(showSuccess, 600); return; }
+    fetch(endpoint, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    }).then(showSuccess).catch(function () {
+      btn.disabled = false;
+      btn.textContent = 'Request a Showing';
+    });
+  });
+
+  /* ───── Boot ─────
+     Both requests fire in parallel: the listing payload paints the page and
+     the fast IDX cover image, while the Drive gallery streams in behind it. */
+  var address = qs('address');
+  var slug = qs('slug');
+  if (!address && !slug) {
+    showError();
+  } else {
+    var sep = LISTINGS_API.indexOf('?') >= 0 ? '&' : '?';
+    var query = address ? 'address=' + encodeURIComponent(address) : 'slug=' + encodeURIComponent(slug);
+
+    var drivePhotosReq = fetch(LISTINGS_API + sep + 'view=listingphotos&' + query)
+      .then(function (r) { return r.json(); })
+      .catch(function () { return null; });
+
+    fetch(LISTINGS_API + sep + 'view=listing&' + query)
+      .then(function (r) { return r.json(); })
+      .then(function (payload) {
+        if (payload && payload.success && payload.listing) {
+          renderListing(payload.listing);
+          drivePhotosReq.then(function (pp) {
+            if (pp && pp.success && pp.photos) mergeDrivePhotos(pp.photos);
+            else mergeDrivePhotos([]);
+          });
+        } else {
+          showError();
+        }
+      })
+      .catch(showError);
+  }
+
+  document.getElementById('copyrightLine').textContent =
+    '© ' + new Date().getFullYear() + ' Alex Stoykov Group · All rights reserved · Brokered by Compass · Chicago, IL';
+})();
+</script>
+</body>
+</html>

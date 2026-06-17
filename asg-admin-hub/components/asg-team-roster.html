@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Meet the Team | Alex Stoykov Group</title>
+<meta name="description" content="Meet the Alex Stoykov Group: Chicago's modern real estate team. Senior agents, licensed brokers, every neighborhood covered.">
+
+<link rel="preconnect" href="https://images.squarespace-cdn.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<script>
+/* ── Instant roster boot ──
+   Fires the Directory API request before the page renders so the
+   network round trip overlaps parsing, and reads the last payload
+   from localStorage so the roster paints with zero wait. */
+(function () {
+  'use strict';
+  var API = String(window.ASG_HUB_DATA_API ||
+    'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
+  var CACHE_KEY = 'asg_roster_cache_v1';
+  var CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+  var boot = { cachedRows: null, promise: null, cacheKey: CACHE_KEY };
+  window.__ASG_ROSTER_BOOT = boot;
+
+  try {
+    var raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.t && (Date.now() - parsed.t) < CACHE_MAX_AGE_MS && Array.isArray(parsed.rows)) {
+        boot.cachedRows = parsed.rows;
+      }
+    }
+  } catch (e) {}
+
+  boot.promise = fetch(API + (API.indexOf('?') >= 0 ? '&' : '?') + 'view=directory')
+    .then(function (res) { return res.json(); })
+    .catch(function () { return null; });
+
+  /* 2026 volume per agent from the ASG Deals sheet (Pipeline Stats API),
+     used to order the senior roster. Amounts are never displayed. */
+  var STATS_API = String(window.ASG_TEAM_STATS_API ||
+    'https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec').trim();
+  boot.statsPromise = fetch(STATS_API + (STATS_API.indexOf('?') >= 0 ? '&' : '?') + 'period=ytd2026')
+    .then(function (res) { return res.json(); })
+    .catch(function () { return null; });
+})();
+</script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   ASG design tokens (matches the homepage redesign)
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --bg-deep:#101010;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --shadow-deep:0 24px 60px rgba(17,17,17,.10);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1480px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; overflow-anchor:none; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SQUARESPACE OVERRIDES (page-scoped: hide native chrome)
+   ════════════════════════════════════════════════════════════ */
+#header,
+header.Header,
+.Header,
+.Header-inner,
+header#header,
+.header-announcement-bar-wrapper,
+.Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone,
+#announcement-bar-text-inner-id,
+#headerSpacer,
+.header-spacer,
+#footer,
+footer.Footer,
+.Footer,
+.Footer-inner,
+#footer-sections,
+footer.sections{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper,
+.Main,
+.Content-outer,
+.Content-inner,
+.Index,
+.Index-page-content,
+#page,
+.page-section,
+article.sections,
+main#page article{
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+  max-width:none !important;
+}
+.page-section .content-wrapper{
+  padding:0 !important;
+  max-width:none !important;
+}
+
+/* Ignore Squarespace's global image rounding; only our wrappers clip */
+main img,
+.nav img,
+.nav-logo img,
+.mobile-panel img,
+.footer img{
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+/* Exception to the reset above: junior and admin avatars are round */
+main img.jr-photo{ border-radius:50% !important; }
+
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* ════════════════ NAV: floating pill ════════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);
+  -webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom, rgba(255,255,255,.72), rgba(255,255,255,.4) 50%, rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  transition:opacity .3s ease;
+  opacity:0;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease, min-height .35s var(--ease), padding .35s var(--ease);
+}
+.nav.is-scrolled{
+  box-shadow:0 10px 32px rgba(17,17,17,.10);
+  min-height:66px;
+}
+.nav-logo{
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; flex-shrink:0;
+}
+.nav-logo img{
+  width:58px; height:58px;
+  transition:width .35s var(--ease), height .35s var(--ease), transform .3s ease;
+}
+.nav.is-scrolled .nav-logo img{ width:50px; height:50px; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{
+  font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap;
+}
+
+.nav-links{
+  display:flex; align-items:center; gap:4px;
+  position:relative;
+}
+.nav-link{
+  position:relative; z-index:1;
+  border-radius:var(--r-pill);
+  padding:14px 24px;
+  font-size:1.12rem; font-weight:600;
+  color:var(--muted);
+  text-decoration:none; white-space:nowrap;
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+.nav-pill-ghost{
+  position:absolute; z-index:0;
+  border-radius:var(--r-pill);
+  background:rgba(17,17,17,.05);
+  border:1px solid rgba(17,17,17,.07);
+  opacity:0; pointer-events:none;
+  transition:left .28s var(--ease), width .28s var(--ease), opacity .2s ease;
+  top:0; bottom:0;
+}
+.nav-pill-ghost.is-on{ opacity:1; }
+
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+
+.nav-burger{
+  display:none;
+  background:transparent; border:1px solid var(--line);
+  width:50px; height:50px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; color:var(--ink);
+}
+.nav-burger svg{ transition:transform .4s var(--ease); }
+.nav-burger.is-open svg{ transform:rotate(45deg); } /* plus → X */
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+
+/* Mobile panel: under the nav pill so the plus/X stays visible */
+.mobile-panel{
+  position:fixed; inset:0; z-index:95;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  padding:100px 22px 40px;
+  display:flex; flex-direction:column; gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  overflow-y:auto;
+}
+.mobile-panel.is-open{ opacity:1; pointer-events:auto; }
+.mobile-panel a.m-link{
+  display:block; padding:17px 20px; border-radius:20px;
+  font-size:1.25rem; font-weight:700; text-decoration:none;
+  border:1px solid var(--line); background:#fff;
+  transform:translateY(14px); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s ease;
+}
+.mobile-panel.is-open a.m-link{ transform:translateY(0); opacity:1; }
+.mobile-panel.is-open a.m-link:nth-child(2){ transition-delay:.05s; }
+.mobile-panel.is-open a.m-link:nth-child(3){ transition-delay:.10s; }
+.mobile-panel.is-open a.m-link:nth-child(4){ transition-delay:.15s; }
+.mobile-panel-cta{
+  margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+
+/* ════════════════ BUTTONS ════════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+
+/* ════════════════ SHELLS / TYPE ════════════════ */
+.section{ margin:0 auto 20px; padding:0 var(--pad-x); }
+.shell{
+  max-width:var(--max); margin:0 auto;
+  background:var(--bg); border:1px solid var(--line);
+  border-radius:var(--r-shell); padding:32px;
+  --sr-action-w:calc((100% - 48px) / 5 - 32px);
+}
+@media (max-width: 1100px){
+  .shell{ --sr-action-w:calc((100% - 24px) / 3 - 32px); }
+}
+@media (max-width: 860px){
+  .shell{ --sr-action-w:calc((100% - 12px) / 2 - 32px); }
+}
+.shell-alt{ background:var(--bg-alt); }
+.eyebrow{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted-soft); margin:0 0 8px;
+}
+.h2{
+  font-weight:800; font-size:clamp(1.7rem, 2.6vw, 2.4rem);
+  letter-spacing:-.04em; line-height:1.02; margin:0;
+}
+.section-head{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:16px; flex-wrap:wrap; margin-bottom:26px;
+}
+
+/* Scroll reveal */
+.reveal{
+  opacity:0; transform:translateY(30px);
+  transition:opacity .8s var(--ease), transform .8s var(--ease);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+.d1{ transition-delay:.08s; } .d2{ transition-delay:.16s; }
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity:1; transform:none; transition:none; }
+  .nav-wrap{ animation:none; }
+  .hero-fade{ animation:none; opacity:1; transform:none; }
+}
+
+/* ════════════════ PAGE HERO ════════════════ */
+.roster-hero{ padding:152px var(--pad-x) 10px; }
+.roster-hero-inner{ max-width:var(--max); margin:0 auto; }
+.roster-h1{
+  font-weight:800;
+  font-size:clamp(2.6rem, 5vw, 4.6rem);
+  line-height:.96; letter-spacing:-.05em;
+  margin:0 0 18px;
+}
+.roster-lead{
+  font-size:clamp(1.08rem, 1.6vw, 1.3rem); line-height:1.55; color:var(--muted);
+  max-width:62ch; margin:0;
+}
+.hero-fade{
+  opacity:0; transform:translateY(18px);
+  animation:heroFade .85s var(--ease) forwards;
+}
+@keyframes heroFade{ to{ opacity:1; transform:translateY(0); } }
+
+/* ════════════════ SENIORS ════════════════ */
+
+/* Featured team lead: Alex by himself, visually separated from the grid */
+.sr-featured-wrap{
+  margin-bottom:12px;
+  padding-bottom:36px;
+  border-bottom:1px solid var(--line);
+}
+.sr-featured{
+  display:grid; grid-template-columns:minmax(260px, 340px) 1fr;
+  gap:28px; align-items:center;
+  background:#fff; border:1px solid var(--line);
+  border-radius:var(--r-card); overflow:visible;
+  padding:24px;
+  box-shadow:var(--shadow-card);
+  position:relative;
+}
+.sr-featured-hit{
+  position:absolute; inset:0; z-index:1;
+  border-radius:inherit; text-decoration:none;
+}
+.sr-featured .sr-actions{
+  position:relative; z-index:2;
+  width:100%; max-width:var(--sr-action-w);
+}
+
+.sr-featured-photo{
+  position:relative; aspect-ratio:3/3.6;
+  border-radius:22px; overflow:hidden;
+  background:var(--bg-soft);
+}
+.sr-featured-photo img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:top center;
+}
+.sr-featured-copy{
+  padding:4px 8px 4px 0;
+  display:flex; flex-direction:column; justify-content:center; gap:12px;
+}
+.sr-featured-name{
+  font-weight:800; font-size:clamp(1.5rem, 2.4vw, 1.85rem);
+  letter-spacing:-.03em; line-height:1.05; margin:0;
+}
+.sr-featured-role{
+  color:var(--muted-soft); font-size:.74rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; margin:0;
+}
+.sr-featured-bio{
+  color:var(--ink); font-size:clamp(1.02rem, 1.6vw, 1.15rem);
+  font-weight:700; line-height:1.65;
+  margin:0; max-width:62ch;
+}
+.sr-featured-bio-wrap{
+  position:relative; z-index:2;
+  display:flex; flex-direction:column; align-items:flex-start; gap:0;
+}
+.sr-featured-bio-more{ margin-top:0; }
+.sr-featured-bio-toggle{
+  display:none;
+  appearance:none; border:0; background:transparent; cursor:pointer;
+  align-self:center; margin:6px auto 0; padding:6px;
+  color:var(--muted-soft); line-height:0;
+  transition:transform .28s var(--ease), color .2s ease;
+}
+.sr-featured-bio-toggle:hover{ color:var(--ink); }
+.sr-featured-bio-wrap.is-expanded .sr-featured-bio-toggle{
+  transform:rotate(180deg);
+}
+
+/* Breathing room between Alex and the senior grid */
+.sr-grid-head{
+  margin:36px 0 18px;
+}
+@media (max-width: 860px){
+  .sr-featured-wrap{ padding-bottom:28px; }
+  /* Mirror the senior card anatomy exactly: full-bleed photo on top,
+     copy block below with the same 12px side padding, so the action
+     buttons end up pixel-identical to the agent cards. */
+  .sr-featured{
+    grid-template-columns:1fr; gap:0; padding:0; overflow:hidden;
+  }
+  .sr-featured-photo{
+    aspect-ratio:4/3.2; max-width:none; margin:0; width:100%;
+    border-radius:0;
+  }
+  .sr-featured-copy{ padding:14px 12px 13px; align-items:stretch; gap:10px; }
+  .sr-featured-bio-wrap{ max-width:100%; width:100%; }
+  .sr-featured-bio{ max-width:none; font-size:1rem; line-height:1.6; }
+  .sr-featured-bio-more{ display:none; }
+  .sr-featured-bio-wrap.is-expanded .sr-featured-bio-more{ display:block; margin-top:10px; }
+  .sr-featured-bio-toggle{ display:inline-flex; align-items:center; justify-content:center; }
+  .sr-featured .sr-actions{
+    max-width:none; width:100%; margin-top:12px;
+    display:flex; gap:6px;
+  }
+  .sr-featured .sr-actions a,
+  .sr-featured .sr-actions button{
+    flex:1 1 0; min-width:0; padding:10px 8px;
+  }
+  .sr-grid-head{ margin:28px 0 14px; }
+}
+
+/* Roster grid: compact portrait cards, photo on top, copy below on a
+   clean white surface so names and roles stay fully readable.
+   Two rows of five on desktop. */
+.sr-grid{
+  display:grid; grid-template-columns:repeat(5, 1fr); gap:12px;
+}
+@media (max-width: 1100px){ .sr-grid{ grid-template-columns:repeat(3, 1fr); } }
+@media (max-width: 860px){ .sr-grid{ grid-template-columns:repeat(2, 1fr); } }
+
+.sr-card{
+  display:flex; flex-direction:column;
+  border-radius:var(--r-card); overflow:hidden;
+  background:#fff; border:1px solid var(--line);
+  box-shadow:var(--shadow-card);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease),
+             filter .35s ease, opacity .35s ease;
+  position:relative;
+}
+.sr-card.is-link{ cursor:pointer; }
+@media (max-width: 720px), (hover: none){
+  .sr-card.is-link:hover{ transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+}
+.sr-card-hit{
+  position:absolute; inset:0; z-index:1;
+  border-radius:inherit; text-decoration:none;
+}
+.sr-card-hit:focus-visible{
+  outline:2px solid var(--ink); outline-offset:2px;
+}
+.sr-actions{ position:relative; z-index:2; }
+.sr-photo{
+  position:relative; aspect-ratio:1/1; background:var(--bg-soft); overflow:hidden;
+}
+.sr-photo img{
+  width:100%; height:100%; object-fit:cover; object-position:top center;
+  transition:transform .7s var(--ease);
+}
+@media (max-width: 720px), (hover: none){
+  .sr-card:hover .sr-photo img{ transform:scale(1.04); }
+}
+
+/* Desktop senior spotlight: JS-driven, blur ripples from the active card */
+@media (min-width: 721px) and (hover: hover){
+  .sr-grid{ overflow:visible; padding:12px 0; margin:-12px 0; }
+  .sr-card{
+    transform-origin:50% 100%;
+    transition:
+      transform .55s cubic-bezier(.22,1.18,.36,1),
+      box-shadow .55s cubic-bezier(.16,1,.3,1),
+      filter 1.15s cubic-bezier(.16,1,.3,1) var(--blur-delay, 0ms);
+    will-change:transform, filter;
+  }
+  .sr-card .sr-photo img{
+    transition:transform .65s cubic-bezier(.22,1.18,.36,1);
+  }
+  .sr-card.is-backdrop::after{
+    content:''; position:absolute; inset:0; z-index:4; pointer-events:none;
+    border-radius:inherit;
+    background:rgba(255,255,255,.38);
+    backdrop-filter:blur(12px) saturate(1.12);
+    -webkit-backdrop-filter:blur(12px) saturate(1.12);
+    border:1px solid rgba(255,255,255,.55);
+    opacity:0;
+    transition:
+      opacity 1.15s cubic-bezier(.16,1,.3,1) var(--blur-delay, 0ms),
+      backdrop-filter 1.15s cubic-bezier(.16,1,.3,1) var(--blur-delay, 0ms);
+  }
+  .sr-card.is-backdrop{
+    filter:blur(0);
+    transform:scale(1);
+  }
+  .sr-grid.is-spotlight-active .sr-card.is-backdrop{
+    filter:blur(4px);
+    transform:scale(.98);
+  }
+  .sr-grid.is-spotlight-active .sr-card.is-backdrop::after{
+    opacity:1;
+  }
+  .sr-grid.is-spotlight-exiting .sr-card.is-backdrop{
+    filter:blur(0);
+    transform:scale(1);
+  }
+  .sr-grid.is-spotlight-exiting .sr-card.is-backdrop::after{
+    opacity:0;
+  }
+  .sr-grid.is-spotlight-active .sr-card.is-spotlight{
+    filter:none;
+    transform:scale(1.07) translateY(-12px);
+    box-shadow:0 26px 52px rgba(17,17,17,.18);
+    z-index:3;
+  }
+  .sr-grid.is-spotlight-exiting .sr-card.is-spotlight{
+    transform:scale(1) translateY(0);
+    box-shadow:var(--shadow-card);
+    z-index:1;
+  }
+  .sr-grid.is-spotlight-active .sr-card.is-spotlight::after{ opacity:0; }
+  .sr-grid.is-spotlight-active .sr-card.is-spotlight .sr-photo img{
+    transform:scale(1.1);
+  }
+  .sr-grid.is-spotlight-exiting .sr-card.is-spotlight .sr-photo img{
+    transform:scale(1);
+  }
+}
+.sr-initials{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:2.6rem; font-weight:800; letter-spacing:-.03em; color:var(--muted-soft);
+}
+.sr-copy{ padding:14px 16px 16px; display:flex; flex-direction:column; flex:1; }
+.sr-name{
+  font-weight:800; font-size:1.08rem; letter-spacing:-.02em;
+  line-height:1.12; margin:0;
+}
+.sr-role{
+  color:var(--muted); font-size:.8rem; font-weight:600;
+  margin:4px 0 0;
+}
+.sr-actions{
+  display:flex; gap:6px; margin-top:12px;
+}
+.sr-actions a,
+.sr-actions button{
+  flex:1 1 0; min-width:0;
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 8px; border-radius:var(--r-pill);
+  font-size:.8rem; font-weight:700; text-decoration:none; line-height:1;
+  white-space:nowrap;
+  transition:transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+}
+.sr-actions button{
+  appearance:none; cursor:pointer; font-family:var(--font);
+}
+.sr-actions a:active,
+.sr-actions button:active{ transform:scale(.97); }
+.sr-btn-main{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.sr-btn-main:hover{ transform:translateY(-1px); opacity:.9; }
+.sr-btn-ghost{
+  background:var(--bg-soft); color:var(--ink);
+  border:1px solid var(--line);
+}
+.sr-btn-ghost:hover{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+/* ════════════════ JUNIORS: simple compact cards ════════════════ */
+.jr-grid{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;
+}
+@media (max-width: 1100px){ .jr-grid{ grid-template-columns:repeat(2, 1fr); } }
+.jr-card{
+  display:flex; align-items:center; gap:14px;
+  background:#fff; border:1px solid var(--line); border-radius:20px;
+  padding:14px 16px; min-width:0;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+  position:relative;
+}
+.jr-card.is-link{ cursor:pointer; }
+.jr-card.is-link:hover{ transform:translateY(-3px); box-shadow:var(--shadow-card); }
+.jr-card-hit{
+  position:absolute; inset:0; z-index:1;
+  border-radius:inherit; text-decoration:none;
+}
+.jr-links{ position:relative; z-index:2; display:flex; gap:6px; flex-shrink:0; }
+.jr-photo{
+  width:54px; height:54px; min-width:54px; border-radius:50%;
+  object-fit:cover; object-position:top center;
+  border:1px solid var(--line); background:var(--bg-soft);
+}
+.jr-photo.is-placeholder{
+  display:flex; align-items:center; justify-content:center;
+  font-size:.95rem; font-weight:700; color:var(--muted);
+}
+.jr-meta{ min-width:0; flex:1; }
+.jr-name{
+  font-weight:700; font-size:1.02rem; letter-spacing:-.015em;
+  margin:0; line-height:1.15;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.jr-role{
+  color:var(--muted); font-size:.8rem; margin:3px 0 0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.jr-links a,
+.jr-links button{
+  width:38px; height:38px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); background:var(--bg-soft);
+  color:var(--ink); text-decoration:none;
+  transition:background .18s ease, transform .18s ease;
+}
+.jr-links button{
+  appearance:none; cursor:pointer; padding:0; font-family:var(--font);
+}
+.jr-links a:hover,
+.jr-links button:hover{ background:var(--ink); color:#fff; transform:translateY(-1px); }
+
+/* Email copied toast */
+.email-toast{
+  position:fixed; bottom:28px; left:50%; z-index:200;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--ink); color:#fff;
+  padding:13px 24px; border-radius:var(--r-pill);
+  font-size:.92rem; font-weight:700; letter-spacing:-.01em;
+  box-shadow:0 12px 32px rgba(17,17,17,.22);
+  opacity:0; pointer-events:none;
+  transition:opacity .28s var(--ease), transform .28s var(--ease);
+}
+.email-toast.is-on{
+  opacity:1; transform:translateX(-50%) translateY(0);
+}
+
+/* ════════════════ LOADING / EMPTY ════════════════ */
+.roster-skeleton{
+  border-radius:var(--r-card); background:var(--bg-soft);
+  animation:pulse 1.4s ease infinite;
+}
+.sr-grid .roster-skeleton{ aspect-ratio:1/1.45; }
+.jr-grid .roster-skeleton{ height:84px; border-radius:20px; }
+@keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+.roster-empty{
+  display:none; text-align:center; color:var(--muted);
+  font-size:1rem; padding:44px 20px;
+  background:var(--bg-alt); border:1px dashed var(--line-strong);
+  border-radius:var(--r-card);
+}
+.roster-empty.is-on{ display:block; }
+
+/* ════════════════ CTA BAND ════════════════ */
+.roster-cta{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:24px; flex-wrap:wrap;
+}
+.roster-cta p{ margin:0; color:rgba(255,255,255,.66); font-size:1rem; max-width:52ch; }
+.roster-cta .h2{ color:#fff; margin-bottom:8px; }
+
+/* ════════════════ FOOTER ════════════════ */
+.footer{
+  padding:52px var(--pad-x) 28px; margin-top:36px;
+  border-top:1px solid var(--line);
+}
+.footer-inner{
+  max-width:var(--max); margin:0 auto;
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px;
+}
+@media (max-width:980px){
+  .footer-inner{ grid-template-columns:1fr 1fr; }
+  .footer-brand{ grid-column:1/-1; }
+}
+.footer-brand{ display:flex; flex-direction:column; gap:14px; }
+.footer-logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; text-decoration:none; }
+.footer-logo img{ width:38px; height:38px; }
+.footer-tag{ font-size:.92rem; line-height:1.55; color:var(--muted); max-width:38ch; margin:0; }
+.footer h4{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted-soft); margin:0 0 14px;
+}
+.footer ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.footer ul a{ font-size:.94rem; text-decoration:none; transition:opacity .18s; }
+.footer ul a:hover{ opacity:.55; }
+.footer-bottom{
+  max-width:var(--max); margin:34px auto 0; padding-top:22px;
+  border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:14px; font-size:.84rem; color:var(--muted);
+}
+.footer-bottom a{ color:var(--muted); text-decoration:none; }
+.footer-bottom a:hover{ color:var(--ink); }
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE-FIRST REFINEMENTS (desktop >980px unchanged)
+   ════════════════════════════════════════════════════════════ */
+.section{ scroll-margin-top:96px; }
+
+@media (max-width: 720px){
+  :root{ --pad-x:14px; --r-shell:26px; --r-card:22px; }
+  .shell{ padding:18px; }
+  .section{ margin-bottom:12px; }
+
+  .nav-wrap{ top:10px; }
+  .nav-frost{ height:96px; }
+  .nav{ min-height:60px; padding:6px 8px 6px 14px; gap:10px; }
+  .nav.is-scrolled{ min-height:56px; }
+  .nav-logo img{ width:42px; height:42px; }
+  .nav.is-scrolled .nav-logo img{ width:38px; height:38px; }
+  .nav-logo span{ font-size:1.02rem; }
+  .nav-burger{ width:44px; height:44px; }
+
+  .roster-hero{ padding-top:104px; padding-bottom:6px; }
+
+  .section-head{ margin-bottom:18px; }
+  .sr-grid{ grid-template-columns:1fr 1fr; gap:10px; }
+  .sr-copy{ padding:12px 12px 13px; }
+  .sr-name{ font-size:.98rem; }
+  .jr-grid{ grid-template-columns:1fr; gap:10px; }
+
+  /* ── Seniors: swipeable card deck (same pattern as the homepage
+     Current Listings). The main card spans the full width; the
+     previous and next cards peek out behind its left and right
+     edges, blurred and slightly angled. JS poses the cards and
+     drives the drag physics. ── */
+  #seniorGrid.is-deck{
+    display:block; position:relative;
+    margin:0; padding:0;
+    touch-action:pan-y; /* vertical page scroll stays native */
+  }
+  #seniorGrid.is-deck > *{
+    position:absolute; left:0; right:0; top:0;
+    margin:0;
+    border:0 !important;
+    background:#fff !important; /* solid: back cards never show through */
+    transition:transform .55s var(--ease), opacity .35s ease,
+               box-shadow .35s ease, filter .45s ease;
+    will-change:transform, filter;
+  }
+  #seniorGrid.is-deck > .deck-side{
+    filter:blur(7px) saturate(1.18) brightness(1.05);
+  }
+  #seniorGrid.is-deck > .deck-top{
+    filter:none;
+    box-shadow:0 16px 40px rgba(17,17,17,.16);
+  }
+  #seniorGrid.is-deck > .deck-dragging{
+    transition:none;
+    cursor:grabbing;
+  }
+
+  .footer{ padding:38px var(--pad-x) 22px; margin-top:24px; }
+  .footer-inner{ gap:24px; }
+  .footer-bottom{ margin-top:24px; }
+  .mobile-panel-cta .btn{ padding:16px 0; font-size:1rem; }
+}
+@media (max-width: 400px){
+  .nav-logo span{ font-size:.92rem; }
+  .footer-inner{ grid-template-columns:1fr; }
+}
+
+/* Deck pagination dots (hidden on desktop, where the grid shows) */
+.deck-dots{ display:none; }
+@media (max-width: 720px){
+  .deck-dots{
+    display:flex; justify-content:center; align-items:center;
+    gap:6px; margin-top:16px; min-height:8px;
+  }
+  .deck-dots span{
+    width:7px; height:7px; border-radius:var(--r-pill);
+    background:rgba(17,17,17,.16);
+    transition:width .3s var(--ease), background .3s ease;
+  }
+  .deck-dots span.is-on{ width:20px; background:var(--ink); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-frost" aria-hidden="true" id="navFrost"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span class="nav-wordmark">Alex Stoykov Group</span>
+      </a>
+
+      <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary">
+        <div class="nav-pill-ghost" id="navGhost" aria-hidden="true"></div>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+        <a class="nav-link" href="/blog">Blog</a>
+        <a class="nav-link" href="/#asg-home-contact">Contact Us</a>
+      </div>
+
+      <div class="nav-cta">
+        <a class="btn btn-dark btn-sm" href="/#asg-home-contact">Contact Us</a>
+      </div>
+
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <a class="m-link" href="/about">About</a>
+  <a class="m-link" href="/team">Team</a>
+  <a class="m-link" href="/blog">Blog</a>
+  <a class="m-link" href="/#asg-home-contact">Contact Us</a>
+  <div class="mobile-panel-cta">
+    <a class="btn btn-light" href="/#listings">Buy</a>
+    <a class="btn btn-dark" href="/sellers">Sell</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="roster-hero" id="asg-roster-hero">
+    <div class="roster-hero-inner">
+      <p class="eyebrow hero-fade" style="animation-delay:.1s;">The Alex Stoykov Group</p>
+      <h1 class="roster-h1 hero-fade" style="animation-delay:.2s;">The people behind<br>every closing.</h1>
+      <p class="roster-lead hero-fade" style="animation-delay:.35s;">
+        Every member of our team lives and breathes Chicago real estate. Get to know the agents who will guide your next move.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════ SENIOR AGENTS ═══════════ -->
+  <section class="section" id="seniors" style="margin-top:30px;">
+    <div class="shell reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Senior Agents</p>
+          <h2 class="h2">Leadership on every deal.</h2>
+        </div>
+      </div>
+      <div class="sr-featured-wrap" id="seniorFeatured"></div>
+
+      <div class="sr-grid-head">
+        <p class="eyebrow" style="margin:0;">The Senior Team</p>
+      </div>
+      <div class="sr-grid" id="seniorGrid">
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+      </div>
+      <div class="roster-empty" id="seniorEmpty">Team roster is loading slowly or unavailable. Please refresh, or <a href="/#asg-home-contact">contact us directly</a>.</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ JUNIOR AGENTS ═══════════ -->
+  <section class="section" id="juniors">
+    <div class="shell shell-alt reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Licensed Brokers</p>
+          <h2 class="h2">The full bench.</h2>
+        </div>
+      </div>
+      <div class="jr-grid" id="juniorGrid">
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+      </div>
+      <div class="roster-empty" id="juniorEmpty">No brokers to show right now.</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ ADMIN & OPERATIONS ═══════════ -->
+  <section class="section" id="admins">
+    <div class="shell reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Admin &amp; Operations</p>
+          <h2 class="h2">The engine room.</h2>
+        </div>
+      </div>
+      <div class="jr-grid" id="adminGrid">
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+        <div class="roster-skeleton"></div>
+      </div>
+      <div class="roster-empty" id="adminEmpty">No admin team to show right now.</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CTA ═══════════ -->
+  <section class="section">
+    <div class="shell reveal" style="background:linear-gradient(140deg,#0e0e0e,#1c1c1c); border:1px solid rgba(255,255,255,.07);">
+      <div class="roster-cta">
+        <div>
+          <h2 class="h2">Ready to work with us?</h2>
+          <p>Tell us where you are in your move and we'll pair you with the right agent for your neighborhood, budget, and timeline.</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="/buyers" class="btn btn-light">Start Buying</a>
+          <a href="/sellers" class="btn btn-light">List My Home</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="email-toast" id="emailCopiedToast" role="status" aria-live="polite">Email Copied</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="footer-logo" href="/">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="">
+        Alex Stoykov Group
+      </a>
+      <p class="footer-tag">A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance, from first showing to final close.</p>
+      <p class="footer-tag">Brokered by Compass · Chicago, IL</p>
+    </div>
+    <div>
+      <h4>Real Estate</h4>
+      <ul>
+        <li><a href="/listings">Our Listings</a></li>
+        <li><a href="/buyers">Buyers</a></li>
+        <li><a href="/sellers">Sellers</a></li>
+        <li><a href="/neighborhoods">Neighborhoods</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/team">Team</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="/#asg-home-contact">Contact Us</a></li>
+        <li><a href="/client-portal">Client Portal</a></li>
+        <li><a href="https://www.instagram.com/alexstoykovgroup" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+        <li><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="copyrightLine">© Alex Stoykov Group · All rights reserved</span>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/accessibility">Accessibility</a>
+      <a href="/fair-housing">Fair Housing</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ───── Nav: scroll state ───── */
+  var nav = document.getElementById('nav');
+  var frost = document.getElementById('navFrost');
+  var lastScrolled = false;
+  function onScroll(){
+    var scrolled = (window.scrollY || 0) > 24;
+    if (scrolled !== lastScrolled) {
+      nav.classList.toggle('is-scrolled', scrolled);
+      frost.classList.toggle('is-scrolled', scrolled);
+      lastScrolled = scrolled;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ───── Nav: sliding hover pill ───── */
+  var linksWrap = document.getElementById('navLinks');
+  var ghost = document.getElementById('navGhost');
+  linksWrap.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('mouseenter', function () {
+      var wrapBox = linksWrap.getBoundingClientRect();
+      var box = link.getBoundingClientRect();
+      ghost.style.left = (box.left - wrapBox.left) + 'px';
+      ghost.style.width = box.width + 'px';
+      ghost.classList.add('is-on');
+    });
+  });
+  linksWrap.addEventListener('mouseleave', function () {
+    ghost.classList.remove('is-on');
+  });
+
+  /* ───── Mobile menu (plus → X toggle) ───── */
+  var burger = document.getElementById('navBurger');
+  var panel = document.getElementById('mobilePanel');
+  function openMobile(){
+    panel.classList.add('is-open');
+    burger.classList.add('is-open');
+    burger.setAttribute('aria-expanded', 'true');
+    burger.setAttribute('aria-label', 'Close menu');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobile(){
+    panel.classList.remove('is-open');
+    burger.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', function () {
+    if (panel.classList.contains('is-open')) closeMobile();
+    else openMobile();
+  });
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') closeMobile();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+  });
+
+  /* ───── Scroll reveal ───── */
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  /* ───── Roster: ASG Directory (Hub Data API) ─────
+     Same source as the internal directory and the buyer onboarding
+     agent picker: ?view=directory on the Hub Data Apps Script. */
+  var seniorFeatured = document.getElementById('seniorFeatured');
+  var seniorGrid = document.getElementById('seniorGrid');
+  var juniorGrid = document.getElementById('juniorGrid');
+  var adminGrid = document.getElementById('adminGrid');
+  var seniorEmpty = document.getElementById('seniorEmpty');
+  var juniorEmpty = document.getElementById('juniorEmpty');
+  var adminEmpty = document.getElementById('adminEmpty');
+
+  /* Team lead featured above the senior grid */
+  var FEATURED_NAME = /alex\s+stoykov/i;
+  var FEATURED_PHOTO = 'https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/8b9166ad-7841-4b08-a5ca-67f5fe04eab7/Alex+new+headshot.jpg?format=1500w';
+  var FEATURED_BIO_TEASER = 'Across 23 years in Chicago real estate and nearly $1 billion in closed volume, Alex Stoykov has earned his place among the city\u2019s top producers.';
+  var FEATURED_BIO_MORE = 'He began at 20, flipping properties while finishing his undergraduate degree, then added an MBA in finance and accounting from DePaul, building a practice that serves first-time buyers, investors, and luxury developers with the same tenacity. ' +
+    'He founded the Alex Stoykov Group on one idea: great agents are made, not found. Today he still mentors every agent on this team personally and holds every transaction to his own standard. ' +
+    'A dad to two boys, Alex leads from the front. When you work with anyone at ASG, you get the playbook he built.';
+
+  /* Engine room titles (override whatever the sheet says), in display order */
+  var ADMIN_ROLES = [
+    { match: /ellyn/i,  role: 'Chief Operating Officer' },
+    { match: /tim/i,    role: 'Chief Technology Officer' },
+    { match: /seph/i,   role: 'Transaction Coordinator' },
+    { match: /ellie/i,  role: 'Marketing Coordinator' }
+  ];
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function telClean(s){ return String(s || '').replace(/[^\d+]/g, ''); }
+
+  function initials(name){
+    return String(name || '').split(/\s+/).filter(Boolean).slice(0, 2)
+      .map(function (w) { return w.charAt(0).toUpperCase(); }).join('');
+  }
+
+  /* Same photo cascade as the internal directory (icon → medium → legacy) */
+  function photoUrl(row){
+    return String((row && (
+      row.icon_photo_url || row.icon_photo || row.iconphoto ||
+      row.image_url || row.photo || row.headshot_url || row.headshot
+    )) || '').trim();
+  }
+
+  /* Directory photos point at originals (format=2500w on the Squarespace
+     CDN, multi-MB each). Rewriting the format param to the rendered size
+     cuts each download by ~90% and makes the grid paint near-instantly. */
+  function sizedPhoto(url, width){
+    var u = String(url || '').trim();
+    if (!u || !/squarespace-cdn\.com/i.test(u)) return u;
+    if (/[?&]format=/i.test(u)) return u.replace(/([?&])format=[^&]*/i, '$1format=' + width + 'w');
+    return u + (u.indexOf('?') >= 0 ? '&' : '?') + 'format=' + width + 'w';
+  }
+
+  /* This-year production for ranking (never displayed). Accepts common
+     sheet column spellings and currency-formatted values. */
+  var YEAR = String(new Date().getFullYear());
+  function productionNumber(row){
+    if (!row) return 0;
+    var exact = [
+      'closed_' + YEAR, 'volume_' + YEAR, YEAR + '_volume', YEAR + '_closed',
+      'ytd_volume', 'volume_ytd', 'ytd_closed', 'closed_ytd',
+      'ytd_production', 'production_ytd', 'production', 'sales_volume'
+    ];
+    var val = pick(row, exact);
+    if (!val) {
+      /* Fallback: any column mentioning volume/production/closed plus
+         the current year or "ytd" */
+      for (var key in row) {
+        if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+        var k = key.toLowerCase();
+        if (/(volume|production|closed|gci)/.test(k) && (k.indexOf('ytd') >= 0 || k.indexOf(YEAR) >= 0)) {
+          var v = String(row[key] == null ? '' : row[key]).trim();
+          if (v) { val = v; break; }
+        }
+      }
+    }
+    if (!val) return 0;
+    var s = String(val).toUpperCase().replace(/[$,\s]/g, '');
+    var mult = 1;
+    if (/M$/.test(s)) { mult = 1e6; s = s.slice(0, -1); }
+    else if (/K$/.test(s)) { mult = 1e3; s = s.slice(0, -1); }
+    var n = parseFloat(s);
+    return isFinite(n) ? n * mult : 0;
+  }
+
+  function pick(row, keys){
+    for (var i = 0; i < keys.length; i++) {
+      var v = row && row[keys[i]];
+      if (v != null && String(v).trim() !== '') return String(v).trim();
+    }
+    return '';
+  }
+
+  var LANDING_BASE = String(window.ASG_LANDING_BASE || 'https://www.alexstoykovgroup.com').replace(/\/$/, '');
+
+  /* Slug overrides where the URL path does not match the agent name */
+  var LANDING_SLUG_BY_NAME = {
+    alexstoykov: 'alexstoykov',
+    samabadi: 'samabadi',
+    shellychanney: 'shellychanney',
+    nicolasgamboawills: 'nicogamboawills',
+    julianlevit: 'julianlevit',
+    minoconenna: 'minoconenna',
+    angelaengelbrecht: 'angelaengelbrecht',
+    laynezagorin: 'laynezagorin',
+    barbaralaken: 'barbaralaken',
+    alexvalladares: 'alexvalladares',
+    gabrielrendon: 'gabrielrendon',
+    matthewclevenger: 'mattclevenger',
+    justincurran: 'justincurran',
+    cherylcohn: 'cherylcohn',
+    jasonstone: 'jasonstone',
+    andreamirchef: 'andreamirchef',
+    andreakoedjikova: 'andreakoedjikova',
+    alisabok: 'alisabok',
+    josieontiveros: 'josieontiveros',
+    nasirrizvi: 'nasirrizvi',
+    preetysidhu: 'preetysidhu',
+    chloedittmer: 'chloedittmer',
+    natalitzvetkova: 'natalitzetkova',
+    myriamelkhoury: 'myriamelkhoury',
+    sergegolota: 'sergegolota',
+    cameronsine: 'cameronsine',
+    kelseyglascott: 'kelseyglascott'
+  };
+
+  function slugify(s){
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '').trim();
+  }
+
+  function resolveLanding(row){
+    var url = pick(row, ['landing_page_url', 'landing_page', 'landing_url', 'landing', 'profile_url', 'website']);
+    if (url && url !== '#') return url;
+    var slug = pick(row, ['agent_slug', 'slug']);
+    if (!slug) {
+      var email = pick(row, ['email', 'agent_email']);
+      if (email && email.indexOf('@') > 0) slug = email.split('@')[0];
+    }
+    if (!slug) {
+      var nk = nameKey(pick(row, ['name', 'display_name', 'agent_name']));
+      slug = LANDING_SLUG_BY_NAME[nk] || nk;
+    } else {
+      slug = slugify(slug);
+    }
+    return slug ? (LANDING_BASE + '/' + slug) : '';
+  }
+
+  function cardHitHtml(landing, name, className){
+    if (!landing) return '';
+    return '<a class="' + className + '" href="' + escapeHtml(landing) + '" aria-label="View ' + escapeHtml(name) + ' profile"></a>';
+  }
+
+  function emailCopyBtn(className, email){
+    if (!email) return '';
+    return '<button type="button" class="' + className + ' js-copy-email" data-email="' + escapeHtml(email) + '">Email</button>';
+  }
+
+  function normalizePerson(row){
+    var tier = pick(row, ['computed_tier', 'tier', 'role_group']);
+    var status = pick(row, ['status', 'agent_status']);
+    return {
+      name: pick(row, ['name', 'display_name', 'agent_name']),
+      tier: tier,
+      role: pick(row, ['role', 'title', 'position']) ||
+            (/senior/i.test(tier) ? 'Senior Agent' :
+             /admin/i.test(tier) ? 'Team Operations' : 'Licensed Broker'),
+      email: pick(row, ['email', 'agent_email']),
+      phone: pick(row, ['fub_phone']) ||
+             pick(row, ['phone_number', 'phone', 'mobile', 'cell', 'cell_phone', 'work_phone']),
+      landing: resolveLanding(row),
+      rank: Number(row && row.computed_seniority_rank_tier) || 9999,
+      production: productionNumber(row),
+      photo: photoUrl(row),
+      active: !status || /active/i.test(status)
+    };
+  }
+
+  function extractRows(payload){
+    if (!payload || payload.success !== true || !payload.data || !payload.data.directory) return null;
+    var dir = payload.data.directory;
+    if (!dir || dir.success !== true || !Array.isArray(dir.rows)) return null;
+    return dir.rows;
+  }
+
+  /* ── Senior card: compact portrait, copy below the photo ──
+     The first grid row loads eagerly at high priority so the section
+     paints immediately; the rest lazy-load as the visitor scrolls. */
+  function seniorCardHtml(p, index){
+    var eager = index < 4;
+    var media = p.photo
+      ? '<img src="' + escapeHtml(sizedPhoto(p.photo, 500)) + '" alt="' + escapeHtml(p.name) + '"' +
+        (eager ? ' loading="eager" fetchpriority="high"' : ' loading="lazy"') + ' decoding="async">'
+      : '<div class="sr-initials" aria-hidden="true">' + escapeHtml(initials(p.name)) + '</div>';
+    var actions = '';
+    if (p.email) {
+      actions += emailCopyBtn('sr-btn-main', p.email);
+    }
+    if (p.phone) {
+      actions += '<a class="sr-btn-ghost" href="tel:' + escapeHtml(telClean(p.phone)) + '">Call</a>';
+    }
+    return '' +
+      '<article class="sr-card' + (p.landing ? ' is-link' : '') + '">' +
+        cardHitHtml(p.landing, p.name, 'sr-card-hit') +
+        '<div class="sr-photo">' + media + '</div>' +
+        '<div class="sr-copy">' +
+          '<h3 class="sr-name">' + escapeHtml(p.name) + '</h3>' +
+          '<p class="sr-role">' + escapeHtml(p.role) + '</p>' +
+          (actions ? '<div class="sr-actions">' + actions + '</div>' : '') +
+        '</div>' +
+      '</article>';
+  }
+
+  /* ── Junior card: simple row with avatar and quick contacts ── */
+  function juniorCardHtml(p, opts){
+    opts = opts || {};
+    var linkable = opts.link !== false && p.landing;
+    var avatar = p.photo
+      ? '<img class="jr-photo" src="' + escapeHtml(sizedPhoto(p.photo, 100)) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" decoding="async">'
+      : '<div class="jr-photo is-placeholder" aria-hidden="true">' + escapeHtml(initials(p.name)) + '</div>';
+    var links = '';
+    if (p.email) {
+      links += '<button type="button" class="js-copy-email" data-email="' + escapeHtml(p.email) + '" aria-label="Copy email for ' + escapeHtml(p.name) + '">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></svg></button>';
+    }
+    if (p.phone) {
+      links += '<a href="tel:' + escapeHtml(telClean(p.phone)) + '" aria-label="Call ' + escapeHtml(p.name) + '">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>';
+    }
+    var inner = avatar +
+      '<div class="jr-meta">' +
+        '<p class="jr-name">' + escapeHtml(p.name) + '</p>' +
+        '<p class="jr-role">' + escapeHtml(p.role) + '</p>' +
+      '</div>' +
+      '<div class="jr-links">' + links + '</div>';
+    return '<div class="jr-card' + (linkable ? ' is-link' : '') + '">' +
+      (linkable ? cardHitHtml(p.landing, p.name, 'jr-card-hit') : '') +
+      inner + '</div>';
+  }
+
+  /* ── Featured team lead card ── */
+  function featuredCardHtml(p){
+    var media = FEATURED_PHOTO
+      ? '<img src="' + escapeHtml(sizedPhoto(FEATURED_PHOTO, 800)) + '" alt="' + escapeHtml(p.name) + '" loading="eager" fetchpriority="high" decoding="async">'
+      : '';
+    var actions = '';
+    if (p.email) {
+      actions += emailCopyBtn('sr-btn-main', p.email);
+    }
+    if (p.phone) {
+      actions += '<a class="sr-btn-ghost" href="tel:' + escapeHtml(telClean(p.phone)) + '">Call</a>';
+    }
+    return '' +
+      '<article class="sr-featured reveal is-visible">' +
+        cardHitHtml(p.landing, p.name, 'sr-featured-hit') +
+        '<div class="sr-featured-photo">' + media + '</div>' +
+        '<div class="sr-featured-copy">' +
+          '<p class="sr-featured-role">Founder &amp; Team Lead</p>' +
+          '<h3 class="sr-featured-name">' + escapeHtml(p.name) + '</h3>' +
+          '<div class="sr-featured-bio-wrap">' +
+            '<p class="sr-featured-bio">' + escapeHtml(FEATURED_BIO_TEASER) + '</p>' +
+            '<p class="sr-featured-bio sr-featured-bio-more">' + escapeHtml(FEATURED_BIO_MORE) + '</p>' +
+            '<button type="button" class="sr-featured-bio-toggle js-featured-bio-toggle" aria-expanded="false" aria-label="Show more about Alex">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</button>' +
+          '</div>' +
+          (actions ? '<div class="sr-actions">' + actions + '</div>' : '') +
+        '</div>' +
+      '</article>';
+  }
+
+  /* 2026 volume per agent, keyed by normalized name, from the ASG Deals
+     sheet (Pipeline Stats API). Used only for ordering. */
+  var volumeByName = null;
+  function nameKey(name){
+    return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+  function dealsVolume(p){
+    if (!volumeByName) return -1;
+    var v = volumeByName[nameKey(p.name)];
+    return typeof v === 'number' && isFinite(v) ? v : 0;
+  }
+
+  var lastRows = null;
+
+  function renderRoster(rows){
+    lastRows = rows;
+    var people = rows.map(normalizePerson).filter(function (p) {
+      return p.name && p.active;
+    });
+
+    var seniors = people.filter(function (p) { return /senior/i.test(p.tier); });
+    var juniors = people.filter(function (p) { return /junior/i.test(p.tier); });
+    var admins = people.filter(function (p) { return /admin/i.test(p.tier); });
+
+    /* Alex leads the section by himself; everyone else fills the grid */
+    var lead = null;
+    seniors = seniors.filter(function (p) {
+      if (!lead && FEATURED_NAME.test(p.name)) { lead = p; return false; }
+      return true;
+    });
+
+    /* Order by total 2026 volume from the ASG Deals sheet (highest
+       first, amounts never shown). Until the stats payload lands, fall
+       back to directory production, tenure rank, then name. */
+    seniors.sort(function (a, b) {
+      return (dealsVolume(b) - dealsVolume(a)) ||
+             (b.production - a.production) ||
+             (a.rank - b.rank) ||
+             a.name.localeCompare(b.name);
+    });
+    seniors = seniors.slice(0, 10); /* two rows of five */
+
+    /* Engine room: fixed titles and display order */
+    admins.forEach(function (p) {
+      for (var i = 0; i < ADMIN_ROLES.length; i++) {
+        if (ADMIN_ROLES[i].match.test(p.name)) {
+          p.role = ADMIN_ROLES[i].role;
+          p.order = i;
+          break;
+        }
+      }
+      if (p.order == null) p.order = ADMIN_ROLES.length;
+    });
+    admins.sort(function (a, b) { return (a.order - b.order) || a.name.localeCompare(b.name); });
+
+    juniors.sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+    seniorFeatured.innerHTML = lead ? featuredCardHtml(lead) : '';
+    seniorGrid.innerHTML = seniors.map(seniorCardHtml).join('');
+    juniorGrid.innerHTML = juniors.map(juniorCardHtml).join('');
+    adminGrid.innerHTML = admins.map(function (p) { return juniorCardHtml(p, { link: false }); }).join('');
+    seniorEmpty.classList.toggle('is-on', !lead && !seniors.length);
+    juniorEmpty.classList.toggle('is-on', !juniors.length);
+    adminEmpty.classList.toggle('is-on', !admins.length);
+    if (window.__asgResetSeniorSpotlight) window.__asgResetSeniorSpotlight();
+  }
+
+  function slimRowForCache(row){
+    return {
+      name: pick(row, ['name', 'display_name', 'agent_name']),
+      computed_tier: pick(row, ['computed_tier', 'tier', 'role_group']),
+      role: pick(row, ['role', 'title', 'position']),
+      status: pick(row, ['status', 'agent_status']),
+      email: pick(row, ['email', 'agent_email']),
+      fub_phone: pick(row, ['fub_phone']),
+      phone_number: pick(row, ['phone_number', 'phone', 'mobile', 'cell', 'cell_phone', 'work_phone']),
+      landing_page_url: resolveLanding(row),
+      computed_seniority_rank_tier: row && row.computed_seniority_rank_tier,
+      ytd_volume: productionNumber(row), /* pre-resolved so cached renders sort identically */
+      icon_photo_url: photoUrl(row)
+    };
+  }
+
+  (function initRoster(){
+    var boot = window.__ASG_ROSTER_BOOT || {};
+    var STATS_CACHE_KEY = 'asg_roster_stats_v1';
+
+    /* Cached volume map: keeps senior ordering correct on instant paints */
+    try {
+      var rawStats = localStorage.getItem(STATS_CACHE_KEY);
+      if (rawStats) {
+        var parsedStats = JSON.parse(rawStats);
+        if (parsedStats && parsedStats.t && (Date.now() - parsedStats.t) < 24 * 60 * 60 * 1000 && parsedStats.map) {
+          volumeByName = parsedStats.map;
+        }
+      }
+    } catch (eS) {}
+
+    /* Instant paint from the localStorage snapshot */
+    if (boot.cachedRows && boot.cachedRows.length) {
+      renderRoster(boot.cachedRows);
+    }
+
+    /* 2026 volumes from the ASG Deals sheet: re-render and re-rank
+       the senior grid when they land */
+    if (boot.statsPromise) {
+      boot.statsPromise.then(function (payload) {
+        if (!payload || payload.success !== true || !Array.isArray(payload.agents)) return;
+        var map = {};
+        payload.agents.forEach(function (a) {
+          var key = nameKey(a && a.name);
+          var vol = Number(a && a.grandTotal);
+          if (key && isFinite(vol)) map[key] = vol;
+        });
+        volumeByName = map;
+        if (lastRows) renderRoster(lastRows);
+        try {
+          localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ t: Date.now(), map: map }));
+        } catch (eW) {}
+      });
+    }
+
+    /* Fresh data: the head script started this request before render */
+    var req = boot.promise;
+    if (!req) {
+      var API = String(window.ASG_HUB_DATA_API ||
+        'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
+      req = fetch(API + '?view=directory').then(function (r) { return r.json(); }).catch(function () { return null; });
+    }
+    req.then(function (payload) {
+      var rows = extractRows(payload);
+      if (!rows) {
+        /* API unreachable: leave cache render, or show the empty states */
+        if (!(boot.cachedRows && boot.cachedRows.length)) {
+          seniorGrid.innerHTML = '';
+          juniorGrid.innerHTML = '';
+          seniorEmpty.classList.add('is-on');
+          juniorEmpty.classList.add('is-on');
+        }
+        return;
+      }
+      renderRoster(rows);
+      try {
+        localStorage.setItem(boot.cacheKey || 'asg_roster_cache_v1', JSON.stringify({
+          t: Date.now(),
+          rows: rows.map(slimRowForCache)
+        }));
+      } catch (e) {} /* quota or private mode: skip caching */
+    });
+  })();
+
+  /* ───── Desktop senior spotlight (gapless handoff between cards) ───── */
+  (function () {
+    var grid = seniorGrid;
+    if (!grid) return;
+    var mq = window.matchMedia('(min-width: 721px) and (hover: hover)');
+    var active = null;
+    var exitTimer = null;
+    var BLUR_SPREAD = 0.9;      /* ms of stagger per pixel from the active card */
+    var BLUR_MAX_DELAY = 720;
+    var BLUR_DURATION = 1150;
+
+    function cardsIn(){
+      return Array.prototype.filter.call(grid.children, function (n) {
+        return n.nodeType === 1 && n.classList.contains('sr-card');
+      });
+    }
+
+    function spreadDelay(origin, target){
+      if (!origin || !target || origin === target) return 0;
+      var a = origin.getBoundingClientRect();
+      var b = target.getBoundingClientRect();
+      var dx = (a.left + a.width / 2) - (b.left + b.width / 2);
+      var dy = (a.top + a.height / 2) - (b.top + b.height / 2);
+      return Math.min(Math.hypot(dx, dy) * BLUR_SPREAD, BLUR_MAX_DELAY);
+    }
+
+    function clearExitTimer(){
+      if (exitTimer) {
+        clearTimeout(exitTimer);
+        exitTimer = null;
+      }
+    }
+
+    function cleanupSpotlight(){
+      cardsIn().forEach(function (c) {
+        c.classList.remove('is-spotlight', 'is-backdrop');
+        c.style.removeProperty('--blur-delay');
+      });
+      grid.classList.remove('is-spotlight-active', 'is-spotlight-exiting');
+      active = null;
+    }
+
+    function setSpotlight(card){
+      if (!mq.matches || grid.classList.contains('is-deck')) return;
+
+      if (!card) {
+        if (!active) return;
+        clearExitTimer();
+        var origin = active;
+        var list = cardsIn();
+        list.forEach(function (c) {
+          c.style.setProperty('--blur-delay', spreadDelay(origin, c) + 'ms');
+        });
+        grid.classList.remove('is-spotlight-active');
+        grid.classList.add('is-spotlight-exiting');
+        exitTimer = setTimeout(cleanupSpotlight, BLUR_MAX_DELAY + BLUR_DURATION + 80);
+        return;
+      }
+
+      clearExitTimer();
+      grid.classList.remove('is-spotlight-exiting');
+
+      var list = cardsIn();
+      list.forEach(function (c) {
+        var isSpot = c === card;
+        c.classList.toggle('is-spotlight', isSpot);
+        c.classList.toggle('is-backdrop', !isSpot);
+        if (!isSpot) {
+          c.style.setProperty('--blur-delay', spreadDelay(card, c) + 'ms');
+        } else {
+          c.style.removeProperty('--blur-delay');
+        }
+      });
+      grid.classList.add('is-spotlight-active');
+      active = card;
+    }
+
+    function closestCard(x, y){
+      var list = cardsIn();
+      if (!list.length) return null;
+      var hit = document.elementFromPoint(x, y);
+      if (hit) {
+        var direct = hit.closest ? hit.closest('.sr-card') : null;
+        if (direct && grid.contains(direct)) return direct;
+      }
+      var nearest = null, min = Infinity;
+      list.forEach(function (c) {
+        var r = c.getBoundingClientRect();
+        var dx = 0, dy = 0;
+        if (x < r.left) dx = r.left - x;
+        else if (x > r.right) dx = x - r.right;
+        if (y < r.top) dy = r.top - y;
+        else if (y > r.bottom) dy = y - r.bottom;
+        var d = dx * dx + dy * dy;
+        if (d < min) { min = d; nearest = c; }
+      });
+      return nearest;
+    }
+
+    function onMove(e){
+      if (!mq.matches || grid.classList.contains('is-deck')) return;
+      var card = closestCard(e.clientX, e.clientY);
+      if (card) setSpotlight(card);
+    }
+
+    function onLeave(){
+      setSpotlight(null);
+    }
+
+    grid.addEventListener('mousemove', onMove);
+    grid.addEventListener('mouseleave', onLeave);
+    mq.addEventListener('change', function () {
+      clearExitTimer();
+      cleanupSpotlight();
+    });
+
+    window.__asgResetSeniorSpotlight = function () {
+      clearExitTimer();
+      cleanupSpotlight();
+    };
+  })();
+
+  /* ───── Mobile senior deck ─────
+     Same swipeable card deck as the homepage Current Listings: on
+     phones the senior grid becomes a stack where the top card spans
+     the full width and the previous/next cards peek out behind its
+     edges, blurred and angled. Swipe left for the next agent, right
+     for the previous; the deck cycles endlessly. Desktop keeps the
+     grid. Rebuilds when the roster re-renders and activates or
+     deactivates on the 720px breakpoint. */
+  (function () {
+    var grid = seniorGrid;
+    if (!grid) return;
+    var mq = window.matchMedia('(max-width: 720px)');
+
+    var SIDE_SCALE = 0.94;  /* scale of the left/right peeking cards */
+
+    var dots = document.createElement('div');
+    dots.className = 'deck-dots';
+    dots.setAttribute('aria-hidden', 'true');
+    grid.parentNode.insertBefore(dots, grid.nextSibling);
+
+    var sequence = [];   /* original card order, for the dots */
+    var order = [];      /* current stack, order[0] is on top */
+    var animating = false;
+    var suppressClick = false;
+
+    function cardsIn(){
+      return Array.prototype.filter.call(grid.children, function (n) {
+        return n.nodeType === 1;
+      });
+    }
+
+    function renderDots(){
+      if (!grid.classList.contains('is-deck') || sequence.length < 2) {
+        dots.innerHTML = '';
+        return;
+      }
+      var current = sequence.indexOf(order[0]);
+      var html = '';
+      for (var i = 0; i < sequence.length; i++) {
+        html += '<span' + (i === current ? ' class="is-on"' : '') + '></span>';
+      }
+      dots.innerHTML = html;
+    }
+
+    function layout(){
+      if (!grid.classList.contains('is-deck')) return;
+      var n = order.length;
+      var maxH = 0;
+      order.forEach(function (el) { maxH = Math.max(maxH, el.offsetHeight); });
+      if (maxH > 0) grid.style.height = (maxH + 6) + 'px';
+
+      /* Horizontal offset that leaves a ~10px sliver of the side cards
+         visible beyond the main card's edges */
+      var w = grid.offsetWidth || 320;
+      var side = Math.round(w * (1 - SIDE_SCALE) / 2) + 10;
+
+      order.forEach(function (el, i) {
+        var pose;
+        if (i === 0)                 pose = { x: 0,     r: 0,    s: 1,          z: 30, o: 1 }; /* main */
+        else if (i === 1)            pose = { x: side,  r: 3.5,  s: SIDE_SCALE, z: 20, o: 1 }; /* next: right peek */
+        else if (i === n - 1 && n > 2) pose = { x: -side, r: -3.5, s: SIDE_SCALE, z: 19, o: 1 }; /* prev: left peek */
+        else                         pose = { x: 0,     r: 0,    s: .9,         z: 10, o: 0 }; /* hidden in the stack */
+        el.style.zIndex = String(pose.z);
+        el.style.transform = 'translateX(' + pose.x + 'px) rotate(' + pose.r + 'deg) scale(' + pose.s + ')';
+        el.style.opacity = String(pose.o);
+        el.style.pointerEvents = i === 0 ? 'auto' : 'none';
+        el.classList.toggle('deck-top', i === 0);
+        el.classList.toggle('deck-side', pose.o === 1 && i !== 0);
+      });
+      renderDots();
+    }
+
+    var layoutQueued = false;
+    function layoutSoon(){
+      if (layoutQueued) return;
+      layoutQueued = true;
+      requestAnimationFrame(function () { layoutQueued = false; layout(); });
+    }
+
+    function teardown(){
+      grid.classList.remove('is-deck');
+      grid.style.height = '';
+      cardsIn().forEach(function (el) {
+        el.classList.remove('deck-top', 'deck-side', 'deck-dragging');
+        el.style.transform = '';
+        el.style.opacity = '';
+        el.style.zIndex = '';
+        el.style.pointerEvents = '';
+      });
+      dots.innerHTML = '';
+    }
+
+    function build(){
+      sequence = cardsIn();
+      order = sequence.slice();
+      if (!mq.matches || !sequence.length) { teardown(); return; }
+      grid.classList.add('is-deck');
+      /* Re-measure once headshots decode */
+      sequence.forEach(function (el) {
+        Array.prototype.forEach.call(el.querySelectorAll('img'), function (img) {
+          if (!img.complete) img.addEventListener('load', layoutSoon, { once: true });
+        });
+      });
+      layout();
+    }
+
+    /* ── Drag physics ── */
+    var drag = null;
+
+    grid.addEventListener('pointerdown', function (e) {
+      if (!grid.classList.contains('is-deck') || animating || order.length < 2) return;
+      if (!order[0].contains(e.target)) return;
+      drag = { x: e.clientX, y: e.clientY, dx: 0, active: false, id: e.pointerId };
+    });
+
+    grid.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      var dy = e.clientY - drag.y;
+      if (!drag.active) {
+        /* Decide intent: horizontal → deck swipe, vertical → page scroll */
+        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) {
+          if (Math.abs(dy) > 12) drag = null;
+          return;
+        }
+        drag.active = true;
+        order[0].classList.add('deck-dragging');
+        try { grid.setPointerCapture(drag.id); } catch (err) {}
+      }
+      drag.dx = dx;
+      order[0].style.transform = 'translateX(' + dx + 'px) rotate(' + (dx * 0.05) + 'deg)';
+    });
+
+    function endDrag(){
+      if (!drag) return;
+      var top = order[0];
+      var dx = drag.dx;
+      var wasDrag = drag.active;
+      drag = null;
+      if (!wasDrag) return;
+
+      top.classList.remove('deck-dragging');
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 350);
+
+      var threshold = Math.min(110, grid.offsetWidth * 0.3);
+      if (Math.abs(dx) > threshold) {
+        /* Fly off in the swipe direction, then re-enter as a side peek */
+        animating = true;
+        var dir = dx > 0 ? 1 : -1;
+        top.style.transform = 'translateX(' + (dir * (grid.offsetWidth + 100)) + 'px) rotate(' + (dir * 10) + 'deg)';
+        top.style.opacity = '0';
+        setTimeout(function () {
+          if (dir < 0) order.push(order.shift()); /* next */
+          else order.unshift(order.pop());        /* previous */
+          layout(); /* transitions carry every card to its new pose */
+          animating = false;
+        }, 300);
+      } else {
+        layout(); /* below threshold: spring back */
+      }
+    }
+    grid.addEventListener('pointerup', endDrag);
+    grid.addEventListener('pointercancel', endDrag);
+
+    /* A swipe must not trigger the card's Email/Call links */
+    grid.addEventListener('click', function (e) {
+      if (suppressClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    /* Rebuild when the roster re-renders (cache paint, fresh data) */
+    new MutationObserver(build).observe(grid, { childList: true });
+
+    if (mq.addEventListener) mq.addEventListener('change', build);
+    else if (mq.addListener) mq.addListener(build);
+    window.addEventListener('resize', layoutSoon);
+
+    build();
+  })();
+
+  /* ───── Copy email to clipboard ───── */
+  var emailToast = document.getElementById('emailCopiedToast');
+  var emailToastTimer = null;
+
+  function showEmailCopied(){
+    if (!emailToast) return;
+    emailToast.classList.add('is-on');
+    clearTimeout(emailToastTimer);
+    emailToastTimer = setTimeout(function () {
+      emailToast.classList.remove('is-on');
+    }, 2200);
+  }
+
+  function fallbackCopyEmail(text, done){
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      done(document.execCommand('copy'));
+      document.body.removeChild(ta);
+    } catch (err) {
+      done(false);
+    }
+  }
+
+  function copyEmailAddress(email){
+    email = String(email || '').trim();
+    if (!email) return;
+    function onCopied(ok){ if (ok) showEmailCopied(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(email).then(function () {
+        onCopied(true);
+      }).catch(function () {
+        fallbackCopyEmail(email, onCopied);
+      });
+      return;
+    }
+    fallbackCopyEmail(email, onCopied);
+  }
+
+  document.addEventListener('click', function (e) {
+    var bioToggle = e.target.closest && e.target.closest('.js-featured-bio-toggle');
+    if (bioToggle) {
+      e.preventDefault();
+      e.stopPropagation();
+      var wrap = bioToggle.closest('.sr-featured-bio-wrap');
+      if (!wrap) return;
+      var open = !wrap.classList.contains('is-expanded');
+      wrap.classList.toggle('is-expanded', open);
+      bioToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      bioToggle.setAttribute('aria-label', open ? 'Show less about Alex' : 'Show more about Alex');
+      return;
+    }
+    var btn = e.target.closest && e.target.closest('.js-copy-email');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    copyEmailAddress(btn.getAttribute('data-email'));
+  }, true);
+
+  /* ───── Footer year ───── */
+  document.getElementById('copyrightLine').textContent =
+    '© ' + new Date().getFullYear() + ' Alex Stoykov Group · All rights reserved';
+})();
+</script>
+</body>
+</html>

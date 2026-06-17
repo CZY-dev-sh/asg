@@ -60,6 +60,37 @@ export interface ListingOut {
   archived: boolean;
   fubDealId: string | null;
   fubStage: string | null;
+  // ── workshop (0012) ──
+  source: string | null;
+  mlsNumber: string | null;
+  listDate: string | null;
+  compassLink: string | null;
+  bookletUrl: string | null;
+  coListAgentName: string | null;
+  coAgentSlug: string | null;
+  coAgentEmail: string | null;
+  leadId: string | null;
+  asanaProjectGid: string | null;
+  factSheetStatus: string | null;
+  factSheetRequestedAt: string | null;
+  factSheetDeliveredAt: string | null;
+  openHouseMaterialsStatus: string | null;
+  openHouseMaterialsRequestedAt: string | null;
+  openHouseMaterialsDeliveredAt: string | null;
+  matterportDeliveredAt: string | null;
+  floorPlanDeliveredAt: string | null;
+  videoDeliveredAt: string | null;
+  servicesBooked: unknown[];
+  photosBookingId: string | null;
+  photosBookingUrl: string | null;
+  sellerName: string | null;
+  sellerEmail: string | null;
+  sellerPhone: string | null;
+  sellerQuestionnaireContent: string | null;
+  sellerQuestionnaireSent: boolean;
+  marketingReady: boolean;
+  sharedWithAgentAt: string | null;
+  sharedBy: string | null;
 }
 
 type Row = Record<string, unknown>;
@@ -119,6 +150,37 @@ function mapRow(r: Row, mls: PhotoOut[], gallery: PhotoOut[]): ListingOut {
     archived: Boolean(r.archived),
     fubDealId: (r.fub_deal_id as string) ?? null,
     fubStage: (r.fub_stage as string) ?? null,
+    // ── workshop (0012) ──
+    source: (r.source as string) ?? null,
+    mlsNumber: (r.mls_number as string) ?? null,
+    listDate: iso(r.list_date),
+    compassLink: (r.compass_link as string) ?? null,
+    bookletUrl: (r.booklet_url as string) ?? null,
+    coListAgentName: (r.co_agent_name as string) ?? null,
+    coAgentSlug: (r.co_agent_slug as string) ?? null,
+    coAgentEmail: (r.co_agent_email as string) ?? null,
+    leadId: (r.lead_id as string) ?? null,
+    asanaProjectGid: (r.asana_project_gid as string) ?? null,
+    factSheetStatus: (r.fact_sheet_status as string) ?? null,
+    factSheetRequestedAt: iso(r.fact_sheet_requested_at),
+    factSheetDeliveredAt: iso(r.fact_sheet_delivered_at),
+    openHouseMaterialsStatus: (r.open_house_materials_status as string) ?? null,
+    openHouseMaterialsRequestedAt: iso(r.open_house_materials_requested_at),
+    openHouseMaterialsDeliveredAt: iso(r.open_house_materials_delivered_at),
+    matterportDeliveredAt: iso(r.matterport_delivered_at),
+    floorPlanDeliveredAt: iso(r.floor_plan_delivered_at),
+    videoDeliveredAt: iso(r.video_delivered_at),
+    servicesBooked: Array.isArray(r.services_booked) ? (r.services_booked as unknown[]) : [],
+    photosBookingId: (r.photos_booking_id as string) ?? null,
+    photosBookingUrl: (r.photos_booking_url as string) ?? null,
+    sellerName: (r.seller_name as string) ?? null,
+    sellerEmail: (r.seller_email as string) ?? null,
+    sellerPhone: (r.seller_phone as string) ?? null,
+    sellerQuestionnaireContent: (r.seller_questionnaire_content as string) ?? null,
+    sellerQuestionnaireSent: Boolean(r.seller_questionnaire_sent),
+    marketingReady: Boolean(r.marketing_ready),
+    sharedWithAgentAt: iso(r.shared_with_agent_at),
+    sharedBy: (r.shared_by as string) ?? null,
   };
 }
 
@@ -294,6 +356,126 @@ export async function getPhotosFor(params: {
       source: String(r.source),
     })),
   };
+}
+
+/** Listings where the agent is the primary OR co-listing agent (by slug). */
+export async function getForAgent(slug: string): Promise<ListingOut[]> {
+  const rows = await sql<Row[]>`
+    select * from listings_enriched
+    where agent_slug = ${slug} or co_agent_slug = ${slug}
+    order by archived asc, list_price desc nulls last
+  `;
+  return attachPhotos(rows);
+}
+
+export interface AppointmentOut {
+  id: string;
+  title: string | null;
+  type: string | null;
+  agent: string | null;
+  clientName: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  status: string | null;
+  bookingUrl: string | null;
+}
+
+export async function getAppointments(listingId: string): Promise<AppointmentOut[]> {
+  const rows = await sql<Row[]>`
+    select id, title, agent, client_name, appointment_type, starts_at, ends_at, status, booking_url
+    from acuity_appointments where listing_id = ${listingId}::uuid order by starts_at asc nulls last
+  `;
+  return rows.map((r) => ({
+    id: String(r.id),
+    title: (r.title as string) ?? null,
+    type: (r.appointment_type as string) ?? null,
+    agent: (r.agent as string) ?? null,
+    clientName: (r.client_name as string) ?? null,
+    startsAt: iso(r.starts_at),
+    endsAt: iso(r.ends_at),
+    status: (r.status as string) ?? null,
+    bookingUrl: (r.booking_url as string) ?? null,
+  }));
+}
+
+export interface RequestOut {
+  id: string;
+  kind: string;
+  status: string;
+  materials: unknown[];
+  notes: string | null;
+  requestedBy: string | null;
+  requestedAt: string | null;
+  deliveredAt: string | null;
+  asanaTaskUrl: string | null;
+}
+
+export async function getRequests(listingId: string): Promise<RequestOut[]> {
+  const rows = await sql<Row[]>`
+    select id, kind, status, materials, notes, requested_by, requested_at, delivered_at, asana_task_url
+    from listing_requests where listing_id = ${listingId}::uuid order by requested_at desc
+  `;
+  return rows.map((r) => ({
+    id: String(r.id),
+    kind: String(r.kind),
+    status: String(r.status),
+    materials: Array.isArray(r.materials) ? (r.materials as unknown[]) : [],
+    notes: (r.notes as string) ?? null,
+    requestedBy: (r.requested_by as string) ?? null,
+    requestedAt: iso(r.requested_at),
+    deliveredAt: iso(r.delivered_at),
+    asanaTaskUrl: (r.asana_task_url as string) ?? null,
+  }));
+}
+
+export interface ActivityOut {
+  id: string;
+  ts: string | null;
+  type: string;
+  label: string | null;
+  actor: string | null;
+  meta: Record<string, unknown>;
+  clientVisible: boolean;
+}
+
+export async function getActivity(
+  listingId: string,
+  opts: { clientVisibleOnly?: boolean; limit?: number } = {},
+): Promise<ActivityOut[]> {
+  const limit = Math.min(Math.max(opts.limit ?? 100, 1), 500);
+  const rows = await sql<Row[]>`
+    select id, ts, type, label, actor, meta, client_visible
+    from listing_activity
+    where listing_id = ${listingId}::uuid
+      and (${opts.clientVisibleOnly ? true : false} = false or client_visible = true)
+    order by ts desc
+    limit ${limit}
+  `;
+  return rows.map((r) => ({
+    id: String(r.id),
+    ts: iso(r.ts),
+    type: String(r.type),
+    label: (r.label as string) ?? null,
+    actor: (r.actor as string) ?? null,
+    meta: (r.meta as Record<string, unknown>) ?? {},
+    clientVisible: Boolean(r.client_visible),
+  }));
+}
+
+/** Listing + everything the workshop renders in one call. */
+export async function getListingDetail(listingId: string): Promise<
+  (ListingOut & { appointments: AppointmentOut[]; requests: RequestOut[]; activity: ActivityOut[] }) | null
+> {
+  const rows = await sql<Row[]>`select * from listings_enriched where id = ${listingId}::uuid limit 1`;
+  if (rows.length === 0) return null;
+  const [listing] = await attachPhotos(rows);
+  if (!listing) return null;
+  const [appointments, requests, activity] = await Promise.all([
+    getAppointments(listingId),
+    getRequests(listingId),
+    getActivity(listingId),
+  ]);
+  return { ...listing, appointments, requests, activity };
 }
 
 export async function getIdxSyncStatus() {

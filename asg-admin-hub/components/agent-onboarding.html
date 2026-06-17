@@ -1,0 +1,258 @@
+<section id="asg-agent-onboarding">
+  <div class="ao-shell">
+    <header class="ao-hero">
+      <p class="ao-kicker">ASG Agent Onboarding</p>
+      <h1>New Agent Onboarding</h1>
+      <p>
+        A simple launch checklist for getting a real estate agent ready with admin, compliance, brand, tech,
+        marketing, and first-month training.
+      </p>
+    </header>
+
+    <div class="ao-grid">
+      <section class="ao-card">
+        <h2>Agent Intake</h2>
+        <div class="ao-form">
+          <label>
+            <span>Name</span>
+            <input type="text" placeholder="Agent name" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input type="email" placeholder="agent@compass.com" />
+          </label>
+          <label>
+            <span>Phone</span>
+            <input type="tel" placeholder="Phone number" />
+          </label>
+          <label>
+            <span>Start Date</span>
+            <input type="date" />
+          </label>
+          <label>
+            <span>Market Focus</span>
+            <input type="text" placeholder="Neighborhoods / suburbs" />
+          </label>
+          <label>
+            <span>Experience</span>
+            <select>
+              <option>Select one</option>
+              <option>Newly licensed</option>
+              <option>1-3 years</option>
+              <option>3-7 years</option>
+              <option>7+ years</option>
+            </select>
+          </label>
+          <label class="ao-full">
+            <span>Notes</span>
+            <textarea rows="4" placeholder="Bio notes, goals, specialties, languages, and anything marketing/admin should know."></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="ao-card">
+        <h2>Launch Checklist</h2>
+        <ul class="ao-checklist">
+          <li>Confirm license, brokerage paperwork, W-9, and compliance requirements.</li>
+          <li>Create Compass, Google Drive, calendar, CRM, and shared tool access.</li>
+          <li>Collect headshot, bio, contact info, social links, testimonials, and brand assets.</li>
+          <li>Build agent folder, email signature, business card, and public profile assets.</li>
+          <li>Set up CRM pipeline, lead sources, follow-up cadence, and saved views.</li>
+          <li>Prepare launch announcement, social templates, email blast, and website/microsite copy.</li>
+          <li>Review buyer process, seller process, deal tracker, offer workflow, and closing timeline.</li>
+          <li>Schedule weekly coaching, first open house plan, and 30-day pipeline review.</li>
+        </ul>
+      </section>
+
+      <section class="ao-card ao-wide">
+        <h2>First 30 Days</h2>
+        <div class="ao-steps">
+          <article>
+            <span>Days 1-2</span>
+            <h3>Set Up</h3>
+            <p>Kickoff, compliance, systems access, folder setup, bio/headshot collection.</p>
+          </article>
+          <article>
+            <span>Week 1</span>
+            <h3>Brand + Tools</h3>
+            <p>Email signature, CRM, landing page, marketing templates, buyer/seller materials.</p>
+          </article>
+          <article>
+            <span>Week 2</span>
+            <h3>Training</h3>
+            <p>Lead response, buyer consult, listing prep, offer strategy, deal operations.</p>
+          </article>
+          <article>
+            <span>Weeks 3-4</span>
+            <h3>Launch</h3>
+            <p>Sphere campaign, prospecting blocks, open house plan, coaching, pipeline review.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
+  #asg-agent-onboarding {
+    font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #111;
+    background: #f6f6f4;
+    border: 1px solid rgba(17,17,17,.08);
+    border-radius: 28px;
+    padding: 24px;
+  }
+
+  #asg-agent-onboarding * { box-sizing: border-box; }
+  #asg-agent-onboarding .ao-shell { max-width: 1180px; margin: 0 auto; }
+
+  #asg-agent-onboarding .ao-hero {
+    background: #111;
+    color: #fff;
+    border-radius: 24px;
+    padding: clamp(26px, 5vw, 54px);
+    margin-bottom: 18px;
+  }
+
+  #asg-agent-onboarding .ao-kicker {
+    margin: 0 0 10px;
+    color: rgba(255,255,255,.62);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  #asg-agent-onboarding h1 {
+    margin: 0;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: .95;
+    letter-spacing: -.05em;
+  }
+
+  #asg-agent-onboarding .ao-hero p:not(.ao-kicker) {
+    max-width: 720px;
+    margin: 16px 0 0;
+    color: rgba(255,255,255,.7);
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  #asg-agent-onboarding .ao-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  #asg-agent-onboarding .ao-card {
+    background: #fff;
+    border: 1px solid rgba(17,17,17,.08);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 10px 28px rgba(15,23,42,.04);
+  }
+
+  #asg-agent-onboarding .ao-wide { grid-column: 1 / -1; }
+  #asg-agent-onboarding h2 { margin: 0 0 16px; font-size: 26px; letter-spacing: -.03em; }
+
+  #asg-agent-onboarding .ao-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  #asg-agent-onboarding label { display: grid; gap: 6px; }
+  #asg-agent-onboarding label span {
+    color: rgba(17,17,17,.58);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #asg-agent-onboarding input,
+  #asg-agent-onboarding select,
+  #asg-agent-onboarding textarea {
+    width: 100%;
+    border: 1px solid rgba(17,17,17,.14);
+    border-radius: 13px;
+    background: #fbfbfa;
+    padding: 12px;
+    font: inherit;
+  }
+
+  #asg-agent-onboarding input:focus,
+  #asg-agent-onboarding select:focus,
+  #asg-agent-onboarding textarea:focus {
+    outline: none;
+    border-color: #111;
+    background: #fff;
+  }
+
+  #asg-agent-onboarding textarea { resize: vertical; }
+  #asg-agent-onboarding .ao-full { grid-column: 1 / -1; }
+
+  #asg-agent-onboarding .ao-checklist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  #asg-agent-onboarding .ao-checklist li {
+    padding: 12px 12px 12px 38px;
+    border: 1px solid rgba(17,17,17,.08);
+    border-radius: 14px;
+    background: #fbfbfa;
+    position: relative;
+    line-height: 1.45;
+  }
+
+  #asg-agent-onboarding .ao-checklist li::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 17px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #111;
+  }
+
+  #asg-agent-onboarding .ao-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  #asg-agent-onboarding .ao-steps article {
+    border: 1px solid rgba(17,17,17,.08);
+    border-radius: 16px;
+    background: #fbfbfa;
+    padding: 16px;
+  }
+
+  #asg-agent-onboarding .ao-steps span {
+    display: block;
+    margin-bottom: 10px;
+    color: rgba(17,17,17,.52);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #asg-agent-onboarding .ao-steps h3 { margin: 0; font-size: 18px; }
+  #asg-agent-onboarding .ao-steps p { margin: 8px 0 0; color: rgba(17,17,17,.62); line-height: 1.45; }
+
+  @media (max-width: 900px) {
+    #asg-agent-onboarding .ao-grid,
+    #asg-agent-onboarding .ao-form,
+    #asg-agent-onboarding .ao-steps { grid-template-columns: 1fr; }
+    #asg-agent-onboarding .ao-wide,
+    #asg-agent-onboarding .ao-full { grid-column: auto; }
+  }
+</style>

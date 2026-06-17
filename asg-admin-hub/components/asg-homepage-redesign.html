@@ -1,0 +1,2393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Alex Stoykov Group | Chicago Luxury Real Estate</title>
+<meta name="description" content="Buy and sell with the Alex Stoykov Group, Chicago's modern real estate team. $659M+ sold, senior agents only, every neighborhood covered.">
+
+<link rel="preconnect" href="https://images.squarespace-cdn.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<script>
+/* ── Instant listings boot ──
+   Runs before the page renders:
+   1. Fires the Listings API request immediately (parallel with CSS/fonts),
+      so the network round trip overlaps page parsing instead of following it.
+   2. Reads the last successful payload from localStorage so the grid can
+      paint with zero network wait; fresh data replaces it when it lands.
+   3. Preloads the hero/featured photo from cache so the image is already
+      downloading before the DOM exists. */
+(function () {
+  'use strict';
+  var API = String(window.ASG_LISTINGS_API ||
+    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec').trim();
+  var CACHE_KEY = 'asg_listings_cache_v1';
+  var CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+  var boot = { cachedRows: null, promise: null, cacheKey: CACHE_KEY };
+  window.__ASG_LISTINGS_BOOT = boot;
+
+  /* 2. Synchronous cache read (instant paint on repeat visits) */
+  try {
+    var raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.t && (Date.now() - parsed.t) < CACHE_MAX_AGE_MS && Array.isArray(parsed.rows)) {
+        boot.cachedRows = parsed.rows;
+      }
+    }
+  } catch (e) {}
+
+  /* 3. Preload the most expensive cached sale photo (the hero image) */
+  try {
+    if (boot.cachedRows) {
+      var best = null, bestPrice = -1;
+      for (var i = 0; i < boot.cachedRows.length; i++) {
+        var r = boot.cachedRows[i] || {};
+        if (String(r.listingType || '').toLowerCase() === 'lease') continue;
+        var cover = String(r.coverImage || '').trim();
+        if (!cover) continue;
+        var n = Number(String(r.listPrice != null ? r.listPrice : r.price || '').replace(/[^0-9.\-]/g, ''));
+        if (isFinite(n) && n > bestPrice) { bestPrice = n; best = cover; }
+      }
+      if (best && /^https:\/\//i.test(best)) {
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = best;
+        link.setAttribute('fetchpriority', 'high');
+        document.head.appendChild(link);
+      }
+    }
+  } catch (e2) {}
+
+  /* 1. Early network fetch, started during HTML parse.
+     view=home is a few-KB cache-warmed payload; fall back to the full
+     view=active for older script deployments. */
+  var sep = API.indexOf('?') >= 0 ? '&' : '?';
+  function fetchActive(){
+    return fetch(API + sep + 'view=active')
+      .then(function (res) { return res.json(); })
+      .catch(function () { return null; });
+  }
+  boot.promise = fetch(API + sep + 'view=home')
+    .then(function (res) { return res.json(); })
+    .then(function (payload) {
+      if (payload && payload.success && Array.isArray(payload.listings)) return payload;
+      return fetchActive();
+    })
+    .catch(fetchActive);
+
+  /* Always start at the hero. Strip any hash so Squarespace / browser anchor
+     logic cannot jump to the contact form on load. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+})();
+</script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   ASG HOME design tokens (matches site-wide injection)
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --bg-deep:#101010;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --shadow-deep:0 24px 60px rgba(17,17,17,.10);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-listing:22px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1480px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; overflow-anchor:none; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SQUARESPACE OVERRIDES: this CSS ships inside the page's code
+   block, so the native header/footer is hidden on THIS page only.
+   ════════════════════════════════════════════════════════════ */
+#header,
+header.Header,
+.Header,
+.Header-inner,
+header#header,
+.header-announcement-bar-wrapper,
+.Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone,
+#announcement-bar-text-inner-id,
+#headerSpacer,
+.header-spacer,
+#footer,
+footer.Footer,
+.Footer,
+.Footer-inner,
+#footer-sections,
+footer.sections{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper,
+.Main,
+.Content-outer,
+.Content-inner,
+.Index,
+.Index-page-content,
+#page,
+.page-section,
+article.sections,
+main#page article{
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+  max-width:none !important;
+}
+.page-section .content-wrapper{
+  padding:0 !important;
+  max-width:none !important;
+}
+
+/* Ignore Squarespace's global image/iframe rounding (img{border-radius:30px
+   !important} in site-wide Custom CSS). These class-scoped selectors outrank
+   that bare-element rule, so only our own container radii apply: images are
+   square and get clipped by their rounded wrappers (.hero-photo,
+   .listing-media, .img-zoom, etc.). No body class needed, so this works
+   whether the file runs standalone or pasted into a code block. */
+main img,
+.nav img,
+.nav-logo img,
+.mobile-panel img,
+.footer img,
+.hero-photo img,
+.listing-media img,
+.img-zoom img,
+.work-photo img,
+.hood-card img{
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+main iframe{
+  border-radius:0 !important;
+}
+
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* ════════════════ NAV: floating pill ════════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);
+  -webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom, rgba(255,255,255,.72), rgba(255,255,255,.4) 50%, rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  transition:opacity .3s ease;
+  opacity:0;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease, min-height .35s var(--ease), padding .35s var(--ease);
+}
+.nav.is-scrolled{
+  box-shadow:0 10px 32px rgba(17,17,17,.10);
+  min-height:66px;
+}
+.nav-logo{
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; flex-shrink:0;
+}
+.nav-logo img{
+  width:58px; height:58px;
+  transition:width .35s var(--ease), height .35s var(--ease), transform .3s ease;
+}
+.nav.is-scrolled .nav-logo img{ width:50px; height:50px; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{
+  font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap;
+}
+
+.nav-links{
+  display:flex; align-items:center; gap:4px;
+  position:relative;
+}
+.nav-link{
+  position:relative; z-index:1;
+  border-radius:var(--r-pill);
+  padding:14px 24px;
+  font-size:1.12rem; font-weight:600;
+  color:var(--muted);
+  text-decoration:none; white-space:nowrap;
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+/* Sliding hover pill (positioned by JS) */
+.nav-pill-ghost{
+  position:absolute; z-index:0;
+  border-radius:var(--r-pill);
+  background:rgba(17,17,17,.05);
+  border:1px solid rgba(17,17,17,.07);
+  opacity:0; pointer-events:none;
+  transition:left .28s var(--ease), width .28s var(--ease), opacity .2s ease;
+  top:0; bottom:0;
+}
+.nav-pill-ghost.is-on{ opacity:1; }
+
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+
+.nav-burger{
+  display:none;
+  background:transparent; border:1px solid var(--line);
+  width:50px; height:50px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; color:var(--ink);
+}
+.nav-burger svg{
+  transition:transform .4s var(--ease);
+}
+.nav-burger.is-open svg{ transform:rotate(45deg); } /* plus → X */
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+
+/* Mobile panel: sits under the nav pill so the plus/X button in the
+   nav stays visible and toggles the menu */
+.mobile-panel{
+  position:fixed; inset:0; z-index:95;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  padding:100px 22px 40px;
+  display:flex; flex-direction:column; gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  overflow-y:auto;
+}
+.mobile-panel.is-open{ opacity:1; pointer-events:auto; }
+.mobile-panel a.m-link{
+  display:block; padding:17px 20px; border-radius:20px;
+  font-size:1.25rem; font-weight:700; text-decoration:none;
+  border:1px solid var(--line); background:#fff;
+  transform:translateY(14px); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s ease;
+}
+.mobile-panel.is-open a.m-link{ transform:translateY(0); opacity:1; }
+.mobile-panel.is-open a.m-link:nth-child(2){ transition-delay:.05s; }
+.mobile-panel.is-open a.m-link:nth-child(3){ transition-delay:.10s; }
+.mobile-panel.is-open a.m-link:nth-child(4){ transition-delay:.15s; }
+.mobile-panel.is-open a.m-link:nth-child(5){ transition-delay:.20s; }
+.mobile-panel-close{
+  display:none; /* the nav's plus/X button toggles the menu now */
+}
+.mobile-panel-cta{
+  margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+
+/* ════════════════ BUTTONS ════════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-glass{
+  background:rgba(255,255,255,.15); color:#fff;
+  border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.btn-glass:hover{ background:rgba(255,255,255,.28); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+.btn-lg{ padding:18px 44px; font-size:1.14rem; }
+
+/* ════════════════ SHELLS / CARDS / TYPE ════════════════ */
+.section{ margin:0 auto 20px; padding:0 var(--pad-x); }
+.shell{
+  max-width:var(--max); margin:0 auto;
+  background:var(--bg); border:1px solid var(--line);
+  border-radius:var(--r-shell); padding:32px;
+}
+.shell-alt{ background:var(--bg-alt); }
+.shell-dark{
+  background:linear-gradient(140deg,#0e0e0e,#1c1c1c);
+  border:1px solid rgba(255,255,255,.07); color:#fff;
+}
+.card{
+  background:#fff; border:1px solid var(--line);
+  border-radius:var(--r-card); padding:22px;
+  box-shadow:var(--shadow-card);
+}
+.lift{ transition:transform .25s var(--ease), box-shadow .25s var(--ease); }
+.lift:hover{ transform:translateY(-5px); box-shadow:var(--shadow-hover); }
+
+.eyebrow{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted-soft); margin:0 0 8px;
+}
+.h2{
+  font-weight:800; font-size:clamp(1.7rem, 2.6vw, 2.4rem);
+  letter-spacing:-.04em; line-height:1.02; margin:0;
+}
+.section-head{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:16px; flex-wrap:wrap; margin-bottom:26px;
+}
+.section-head-listings{
+  align-items:center;
+}
+.listings-head-right{
+  margin-left:auto; flex-shrink:0;
+}
+.listings-footer{
+  display:flex; justify-content:center; margin-top:22px;
+}
+.pill-tag{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:8px 14px; background:var(--bg-soft);
+  font-size:.74rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted);
+}
+.pill-tag .dot{
+  width:7px; height:7px; border-radius:50%; background:#1db954;
+  animation:pulseDot 2.2s ease infinite;
+}
+@keyframes pulseDot{
+  0%,100%{ box-shadow:0 0 0 0 rgba(29,185,84,.45); }
+  50%{ box-shadow:0 0 0 6px rgba(29,185,84,0); }
+}
+
+.grid{ display:grid; gap:14px; }
+.grid-2{ grid-template-columns:repeat(2,1fr); }
+.grid-3{ grid-template-columns:repeat(3,1fr); }
+.grid-4{ grid-template-columns:repeat(4,1fr); }
+@media (max-width: 980px){
+  .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; }
+  .shell{ padding:22px; }
+}
+@media (min-width:981px) and (max-width:1280px){
+  .grid-4{ grid-template-columns:repeat(2,1fr); }
+}
+
+/* Scroll reveal */
+.reveal{
+  opacity:0; transform:translateY(30px);
+  transition:opacity .8s var(--ease), transform .8s var(--ease);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+.d1{ transition-delay:.08s; } .d2{ transition-delay:.16s; }
+.d3{ transition-delay:.24s; } .d4{ transition-delay:.32s; }
+
+/* Image zoom */
+.img-zoom{ overflow:hidden; }
+.img-zoom img{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .6s var(--ease);
+}
+.img-zoom:hover img{ transform:scale(1.05); }
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity:1; transform:none; transition:none; }
+  .nav-wrap{ animation:none; }
+  .word-mask > span{ animation:none; transform:none; }
+  .hero-fade{ animation:none; opacity:1; transform:none; }
+}
+
+/* ════════════════ HERO ════════════════ */
+.hero{ padding:152px var(--pad-x) 28px; }
+.hero-inner{ max-width:var(--max); margin:0 auto; }
+.hero-grid{
+  display:grid; grid-template-columns:1.08fr .92fr;
+  gap:28px; align-items:center;
+}
+@media (max-width: 980px){
+  .hero{ padding-top:124px; }
+  .hero-grid{ grid-template-columns:1fr; }
+}
+.hero-h1{
+  font-weight:800;
+  font-size:clamp(2.9rem, 5.6vw, 5.4rem);
+  line-height:.94; letter-spacing:-.05em;
+  margin:0;
+}
+.word-mask{
+  display:inline-block; overflow:hidden; vertical-align:bottom;
+  padding-right:.06em; padding-bottom:.04em;
+}
+.word-mask > span{
+  display:inline-block; transform:translateY(112%);
+  animation:wordUp .95s var(--ease) forwards;
+}
+@keyframes wordUp{ to{ transform:translateY(0); } }
+.hero-lead{
+  font-size:clamp(1.18rem, 1.8vw, 1.38rem); line-height:1.55; color:var(--muted);
+  max-width:68ch; margin:0; text-wrap:balance;
+}
+.hero-lead-split{ display:none; }
+@media (min-width: 768px){
+  .hero-lead-split{ display:inline; }
+}
+.hero-fade{
+  opacity:0; transform:translateY(18px);
+  animation:heroFade .85s var(--ease) forwards;
+}
+@keyframes heroFade{ to{ opacity:1; transform:translateY(0); } }
+
+.hero-photo{
+  border-radius:var(--r-shell); overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-deep);
+  position:relative; aspect-ratio:4/5;
+}
+.hero-photo img{ width:100%; height:100%; object-fit:cover; }
+.hero-photo .scrim{
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(17,17,17,.58) 0%, transparent 52%);
+}
+.hero-badge{
+  position:absolute; top:18px; left:18px;
+  background:rgba(255,255,255,.94); border:1px solid var(--line);
+  border-radius:var(--r-pill); padding:8px 14px;
+  font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+}
+.hero-stats{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+}
+@media (max-width: 560px){ .hero-stats{ grid-template-columns:1fr; } }
+.stat-card{
+  background:#fff; border:1px solid var(--line);
+  border-radius:20px; padding:15px 17px;
+  box-shadow:var(--shadow-card);
+}
+.stat-label{
+  font-size:.7rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted-soft); margin:0 0 6px;
+}
+.stat-val{
+  font-weight:800; font-size:1.9rem; letter-spacing:-.04em;
+  line-height:1; margin:0;
+}
+
+/* ════════════════ LISTINGS ════════════════ */
+.listing-card{
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:var(--r-listing); overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.listing-media{ position:relative; aspect-ratio:16/10; background:#e9e9e4; }
+/* Photos fade in once they decode; a spinner sits behind them while
+   loading, so cards never flash a stock placeholder. */
+.listing-media img{
+  position:relative; z-index:2;
+  opacity:0;
+  transition:opacity .5s var(--ease), transform .6s var(--ease);
+}
+.listing-media.is-loaded img{ opacity:1; }
+.listing-spinner{
+  position:absolute; inset:0; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; transition:opacity .3s ease;
+}
+.listing-spinner::after{
+  content:''; width:30px; height:30px; border-radius:50%;
+  border:3px solid rgba(17,17,17,.14);
+  border-top-color:rgba(17,17,17,.6);
+  animation:listing-spin .8s linear infinite;
+}
+.listing-media.is-loaded .listing-spinner{ opacity:0; }
+@keyframes listing-spin{ to{ transform:rotate(360deg); } }
+/* Skeleton bars for the card body while listings load */
+.listing-skeleton-line{
+  height:14px; border-radius:6px;
+  background:linear-gradient(90deg, rgba(17,17,17,.06), rgba(17,17,17,.12), rgba(17,17,17,.06));
+  background-size:200% 100%;
+  animation:listing-shimmer 1.3s ease infinite;
+}
+@keyframes listing-shimmer{ 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
+.listing-flag{
+  position:absolute; top:12px; left:12px; z-index:3;
+  border-radius:var(--r-pill);
+  padding:4px 10px;
+  font-size:.68rem; font-weight:700;
+  letter-spacing:.04em;
+  line-height:1.2;
+  text-transform:capitalize;
+  border:1px solid transparent;
+}
+.listing-flag.is-active{
+  color:#166534;
+  background:rgba(220,252,231,.92);
+  border-color:rgba(34,197,94,.35);
+  box-shadow:0 0 0 1px rgba(34,197,94,.12), 0 4px 14px rgba(34,197,94,.18);
+}
+.listing-flag.is-under-contract{
+  color:#854d0e;
+  background:rgba(254,249,195,.94);
+  border-color:rgba(234,179,8,.4);
+  box-shadow:0 0 0 1px rgba(234,179,8,.12), 0 4px 14px rgba(234,179,8,.16);
+}
+.listing-flag.is-coming-soon{
+  color:#1e40af;
+  background:rgba(219,234,254,.94);
+  border-color:rgba(59,130,246,.35);
+  box-shadow:0 0 0 1px rgba(59,130,246,.12), 0 4px 14px rgba(59,130,246,.16);
+}
+.listing-flag.is-rent{
+  color:#374151;
+  background:rgba(255,255,255,.94);
+  border-color:rgba(17,17,17,.1);
+  box-shadow:0 2px 8px rgba(17,17,17,.06);
+}
+.listing-body{ padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+.listing-price{
+  font-size:1.48rem; font-weight:800; letter-spacing:-.03em;
+  line-height:1; margin:0;
+}
+.listing-addr{ font-weight:600; font-size:.96rem; margin:6px 0 0; line-height:1.25; }
+.listing-meta{ color:var(--muted); font-size:.84rem; margin:5px 0 0; line-height:1.3; }
+
+/* Buy / Rent segmented toggle */
+.seg-toggle{
+  position:relative; display:inline-flex;
+  background:var(--bg-soft); border:1px solid var(--line);
+  border-radius:var(--r-pill); padding:4px;
+}
+.seg-thumb{
+  position:absolute; top:4px; bottom:4px; left:4px;
+  width:calc(50% - 4px);
+  background:#fff; border:1px solid var(--line-strong);
+  border-radius:var(--r-pill);
+  box-shadow:0 2px 8px rgba(17,17,17,.08);
+  transition:transform .32s var(--ease);
+}
+.seg-toggle.is-rent .seg-thumb{ transform:translateX(100%); }
+.seg-btn{
+  position:relative; z-index:1;
+  background:none; border:0; cursor:pointer;
+  font-family:var(--font); font-weight:700; font-size:1rem;
+  padding:9px 0; min-width:104px; border-radius:var(--r-pill);
+  color:var(--muted); transition:color .2s ease;
+}
+.seg-btn.is-active{ color:var(--ink); }
+
+.listings-empty{
+  display:none; text-align:center; color:var(--muted);
+  font-size:1rem; padding:48px 20px;
+  background:var(--bg-alt); border:1px dashed var(--line-strong);
+  border-radius:var(--r-listing);
+}
+.listings-empty.is-on{ display:block; }
+
+/* ════════════════ WORKING WITH ASG ════════════════ */
+.work-grid{
+  display:grid; grid-template-columns:.9fr 1.1fr; gap:0;
+  overflow:hidden; align-items:stretch;
+}
+@media (max-width: 980px){ .work-grid{ grid-template-columns:1fr; } }
+.work-photo{ min-height:420px; background:#e9e9e4; }
+.work-photo img{ width:100%; height:100%; object-fit:cover; object-position:top; }
+.work-copy{
+  padding:40px 38px; display:flex; flex-direction:column;
+  justify-content:center; gap:16px;
+}
+@media (max-width:980px){ .work-copy{ padding:26px 22px; } }
+.work-points{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+@media (max-width:640px){ .work-points{ grid-template-columns:1fr; } }
+.work-point{
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:18px; padding:14px 16px;
+}
+.work-point b{ display:block; font-size:.95rem; letter-spacing:-.01em; margin-bottom:4px; }
+.work-point span{ color:var(--muted); font-size:.84rem; line-height:1.5; }
+
+.step-num{
+  width:38px; height:38px; border-radius:50%;
+  background:var(--ink); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.8rem; font-weight:800; margin-bottom:14px;
+}
+
+/* ════════════════ LIFE IN CHICAGO ════════════════ */
+.hood-card{
+  position:relative; border-radius:var(--r-listing); overflow:hidden;
+  border:1px solid var(--line); text-decoration:none; color:inherit;
+  display:block; background:#fff;
+}
+.hood-card .img-zoom{ aspect-ratio:4/3.4; background:#e9e9e4; }
+.hood-label{
+  position:absolute; left:12px; bottom:12px; right:12px;
+  background:rgba(255,255,255,.93);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line); border-radius:18px;
+  padding:12px 15px;
+  transition:transform .3s var(--ease);
+}
+.hood-card:hover .hood-label{ transform:translateY(-4px); }
+.hood-label b{ display:block; font-size:.98rem; font-weight:800; letter-spacing:-.02em; }
+.hood-label span{ color:var(--muted); font-size:.8rem; line-height:1.4; }
+
+/* ════════════════ REVIEWS ════════════════ */
+.review-card{
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:var(--r-card); padding:24px;
+  display:flex; flex-direction:column; gap:14px;
+}
+.stars{ display:flex; gap:3px; }
+.review-quote{ font-size:.96rem; line-height:1.65; margin:0; flex:1; }
+.review-who{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+}
+.review-who b{ font-size:.88rem; font-weight:700; }
+.review-where{
+  font-size:.75rem; font-weight:600; color:var(--muted);
+  background:#fff; border:1px solid var(--line);
+  border-radius:var(--r-pill); padding:5px 11px; white-space:nowrap;
+}
+
+/* ════════════════ CONTACT ════════════════ */
+.contact-grid{
+  display:grid; grid-template-columns:1.15fr .85fr;
+  gap:32px; align-items:start;
+}
+@media (max-width: 980px){ .contact-grid{ grid-template-columns:1fr; } }
+.input,.select,.textarea{
+  width:100%; min-height:50px; border-radius:var(--r-input);
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.09); color:#fff;
+  padding:0 15px; font-family:var(--font); font-size:.95rem;
+  outline:none; transition:border-color .2s, background .2s;
+}
+.textarea{ min-height:110px; padding:14px 15px; resize:vertical; line-height:1.5; }
+.input::placeholder,.textarea::placeholder{ color:rgba(255,255,255,.42); }
+.input:focus,.select:focus,.textarea:focus{
+  border-color:rgba(255,255,255,.45); background:rgba(255,255,255,.13);
+}
+.select option{ color:#111; }
+.honeypot{
+  position:absolute !important; left:-9999px !important;
+  width:1px !important; height:1px !important;
+  opacity:0 !important; pointer-events:none !important;
+}
+.form-success{
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:12px; padding:36px 20px; color:#fff;
+}
+.form-success.is-on{ display:flex; }
+.form-success .check{
+  width:54px; height:54px; border-radius:50%;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ════════════════ TEAM SECTION ════════════════ */
+.team-video{
+  position:relative; border-radius:var(--r-card); overflow:hidden;
+  aspect-ratio:16/9; margin-bottom:40px; background:#101010;
+}
+.team-video-inner{ position:absolute; inset:0; overflow:hidden; }
+.team-video iframe{
+  position:absolute; top:50%; left:50%;
+  width:100%; height:100%;
+  /* Light zoom trims the title bar / watermark that linger at the edges
+     for the first seconds of playback. The poster (revealed only once
+     real playback starts) hides the centre spinner/play overlay. */
+  transform:translate(-50%, -50%) scale(1.22);
+  border:0; pointer-events:none;
+}
+/* Poster cover: hides YouTube's startup chrome (title, pause overlay,
+   watermark), which fades out ~4s after autoplay begins. JS removes
+   the cover once that chrome is gone. */
+.team-video-cover{
+  position:absolute; inset:0; z-index:2;
+  background:#101010 url('https://i.ytimg.com/vi/rOz0fmmke-o/maxresdefault.jpg') center/cover no-repeat;
+  opacity:1; transition:opacity .9s ease;
+  pointer-events:none;
+}
+.team-video-cover.is-hidden{ opacity:0; }
+@media (max-width: 720px){
+  /* Match the video's native 16:9 so there is no letterboxing, and
+     zoom more: YouTube's chrome is proportionally larger on small screens */
+  .team-video{ aspect-ratio:16/9; margin-bottom:28px; }
+  .team-video iframe{ transform:translate(-50%, -50%) scale(1.35); }
+}
+.team-mission{
+  display:flex; align-items:center; justify-content:space-between; gap:28px;
+  background:var(--bg-alt); border:1px solid var(--line); border-radius:20px;
+  padding:26px 28px; margin-bottom:14px;
+}
+.team-mission-text{
+  color:var(--muted); font-size:1.05rem; line-height:1.6; margin:0; max-width:68ch;
+}
+.team-mission-btn{
+  flex-shrink:0; padding:15px 28px; white-space:nowrap;
+}
+@media (max-width: 720px){
+  .team-mission{ flex-direction:column; align-items:flex-start; gap:18px; padding:22px; }
+  .team-mission-btn{ width:100%; text-align:center; }
+}
+.team-stats{
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+}
+@media (max-width: 860px){ .team-stats{ grid-template-columns:1fr 1fr; } }
+@media (max-width: 400px){ .team-stats{ grid-template-columns:1fr; } }
+.team-stat{
+  background:var(--bg-alt); border:1px solid var(--line); border-radius:20px;
+  padding:20px; display:flex; flex-direction:column; justify-content:center;
+}
+
+/* ════════════════ FOOTER ════════════════ */
+.footer{
+  padding:52px var(--pad-x) 28px; margin-top:36px;
+  border-top:1px solid var(--line);
+}
+.footer-inner{
+  max-width:var(--max); margin:0 auto;
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px;
+}
+@media (max-width:980px){
+  .footer-inner{ grid-template-columns:1fr 1fr; }
+  .footer-brand{ grid-column:1/-1; }
+}
+.footer-brand{ display:flex; flex-direction:column; gap:14px; }
+.footer-logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; text-decoration:none; }
+.footer-logo img{ width:38px; height:38px; }
+.footer-tag{ font-size:.92rem; line-height:1.55; color:var(--muted); max-width:38ch; margin:0; }
+.footer h4{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted-soft); margin:0 0 14px;
+}
+.footer ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.footer ul a{ font-size:.94rem; text-decoration:none; transition:opacity .18s; }
+.footer ul a:hover{ opacity:.55; }
+.footer-bottom{
+  max-width:var(--max); margin:34px auto 0; padding-top:22px;
+  border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:14px; font-size:.84rem; color:var(--muted);
+}
+.footer-bottom a{ color:var(--muted); text-decoration:none; }
+.footer-bottom a:hover{ color:var(--ink); }
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE-FIRST REFINEMENTS
+   Every rule below is scoped to small screens; desktop (>980px)
+   renders exactly as before.
+   ════════════════════════════════════════════════════════════ */
+
+/* Anchor links land below the fixed pill nav on every screen */
+.hero, .section{ scroll-margin-top:96px; }
+
+/* ── Tablet and below ───────────────────────────────────────── */
+@media (max-width: 980px){
+  .section{ margin-bottom:16px; }
+}
+
+/* ── Phones / small tablets ─────────────────────────────────── */
+@media (max-width: 720px){
+  :root{ --pad-x:14px; --r-shell:26px; --r-card:22px; }
+  .shell{ padding:18px; }
+  .section{ margin-bottom:12px; }
+
+  /* Nav: slimmer pill, smaller logo, comfortable tap targets */
+  .nav-wrap{ top:10px; }
+  .nav-frost{ height:96px; }
+  .nav{ min-height:60px; padding:6px 8px 6px 14px; gap:10px; }
+  .nav.is-scrolled{ min-height:56px; }
+  .nav-logo img{ width:42px; height:42px; }
+  .nav.is-scrolled .nav-logo img{ width:38px; height:38px; }
+  .nav-logo span{ font-size:1.02rem; }
+  .nav-burger{ width:44px; height:44px; }
+
+  /* Hero: headline + CTAs only. Stats and the featured-listing photo
+     are desktop-only; mobile goes straight to Current Listings. */
+  .hero{ padding-top:108px; padding-bottom:14px; }
+  .hero-grid{ gap:18px; }
+  .hero-grid > div:first-child{ gap:20px !important; }
+  .hero-lead{ font-size:1.06rem; }
+  .btn-lg{ flex:1 1 0; padding:16px 18px; font-size:1.05rem; }
+  .hero-stats{ display:none; }
+  .hero-media{ display:none; }
+
+  /* Listings: full-width Buy/Rent toggle under the title */
+  .section-head{ margin-bottom:18px; }
+  .listings-head-right{ width:100%; margin-left:0; }
+  .seg-toggle{ width:100%; display:flex; }
+  .seg-btn{ flex:1; min-width:0; }
+
+  /* App-style swipe carousels: neighborhoods and reviews become
+     horizontal snap rows that bleed to the card edge */
+  #chicago .grid-4,
+  #reviews .grid-3{
+    display:flex; gap:12px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    margin:0 -18px;
+    padding:2px 18px 10px;
+    scrollbar-width:none;
+  }
+  #chicago .grid-4::-webkit-scrollbar,
+  #reviews .grid-3::-webkit-scrollbar{ display:none; }
+  #chicago .grid-4 > *,
+  #reviews .grid-3 > *{
+    flex:0 0 82%;
+    max-width:360px;
+    min-width:0;
+    scroll-snap-align:center;
+  }
+  #reviews .grid-3 > *{ flex-basis:86%; }
+  /* Slides start visible; the vertical reveal animation would leave
+     off-screen carousel cards blank until mid-swipe */
+  #listingsGrid > .reveal,
+  #chicago .grid-4 > .reveal,
+  #reviews .grid-3 > .reveal{
+    opacity:1; transform:none; transition:none;
+  }
+
+  /* ── Listings: swipeable card deck ──
+     The main card keeps the full container width (no lost real
+     estate); the previous and next cards peek out behind it on the
+     left and right edges. JS (deck module) poses the cards, drives
+     the drag physics, and keeps the container height in sync. */
+  #listingsGrid.is-deck{
+    display:block; position:relative;
+    margin:0; padding:0;
+    touch-action:pan-y; /* vertical page scroll stays native */
+  }
+  #listingsGrid.is-deck > *{
+    position:absolute; left:0; right:0; top:0;
+    margin:0;
+    border:0 !important; /* clean edges, no card hairline in the deck */
+    /* Solid surface no matter what site-wide CSS does to article/card
+       backgrounds: back cards must never show through the front one */
+    background:var(--bg-alt) !important;
+    transition:transform .55s var(--ease), opacity .35s ease,
+               box-shadow .35s ease, filter .45s ease;
+    transition-delay:0s; /* cancel .d1/.d2 reveal delays on fallback cards */
+    will-change:transform, filter;
+  }
+  /* Side cards: frosted-glass peeks, softly blurred and tilted */
+  #listingsGrid.is-deck > .deck-side{
+    filter:blur(7px) saturate(1.18) brightness(1.05);
+  }
+  #listingsGrid.is-deck > .deck-top{
+    filter:none;
+    box-shadow:0 16px 40px rgba(17,17,17,.16);
+  }
+  #listingsGrid.is-deck > .deck-dragging{
+    transition:none;
+    cursor:grabbing;
+  }
+}
+
+/* Deck pagination dots (hidden on desktop, where the grid shows) */
+.deck-dots{ display:none; }
+@media (max-width: 720px){
+  .deck-dots{
+    display:flex; justify-content:center; align-items:center;
+    gap:6px; margin-top:16px; min-height:8px;
+  }
+  .deck-dots span{
+    width:7px; height:7px; border-radius:var(--r-pill);
+    background:rgba(17,17,17,.16);
+    transition:width .3s var(--ease), background .3s ease;
+  }
+  .deck-dots span.is-on{ width:20px; background:var(--ink); }
+
+  /* Working with ASG: shorter photo, tighter copy and points */
+  .work-photo{ min-height:250px; }
+  .work-copy{ padding:22px 18px; gap:13px; }
+  .work-point{ padding:12px 14px; }
+
+  /* Contact: tighter dark shell (overrides inline padding) */
+  #asg-home-contact .shell-dark{ padding:26px 18px !important; }
+  .contact-grid{ gap:22px; }
+  /* 16px+ inputs stop iOS Safari from zooming on focus */
+  .input,.select,.textarea{ font-size:16px; }
+
+  /* Footer: calmer spacing */
+  .footer{ padding:38px var(--pad-x) 22px; margin-top:24px; }
+  .footer-inner{ gap:24px; }
+  .footer-bottom{ margin-top:24px; }
+
+  /* Mobile menu: bigger thumb-friendly CTAs */
+  .mobile-panel-cta .btn{ padding:16px 0; font-size:1rem; }
+}
+
+/* ── Small phones ───────────────────────────────────────────── */
+@media (max-width: 400px){
+  .nav-logo span{ font-size:.92rem; }
+  /* Team stats: compact label/value rows (mirrors hero stats) */
+  .team-stats{ gap:8px; }
+  .team-stat{
+    flex-direction:row; align-items:center; justify-content:space-between;
+    gap:12px; padding:13px 16px;
+  }
+  .team-stat .stat-label{ margin:0; }
+  .team-stat .stat-val{ font-size:1.35rem; }
+  .footer-inner{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-frost" aria-hidden="true" id="navFrost"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span class="nav-wordmark">Alex Stoykov Group</span>
+      </a>
+
+      <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary">
+        <div class="nav-pill-ghost" id="navGhost" aria-hidden="true"></div>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+        <a class="nav-link" href="/blog">Blog</a>
+        <a class="nav-link" href="#asg-home-contact">Contact Us</a>
+      </div>
+
+      <div class="nav-cta">
+        <button class="btn btn-dark btn-sm" id="searchHomesCta" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Search Homes
+        </button>
+      </div>
+
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <!-- Plus icon; rotates 45° into an X while the menu is open -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <button class="mobile-panel-close" id="mobileClose" type="button" aria-label="Close menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <a class="m-link" href="/about">About</a>
+  <a class="m-link" href="/team">Team</a>
+  <a class="m-link" href="/blog">Blog</a>
+  <a class="m-link" href="#asg-home-contact">Contact Us</a>
+  <div class="mobile-panel-cta">
+    <a class="btn btn-light" href="#listings">Buy</a>
+    <a class="btn btn-dark" href="/sellers">Sell</a>
+  </div>
+  <button class="btn btn-dark" id="searchHomesCtaMobile" type="button" style="margin-top:10px;">Search Homes</button>
+</div>
+
+<main>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero" id="asg-home-hero">
+    <div class="hero-inner">
+      <div class="hero-grid">
+
+        <div style="display:flex; flex-direction:column; gap:26px;">
+
+          <h1 class="hero-h1">
+            <span class="word-mask"><span style="animation-delay:.18s">Your</span></span>
+            <span class="word-mask"><span style="animation-delay:.26s">next</span></span>
+            <span class="word-mask"><span style="animation-delay:.34s">address</span></span><br>
+            <span class="word-mask"><span style="animation-delay:.44s">starts</span></span>
+            <span class="word-mask"><span style="animation-delay:.52s">here.</span></span>
+          </h1>
+
+          <p class="hero-lead hero-fade" style="animation-delay:.78s;">
+            The Alex Stoykov Group pairs sharp market strategy with high-touch, senior-agent service,<br class="hero-lead-split">
+            guiding Chicago buyers and sellers from first showing to final close.
+          </p>
+
+          <div class="hero-fade" style="animation-delay:.95s; display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="#listings" class="btn btn-dark btn-lg">Buy</a>
+            <a href="/sellers" class="btn btn-light btn-lg">Sell</a>
+          </div>
+
+          <div class="hero-stats hero-fade" style="animation-delay:1.1s;">
+            <div class="stat-card lift">
+              <p class="stat-label">All Time Volume</p>
+              <p class="stat-val">$659M+</p>
+            </div>
+            <div class="stat-card lift">
+              <p class="stat-label">Avg. Days on Market</p>
+              <p class="stat-val">18</p>
+            </div>
+            <div class="stat-card lift">
+              <p class="stat-label">Agents</p>
+              <p class="stat-val">28</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-fade hero-media" style="animation-delay:.45s;">
+          <div class="hero-photo">
+            <img id="heroPhoto" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1100&q=85"
+                 alt="Featured listing" loading="eager" decoding="async">
+            <div class="scrim"></div>
+            <span class="hero-badge">Featured Listing</span>
+            <div style="position:absolute; bottom:0; left:0; right:0; padding:26px 24px;">
+              <p style="color:rgba(255,255,255,.65); font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin:0 0 5px;">Featured Property</p>
+              <p id="heroPrice" style="color:#fff; font-size:1.6rem; font-weight:800; letter-spacing:-.03em; line-height:1; margin:0;">$2,190,000</p>
+              <p id="heroAddr" style="color:rgba(255,255,255,.74); font-size:.9rem; margin:5px 0 14px;">1912 N Orchard St · Lincoln Park</p>
+              <a id="heroListingLink" href="#listings" class="btn btn-glass btn-sm">View This Home</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 1: CURRENT LISTINGS (IDX) ═══════════ -->
+  <section class="section" id="listings">
+    <div class="shell reveal">
+      <div class="section-head section-head-listings">
+        <h2 class="h2">Our Current Listings</h2>
+        <div class="listings-head-right">
+          <div class="seg-toggle" id="listingsToggle" role="tablist" aria-label="Listing type">
+            <span class="seg-thumb" aria-hidden="true"></span>
+            <button type="button" class="seg-btn is-active" data-mode="buy" role="tab" aria-selected="true">Buy</button>
+            <button type="button" class="seg-btn" data-mode="rent" role="tab" aria-selected="false">Rent</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards render from the Listings sheet (IdxListings tab) via the Listing Hub API.
+           The loading cards below show a spinner while the real listings load. -->
+      <div class="grid grid-3" id="listingsGrid">
+        <article class="listing-card lift reveal d1">
+          <div class="listing-media img-zoom">
+            <span class="listing-spinner" aria-hidden="true"></span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-skeleton-line" style="width:55%; height:24px;"></div>
+            <div class="listing-skeleton-line" style="width:80%; margin-top:12px;"></div>
+            <div class="listing-skeleton-line" style="width:62%; margin-top:8px;"></div>
+            <div class="listing-skeleton-line" style="width:100%; height:42px; border-radius:var(--r-pill); margin-top:18px;"></div>
+          </div>
+        </article>
+
+        <article class="listing-card lift reveal d2">
+          <div class="listing-media img-zoom">
+            <span class="listing-spinner" aria-hidden="true"></span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-skeleton-line" style="width:55%; height:24px;"></div>
+            <div class="listing-skeleton-line" style="width:80%; margin-top:12px;"></div>
+            <div class="listing-skeleton-line" style="width:62%; margin-top:8px;"></div>
+            <div class="listing-skeleton-line" style="width:100%; height:42px; border-radius:var(--r-pill); margin-top:18px;"></div>
+          </div>
+        </article>
+
+        <article class="listing-card lift reveal d3">
+          <div class="listing-media img-zoom">
+            <span class="listing-spinner" aria-hidden="true"></span>
+          </div>
+          <div class="listing-body">
+            <div class="listing-skeleton-line" style="width:55%; height:24px;"></div>
+            <div class="listing-skeleton-line" style="width:80%; margin-top:12px;"></div>
+            <div class="listing-skeleton-line" style="width:62%; margin-top:8px;"></div>
+            <div class="listing-skeleton-line" style="width:100%; height:42px; border-radius:var(--r-pill); margin-top:18px;"></div>
+          </div>
+        </article>
+      </div>
+      <div class="listings-footer">
+        <a href="/listings" class="btn btn-light">View All Listings →</a>
+      </div>
+      <div class="listings-empty" id="listingsEmpty">No active rentals right now. Check back soon or <a href="/listings" class="btn btn-dark btn-sm" style="margin-left:8px;">See All Listings</a></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION: THE TEAM ═══════════ -->
+  <section class="section" id="team">
+    <div class="shell reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">The Alex Stoykov Group</p>
+          <h2 class="h2">The team behind every closing.</h2>
+        </div>
+      </div>
+
+      <!-- Brand video (YouTube, autoplay, no controls) -->
+      <div class="team-video reveal">
+        <div class="team-video-inner" id="teamVideoWrap">
+          <iframe id="teamVideoFrame"
+                  title="Alex Stoykov Group brand video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="team-video-cover" id="teamVideoCover" aria-hidden="true"></div>
+      </div>
+
+      <!-- Mission statement + CTA, visible directly under the video -->
+      <div class="team-mission reveal d1">
+        <div>
+          <p class="eyebrow" style="margin:0 0 8px;">Our Mission</p>
+          <p class="team-mission-text">
+            To make every Chicago move feel effortless. One team, honest advice, and a decade of market depth behind every showing, every offer, and every closing, so our clients build wealth in the city they love.
+          </p>
+        </div>
+        <a href="/team" class="btn btn-dark team-mission-btn">Meet the Team →</a>
+      </div>
+
+      <!-- Stats: one horizontal row of bento cards -->
+      <div class="team-stats reveal d2">
+        <div class="team-stat">
+          <p class="stat-label">All Time Volume</p>
+          <p class="stat-val">$659M+</p>
+        </div>
+        <div class="team-stat">
+          <p class="stat-label">Closed in 2025</p>
+          <p class="stat-val">$177M</p>
+        </div>
+        <div class="team-stat">
+          <p class="stat-label">Avg. Days on Market</p>
+          <p class="stat-val">18</p>
+        </div>
+        <div class="team-stat">
+          <p class="stat-label">Agents</p>
+          <p class="stat-val">28</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 2: WORKING WITH ASG ═══════════ -->
+  <section class="section" id="about">
+    <div class="shell reveal" style="padding:0; overflow:hidden;">
+      <div class="work-grid">
+        <div class="work-photo img-zoom">
+          <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/21ec9228-391f-453e-bed7-9bac2ed6048d/Alex+S-5.jpg?format=900w" alt="Alex Stoykov, Founder, Alex Stoykov Group" loading="lazy" decoding="async">
+        </div>
+        <div class="work-copy">
+          <p class="eyebrow" style="margin:0;">Working With the Alex Stoykov Group</p>
+          <h2 class="h2">Senior agents. Sharper strategy. Every step handled.</h2>
+          <p style="color:var(--muted); font-size:1rem; line-height:1.62; margin:0; max-width:56ch;">
+            Every client works directly with a senior agent. No handoffs, no rotating associates. We bring a decade of Chicago market depth, luxury-grade marketing, and disciplined negotiation to every transaction, whether it's your first condo or a Gold Coast estate.
+          </p>
+          <div class="work-points">
+            <div class="work-point">
+              <b>01 · Strategy Session</b>
+              <span>A custom plan built around your timing, priorities, and market position.</span>
+            </div>
+            <div class="work-point">
+              <b>02 · Preparation</b>
+              <span>Staging direction, premium photo and video, and a precise launch timeline.</span>
+            </div>
+            <div class="work-point">
+              <b>03 · Negotiation</b>
+              <span>Data-backed recommendations and calm, disciplined leverage on every offer.</span>
+            </div>
+            <div class="work-point">
+              <b>04 · Close &amp; Beyond</b>
+              <span>Every detail coordinated through closing, and we stay with you after.</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+            <a href="/team" class="btn btn-dark">Meet the Team</a>
+            <a href="/about" class="btn btn-light">Our Story</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 3: LIFE IN CHICAGO ═══════════ -->
+  <section class="section" id="chicago">
+    <div class="shell shell-alt reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Life in Chicago</p>
+          <h2 class="h2">Know the city like a local.</h2>
+        </div>
+        <a href="/blog" class="btn btn-light btn-sm">Read the latest on our blog →</a>
+      </div>
+      <p style="color:var(--muted); font-size:.98rem; line-height:1.6; max-width:64ch; margin:-10px 0 24px;">
+        Our neighborhood guides go beyond listings: schools, dining, commutes, and what it actually feels like to live on the block. Start with the neighborhoods our clients ask about most.
+      </p>
+      <div class="grid grid-4">
+        <a href="/blog" class="hood-card lift reveal d1">
+          <div class="img-zoom">
+            <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=700&q=80" alt="Lincoln Park" loading="lazy" decoding="async">
+          </div>
+          <div class="hood-label">
+            <b>Lincoln Park</b>
+            <span>Tree-lined streets, top schools, lake access.</span>
+          </div>
+        </a>
+        <a href="/blog" class="hood-card lift reveal d2">
+          <div class="img-zoom">
+            <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=700&q=80" alt="Gold Coast" loading="lazy" decoding="async">
+          </div>
+          <div class="hood-label">
+            <b>Gold Coast</b>
+            <span>Historic architecture, prime lakefront living.</span>
+          </div>
+        </a>
+        <a href="/blog" class="hood-card lift reveal d3">
+          <div class="img-zoom">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=700&q=80" alt="West Loop" loading="lazy" decoding="async">
+          </div>
+          <div class="hood-label">
+            <b>West Loop</b>
+            <span>Vibrant dining scene, modern loft conversions.</span>
+          </div>
+        </a>
+        <a href="/blog" class="hood-card lift reveal d4">
+          <div class="img-zoom">
+            <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=700&q=80" alt="Wicker Park" loading="lazy" decoding="async">
+          </div>
+          <div class="hood-label">
+            <b>Wicker Park</b>
+            <span>Creative energy, boutique retail, strong appreciation.</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 4: REVIEWS ═══════════ -->
+  <section class="section" id="reviews">
+    <div class="shell reveal">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Client Experiences</p>
+          <h2 class="h2">Real results, real stories.</h2>
+        </div>
+        <span class="pill-tag">★ 5.0 · 200+ Reviews</span>
+      </div>
+      <div class="grid grid-3">
+
+        <div class="review-card lift reveal d1">
+          <div class="stars" aria-label="5 out of 5 stars">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <p class="review-quote">"Placeholder review. We sold over asking in six days with zero stress. Strategy, staging direction, and communication were flawless from day one."</p>
+          <div class="review-who">
+            <b>Client Name</b>
+            <span class="review-where">Lincoln Park</span>
+          </div>
+        </div>
+
+        <div class="review-card lift reveal d2">
+          <div class="stars" aria-label="5 out of 5 stars">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <p class="review-quote">"Placeholder review. Our relocation purchase felt effortless. Every home was curated to exactly what we wanted, and the negotiation was razor sharp."</p>
+          <div class="review-who">
+            <b>Client Name</b>
+            <span class="review-where">Gold Coast</span>
+          </div>
+        </div>
+
+        <div class="review-card lift reveal d3">
+          <div class="stars" aria-label="5 out of 5 stars">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#111"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <p class="review-quote">"Placeholder review. The marketing looked like a luxury campaign. Photography, video, and launch timing made all the difference for our sale."</p>
+          <div class="review-who">
+            <b>Client Name</b>
+            <span class="review-where">West Loop</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SECTION 5: CONTACT ═══════════ -->
+  <section class="section" id="asg-home-contact" style="scroll-margin-top:110px;">
+    <div class="shell shell-dark reveal" style="padding:42px 38px;">
+      <div class="contact-grid">
+        <div>
+          <p class="eyebrow" style="color:rgba(255,255,255,.45);">Get Started</p>
+          <h2 class="h2" style="color:#fff; font-size:clamp(1.9rem,3vw,2.9rem); margin-bottom:16px;">Let's build your real estate plan.</h2>
+          <p style="color:rgba(255,255,255,.62); font-size:1rem; line-height:1.62; max-width:52ch; margin:0 0 28px;">
+            Whether you're preparing to sell, searching for your next home, or just weighing options, tell us where you are and we'll map out the next step together.
+          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="#listings" class="btn btn-glass">Start Buying</a>
+            <a href="/sellers" class="btn btn-light">List My Home</a>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:22px;">
+          <form id="contactForm" novalidate autocomplete="off">
+            <p style="color:rgba(255,255,255,.55); font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin:0 0 14px;">Request a Consultation</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <input class="input" name="name" type="text" required placeholder="Full name" autocomplete="name">
+              <input class="input" name="email" type="email" required placeholder="Email address" autocomplete="email">
+              <input class="input" name="phone" type="tel" placeholder="Phone number" autocomplete="tel">
+              <select class="select" name="intent" required>
+                <option value="">I'm interested in…</option>
+                <option value="buying">Buying a home</option>
+                <option value="selling">Selling a home</option>
+                <option value="both">Buying &amp; selling</option>
+                <option value="exploring">Just exploring</option>
+              </select>
+              <textarea class="textarea" name="message" placeholder="Tell us a little about your move (optional)"></textarea>
+              <input class="honeypot" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <button type="submit" class="btn btn-light" style="margin-top:4px;">Request Consultation</button>
+            </div>
+          </form>
+          <div class="form-success" id="formSuccess">
+            <div class="check">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <p style="font-weight:700; font-size:1.1rem; margin:0;">Thank you, request received</p>
+            <p style="color:rgba(255,255,255,.6); font-size:.92rem; line-height:1.5; max-width:36ch; margin:0;">A member of the Alex Stoykov Group will reach out within one business day.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="footer-logo" href="/">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="">
+        Alex Stoykov Group
+      </a>
+      <p class="footer-tag">A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance, from first showing to final close.</p>
+      <p class="footer-tag">Brokered by Compass · Chicago, IL</p>
+    </div>
+    <div>
+      <h4>Real Estate</h4>
+      <ul>
+        <li><a href="/listings">Our Listings</a></li>
+        <li><a href="/buyers">Buyers</a></li>
+        <li><a href="/sellers">Sellers</a></li>
+        <li><a href="/neighborhoods">Neighborhoods</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/team">Team</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="#asg-home-contact">Contact Us</a></li>
+        <li><a href="/client-portal">Client Portal</a></li>
+        <li><a href="https://www.instagram.com/alexstoykovgroup" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+        <li><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="copyrightLine">© Alex Stoykov Group · All rights reserved</span>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/accessibility">Accessibility</a>
+      <a href="/fair-housing">Fair Housing</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Always land on the hero. Never honor URL hashes on load (Squarespace and
+     browsers otherwise jump straight to the contact form). In-page Contact
+     links still scroll via the click handler below. */
+  function pinHero(){
+    if (location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    var scrollers = document.querySelectorAll('#siteWrapper, .Main, .Content-outer, #page, main');
+    scrollers.forEach(function (node) {
+      if (node && node.scrollTop > 0) node.scrollTop = 0;
+    });
+    var hero = document.getElementById('asg-home-hero');
+    if (hero) {
+      try { hero.scrollIntoView({ block: 'start', behavior: 'auto' }); } catch (e) {}
+    }
+  }
+
+  pinHero();
+  document.addEventListener('DOMContentLoaded', pinHero);
+  window.addEventListener('load', function () {
+    pinHero();
+    var ticks = 0;
+    var pinTimer = setInterval(function () {
+      pinHero();
+      if (++ticks >= 15) clearInterval(pinTimer);
+    }, 100);
+  });
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) pinHero();
+  });
+
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!link) return;
+    var id = (link.getAttribute('href') || '').slice(1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', '#' + id);
+  }, true);
+
+  /* ───── Nav: scroll state ───── */
+  var nav = document.getElementById('nav');
+  var frost = document.getElementById('navFrost');
+  var lastScrolled = false;
+  function onScroll(){
+    var scrolled = (window.scrollY || 0) > 24;
+    if (scrolled !== lastScrolled) {
+      nav.classList.toggle('is-scrolled', scrolled);
+      frost.classList.toggle('is-scrolled', scrolled);
+      lastScrolled = scrolled;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ───── Nav: sliding hover pill ───── */
+  var linksWrap = document.getElementById('navLinks');
+  var ghost = document.getElementById('navGhost');
+  linksWrap.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('mouseenter', function () {
+      var wrapBox = linksWrap.getBoundingClientRect();
+      var box = link.getBoundingClientRect();
+      ghost.style.left = (box.left - wrapBox.left) + 'px';
+      ghost.style.width = box.width + 'px';
+      ghost.classList.add('is-on');
+    });
+  });
+  linksWrap.addEventListener('mouseleave', function () {
+    ghost.classList.remove('is-on');
+  });
+
+  /* ───── Mobile menu ───── */
+  var burger = document.getElementById('navBurger');
+  var panel = document.getElementById('mobilePanel');
+  var closeBtn = document.getElementById('mobileClose');
+  function openMobile(){
+    panel.classList.add('is-open');
+    burger.classList.add('is-open');
+    burger.setAttribute('aria-expanded', 'true');
+    burger.setAttribute('aria-label', 'Close menu');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobile(){
+    panel.classList.remove('is-open');
+    burger.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', function () {
+    if (panel.classList.contains('is-open')) closeMobile();
+    else openMobile();
+  });
+  closeBtn.addEventListener('click', closeMobile);
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') closeMobile();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+  });
+
+  /* ───── Scroll reveal ───── */
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  /* ───── Team section: YouTube embed ─────
+     https://youtu.be/rOz0fmmke-o — muted autoplay (browser policy), no
+     controls, modest branding. Loads and plays the moment the section
+     scrolls into view. A poster sits over the player only until real
+     playback begins (detected via YouTube's state events, not a fixed
+     timer), so there is no "loading hold". Once playing it loops forever
+     and is never paused, so the centre play/seek overlay never flashes
+     back. Light CSS cropping trims the title bar that lingers at the top
+     for the first seconds of playback. */
+  (function () {
+    var wrap = document.getElementById('teamVideoWrap');
+    var frame = document.getElementById('teamVideoFrame');
+    var cover = document.getElementById('teamVideoCover');
+    if (!wrap || !frame) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var YT_ID = 'rOz0fmmke-o';
+    var loaded = false;
+    var revealed = false;
+
+    function reveal(){
+      if (revealed) return;
+      revealed = true;
+      if (cover) cover.classList.add('is-hidden');
+    }
+
+    function embedSrc(){
+      var q = [
+        'autoplay=1', 'mute=1', 'controls=0', 'modestbranding=1', 'rel=0',
+        'playsinline=1', 'loop=1', 'playlist=' + YT_ID,
+        'disablekb=1', 'iv_load_policy=3', 'fs=0', 'enablejsapi=1',
+        'origin=' + encodeURIComponent(location.origin)
+      ].join('&');
+      return 'https://www.youtube-nocookie.com/embed/' + YT_ID + '?' + q;
+    }
+
+    function post(msg){
+      if (frame.contentWindow) frame.contentWindow.postMessage(JSON.stringify(msg), '*');
+    }
+    function ytCmd(func){ post({ event: 'command', func: func, args: '' }); }
+
+    /* Reveal the player the instant YouTube reports PLAYING (state 1). */
+    window.addEventListener('message', function (e) {
+      if (String(e.origin).indexOf('youtube') < 0) return;
+      var data; try { data = JSON.parse(e.data); } catch (_) { return; }
+      if (!data) return;
+      var state = data.event === 'onStateChange' ? data.info
+        : (data.event === 'infoDelivery' && data.info ? data.info.playerState : undefined);
+      if (state === 1) reveal();
+    });
+
+    function loadVideo(){
+      if (loaded) return;
+      loaded = true;
+      frame.addEventListener('load', function () {
+        /* Subscribe to player state events (retry briefly until they flow). */
+        var tries = 0;
+        var hs = setInterval(function () {
+          post({ event: 'listening', id: 'asg-team-video', channel: 'widget' });
+          if (revealed || ++tries > 20) clearInterval(hs);
+        }, 250);
+      }, { once: true });
+      frame.src = embedSrc();
+      /* Fallback: never leave the poster stuck if events never arrive. */
+      setTimeout(reveal, 4000);
+    }
+
+    if ('IntersectionObserver' in window) {
+      var vio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          loadVideo();
+          if (loaded) ytCmd('playVideo'); /* safety resume; loops, never paused */
+        });
+      }, { threshold: 0.25, rootMargin: '160px 0px' });
+      vio.observe(wrap);
+    } else {
+      loadVideo();
+    }
+  })();
+
+  /* ───── Current Listings: Listings sheet (IdxListings tab) ─────
+     Pulls active inventory from the Listing Hub Apps Script API, which
+     mirrors the IDX feed into the IdxListings tab of the Listings sheet.
+     Powers the Buy/Rent toggle grid and the hero featured listing. */
+  var LISTINGS_API = String(window.ASG_LISTINGS_API ||
+    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec').trim();
+  /* Dedicated per-listing details page (Squarespace page hosting asg-listing-details.html). */
+  var DETAILS_PAGE = String(window.ASG_LISTING_DETAILS_PAGE || '/listing').trim();
+  var MAX_CARDS = 6;
+
+  var listingsState = { buy: [], rent: [], mode: 'buy', loaded: false };
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function priceNumber(row){
+    var raw = row.listPrice != null && row.listPrice !== '' ? row.listPrice : row.price;
+    if (typeof raw === 'number' && isFinite(raw)) return raw;
+    var n = Number(String(raw || '').replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? n : 0;
+  }
+
+  function priceLabel(row, isRent){
+    var n = priceNumber(row);
+    if (!n) return String(row.listPrice || row.price || '');
+    var s;
+    try { s = '$' + n.toLocaleString(); } catch (e) { s = '$' + n; }
+    return isRent ? s + '/mo' : s;
+  }
+
+  /* mls.majorarea: strip the CHI- prefix, keep just the neighborhood. */
+  function locationLabel(row){
+    var raw = String(row.mlsAreaMajor || row.neighborhood || row.mlsCity || '').trim();
+    return raw.replace(/^CHI\s*-\s*/i, '').trim();
+  }
+
+  function bedsLabel(row){
+    var raw = String(row.beds != null ? row.beds : '').trim();
+    if (raw === '') return '';
+    var n = Number(raw);
+    if (n === 0) return 'Studio';
+    return raw + ' Bed';
+  }
+
+  function bathsLabel(row){
+    var raw = String(row.baths != null ? row.baths : '').trim();
+    if (raw === '' || Number(raw) === 0) return '';
+    return raw.replace(/\.5$/, '.5') + ' Bath';
+  }
+
+  function sqftLabel(row){
+    var raw = String(row.sqFt || '').replace(/[^0-9]/g, '');
+    if (!raw || Number(raw) === 0) return '';
+    var n = Number(raw);
+    try { return n.toLocaleString() + ' sqft'; } catch (e) { return raw + ' sqft'; }
+  }
+
+  function listingPhoto(row){
+    var url = String(row.coverImage || '').trim();
+    if (url) return url;
+    var gallery = row.mlsPhotos;
+    if (gallery && gallery.length && gallery[0] && gallery[0].url) return String(gallery[0].url).trim();
+    return '';
+  }
+
+  function detailsUrl(row){
+    var addr = String(row.address || '').trim();
+    if (!addr) return DETAILS_PAGE;
+    return DETAILS_PAGE + '?address=' + encodeURIComponent(addr);
+  }
+
+  function isRental(row){
+    if (String(row.listingType || '').toLowerCase() === 'lease') return true;
+    var pt = String(row.mlsPropType || '').toLowerCase();
+    return pt.indexOf('lease') >= 0 || pt.indexOf('rental') >= 0;
+  }
+
+  function isActiveRow(row){
+    if (row.preMls) return false;
+    if (!listingPhoto(row) || !priceNumber(row)) return false;
+    var status = String(row.status || row.idxMlsStatus || '').toLowerCase();
+    if (!status) return true;
+    return !/closed|sold|rented|cancel|expired|withdrawn|off market/.test(status);
+  }
+
+  function statusFlag(row){
+    var s = String(row.status || row.idxMlsStatus || '').trim();
+    return s || 'Active';
+  }
+
+  function statusFlagClass(row, isRent){
+    if (isRent) return 'is-rent';
+    var s = statusFlag(row).toLowerCase();
+    if (/coming\s*soon|pre[\s-]?listing|pre[\s-]?mls/.test(s)) return 'is-coming-soon';
+    if (/under\s*contract|contingent|pending/.test(s)) return 'is-under-contract';
+    if (/active|for sale|new|just listed|open/.test(s)) return 'is-active';
+    return 'is-active';
+  }
+
+  function listingCardHtml(row, isRent){
+    var metaBits = [locationLabel(row), bedsLabel(row), bathsLabel(row), sqftLabel(row)]
+      .filter(function (b) { return b; }).join(' · ');
+    var flagLabel = isRent ? 'For Rent' : statusFlag(row);
+    var flagClass = statusFlagClass(row, isRent);
+    return '' +
+      '<article class="listing-card lift">' +
+        '<div class="listing-media img-zoom">' +
+          '<span class="listing-spinner" aria-hidden="true"></span>' +
+          '<span class="listing-flag ' + flagClass + '">' + escapeHtml(flagLabel) + '</span>' +
+          '<img src="' + escapeHtml(listingPhoto(row)) + '" alt="' + escapeHtml(row.address || 'Listing') + '" loading="lazy" decoding="async">' +
+        '</div>' +
+        '<div class="listing-body">' +
+          '<p class="listing-price">' + escapeHtml(priceLabel(row, isRent)) + '</p>' +
+          '<p class="listing-addr">' + escapeHtml(row.address || '') + '</p>' +
+          '<p class="listing-meta">' + escapeHtml(metaBits) + '</p>' +
+          '<a href="' + escapeHtml(detailsUrl(row)) + '" class="btn btn-dark" style="width:100%; margin-top:16px; padding:12px 0; font-size:.87rem;">View Details</a>' +
+        '</div>' +
+      '</article>';
+  }
+
+  /* Reveal each photo once it decodes; the spinner behind it fades out.
+     Cached/complete images resolve instantly, broken ones still clear
+     the spinner so a card never spins forever. */
+  function wireListingImages(scope){
+    var imgs = (scope || document).querySelectorAll('.listing-media img');
+    Array.prototype.forEach.call(imgs, function (img) {
+      var media = img.closest('.listing-media');
+      if (!media || media.classList.contains('is-loaded')) return;
+      function done(){ media.classList.add('is-loaded'); }
+      if (img.complete && img.naturalWidth > 0) { done(); return; }
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+  }
+
+  function renderListings(){
+    if (!listingsState.loaded) return;
+    var grid = document.getElementById('listingsGrid');
+    var empty = document.getElementById('listingsEmpty');
+    var footer = document.querySelector('.listings-footer');
+    var isRent = listingsState.mode === 'rent';
+    var rows = isRent ? listingsState.rent : listingsState.buy;
+    if (!rows.length) {
+      grid.innerHTML = '';
+      empty.classList.add('is-on');
+      if (footer) footer.style.display = 'none';
+      return;
+    }
+    empty.classList.remove('is-on');
+    if (footer) footer.style.display = '';
+    grid.innerHTML = rows.slice(0, MAX_CARDS).map(function (row) {
+      return listingCardHtml(row, isRent);
+    }).join('');
+    wireListingImages(grid);
+  }
+
+  function updateHeroListing(){
+    var top = listingsState.buy[0];
+    if (!top) return;
+    var photo = listingPhoto(top);
+    var img = document.getElementById('heroPhoto');
+    if (photo) {
+      img.src = photo;
+      img.alt = 'Featured listing: ' + (top.address || '');
+    }
+    document.getElementById('heroPrice').textContent = priceLabel(top, false);
+    var loc = locationLabel(top);
+    document.getElementById('heroAddr').textContent = (top.address || '') + (loc ? ' · ' + loc : '');
+    document.getElementById('heroListingLink').href = detailsUrl(top);
+  }
+
+  function extractRows(payload){
+    if (!payload) return null;
+    if (Array.isArray(payload.listings)) return payload.listings;
+    if (payload.data && Array.isArray(payload.data.listings)) return payload.data.listings;
+    if (Array.isArray(payload.rows)) return payload.rows;
+    return null;
+  }
+
+  /* Strip heavy fields before caching so the payload stays well under
+     localStorage quota; keep only what the cards and hero need. */
+  function slimRowForCache(row){
+    return {
+      address: row.address,
+      listPrice: row.listPrice,
+      price: row.price,
+      status: row.status,
+      idxMlsStatus: row.idxMlsStatus,
+      listingType: row.listingType,
+      mlsPropType: row.mlsPropType,
+      mlsAreaMajor: row.mlsAreaMajor,
+      neighborhood: row.neighborhood,
+      mlsCity: row.mlsCity,
+      beds: row.beds,
+      baths: row.baths,
+      sqFt: row.sqFt,
+      coverImage: listingPhoto(row),
+      preMls: row.preMls
+    };
+  }
+
+  function applyRows(rows){
+    var active = rows.filter(isActiveRow);
+    active.sort(function (a, b) { return priceNumber(b) - priceNumber(a); });
+    listingsState.buy = active.filter(function (r) { return !isRental(r); });
+    listingsState.rent = active.filter(isRental);
+    listingsState.loaded = true;
+    renderListings();
+    updateHeroListing();
+  }
+
+  function initListings(){
+    var toggle = document.getElementById('listingsToggle');
+    toggle.querySelectorAll('.seg-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var mode = btn.getAttribute('data-mode');
+        if (mode === listingsState.mode) return;
+        listingsState.mode = mode;
+        toggle.classList.toggle('is-rent', mode === 'rent');
+        toggle.querySelectorAll('.seg-btn').forEach(function (b) {
+          var active = b === btn;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        renderListings();
+      });
+    });
+
+    var boot = window.__ASG_LISTINGS_BOOT || {};
+
+    /* Instant paint: render straight from the localStorage snapshot
+       (no network wait), then let fresh data replace it below. */
+    if (boot.cachedRows && boot.cachedRows.length) {
+      applyRows(boot.cachedRows);
+    }
+
+    /* Fresh data: the head script started this request before the page
+       rendered, so by now it is usually already resolved or in flight. */
+    var sep = LISTINGS_API.indexOf('?') >= 0 ? '&' : '?';
+    var freshReq = boot.promise || fetch(LISTINGS_API + sep + 'view=home')
+      .then(function (r) { return r.json(); })
+      .catch(function () { return null; });
+
+    freshReq.then(function (payload) {
+      var rows = extractRows(payload);
+      if (!rows) {
+        /* API unreachable: keep cached cards if we have them, otherwise
+           clear the loading spinners and show the empty state. */
+        if (!listingsState.loaded) {
+          var grid = document.getElementById('listingsGrid');
+          var empty = document.getElementById('listingsEmpty');
+          var footer = document.querySelector('.listings-footer');
+          if (grid) grid.innerHTML = '';
+          if (footer) footer.style.display = 'none';
+          if (empty) empty.classList.add('is-on');
+        }
+        return;
+      }
+      applyRows(rows);
+      try {
+        localStorage.setItem(boot.cacheKey || 'asg_listings_cache_v1', JSON.stringify({
+          t: Date.now(),
+          rows: rows.filter(isActiveRow).map(slimRowForCache).slice(0, 60)
+        }));
+      } catch (e) {} /* quota exceeded or private mode: skip caching */
+    });
+  }
+  initListings();
+
+  /* ───── Mobile listings deck ─────
+     On phones the listings grid becomes a swipeable card deck: the top
+     card spans the full container width while the previous and next
+     cards peek out behind its left and right edges. Swipe left for the
+     next listing, right for the previous one; the deck cycles endlessly.
+     Desktop keeps the normal grid. The deck rebuilds whenever the grid
+     re-renders (Buy/Rent toggle, fresh API data) and activates or
+     deactivates on the 720px breakpoint. */
+  (function () {
+    var grid = document.getElementById('listingsGrid');
+    if (!grid) return;
+    var mq = window.matchMedia('(max-width: 720px)');
+
+    var SIDE_SCALE = 0.94;  /* scale of the left/right peeking cards */
+
+    var dots = document.createElement('div');
+    dots.className = 'deck-dots';
+    dots.setAttribute('aria-hidden', 'true');
+    grid.parentNode.insertBefore(dots, grid.nextSibling);
+
+    var sequence = [];   /* original card order, for the dots */
+    var order = [];      /* current stack, order[0] is on top */
+    var animating = false;
+    var suppressClick = false;
+
+    function cardsIn(){
+      return Array.prototype.filter.call(grid.children, function (n) {
+        return n.nodeType === 1;
+      });
+    }
+
+    function renderDots(){
+      if (!grid.classList.contains('is-deck') || sequence.length < 2) {
+        dots.innerHTML = '';
+        return;
+      }
+      var current = sequence.indexOf(order[0]);
+      var html = '';
+      for (var i = 0; i < sequence.length; i++) {
+        html += '<span' + (i === current ? ' class="is-on"' : '') + '></span>';
+      }
+      dots.innerHTML = html;
+    }
+
+    function layout(){
+      if (!grid.classList.contains('is-deck')) return;
+      var n = order.length;
+      var maxH = 0;
+      order.forEach(function (el) { maxH = Math.max(maxH, el.offsetHeight); });
+      if (maxH > 0) grid.style.height = (maxH + 6) + 'px';
+
+      /* Horizontal offset that leaves a ~10px sliver of the side cards
+         visible beyond the main card's edges */
+      var w = grid.offsetWidth || 320;
+      var side = Math.round(w * (1 - SIDE_SCALE) / 2) + 10;
+
+      order.forEach(function (el, i) {
+        var pose;
+        if (i === 0)                 pose = { x: 0,     r: 0,    s: 1,          z: 30, o: 1 }; /* main */
+        else if (i === 1)            pose = { x: side,  r: 3.5,  s: SIDE_SCALE, z: 20, o: 1 }; /* next: right peek */
+        else if (i === n - 1 && n > 2) pose = { x: -side, r: -3.5, s: SIDE_SCALE, z: 19, o: 1 }; /* prev: left peek */
+        else                         pose = { x: 0,     r: 0,    s: .9,         z: 10, o: 0 }; /* hidden in the stack */
+        el.style.zIndex = String(pose.z);
+        el.style.transform = 'translateX(' + pose.x + 'px) rotate(' + pose.r + 'deg) scale(' + pose.s + ')';
+        el.style.opacity = String(pose.o);
+        el.style.pointerEvents = i === 0 ? 'auto' : 'none';
+        el.classList.toggle('deck-top', i === 0);
+        el.classList.toggle('deck-side', pose.o === 1 && i !== 0);
+      });
+      renderDots();
+    }
+
+    var layoutQueued = false;
+    function layoutSoon(){
+      if (layoutQueued) return;
+      layoutQueued = true;
+      requestAnimationFrame(function () { layoutQueued = false; layout(); });
+    }
+
+    function teardown(){
+      grid.classList.remove('is-deck');
+      grid.style.height = '';
+      cardsIn().forEach(function (el) {
+        el.classList.remove('deck-top', 'deck-side', 'deck-dragging');
+        el.style.transform = '';
+        el.style.opacity = '';
+        el.style.zIndex = '';
+        el.style.pointerEvents = '';
+      });
+      dots.innerHTML = '';
+    }
+
+    function build(){
+      sequence = cardsIn();
+      order = sequence.slice();
+      if (!mq.matches || !sequence.length) { teardown(); return; }
+      grid.classList.add('is-deck');
+      /* Re-measure once images decode (media uses aspect-ratio, so any
+         shift is minor) */
+      sequence.forEach(function (el) {
+        Array.prototype.forEach.call(el.querySelectorAll('img'), function (img) {
+          if (!img.complete) img.addEventListener('load', layoutSoon, { once: true });
+        });
+      });
+      layout();
+    }
+
+    /* ── Drag physics ── */
+    var drag = null;
+
+    grid.addEventListener('pointerdown', function (e) {
+      if (!grid.classList.contains('is-deck') || animating || order.length < 2) return;
+      if (!order[0].contains(e.target)) return;
+      drag = { x: e.clientX, y: e.clientY, dx: 0, active: false, id: e.pointerId };
+    });
+
+    grid.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      var dy = e.clientY - drag.y;
+      if (!drag.active) {
+        /* Decide intent: horizontal → deck swipe, vertical → page scroll */
+        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) {
+          if (Math.abs(dy) > 12) drag = null;
+          return;
+        }
+        drag.active = true;
+        order[0].classList.add('deck-dragging');
+        try { grid.setPointerCapture(drag.id); } catch (err) {}
+      }
+      drag.dx = dx;
+      order[0].style.transform = 'translateX(' + dx + 'px) rotate(' + (dx * 0.05) + 'deg)';
+    });
+
+    function endDrag(){
+      if (!drag) return;
+      var top = order[0];
+      var dx = drag.dx;
+      var wasDrag = drag.active;
+      drag = null;
+      if (!wasDrag) return;
+
+      top.classList.remove('deck-dragging');
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 350);
+
+      var threshold = Math.min(110, grid.offsetWidth * 0.3);
+      if (Math.abs(dx) > threshold) {
+        /* Fly off in the swipe direction, then re-enter as a side peek:
+           swipe left advances to the next card (the old top slides back
+           in on the left), swipe right returns to the previous one (it
+           slides back in on the right). */
+        animating = true;
+        var dir = dx > 0 ? 1 : -1;
+        top.style.transform = 'translateX(' + (dir * (grid.offsetWidth + 100)) + 'px) rotate(' + (dir * 10) + 'deg)';
+        top.style.opacity = '0';
+        setTimeout(function () {
+          if (dir < 0) order.push(order.shift()); /* next */
+          else order.unshift(order.pop());        /* previous */
+          layout(); /* transitions carry every card to its new pose */
+          animating = false;
+        }, 300);
+      } else {
+        layout(); /* below threshold: spring back */
+      }
+    }
+    grid.addEventListener('pointerup', endDrag);
+    grid.addEventListener('pointercancel', endDrag);
+
+    /* A swipe must not trigger the card's View Details link */
+    grid.addEventListener('click', function (e) {
+      if (suppressClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    /* Rebuild when the listings re-render (toggle or fresh data) */
+    new MutationObserver(build).observe(grid, { childList: true });
+
+    if (mq.addEventListener) mq.addEventListener('change', build);
+    else if (mq.addListener) mq.addListener(build);
+    window.addEventListener('resize', layoutSoon);
+
+    build();
+  })();
+
+  /* ───── Contact form (preview mode + optional endpoint) ─────
+     Wire a backend later: window.ASG_LEAD_ENDPOINT = 'https://script.google.com/.../exec'; */
+  var form = document.getElementById('contactForm');
+  var success = document.getElementById('formSuccess');
+  var renderedAt = Date.now();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var hp = form.querySelector('input[name="company"]');
+    if (hp && hp.value) return;                 /* honeypot → bot */
+    if (Date.now() - renderedAt < 1500) return; /* time-trap → bot */
+    if (!form.reportValidity()) return;
+
+    var data = {};
+    Array.prototype.forEach.call(form.elements, function (field) {
+      if (!field.name || field.name === 'company') return;
+      data[field.name] = field.value;
+    });
+    data._page = '/';
+    data._formType = 'home-contact';
+    data._submittedAt = new Date().toISOString();
+
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    function showSuccess(){
+      form.style.display = 'none';
+      success.classList.add('is-on');
+    }
+
+    var endpoint = (window.ASG_LEAD_ENDPOINT || '').trim();
+    if (!endpoint) { setTimeout(showSuccess, 600); return; }
+
+    fetch(endpoint, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    }).then(showSuccess).catch(function () {
+      btn.disabled = false;
+      btn.textContent = 'Request Consultation';
+    });
+  });
+
+  /* ───── Footer year ───── */
+  document.getElementById('copyrightLine').textContent =
+    '© ' + new Date().getFullYear() + ' Alex Stoykov Group · All rights reserved';
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SEARCH HOMES OVERLAY
+     Opens from the "Search Homes" nav CTA: blurred backdrop, centered
+     natural-language search field with a rotating lighting ring.
+     Submits to the standalone search page: /search-homes?q=…
+     Self-contained block (styles + markup + js) — safe to copy onto
+     any other self-hosted-nav page.
+     ════════════════════════════════════════════════════════════════ -->
+<style>
+@property --shx-ang{ syntax:'<angle>'; initial-value:0deg; inherits:false; }
+.shx-overlay{
+  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:20px; visibility:hidden; opacity:0;
+  transition:opacity .35s ease, visibility 0s linear .35s;
+  background:rgba(12,12,12,.42);
+  backdrop-filter:blur(0px); -webkit-backdrop-filter:blur(0px);
+}
+.shx-overlay.is-open{
+  visibility:visible; opacity:1; transition:opacity .35s ease;
+  backdrop-filter:blur(22px) saturate(120%); -webkit-backdrop-filter:blur(22px) saturate(120%);
+}
+.shx-inner{
+  width:100%; max-width:780px; display:flex; flex-direction:column; gap:26px; align-items:center;
+  transform:translateY(26px) scale(.96); opacity:0;
+  transition:transform .45s var(--ease, cubic-bezier(.16,1,.3,1)), opacity .45s var(--ease, cubic-bezier(.16,1,.3,1));
+}
+.shx-overlay.is-open .shx-inner{ transform:none; opacity:1; transition-delay:.08s; }
+.shx-kicker{
+  color:rgba(255,255,255,.75); font-size:.78rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; font-family:var(--font, sans-serif);
+}
+.shx-title{
+  margin:0; color:#fff; font-weight:800; letter-spacing:-.04em; text-align:center;
+  font-size:clamp(1.7rem, 3.6vw, 2.7rem); line-height:1.1;
+  font-family:var(--font, sans-serif); text-shadow:0 2px 30px rgba(0,0,0,.3);
+}
+.shx-search{ position:relative; width:100%; max-width:720px; border-radius:999px; }
+.shx-search::before{
+  content:''; position:absolute; inset:-20px; border-radius:999px; z-index:0;
+  background:conic-gradient(from var(--shx-ang),
+    transparent 0deg, #a8c4f0 70deg, transparent 140deg,
+    #e8d9b8 220deg, #ffffff 280deg, transparent 340deg);
+  filter:blur(34px); opacity:.9;
+  animation:shxSpin 5.5s linear infinite; pointer-events:none;
+}
+.shx-search::after{
+  content:''; position:absolute; inset:-2px; border-radius:999px; z-index:0;
+  background:conic-gradient(from var(--shx-ang),
+    rgba(255,255,255,.18) 0deg, #a8c4f0 80deg, rgba(255,255,255,.18) 150deg,
+    #e8d9b8 250deg, rgba(255,255,255,.18) 330deg);
+  animation:shxSpin 5.5s linear infinite; pointer-events:none;
+}
+@keyframes shxSpin{ to{ --shx-ang:360deg; } }
+@media (prefers-reduced-motion: reduce){
+  .shx-search::before, .shx-search::after{ animation:none; }
+}
+.shx-form{
+  position:relative; z-index:1; display:flex; align-items:center; gap:6px;
+  background:#fff; border-radius:999px; border:1px solid rgba(17,17,17,.12);
+  padding:8px 8px 8px 24px; box-shadow:0 14px 44px rgba(17,17,17,.18);
+}
+.shx-input{
+  flex:1; min-width:0; border:0; outline:none; background:transparent;
+  font-family:var(--font, sans-serif); font-size:1.08rem; font-weight:500;
+  color:var(--ink, #111); padding:14px 6px; letter-spacing:-.01em;
+}
+.shx-input::placeholder{ color:rgba(17,17,17,.4); }
+.shx-submit{
+  flex-shrink:0; border:0; cursor:pointer; background:var(--ink, #111); color:#fff;
+  border-radius:999px; padding:15px 30px; font-family:var(--font, sans-serif);
+  font-weight:700; font-size:1rem; display:inline-flex; align-items:center; gap:8px;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.shx-submit:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(17,17,17,.22); }
+.shx-suggest{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.shx-suggest button{
+  appearance:none; cursor:pointer; font-family:var(--font, sans-serif);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff;
+  border-radius:999px; padding:9px 16px; font-size:.86rem; font-weight:600;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  transition:all .18s ease;
+}
+.shx-suggest button:hover{ background:rgba(255,255,255,.26); transform:translateY(-1px); }
+.shx-close{
+  position:absolute; top:26px; right:26px; width:52px; height:52px;
+  border-radius:50%; border:1px solid rgba(255,255,255,.3); cursor:pointer;
+  background:rgba(255,255,255,.12); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  transition:transform .2s ease, background .2s ease;
+}
+.shx-close:hover{ transform:rotate(90deg); background:rgba(255,255,255,.24); }
+.shx-hint{ color:rgba(255,255,255,.55); font-size:.8rem; font-family:var(--font, sans-serif); }
+.shx-hint kbd{
+  font-family:var(--font, sans-serif); background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.25); border-radius:6px; padding:2px 7px; font-size:.74rem;
+}
+@media (max-width:600px){
+  .shx-form{ padding-left:16px; }
+  .shx-submit{ padding:13px 18px; font-size:.9rem; }
+  .shx-submit span{ display:none; }
+}
+</style>
+
+<div class="shx-overlay" id="shxOverlay" role="dialog" aria-modal="true" aria-label="Search homes">
+  <button class="shx-close" id="shxClose" type="button" aria-label="Close search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div class="shx-inner">
+    <span class="shx-kicker">Alex Stoykov Group &middot; MLS Search</span>
+    <h2 class="shx-title">What does home look like?</h2>
+    <div class="shx-search">
+      <form class="shx-form" id="shxForm" role="search" aria-label="Search homes">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(17,17,17,.55)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="shx-input" id="shxInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               aria-label="Describe the home you're looking for" placeholder="">
+        <button class="shx-submit" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </button>
+      </form>
+    </div>
+    <div class="shx-suggest" id="shxSuggest"></div>
+    <span class="shx-hint">Press <kbd>Enter</kbd> to search &middot; <kbd>Esc</kbd> to close</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var SEARCH_PAGE = '/search-homes';
+  var SUGGESTIONS = [
+    '3 bed condo in West Loop under $750k',
+    'Single family home with a yard in Lincoln Park',
+    'New construction with parking under $1.2m',
+    'Open house this weekend',
+    '2 bed 2 bath with outdoor space'
+  ];
+  var PLACEHOLDERS = [
+    'Try \u201c3 bed condo in West Loop under $750k with parking\u201d',
+    'Try \u201csingle family home in Lincoln Park with a yard\u201d',
+    'Try \u201cnew construction loft under $1m\u201d',
+    'Try \u201c2 bed with outdoor space near the lake\u201d'
+  ];
+
+  var overlay = document.getElementById('shxOverlay');
+  var input = document.getElementById('shxInput');
+  var form = document.getElementById('shxForm');
+  if (!overlay || !input || !form) return;
+
+  function open() {
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { input.focus(); }, 120);
+  }
+  function close() {
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  var cta = document.getElementById('searchHomesCta');
+  if (cta) cta.addEventListener('click', open);
+  var ctaMobile = document.getElementById('searchHomesCtaMobile');
+  if (ctaMobile) {
+    ctaMobile.addEventListener('click', function () {
+      var panel = document.getElementById('mobilePanel');
+      if (panel) panel.classList.remove('is-open');
+      document.body.style.overflow = '';
+      open();
+    });
+  }
+
+  document.getElementById('shxClose').addEventListener('click', close);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var q = input.value.trim();
+    window.location.href = SEARCH_PAGE + (q ? '?q=' + encodeURIComponent(q) : '');
+  });
+
+  var box = document.getElementById('shxSuggest');
+  SUGGESTIONS.forEach(function (s) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = s;
+    b.addEventListener('click', function () {
+      window.location.href = SEARCH_PAGE + '?q=' + encodeURIComponent(s);
+    });
+    box.appendChild(b);
+  });
+
+  var idx = 0;
+  input.placeholder = PLACEHOLDERS[0];
+  setInterval(function () {
+    idx = (idx + 1) % PLACEHOLDERS.length;
+    if (!input.value) input.placeholder = PLACEHOLDERS[idx];
+  }, 3600);
+})();
+</script>
+</body>
+</html>

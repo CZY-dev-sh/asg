@@ -70,3 +70,64 @@ export async function createAsanaTask(input: {
   });
   return data.data ?? null;
 }
+
+/** Create a per-listing Asana project (one project per listing). */
+export async function createProject(input: {
+  name: string;
+  notes?: string;
+}): Promise<{ gid: string; permalink_url?: string } | null> {
+  if (!have.asana()) return null;
+  const data = await httpJson<{ data: { gid: string; permalink_url?: string } }>(`${BASE}/projects`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.ASANA_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      data: { name: input.name, notes: input.notes ?? '', workspace: env.ASANA_WORKSPACE_GID },
+    }),
+  });
+  return data.data ?? null;
+}
+
+/** Create a task inside a specific project (the listing's project). */
+export async function createTaskInProject(input: {
+  projectGid: string;
+  name: string;
+  notes?: string;
+  dueOn?: string;
+}): Promise<{ gid: string; permalink_url?: string } | null> {
+  if (!have.asana()) return null;
+  const data = await httpJson<{ data: { gid: string; permalink_url?: string } }>(`${BASE}/tasks`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.ASANA_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      data: {
+        name: input.name,
+        notes: input.notes ?? '',
+        due_on: input.dueOn,
+        projects: [input.projectGid],
+        workspace: env.ASANA_WORKSPACE_GID,
+      },
+    }),
+  });
+  return data.data ?? null;
+}
+
+/** All tasks in a project (for per-listing status sync). */
+export async function fetchProjectTasks(projectGid: string): Promise<AsanaTask[]> {
+  if (!have.asana() || !projectGid) return [];
+  const fields = ['name', 'completed', 'completed_at', 'created_at', 'due_on', 'permalink_url'].join(',');
+  const out: AsanaTask[] = [];
+  let offset: string | undefined;
+  do {
+    const url = new URL(`${BASE}/projects/${encodeURIComponent(projectGid)}/tasks`);
+    url.searchParams.set('opt_fields', fields);
+    url.searchParams.set('limit', '100');
+    if (offset) url.searchParams.set('offset', offset);
+    const data = await httpJson<{ data: AsanaTask[]; next_page?: { offset?: string } | null }>(
+      url.toString(),
+      { headers: { Authorization: `Bearer ${env.ASANA_TOKEN}` } },
+    );
+    out.push(...(data.data ?? []));
+    offset = data.next_page?.offset ?? undefined;
+  } while (offset && out.length < 500);
+  return out;
+}

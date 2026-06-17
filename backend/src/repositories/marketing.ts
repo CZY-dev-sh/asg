@@ -51,6 +51,59 @@ export async function getMarketingRollup(period = '30d') {
   };
 }
 
+/**
+ * Admin calendar feed: upcoming Acuity media/meetings (linked to listings where
+ * known) plus team events, for the console calendar surface.
+ */
+export async function getCalendar(opts: { days?: number } = {}) {
+  const days = opts.days ?? 60;
+  const appts = await sql<Row[]>`
+    select aa.id, aa.title, aa.agent, aa.appointment_type, aa.starts_at, aa.ends_at,
+           aa.client_name, aa.property_address, aa.status, aa.listing_id,
+           l.address as listing_address, l.slug as listing_slug
+    from acuity_appointments aa
+    left join listings l on l.id = aa.listing_id
+    where aa.starts_at >= now() - interval '1 day'
+      and aa.starts_at <= now() + ${`${days} days`}::interval
+    order by aa.starts_at asc
+  `;
+  let events: Row[] = [];
+  try {
+    events = await sql<Row[]>`
+      select id, title, starts_at, ends_at, all_day, location, audience
+      from team_events
+      where starts_at >= now() - interval '1 day' and starts_at <= now() + ${`${days} days`}::interval
+      order by starts_at asc`;
+  } catch {
+    events = [];
+  }
+  return {
+    ok: true,
+    appointments: appts.map((a) => ({
+      id: a.id,
+      title: a.title ?? a.appointment_type,
+      type: a.appointment_type,
+      agent: a.agent,
+      clientName: a.client_name,
+      startsAt: iso(a.starts_at),
+      endsAt: iso(a.ends_at),
+      status: a.status,
+      listingId: a.listing_id ?? null,
+      listingAddress: a.listing_address ?? a.property_address ?? null,
+      listingSlug: a.listing_slug ?? null,
+    })),
+    events: events.map((e) => ({
+      id: e.id,
+      title: e.title,
+      startsAt: iso(e.starts_at),
+      endsAt: iso(e.ends_at),
+      allDay: Boolean(e.all_day),
+      location: e.location,
+      audience: e.audience,
+    })),
+  };
+}
+
 export async function getMarketingOutput(days = 30) {
   const interval = days === 0 ? '100 years' : `${days} days`;
   const emails = await sql<Row[]>`

@@ -1,6 +1,9 @@
 import { sql, j } from '../db/client.js';
-import { uploadObject, supabase } from '../storage.js';
+import { uploadObject, supabase, createSignedUpload, publicUrlFor } from '../storage.js';
 import { slugify, parseNumber, parseBool, parseDate, parseDateTime } from '../util/text.js';
+import { env, have } from '../env.js';
+import { createProject, createTaskInProject } from '../connectors/asana.js';
+import { log } from '../logger.js';
 
 type Row = Record<string, unknown>;
 
@@ -19,11 +22,23 @@ const COERCE: Record<string, (v: unknown) => unknown> = {
   listing_agreement_date: parseDate,
   next_birthday: parseDate,
   photos_datetime: parseDateTime,
+  photos_delivered_at: parseDateTime,
+  fact_sheet_requested_at: parseDateTime,
+  fact_sheet_delivered_at: parseDateTime,
+  open_house_materials_requested_at: parseDateTime,
+  open_house_materials_delivered_at: parseDateTime,
+  matterport_delivered_at: parseDateTime,
+  floor_plan_delivered_at: parseDateTime,
+  video_delivered_at: parseDateTime,
+  shared_with_agent_at: parseDateTime,
+  seller_questionnaire_sent_at: parseDateTime,
   starts_at: parseDateTime,
   ends_at: parseDateTime,
   published_at: parseDateTime,
   archived: parseBool,
   email_sent: parseBool,
+  marketing_ready: parseBool,
+  seller_questionnaire_sent: parseBool,
   active: parseBool,
   all_day: parseBool,
   pinned: parseBool,
@@ -120,11 +135,33 @@ const LISTING_SCALARS: Record<string, string> = {
   marketingStatus: 'marketing_status',
   photosStatus: 'photos_status',
   photosDatetime: 'photos_datetime',
+  photosDeliveredAt: 'photos_delivered_at',
+  photosBookingId: 'photos_booking_id',
+  photosBookingUrl: 'photos_booking_url',
   matterportStatus: 'matterport_status',
+  matterportDeliveredAt: 'matterport_delivered_at',
   floorPlanStatus: 'floor_plan_status',
+  floorPlanDeliveredAt: 'floor_plan_delivered_at',
   videoStatus: 'video_status',
+  videoDeliveredAt: 'video_delivered_at',
+  factSheetStatus: 'fact_sheet_status',
+  factSheetRequestedAt: 'fact_sheet_requested_at',
+  factSheetDeliveredAt: 'fact_sheet_delivered_at',
+  openHouseMaterialsStatus: 'open_house_materials_status',
+  openHouseMaterialsRequestedAt: 'open_house_materials_requested_at',
+  openHouseMaterialsDeliveredAt: 'open_house_materials_delivered_at',
+  compassLink: 'compass_link',
+  coAgentName: 'co_agent_name',
+  asanaProjectGid: 'asana_project_gid',
+  marketingReady: 'marketing_ready',
+  sharedWithAgentAt: 'shared_with_agent_at',
+  sharedBy: 'shared_by',
   sellerName: 'seller_name',
   sellerEmail: 'seller_email',
+  sellerPhone: 'seller_phone',
+  sellerQuestionnaireContent: 'seller_questionnaire_content',
+  sellerQuestionnaireSent: 'seller_questionnaire_sent',
+  sellerQuestionnaireSentAt: 'seller_questionnaire_sent_at',
   asanaTaskId: 'asana_task_id',
   fubDealId: 'fub_deal_id',
   fubStage: 'fub_stage',
@@ -133,21 +170,29 @@ const LISTING_SCALARS: Record<string, string> = {
   emailSent: 'email_sent',
 };
 
-/** Map listing body → {scalar, uuid} column groups (shared by create/update). */
-function listingFields(body: Row): { scalar: Row; uuid: Record<string, unknown> } {
+/** Map listing body → column groups (shared by create/update). */
+function listingFields(body: Row): {
+  scalar: Row;
+  uuid: Record<string, unknown>;
+  json: Record<string, unknown>;
+} {
   const scalar = pick(body, LISTING_SCALARS);
   const uuid: Record<string, unknown> = {};
   if (body.agentId !== undefined) uuid.agent_id = body.agentId;
-  return { scalar, uuid };
+  if (body.coAgentId !== undefined) uuid.co_agent_id = body.coAgentId;
+  if (body.leadId !== undefined) uuid.lead_id = body.leadId;
+  const json: Record<string, unknown> = {};
+  if (body.servicesBooked !== undefined) json.services_booked = body.servicesBooked;
+  return { scalar, uuid, json };
 }
 
 export async function updateListing(id: string, body: Row): Promise<Row> {
   const existing = await fetchOne('listings', id);
   if (!existing) throw new ApiError(404, 'listing not found');
-  const { scalar, uuid } = listingFields(body);
-  if (!Object.keys(scalar).length && !Object.keys(uuid).length)
+  const { scalar, uuid, json } = listingFields(body);
+  if (!Object.keys(scalar).length && !Object.keys(uuid).length && !Object.keys(json).length)
     throw new ApiError(400, 'no writable fields supplied');
-  await applyUpdate('listings', id, { scalar, uuid });
+  await applyUpdate('listings', id, { scalar, uuid, json });
   return (await fetchOne('listings', id))!;
 }
 
@@ -157,7 +202,7 @@ export async function createListing(body: Row): Promise<Row> {
   const slug = body.slug ? slugify(String(body.slug)) : slugify(address) || null;
   const rest = { ...body };
   delete rest.slug;
-  const { scalar, uuid } = listingFields(rest);
+  const { scalar, uuid, json } = listingFields(rest);
   let id: string;
   try {
     // One transaction: stub insert + field updates roll back together.
@@ -166,8 +211,8 @@ export async function createListing(body: Row): Promise<Row> {
         insert into listings (address, slug, source) values (${address}, ${slug}, 'manual')
         returning id`;
       const newId = String(row!.id);
-      if (Object.keys(scalar).length || Object.keys(uuid).length)
-        await applyUpdate('listings', newId, { scalar, uuid }, tx as unknown as typeof sql);
+      if (Object.keys(scalar).length || Object.keys(uuid).length || Object.keys(json).length)
+        await applyUpdate('listings', newId, { scalar, uuid, json }, tx as unknown as typeof sql);
       return newId;
     });
   } catch (err) {
@@ -269,6 +314,246 @@ export async function setListingCover(listingId: string, coverImageUrl: string):
   if (!listing) throw new ApiError(404, 'listing not found');
   await sql`update listings set cover_image_url = ${coverImageUrl} where id = ${listingId}::uuid`;
   return (await fetchOne('listings', listingId))!;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Listing workshop: activity, direct uploads, requests, share
+// ════════════════════════════════════════════════════════════════════════
+
+const LISTING_BUCKET = env.STORAGE_BUCKET_LISTINGS;
+
+/** Append a milestone to a listing's activity timeline. */
+export async function logActivity(
+  listingId: string,
+  type: string,
+  label: string,
+  actor: string | null = null,
+  meta: Record<string, unknown> = {},
+  clientVisible = false,
+): Promise<void> {
+  await sql`
+    insert into listing_activity (listing_id, type, label, actor, meta, client_visible)
+    values (${listingId}::uuid, ${type}, ${label}, ${actor}, ${j(meta)}, ${clientVisible})
+  `;
+}
+
+/**
+ * Build signed upload targets so the browser PUTs photos straight to Supabase
+ * Storage (no base64 through the API). Returns the storage path, the one-time
+ * signed URL/token, and the eventual public CDN url for each file.
+ */
+export async function signListingUploads(
+  listingId: string,
+  files: Array<{ name?: string; contentType?: string }>,
+): Promise<Array<{ path: string; signedUrl: string; token: string; publicUrl: string }>> {
+  const listing = await fetchOne('listings', listingId);
+  if (!listing) throw new ApiError(404, 'listing not found');
+  if (!Array.isArray(files) || files.length === 0) throw new ApiError(400, 'files[] required');
+  const out: Array<{ path: string; signedUrl: string; token: string; publicUrl: string }> = [];
+  for (const [i, f] of files.entries()) {
+    const ext =
+      EXT_BY_TYPE[String(f.contentType ?? '')] ??
+      (f.name?.match(/\.([a-z0-9]+)$/i)?.[1] ?? 'jpg').toLowerCase();
+    const base = slugify(f.name?.replace(/\.[^.]+$/, '') ?? `photo-${i}`) || `photo-${i}`;
+    const path = `manual/${listingId}/${Date.now()}-${i}-${base}.${ext}`;
+    const signed = await createSignedUpload(LISTING_BUCKET, path);
+    out.push({ path, signedUrl: signed.signedUrl, token: signed.token, publicUrl: publicUrlFor(LISTING_BUCKET, path) });
+  }
+  return out;
+}
+
+/** Register photos that the browser uploaded via signed URLs. */
+export async function registerListingPhotos(
+  listingId: string,
+  items: Array<{ path: string; caption?: string; position?: number; contentType?: string }>,
+): Promise<Row[]> {
+  const listing = await fetchOne('listings', listingId);
+  if (!listing) throw new ApiError(404, 'listing not found');
+  if (!Array.isArray(items) || items.length === 0) throw new ApiError(400, 'photos[] required');
+  let pos = await nextPhotoPosition(listingId);
+  const rows: Row[] = [];
+  for (const item of items) {
+    if (!item.path) continue;
+    const publicUrl = publicUrlFor(LISTING_BUCKET, item.path);
+    const position = item.position ?? pos++;
+    const [row] = await sql<Row[]>`
+      insert into listing_photos
+        (listing_id, source, position, caption, original_url, storage_path, public_url, content_type, mirrored)
+      values (${listingId}::uuid, 'manual', ${position}, ${item.caption ?? null}, ${publicUrl},
+              ${item.path}, ${publicUrl}, ${item.contentType ?? null}, true)
+      returning *`;
+    rows.push(row!);
+  }
+  if (rows.length)
+    await logActivity(listingId, 'asset_uploaded', `${rows.length} photo(s) uploaded`, null, {
+      count: rows.length,
+    });
+  return rows;
+}
+
+/** Reorder a listing's manual gallery. `order` is photo ids in display order. */
+export async function reorderListingPhotos(
+  listingId: string,
+  order: string[],
+): Promise<{ ok: true; count: number }> {
+  if (!Array.isArray(order) || order.length === 0) throw new ApiError(400, 'order[] required');
+  await sql.begin(async (tx) => {
+    for (const [i, photoId] of order.entries()) {
+      await tx`
+        update listing_photos set position = ${i}
+        where id = ${photoId}::uuid and listing_id = ${listingId}::uuid`;
+    }
+  });
+  return { ok: true, count: order.length };
+}
+
+// ── Marketing requests (drive Asana from our DB) ──────────────────────────
+
+const REQUEST_KIND_LABEL: Record<string, string> = {
+  open_house_materials: 'Open House Materials',
+  fact_sheet: 'Fact Sheet',
+  photos: 'Listing Photos',
+  matterport: 'Matterport',
+  floor_plan: 'Floor Plan',
+  video: 'Video',
+  other: 'Marketing Request',
+};
+
+/** Status column + requested-at column a request kind drives on the listing. */
+const REQUEST_STATUS_COL: Record<string, { status: string; requestedAt?: string }> = {
+  open_house_materials: { status: 'open_house_materials_status', requestedAt: 'open_house_materials_requested_at' },
+  fact_sheet: { status: 'fact_sheet_status', requestedAt: 'fact_sheet_requested_at' },
+  photos: { status: 'photos_status' },
+  matterport: { status: 'matterport_status' },
+  floor_plan: { status: 'floor_plan_status' },
+  video: { status: 'video_status' },
+};
+
+/**
+ * Create a marketing request. The request row is our system of record; if Asana
+ * is configured we also ensure the listing has a project and spawn a task, then
+ * store the task link back on the request. Status flows back via syncMarketing.
+ */
+export async function createRequest(
+  listingId: string,
+  input: { kind?: string; notes?: string; materials?: unknown; requestedBy?: string },
+): Promise<Row> {
+  const listing = await fetchOne('listings', listingId);
+  if (!listing) throw new ApiError(404, 'listing not found');
+  const kind = String(input.kind ?? 'other');
+  const label = REQUEST_KIND_LABEL[kind] ?? REQUEST_KIND_LABEL.other!;
+  const address = String(listing.address ?? '');
+  const materials = Array.isArray(input.materials) ? input.materials : input.materials ? [input.materials] : [];
+
+  const [req] = await sql<Row[]>`
+    insert into listing_requests (listing_id, kind, status, materials, notes, requested_by)
+    values (${listingId}::uuid, ${kind}, 'requested', ${j(materials)}, ${input.notes ?? null}, ${input.requestedBy ?? null})
+    returning *`;
+  const requestId = String(req!.id);
+
+  // Ensure an Asana project for the listing, then create a task for the request.
+  if (have.asana()) {
+    try {
+      let projectGid: string | null = (listing.asana_project_gid as string | null) ?? null;
+      if (!projectGid) {
+        const project = await createProject({ name: `${address} — Marketing` });
+        projectGid = project?.gid ?? null;
+        if (projectGid)
+          await sql`update listings set asana_project_gid = ${projectGid} where id = ${listingId}::uuid`;
+      }
+      if (projectGid) {
+        const task = await createTaskInProject({
+          projectGid,
+          name: `${label} — ${address}`,
+          notes: input.notes ?? '',
+        });
+        if (task?.gid) {
+          await sql`
+            update listing_requests
+            set asana_task_gid = ${task.gid}, asana_task_url = ${task.permalink_url ?? null}, status = 'in_progress'
+            where id = ${requestId}::uuid`;
+          await sql`
+            insert into asana_tasks (id, title, listing_id, request_id, status, completed, url, synced_at)
+            values (${task.gid}, ${label + ' — ' + address}, ${listingId}::uuid, ${requestId}::uuid, 'Open', false, ${task.permalink_url ?? null}, now())
+            on conflict (id) do update set listing_id = excluded.listing_id, request_id = excluded.request_id`;
+        }
+      }
+    } catch (err) {
+      log.warn(`asana request sync failed for listing ${listingId}: ${String(err)}`);
+    }
+  }
+
+  // Reflect the request on the listing's per-asset status columns.
+  const map = REQUEST_STATUS_COL[kind];
+  if (map) {
+    await sql`update listings set ${sql(map.status)} = 'Requested' where id = ${listingId}::uuid`;
+    if (map.requestedAt)
+      await sql`update listings set ${sql(map.requestedAt)} = now() where id = ${listingId}::uuid`;
+  }
+  await sql`update listings set marketing_status = 'In Progress' where id = ${listingId}::uuid and coalesce(marketing_status,'') not in ('In Progress','Done')`;
+
+  await logActivity(listingId, 'materials_requested', `${label} requested`, input.requestedBy ?? null, { kind, requestId }, true);
+
+  return (await sql<Row[]>`select * from listing_requests where id = ${requestId}::uuid`)[0]!;
+}
+
+// ── Share with agent (pre-filled compose) ─────────────────────────────────
+
+const enc = (s: string) => encodeURIComponent(s);
+
+/**
+ * Build a pre-filled email to the listing's (co-)agent with all delivered
+ * marketing assets. Marks the listing shared and logs the milestone. The UI
+ * opens the returned gmailUrl so the user reviews before sending.
+ */
+export async function buildShareEmail(
+  listingId: string,
+  actor: string | null = null,
+): Promise<{ to: string; subject: string; body: string; gmailUrl: string; mailto: string }> {
+  const [row] = await sql<Row[]>`
+    select address, agent_name, agent_email, co_agent_name, co_agent_email,
+           matterport_url, video_url, floor_plan_url, fact_sheet_url,
+           open_house_materials_url, booklet_url, compass_link, photos_folder_url
+    from listings_enriched where id = ${listingId}::uuid limit 1`;
+  if (!row) throw new ApiError(404, 'listing not found');
+  const to = String(row.co_agent_email ?? row.agent_email ?? '').trim();
+  if (!to) throw new ApiError(400, 'no agent email on this listing to share with');
+  const agentName = String(row.co_agent_name ?? row.agent_name ?? '').trim();
+  const address = String(row.address ?? '');
+
+  const assets: Array<[string, unknown]> = [
+    ['Photos', row.photos_folder_url],
+    ['Matterport 3D Tour', row.matterport_url],
+    ['Video', row.video_url],
+    ['Floor Plan', row.floor_plan_url],
+    ['Fact Sheet', row.fact_sheet_url],
+    ['Open House Materials', row.open_house_materials_url],
+    ['Booklet', row.booklet_url],
+    ['Compass Listing', row.compass_link],
+  ];
+  const lines: string[] = [];
+  lines.push(`Hi ${agentName || 'there'},`);
+  lines.push('');
+  lines.push(`The marketing assets for ${address} are ready:`);
+  lines.push('');
+  for (const [name, url] of assets) {
+    if (url && String(url).trim()) lines.push(`• ${name}: ${String(url).trim()}`);
+  }
+  lines.push('');
+  lines.push('Let us know if you need anything else.');
+  lines.push('');
+  lines.push('— Alex Stoykov Group Marketing');
+  const body = lines.join('\n');
+  const subject = `Marketing assets ready — ${address}`;
+
+  await sql`
+    update listings set shared_with_agent_at = now(), shared_by = ${actor}, email_sent = true
+    where id = ${listingId}::uuid`;
+  await logActivity(listingId, 'shared_with_agent', `Shared marketing package with ${agentName || to}`, actor, { to });
+
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(to)}&su=${enc(subject)}&body=${enc(body)}`;
+  const mailto = `mailto:${enc(to)}?subject=${enc(subject)}&body=${enc(body)}`;
+  return { to, subject, body, gmailUrl, mailto };
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -530,4 +815,342 @@ export async function upsertLanding(slug: string, pageType: string, body: Row): 
       await sql`update landing_pages set ${sql(col)} = ${j(body[key])} where id = ${id}::uuid`;
   }
   return (await fetchOne('landing_pages', id))!;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Directory (source of truth = the "ASG Directory" Google Sheet)
+// ════════════════════════════════════════════════════════════════════════
+
+/** First non-empty value among `keys` on a loose sheet row. */
+function pickKey(row: Row, keys: string[]): unknown {
+  for (const k of keys) {
+    const v = row[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+  }
+  return null;
+}
+
+const str = (v: unknown): string | null => {
+  const s = v == null ? '' : String(v).trim();
+  return s ? s : null;
+};
+
+/** Map a free-text tier ("Senior", "junior", "Admin") onto the agent_tier enum. */
+function normTier(v: unknown): 'senior' | 'junior' | 'admin' {
+  const s = String(v ?? '').trim().toLowerCase();
+  if (s.includes('senior')) return 'senior';
+  if (s.includes('admin')) return 'admin';
+  return 'junior';
+}
+
+export interface DirectoryUpsertResult {
+  ok: true;
+  upserted: number;
+  deactivated: number;
+}
+
+/**
+ * Replace the directory with the rows pushed from the Google Sheet. Each row is
+ * upserted by email (the stable key); rows without an email fall back to slug.
+ * When `deactivateMissing` is true (default) any emailed agent NOT in the
+ * payload is flipped inactive, so deleting a row in the sheet removes them from
+ * every UI surface. The whole sheet row is preserved in `raw`.
+ */
+export async function upsertDirectory(
+  rows: unknown,
+  opts: { deactivateMissing?: boolean } = {},
+): Promise<DirectoryUpsertResult> {
+  if (!Array.isArray(rows)) throw new ApiError(400, 'directory must be an array of rows');
+  const deactivateMissing = opts.deactivateMissing !== false;
+  const seenEmails: string[] = [];
+  let upserted = 0;
+  let deactivated = 0;
+
+  await sql.begin(async (tx) => {
+    const db = tx as unknown as typeof sql;
+    for (const raw of rows as Row[]) {
+      if (!raw || typeof raw !== 'object') continue;
+      const email = (str(pickKey(raw, ['email', 'agent_email'])) ?? '').toLowerCase() || null;
+      const name = str(pickKey(raw, ['name', 'display_name', 'agent_name']));
+      if (!email && !name) continue; // blank row
+
+      const slugSrc =
+        pickKey(raw, ['agent_slug', 'slug']) ?? (email ? email.split('@')[0] : name);
+      const slug = slugify(String(slugSrc));
+      const tier = normTier(pickKey(raw, ['tier', 'role_group']));
+      const adminRole = str(pickKey(raw, ['admin_role', 'role']));
+      const icon = str(pickKey(raw, ['icon_photo_url', 'image_url', 'photo', 'headshot_url']));
+      const seniority = parseNumber(
+        pickKey(raw, ['computed_seniority_rank_overall', 'seniority_rank']),
+      );
+
+      await db`
+        insert into agents (
+          slug, name, email, phone, fub_phone, tier, role, admin_role,
+          icon_photo_url, headshot_url, start_date, birthday, seniority_rank, next_birthday,
+          headshots_url, landing_page_url, marketing_drive_url, buyer_guide_url, seller_guide_url,
+          listing_presentation_url, business_card_url,
+          buyer_guide_updated_at, seller_guide_updated_at,
+          listing_presentation_updated_at, business_card_updated_at,
+          active, directory_synced_at, raw
+        ) values (
+          ${slug}, ${name ?? slug}, ${email},
+          ${str(pickKey(raw, ['phone_number', 'phone', 'mobile', 'cell']))},
+          ${str(pickKey(raw, ['fub_number', 'fub_phone']))},
+          ${tier}::agent_tier, ${adminRole}, ${adminRole},
+          ${icon}, ${icon},
+          ${parseDate(pickKey(raw, ['start_date', 'startdate', 'start']))},
+          ${str(pickKey(raw, ['birthday_display', 'birthday', 'birth_date']))},
+          ${seniority},
+          ${parseDate(pickKey(raw, ['computed_next_birthday_iso', 'next_birthday']))},
+          ${str(pickKey(raw, ['headshots', 'headshots_link', 'headshots_url']))},
+          ${str(pickKey(raw, ['landing_page_url', 'landing_page']))},
+          ${str(pickKey(raw, ['marketing_drive_url', 'marketing_drive_link']))},
+          ${str(pickKey(raw, ['buyer_guide_url', 'buyer_guide_link']))},
+          ${str(pickKey(raw, ['seller_guide_url', 'seller_guide_link']))},
+          ${str(pickKey(raw, ['listing_presentation_url', 'listing_presentation_link']))},
+          ${str(pickKey(raw, ['business_card_url', 'business_card_link']))},
+          ${str(pickKey(raw, ['buyer_guide_updated_at']))},
+          ${str(pickKey(raw, ['seller_guide_updated_at']))},
+          ${str(pickKey(raw, ['listing_presentation_updated_at']))},
+          ${str(pickKey(raw, ['business_card_updated_at']))},
+          true, now(), ${j(raw)}
+        )
+        on conflict (${email ? db`email` : db`slug`}) do update set
+          slug = excluded.slug,
+          name = excluded.name,
+          email = coalesce(excluded.email, agents.email),
+          phone = excluded.phone,
+          fub_phone = excluded.fub_phone,
+          tier = excluded.tier,
+          role = excluded.role,
+          admin_role = excluded.admin_role,
+          icon_photo_url = excluded.icon_photo_url,
+          headshot_url = coalesce(excluded.headshot_url, agents.headshot_url),
+          start_date = excluded.start_date,
+          birthday = excluded.birthday,
+          seniority_rank = excluded.seniority_rank,
+          next_birthday = excluded.next_birthday,
+          headshots_url = excluded.headshots_url,
+          landing_page_url = excluded.landing_page_url,
+          marketing_drive_url = excluded.marketing_drive_url,
+          buyer_guide_url = excluded.buyer_guide_url,
+          seller_guide_url = excluded.seller_guide_url,
+          listing_presentation_url = excluded.listing_presentation_url,
+          business_card_url = excluded.business_card_url,
+          buyer_guide_updated_at = excluded.buyer_guide_updated_at,
+          seller_guide_updated_at = excluded.seller_guide_updated_at,
+          listing_presentation_updated_at = excluded.listing_presentation_updated_at,
+          business_card_updated_at = excluded.business_card_updated_at,
+          active = true,
+          directory_synced_at = excluded.directory_synced_at,
+          raw = excluded.raw,
+          updated_at = now()
+      `;
+      if (email) seenEmails.push(email);
+      upserted++;
+    }
+
+    if (deactivateMissing && seenEmails.length) {
+      const res = await db`
+        update agents set active = false, updated_at = now()
+        where active = true and email is not null and lower(email) <> all(${seenEmails})`;
+      // postgres.js exposes the affected count on the result's `count`.
+      deactivated = (res as unknown as { count?: number }).count ?? 0;
+    }
+  });
+
+  return { ok: true, upserted, deactivated };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Hub content (Events + Updates) — source of truth = Hub Data Google Sheet
+// ════════════════════════════════════════════════════════════════════════
+
+export interface HubContentResult {
+  ok: true;
+  events: number;
+  updates: number;
+}
+
+/**
+ * Mirror the "Events" and "Updates" tabs into Supabase. Each row carries an
+ * `external_key` (derived in Apps Script from title + date) so re-runs upsert in
+ * place rather than duplicating. Rows the console creates directly keep a null
+ * external_key and are never touched here. The whole sheet row is kept in `raw`.
+ */
+export async function upsertHubContent(input: {
+  events?: unknown;
+  updates?: unknown;
+}): Promise<HubContentResult> {
+  const eventRows = Array.isArray(input.events) ? (input.events as Row[]) : [];
+  const updateRows = Array.isArray(input.updates) ? (input.updates as Row[]) : [];
+  let events = 0;
+  let updates = 0;
+
+  await sql.begin(async (tx) => {
+    const db = tx as unknown as typeof sql;
+
+    for (const raw of eventRows) {
+      if (!raw || typeof raw !== 'object') continue;
+      const title = str(pickKey(raw, ['title', 'event', 'event_title', 'name']));
+      if (!title) continue;
+      const externalKey =
+        str(pickKey(raw, ['external_key', 'key'])) ?? `evt:${slugify(title)}`;
+      const startsAt = parseDateTime(
+        pickKey(raw, [
+          'starts_at', 'start', 'start_datetime', 'datetime',
+          'computed_event_datetime_iso', 'start_date', 'date', 'event_date',
+        ]),
+      );
+      const endsAt = parseDateTime(pickKey(raw, ['ends_at', 'end', 'end_datetime']));
+      await db`
+        insert into team_events (
+          title, starts_at, ends_at, all_day, location, description, audience, url,
+          source, external_key, raw
+        ) values (
+          ${title}, ${startsAt}, ${endsAt},
+          ${parseBool(pickKey(raw, ['all_day', 'allday']))},
+          ${str(pickKey(raw, ['location', 'venue', 'place', 'address']))},
+          ${str(pickKey(raw, ['description', 'details', 'notes', 'body', 'summary']))},
+          ${str(pickKey(raw, ['audience', 'tier', 'role_group', 'visibility']))},
+          ${str(pickKey(raw, ['url', 'link', 'rsvp_url', 'event_url']))},
+          'sheet', ${externalKey}, ${j(raw)}
+        )
+        on conflict (external_key) where external_key is not null do update set
+          title = excluded.title,
+          starts_at = excluded.starts_at,
+          ends_at = excluded.ends_at,
+          all_day = excluded.all_day,
+          location = excluded.location,
+          description = excluded.description,
+          audience = excluded.audience,
+          url = excluded.url,
+          source = 'sheet',
+          raw = excluded.raw,
+          updated_at = now()
+      `;
+      events++;
+    }
+
+    for (const raw of updateRows) {
+      if (!raw || typeof raw !== 'object') continue;
+      const title = str(pickKey(raw, ['title', 'headline', 'subject', 'name']));
+      if (!title) continue;
+      const externalKey =
+        str(pickKey(raw, ['external_key', 'key'])) ?? `upd:${slugify(title)}`;
+      const publishedAt = parseDateTime(
+        pickKey(raw, [
+          'published_at', 'publish_date', 'posted_at', 'date',
+          'effective_date', 'computed_update_sort_iso',
+        ]),
+      );
+      await db`
+        insert into team_updates (
+          title, body, published_at, audience, pinned, author,
+          source, external_key, raw
+        ) values (
+          ${title},
+          ${str(pickKey(raw, ['body', 'message', 'content', 'details', 'description']))},
+          coalesce(${publishedAt}::timestamptz, now()),
+          ${str(pickKey(raw, ['audience', 'tier', 'role_group', 'visibility']))},
+          ${parseBool(pickKey(raw, ['pinned', 'pin', 'featured']))},
+          ${str(pickKey(raw, ['author', 'posted_by', 'created_by']))},
+          'sheet', ${externalKey}, ${j(raw)}
+        )
+        on conflict (external_key) where external_key is not null do update set
+          title = excluded.title,
+          body = excluded.body,
+          published_at = excluded.published_at,
+          audience = excluded.audience,
+          pinned = excluded.pinned,
+          author = excluded.author,
+          source = 'sheet',
+          raw = excluded.raw,
+          updated_at = now()
+      `;
+      updates++;
+    }
+  });
+
+  return { ok: true, events, updates };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Listings workflow import — source of truth = Listing Hub "Listings"/"Marketing"
+// ════════════════════════════════════════════════════════════════════════
+
+export interface ListingsImportResult {
+  ok: true;
+  upserted: number;
+  created: number;
+  linkedAgents: number;
+}
+
+/** Drop keys whose value is null/undefined/blank so blanks never clobber data. */
+function dropEmpty(body: Row): Row {
+  const out: Row = {};
+  for (const [k, v] of Object.entries(body)) {
+    if (v === undefined || v === null) continue;
+    if (typeof v === 'string' && v.trim() === '') continue;
+    out[k] = v;
+  }
+  return out;
+}
+
+/**
+ * Upsert the workflow/marketing overlay rows (keyed by normalized address) onto
+ * the listings table. A row with no matching listing is created as a sheet-sourced
+ * stub; matching rows are updated. Only non-empty cells are written, so the sheet
+ * fills gaps without wiping values the console or IDX already set. Agent and
+ * co-agent names are resolved to roster ids afterward for hub routing.
+ */
+export async function upsertListingsWorkflow(rows: unknown): Promise<ListingsImportResult> {
+  if (!Array.isArray(rows)) throw new ApiError(400, 'listings must be an array of rows');
+  let upserted = 0;
+  let created = 0;
+
+  await sql.begin(async (tx) => {
+    const db = tx as unknown as typeof sql;
+    for (const raw of rows as Row[]) {
+      if (!raw || typeof raw !== 'object') continue;
+      const address = str(pickKey(raw, ['address', 'Address']));
+      if (!address) continue;
+
+      const [row] = await db<Row[]>`
+        insert into listings (address, source)
+        values (${address}, 'sheet')
+        on conflict (address_normalized) do update set updated_at = now()
+        returning id, (xmax = 0) as inserted`;
+      const id = String(row!.id);
+      if (row!.inserted) created++;
+
+      const body = dropEmpty(raw);
+      delete body.address; // keep the canonical address; never overwrite from a re-key
+      delete body.slug;
+      const { scalar, uuid, json } = listingFields(body);
+      delete (scalar as Row).slug;
+      delete (scalar as Row).source;
+      if (Object.keys(scalar).length || Object.keys(uuid).length || Object.keys(json).length)
+        await applyUpdate('listings', id, { scalar, uuid, json }, db);
+      upserted++;
+    }
+  });
+
+  // Resolve agent/co-agent names → roster ids (only where not already linked).
+  const linkPrimary = await sql`
+    update listings l set agent_id = a.id
+    from agents a
+    where l.agent_id is null and l.agent_name is not null
+      and lower(a.name) = lower(l.agent_name)`;
+  const linkCo = await sql`
+    update listings l set co_agent_id = a.id
+    from agents a
+    where l.co_agent_id is null and l.co_agent_name is not null
+      and lower(a.name) = lower(l.co_agent_name)`;
+  const linkedAgents =
+    ((linkPrimary as unknown as { count?: number }).count ?? 0) +
+    ((linkCo as unknown as { count?: number }).count ?? 0);
+
+  return { ok: true, upserted, created, linkedAgents };
 }

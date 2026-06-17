@@ -110,6 +110,10 @@ function doGet(e) {
     if (view === 'findlistingdebug') return jsonResponse_(findListingDebugPayload_(p));
     if (view === 'idxsync') return jsonResponse_({ success: true, idx: idxSyncStatusPayload_() });
     if (view === 'idxprobe') return jsonResponse_({ success: true, probe: idxProbeFeeds_() });
+    if (view === 'home') {
+      var homeRows = getHomeListingsForApi_();
+      return jsonResponse_({ success: true, view: view, count: homeRows.length, listings: homeRows });
+    }
     var slim = String(p.slim || '').toLowerCase() !== '0';
     var listings;
     var out = [];
@@ -804,9 +808,15 @@ function listingsActiveCacheKey_() {
   return 'listings_active_v4_' + getListingsSpreadsheet_().getId();
 }
 
+function homeListingsCacheKey_() {
+  return 'listings_home_v1_' + getListingsSpreadsheet_().getId();
+}
+
 function invalidateListingsActiveCache_() {
   try {
-    CacheService.getScriptCache().remove(listingsActiveCacheKey_());
+    var cache = CacheService.getScriptCache();
+    cache.remove(listingsActiveCacheKey_());
+    cache.remove(homeListingsCacheKey_());
   } catch (e) {}
 }
 
@@ -814,7 +824,7 @@ function invalidateListingsActiveCache_() {
 function getActiveListingsForApi_() {
   var props = PropertiesService.getScriptProperties();
   var sec = Number(props.getProperty('LISTINGS_ACTIVE_CACHE_SEC'));
-  if (!sec && sec !== 0) sec = 120;
+  if (!sec && sec !== 0) sec = 3600;
   var cache = CacheService.getScriptCache();
   var key = listingsActiveCacheKey_();
   if (sec > 0) {
@@ -834,6 +844,57 @@ function getActiveListingsForApi_() {
     } catch (ePut) {}
   }
   return slim;
+}
+
+/** Micro payload for the public homepage: only the fields the cards and
+    featured-hero need. A few KB, so it always fits CacheService and the
+    browser downloads it near-instantly. */
+function slimListingForHome_(l) {
+  return {
+    address: trim_(l.address || ''),
+    listPrice: l.listPrice || l.price || '',
+    status: l.status || '',
+    idxMlsStatus: l.idxMlsStatus || '',
+    listingType: l.listingType || '',
+    mlsPropType: l.mlsPropType || '',
+    mlsAreaMajor: l.mlsAreaMajor || '',
+    neighborhood: l.neighborhood || '',
+    mlsCity: l.mlsCity || '',
+    beds: l.beds || '',
+    baths: l.baths || '',
+    sqFt: l.sqFt || '',
+    coverImage: trim_(l.coverImage || l.idxCoverImage || ''),
+    preMls: !!l.preMls
+  };
+}
+
+/** Cached homepage listings for view=home. Long TTL is safe because the IDX
+    sync invalidates and re-warms these caches on every change. */
+function getHomeListingsForApi_() {
+  var cache = CacheService.getScriptCache();
+  var key = homeListingsCacheKey_();
+  try {
+    var hit = cache.get(key);
+    if (hit) return JSON.parse(hit);
+  } catch (eCache) {}
+  // Derive from the (possibly cached) active slim rows: one compute total.
+  var rows = getActiveListingsForApi_();
+  var out = [];
+  var i;
+  for (i = 0; i < rows.length; i++) out.push(slimListingForHome_(rows[i]));
+  try {
+    var blob = JSON.stringify(out);
+    if (blob.length < 95000) cache.put(key, blob, 21600);
+  } catch (ePut) {}
+  return out;
+}
+
+/** Rebuild both list caches so visitors never trigger a cold compute.
+    Called at the end of every IDX sync; can also run on its own trigger. */
+function warmListingsCaches() {
+  invalidateListingsActiveCache_();
+  getActiveListingsForApi_();
+  getHomeListingsForApi_();
 }
 
 /**
@@ -1340,10 +1401,22 @@ function listingPhotosPayload_(p) {
     var folder = DriveApp.getFolderById(folderId), files = folder.getFiles();
     while (files.hasNext() && photos.length < 100) {
       var f = files.next();
-      if (String(f.getMimeType() || '').indexOf('image/') === 0) photos.push({ id: f.getId(), name: f.getName(), url: 'https://drive.google.com/uc?export=view&id=' + f.getId() });
+      if (String(f.getMimeType() || '').indexOf('image/') === 0) {
+        var id = f.getId();
+        photos.push({
+          id: id,
+          name: f.getName(),
+          // lh3 render URL embeds reliably in <img> (uc?export=view often 302s
+          // into cookie walls). Requires link-share on the folder; HTTPS, no token.
+          url: 'https://lh3.googleusercontent.com/d/' + id + '=w1600',
+          thumbUrl: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w640',
+          driveUrl: 'https://drive.google.com/uc?export=view&id=' + id
+        });
+      }
     }
+    photos.sort(function (a, b) { return String(a.name).localeCompare(String(b.name), undefined, { numeric: true }); });
   } catch (err) {}
-  return { success: true, address: l.address, photos: photos };
+  return { success: true, address: l.address, coverImage: trim_(l.idxCoverImage || l.coverImage || ''), photos: photos };
 }
 function listingOpsPayload_(p) {
   var l = findListingByParams_(p || {});

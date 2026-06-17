@@ -1573,7 +1573,13 @@ function syncIdxListingsToSheet() {
   PropertiesService.getScriptProperties().setProperty('IDX_SYNC_LAST_AT', syncedAt);
   PropertiesService.getScriptProperties().setProperty('IDX_SYNC_LAST_COUNT', String(rows.length));
   PropertiesService.getScriptProperties().setProperty('IDX_OPENHOUSES_LAST_COUNT', String(openHouseRows));
-  invalidateListingsActiveCache_();
+  // Rebuild the list caches now (instead of leaving them cold for the next
+  // site visitor to recompute, which used to cost that visitor ~5s).
+  try {
+    warmListingsCaches();
+  } catch (eWarm) {
+    invalidateListingsActiveCache_();
+  }
 
   return {
     success: true,
@@ -1646,6 +1652,7 @@ function idxSheetHeaderIndex_(headers) {
     coListAgentId: idx['co list agent id'],
     coListAgentName: idx['co list agent name'],
     rawJson: idx['raw json'],
+    imageFirstUrl: idx['image.firsturl'],
     listingAgentId: idx['listingagentid'] !== undefined ? idx['listingagentid'] :
       (idx['listing agent id'] !== undefined ? idx['listing agent id'] : idx['listingagentmlsid'])
   };
@@ -1710,6 +1717,7 @@ function idxBuildEntryFromSheetRow_(row, col) {
     sheetListingAgentId: trim_(idxCell_(row, col.listingAgentId)),
     sheetCoListAgentId: trim_(idxCell_(row, col.coListAgentId)),
     sheetCoListAgentName: trim_(idxCell_(row, col.coListAgentName)),
+    sheetImageFirstUrl: trim_(idxCell_(row, col.imageFirstUrl)),
     listing: L
   };
 }
@@ -2968,8 +2976,12 @@ function enrichListingFromIdx_(listing, idxEntry) {
     }
   }
 
-  var photo = idxFirstPhotoUrl_(L);
-  if (!trim_(listing.coverImage) && photo) listing.coverImage = photo;
+  // Cover image: prefer the IDX CDN photo (image.firstUrl column mirrors the
+  // MLS S3 asset, loads fast and needs no auth). Raw JSON strips image URLs,
+  // so the flat sheet column is the reliable source for sheet-built entries.
+  var photo = idxFirstPhotoUrl_(L) || trim_(idxEntry.sheetImageFirstUrl || '');
+  listing.idxCoverImage = photo;
+  if (photo) listing.coverImage = photo;
 
   var mp = idxMatterportUrl_(L);
   if (!trim_(listing.matterport) && mp) listing.matterport = mp;

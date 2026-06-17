@@ -44,6 +44,30 @@ export async function uploadObject(
   return { path, publicUrl: data.publicUrl, bytes: body.byteLength, contentType };
 }
 
+/**
+ * Create a one-time signed upload URL so the browser PUTs a file straight to
+ * Storage (no bytes through the API). Caller stores the path and later
+ * registers the photo row via publicUrlFor().
+ */
+export async function createSignedUpload(
+  bucket: string,
+  path: string,
+): Promise<{ path: string; signedUrl: string; token: string }> {
+  const sb = supabase();
+  await ensureBucket(bucket, true);
+  const { data, error } = await sb.storage.from(bucket).createSignedUploadUrl(path);
+  if (error || !data) {
+    throw new Error(`could not sign upload for ${bucket}/${path}: ${error?.message ?? 'unknown error'}`);
+  }
+  return { path, signedUrl: data.signedUrl, token: data.token };
+}
+
+/** Public CDN URL for an object already (or about to be) in a public bucket. */
+export function publicUrlFor(bucket: string, path: string): string {
+  const { data } = supabase().storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export async function ensureBucket(bucket: string, isPublic = true): Promise<void> {
   const sb = supabase();
   const { data } = await sb.storage.getBucket(bucket);

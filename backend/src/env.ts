@@ -67,6 +67,14 @@ const schema = z.object({
   ACUITY_USER_ID: z.string().optional().default(''),
   ACUITY_API_KEY: z.string().optional().default(''),
   ACUITY_CALENDAR_IDS: csv(),
+  // Scheduling page + intake field ids used to prefill a booking from the console.
+  ACUITY_BOOKING_BASE_URL: z.string().default('https://asgmarketing.as.me'),
+  ACUITY_PROPERTY_ADDRESS_FIELD_ID: z.string().optional().default(''),
+  ACUITY_AGENT_NAME_FIELD_ID: z.string().default('18245579'),
+  ACUITY_SOURCE_FIELD_ID: z.string().default('18245580'),
+  ACUITY_SOURCE_VALUE: z.string().default('Admin Hub'),
+  // Appointment types that count as media/photo shoots (substring match, csv).
+  ACUITY_MEDIA_KEYWORDS: csv(),
 
   // Pipeline CSVs
   PIPELINE_BUYERS_CSV: z.string().optional().default(''),

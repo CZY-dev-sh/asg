@@ -419,6 +419,161 @@ Same Apps Script deployment. Returns the FUB custom-field catalog plus pipelines
 
 ---
 
+## Buyer Onboarding Intake (Follow Up Boss lead creation)
+
+**Apps Script Source**: `asg-admin-hub/apps-script/follow-up-boss/BuyerIntake.gs`
+(same Apps Script project as `FubAgentHub.gs`; this file adds the project's `doPost`)
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec`
+
+**Method**: `POST` (JSON body, sent `no-cors` from the wizard)
+
+**Frontend**: `asg-admin-hub/components/asg-buyer-onboarding.html` (Squarespace page at `/buyer-onboarding`).
+Set `window.ASG_BUYER_INTAKE_API` to the deployed URL; if unset the wizard runs in preview mode (success screen, no network call).
+
+**POST body**:
+```json
+{
+  "_formType": "buyer-onboarding",
+  "_page": "/buyer-onboarding",
+  "_submittedAt": "2026-06-09T19:00:00.000Z",
+  "_renderMs": 84210,
+  "company": "",
+  "contact": { "name": "Jordan Smith", "email": "jordan@email.com", "phone": "(312) 555-0142", "methods": ["Text", "Email"] },
+  "marketing": { "generalOptIn": true, "frequency": "Monthly", "searchOptIn": true },
+  "agent": { "name": "Alex Stoykov", "email": "alex.stoykov@compass.com", "matchMe": false },
+  "locations": ["Lincoln Park", "West Loop"],
+  "otherLocation": "Evanston",
+  "budgetMax": 750000,
+  "bedsMin": 2,
+  "bathsMin": 1.5,
+  "petFriendly": true,
+  "washerDryerInUnit": true,
+  "details": {
+    "propertyType": "Condo",
+    "condition": "Move-in ready",
+    "parking": "Garage required",
+    "timing": "0-3 months",
+    "financing": "Pre-approved",
+    "mustHave": "Outdoor space",
+    "autoNo": "Busy street"
+  }
+}
+```
+
+**What it does** (in order):
+1. Rejects spam: non-empty `company` honeypot, or `_renderMs` under 4 seconds.
+2. Resolves the selected agent's FUB user id via `GET /v1/users` matched by email (cached 6h in `CacheService`).
+3. Creates/updates the lead via FUB `POST /v1/events` (`type: Registration`, dedupes by email/phone, fires action plans) with person `{ name, emails, phones, tags, assignedUserId, contactPreference }`. Marketing opt-outs add the tags `Marketing Opt-Out` / `Search Emails Opt-Out` so FUB automations can exclude those people.
+4. Re-asserts assignment with `PUT /v1/people/{id}` (events alone may not reassign existing people).
+5. Posts the full formatted questionnaire as a note (`POST /v1/notes`) on the person.
+
+**Response**:
+```json
+{
+  "success": true,
+  "personId": 12345,
+  "noteId": 6789,
+  "assignedTo": { "id": 42, "name": "Alex Stoykov", "email": "alex.stoykov@compass.com" }
+}
+```
+Note: the wizard posts `no-cors`, so it cannot read this response; it is useful when testing with curl/Postman.
+
+**Script Properties**:
+- `FUB_API_KEY` (required, shared with the Agent Hub API)
+- `FUB_API_BASE_URL` (optional, defaults to `https://api.followupboss.com/v1`)
+- `BUYER_INTAKE_SOURCE` (optional, default `ASG Website - Buyer Onboarding`)
+- `BUYER_INTAKE_SYSTEM` (optional, default `ASG Website`)
+- `BUYER_INTAKE_TAGS` (optional, comma-separated extra tags; `Buyer Onboarding` is always applied)
+- `BUYER_INTAKE_FALLBACK_EMAIL` (optional, agent who receives "Match me with an agent" leads)
+
+**Deployment note**: after adding `BuyerIntake.gs` to the FUB Apps Script project, create a **new deployment version** (Deploy > Manage deployments > Edit > New version) so the web app picks up `doPost`. Web app access must be "Anyone".
+
+**Multi-form dispatch**: `BuyerIntake.gs` owns the project's single `doPost`, which dispatches on the payload's `_formType`. A `seller-onboarding` payload routes to `_siHandlePost_` (see `SellerIntake.gs`); everything else falls through to the buyer handler `_biHandlePost_`.
+
+---
+
+## Seller Onboarding Intake (Follow Up Boss lead creation)
+
+**Apps Script Source**: `asg-admin-hub/apps-script/follow-up-boss/SellerIntake.gs`
+(same Apps Script project as `FubAgentHub.gs` / `BuyerIntake.gs`; reuses the shared FUB helpers and is reached through the `doPost` dispatcher in `BuyerIntake.gs`)
+
+**URL**: `https://script.google.com/macros/s/REPLACE_WITH_FUB_HUB_DEPLOYMENT/exec`
+
+**Method**: `POST` (JSON body, sent `no-cors` from the wizard)
+
+**Frontend**: `asg-admin-hub/components/asg-seller-onboarding.html` (Squarespace page at `/seller-onboarding`).
+Set `window.ASG_SELLER_INTAKE_API` to the deployed URL; if unset the wizard runs in preview mode (success screen, no network call).
+
+The wizard mirrors the Asana "Alex Stoykov Group - Seller Questionnaire" and branches by `property.type`, so the route-specific block is one of `singleFamily`, `condo`, `multiUnit`, or `land`.
+
+**POST body** (Single Family example):
+```json
+{
+  "_formType": "seller-onboarding",
+  "_page": "/seller-onboarding",
+  "_submittedAt": "2026-06-15T12:00:00.000Z",
+  "_renderMs": 84210,
+  "company": "",
+  "contact": { "name": "Jordan Smith", "email": "jordan@email.com", "phone": "(312) 555-0142", "methods": ["Text", "Email"] },
+  "howHeard": "Instagram",
+  "howHeardOther": "",
+  "marketing": { "generalOptIn": true, "frequency": "Monthly", "searchOptIn": true },
+  "agent": { "name": "Alex Stoykov", "email": "alex.stoykov@compass.com", "matchMe": false },
+  "property": { "type": "Single Family Home", "address": "123 Main St, Chicago, IL 60610" },
+  "singleFamily": {
+    "access": "Lockbox 1234",
+    "showings": "Weekdays after 5pm",
+    "mechanicals": "Furnace 2019, A/C 2019, water heater 2021",
+    "updates": "Kitchen remodel 2022 (transferable warranty)",
+    "comed": "1234567890",
+    "gas": "0987654321",
+    "utilities": ["Public Water", "Public Sewer"],
+    "hoa": "No",
+    "hoaDetails": "",
+    "occupancy": "Owner Occupied",
+    "rent": "",
+    "leaseExp": "",
+    "anythingElse": "New roof in 2023."
+  }
+}
+```
+
+Other property types replace the `singleFamily` key:
+- `condo` — occupancy, monthly assessment + inclusions, special assessments, access/systems, association items (property manager, open-house and sign rules, rental/pet restrictions, reserves, capital improvements, budget, move fees), storage locker, bike storage, building amenities.
+- `multiUnit` — `numUnits`, a `units` array (`{ bedsBaths, rented, leaseDate, rent }` per unit, 2 to 6), tenant-paid utilities, owner expenses, mechanicals, roof, parking, laundry, non-conforming units.
+- `land` — `lotDimensions`, `access`, `utilities`, `anythingElse`.
+
+**What it does** (in order):
+1. Rejects spam: non-empty `company` honeypot, or `_renderMs` under 4 seconds.
+2. Resolves the selected agent's FUB user id via the shared `GET /v1/users` lookup (cached 6h).
+3. Creates/updates the lead via FUB `POST /v1/events` (`type: Registration`, tag `Seller Onboarding`). Marketing opt-outs add the tags `Marketing Opt-Out` / `Market Updates Opt-Out`.
+4. Re-asserts assignment with `PUT /v1/people/{id}`.
+5. Posts the full formatted questionnaire as a note (`POST /v1/notes`) on the person.
+
+**Response**:
+```json
+{
+  "success": true,
+  "personId": 12345,
+  "noteId": 6789,
+  "assignedTo": { "id": 42, "name": "Alex Stoykov", "email": "alex.stoykov@compass.com" }
+}
+```
+Note: the wizard posts `no-cors`, so it cannot read this response; it is useful when testing with curl/Postman.
+
+**Script Properties**:
+- `FUB_API_KEY` (required, shared with the Agent Hub / Buyer Intake)
+- `FUB_API_BASE_URL` (optional, defaults to `https://api.followupboss.com/v1`)
+- `SELLER_INTAKE_SOURCE` (optional, default `ASG Website - Seller Onboarding`)
+- `SELLER_INTAKE_SYSTEM` (optional, default `ASG Website`)
+- `SELLER_INTAKE_TAGS` (optional, comma-separated extra tags; `Seller Onboarding` is always applied)
+- `SELLER_INTAKE_FALLBACK_EMAIL` (optional, agent who receives "Match me with an agent" leads)
+
+**Deployment note**: add `SellerIntake.gs` to the same FUB Apps Script project as `BuyerIntake.gs`, then create a **new deployment version** so the dispatcher picks up the seller handler. Web app access must be "Anyone".
+
+---
+
 ## Recent Folders API
 
 **URL**: `https://script.google.com/macros/s/AKfycbwrDNg7tqUcbbOlYzxC67tDDw7_YDcPau_Y38PzzyDkZ1JcT-6ZRG2UKOPtf3eZAic6_Q/exec`
@@ -533,6 +688,7 @@ Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Sq
 | Query | Returns |
 |---|---|
 | `?view=active` | Active rows (not closed). JSON list in `listings`. |
+| `?view=home` | Micro payload for the public homepage (address, price, status, type, area, beds/baths/sqft, cover image only). Cached 6h in `CacheService` and re-warmed after every IDX sync, so responses are always served from warm cache. |
 | `?view=archive` or `closed` | Closed rows. |
 | `?view=all` | All rows (master dashboard). |
 | `?view=listing&address=` | Single listing object (`listing`). |
@@ -559,7 +715,16 @@ Deploy as a web app with **Execute as: Me** and **Who has access: Anyone** so Sq
 
 The reader accepts aliases for: Address, Neighborhood, Agent, Listing Agreement Date, SMO Credit, Listing Type, Status, Listing Phase / Phase, Beds, Baths, Sq Ft, Cover Image, Photos / Photos URL, Matterport, Floor Plan, Open House Materials URL, Fact Sheet, Booklet URL, Open House / Story / Sign URLs, Listing Video URL, Asana / Acuity / FUB / MLS correlation columns, Archived, Email Sent.
 
-**Used in**: `admin-dashboard.html`, `admin-master-dashboard.html`, `agent-personal-hub-*.html`
+**Used in**: `admin-dashboard.html`, `admin-master-dashboard.html`, `agent-personal-hub-*.html`, `asg-homepage-redesign.html` (`?view=home`), `asg-search-homes.html` (`?view=active` + `?view=idxsync`)
+
+### Search Homes page (`asg-admin-hub/components/asg-search-homes.html`)
+
+Public natural-language MLS search at `/search-homes` (Squarespace Code Block, self-contained page — no `asg-page-main` wrapper).
+
+- **Data**: fetches `?view=active` (full slim listing objects incl. beds/baths/sqft, `mlsRemarks`, `mlsPhotos`, `mlsFullDetailsUrl`, open houses, price-drop fields) and caches the payload in `localStorage` for instant repeat paints. `?view=idxsync` powers the "synced X min ago" label.
+- **Search**: client-side natural-language parser (price ranges, beds/baths, home type, neighborhoods/zips, features like parking/outdoor space, open-house / price-drop / new-construction intents) → editable filter chips + full filter panel. No additional backend required.
+- **Scope**: results cover whatever `IdxSync.gs` mirrors into `IdxListings` (featured + supplemental + soldpending + any configured saved links). Empty states deep-link to the full Elm Street portal (`https://search.alexstoykovgroup.com/`) and `/buyer-onboarding`.
+- **Entry points**: the "Search Homes" nav CTA (site-wide JS injection + homepage redesign) opens a blurred lighting search overlay that lands on `/search-homes?q=…`.
 
 ---
 

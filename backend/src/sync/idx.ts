@@ -27,6 +27,29 @@ export async function syncIdx(): Promise<SyncResult> {
       and l.address_normalized = x.address_normalized
   `;
 
+  // Co-listing agent groundwork: pull the co-list agent name from the IDX raw
+  // payload (field name varies by feed), then resolve it to a roster agent so
+  // listings can later route to each agent's personal hub by co_agent.
+  await sql`
+    update listings l
+    set co_agent_name = coalesce(
+          l.co_agent_name,
+          x.raw->>'coListingAgentName', x.raw->>'coListAgentName',
+          x.raw->>'coAgentName', x.raw->>'coListAgentFullName')
+    from idx_listings x
+    where l.idx_listing_id = x.idx_listing_id
+      and coalesce(
+          x.raw->>'coListingAgentName', x.raw->>'coListAgentName',
+          x.raw->>'coAgentName', x.raw->>'coListAgentFullName', '') <> ''
+  `;
+  await sql`
+    update listings l
+    set co_agent_id = a.id
+    from agents a
+    where l.co_agent_id is null and l.co_agent_name is not null
+      and lower(a.name) = lower(l.co_agent_name)
+  `;
+
   return { source: 'idx', records: listings.length, meta: { feeds: 3 } };
 }
 

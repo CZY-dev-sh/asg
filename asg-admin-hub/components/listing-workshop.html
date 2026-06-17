@@ -1,0 +1,397 @@
+<!-- ASG Listing Workshop — console "Listings" surface.
+     Self-contained: markup + logic. Styling lives in console-shell.css (.lw-*).
+     Uses window.ASGConsole (apiBase, authHeaders, toast, onSurface) from the shell. -->
+<div class="lw" id="lwRoot">
+  <header class="lw-hero">
+    <h1 class="lw-hero-title">Listings</h1>
+    <p class="lw-hero-sub">Every listing in one place. Open one to manage photos, marketing assets, scheduled media and what's been shared with the agent.</p>
+  </header>
+
+  <!-- LIST VIEW -->
+  <div class="lw-listview" id="lwListView">
+    <section class="lw-cal" id="lwCal" hidden>
+      <h2 class="lw-cal-title">Up next</h2>
+      <div class="lw-cal-rail" id="lwCalRail"></div>
+    </section>
+    <div class="lw-list" id="lwList">
+      <p class="lw-empty">Loading listings…</p>
+    </div>
+  </div>
+
+  <!-- DETAIL / WORKSHOP VIEW -->
+  <div class="lw-detail" id="lwDetail" hidden></div>
+</div>
+
+<script>
+(function () {
+  function boot() {
+    var C = window.ASGConsole;
+    if (!C || !C.apiBase) return setTimeout(boot, 250);
+    var api = C.apiBase.replace(/\/$/, "");
+    var root = document.getElementById("lwRoot");
+    if (!root) return;
+    var listView = document.getElementById("lwListView");
+    var listEl = document.getElementById("lwList");
+    var detailEl = document.getElementById("lwDetail");
+    var calWrap = document.getElementById("lwCal");
+    var calRail = document.getElementById("lwCalRail");
+    var loaded = false;
+    var current = null;
+
+    var STATUS_ENUMS = {
+      photosStatus: ["Not Booked", "Booked", "Scheduled", "Editing", "Delivered"],
+      videoStatus: ["Not Booked", "Booked", "Editing", "Delivered"],
+      matterportStatus: ["Not Booked", "Booked", "Delivered"],
+      floorPlanStatus: ["Not Booked", "Booked", "Delivered"],
+      factSheetStatus: ["Not Requested", "Requested", "Building", "Delivered"],
+      openHouseMaterialsStatus: ["Not Requested", "Requested", "Building", "Delivered"],
+      marketingStatus: ["Not Started", "In Progress", "Done"]
+    };
+    var STATUS_LABELS = {
+      photosStatus: "Photos", videoStatus: "Video", matterportStatus: "Matterport",
+      floorPlanStatus: "Floor Plan", factSheetStatus: "Fact Sheet",
+      openHouseMaterialsStatus: "Open House Materials", marketingStatus: "Overall"
+    };
+    var ASSET_FIELDS = [
+      ["matterportUrl", "Matterport 3D tour"],
+      ["videoUrl", "Video"],
+      ["floorPlanUrl", "Floor plan"],
+      ["factSheetUrl", "Fact sheet"],
+      ["openHouseMaterialsUrl", "Open house materials"],
+      ["bookletUrl", "Booklet"],
+      ["photosFolderUrl", "Photos folder (external)"],
+      ["compassLink", "Compass listing link"]
+    ];
+    var REQUEST_KINDS = [
+      ["open_house_materials", "Open House Materials"],
+      ["fact_sheet", "Fact Sheet"],
+      ["photos", "Listing Photos"],
+      ["matterport", "Matterport"],
+      ["floor_plan", "Floor Plan"],
+      ["video", "Video"],
+      ["other", "Other"]
+    ];
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function money(n) { return n == null ? "" : "$" + Number(n).toLocaleString(); }
+    function when(s) { try { return s ? new Date(s).toLocaleString() : ""; } catch (e) { return s || ""; } }
+    function day(s) { try { return s ? new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""; } catch (e) { return ""; } }
+    function toast(m, e) { if (C.toast) C.toast(m, e); }
+
+    async function jget(path) {
+      var res = await fetch(api + path, { headers: C.authHeaders() });
+      return res.json();
+    }
+    async function jsend(method, path, body) {
+      var res = await fetch(api + path, { method: method, headers: C.authHeaders(), body: JSON.stringify(body || {}) });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+      return data;
+    }
+
+    function showList() { listView.hidden = false; detailEl.hidden = true; current = null; }
+    function showDetail() { listView.hidden = true; detailEl.hidden = false; }
+
+    /* ---------- list + calendar ---------- */
+    async function loadList() {
+      try {
+        var res = await fetch(api + "/api/listings?view=all");
+        var data = await res.json();
+        var arr = data.listings || [];
+        renderList(arr);
+      } catch (e) {
+        listEl.innerHTML = '<p class="lw-empty">Could not load listings.</p>';
+      }
+    }
+
+    function groupOf(l) {
+      var s = String(l.status || "").toLowerCase();
+      if (l.source === "onboarding" || s.indexOf("pre") === 0) return "Pre-Listing";
+      if (l.archived || s.indexOf("closed") === 0) return "Closed";
+      return "Active";
+    }
+
+    function renderList(arr) {
+      if (!arr.length) { listEl.innerHTML = '<p class="lw-empty">No listings yet.</p>'; return; }
+      var groups = { "Pre-Listing": [], "Active": [], "Closed": [] };
+      arr.forEach(function (l) { (groups[groupOf(l)] || groups.Active).push(l); });
+      var html = "";
+      ["Pre-Listing", "Active", "Closed"].forEach(function (g) {
+        var rows = groups[g];
+        if (!rows.length) return;
+        html += '<h2 class="lw-group">' + g + ' <span>' + rows.length + '</span></h2><div class="lw-grid">';
+        html += rows.map(card).join("");
+        html += "</div>";
+      });
+      listEl.innerHTML = html;
+    }
+
+    function card(l) {
+      var cover = l.coverImage || l.idxCoverImage || "";
+      var beds = l.beds != null ? l.beds + " bd" : "";
+      var baths = l.baths != null ? l.baths + " ba" : "";
+      var sqft = l.sqFt != null ? Number(l.sqFt).toLocaleString() + " sqft" : "";
+      var facts = [beds, baths, sqft].filter(Boolean).join(" · ");
+      var ms = l.marketingStatus || "";
+      return '<button class="lw-card" data-id="' + esc(l.id) + '" type="button">' +
+        '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '></span>' +
+        '<span class="lw-card-body">' +
+        '<span class="lw-card-addr">' + esc(l.address || "(no address)") + "</span>" +
+        '<span class="lw-card-meta">' + esc([l.neighborhood, money(l.listPrice)].filter(Boolean).join(" · ")) + "</span>" +
+        '<span class="lw-card-meta">' + esc(facts) + "</span>" +
+        '<span class="lw-card-tags">' +
+        (l.agent ? '<span class="lw-tag">' + esc(l.agent) + "</span>" : "") +
+        (ms ? '<span class="lw-tag is-ms">' + esc(ms) + "</span>" : "") +
+        "</span></span></button>";
+    }
+
+    async function loadCalendar() {
+      try {
+        var data = await jget("/api/admin/calendar?days=45");
+        var items = [];
+        (data.appointments || []).forEach(function (a) {
+          items.push({ kind: "media", title: a.title || a.type || "Media", sub: a.listingAddress || a.clientName || "", at: a.startsAt, listingId: a.listingId });
+        });
+        (data.events || []).forEach(function (e) {
+          items.push({ kind: "event", title: e.title, sub: e.location || "", at: e.startsAt, listingId: null });
+        });
+        items.sort(function (x, y) { return new Date(x.at || 0) - new Date(y.at || 0); });
+        if (!items.length) { calWrap.hidden = true; return; }
+        calRail.innerHTML = items.slice(0, 12).map(function (it) {
+          return '<button class="lw-cal-card" type="button"' + (it.listingId ? ' data-id="' + esc(it.listingId) + '"' : "") + '>' +
+            '<span class="lw-cal-day">' + esc(day(it.at)) + "</span>" +
+            '<span class="lw-cal-tt">' + esc(it.title) + "</span>" +
+            '<span class="lw-cal-sub">' + esc(it.sub) + "</span>" +
+            '<span class="lw-cal-kind is-' + it.kind + '">' + (it.kind === "media" ? "Media" : "Meeting") + "</span>" +
+            "</button>";
+        }).join("");
+        calWrap.hidden = false;
+      } catch (e) { calWrap.hidden = true; }
+    }
+
+    /* ---------- detail / workshop ---------- */
+    async function openListing(id) {
+      showDetail();
+      detailEl.innerHTML = '<p class="lw-empty">Loading workshop…</p>';
+      try {
+        var data = await jget("/api/admin/listings/" + id);
+        if (!data.ok) throw new Error(data.error || "not found");
+        current = data.listing;
+        renderDetail(current);
+      } catch (e) {
+        detailEl.innerHTML = '<p class="lw-empty">Could not load this listing. ' + esc(e.message || "") + "</p>";
+      }
+    }
+
+    function statusSelect(key, val) {
+      var opts = STATUS_ENUMS[key].map(function (o) {
+        return '<option value="' + esc(o) + '"' + (o === val ? " selected" : "") + ">" + esc(o) + "</option>";
+      }).join("");
+      return '<label class="lw-status"><span>' + esc(STATUS_LABELS[key]) + '</span><select data-status="' + key + '">' +
+        '<option value=""' + (!val ? " selected" : "") + ">—</option>" + opts + "</select></label>";
+    }
+
+    function photoTile(p, id) {
+      return '<div class="lw-photo" draggable="true" data-pid="' + esc(p.id || "") + '">' +
+        '<img src="' + esc(p.thumbUrl || p.url) + '" alt="">' +
+        '<button class="lw-photo-x" data-del="' + esc(p.id || "") + '" title="Remove">×</button>' +
+        "</div>";
+    }
+
+    function requestRow(r) {
+      var st = r.status === "delivered" ? "Delivered" : r.status === "in_progress" ? "In progress" : r.status === "cancelled" ? "Cancelled" : "Requested";
+      var label = (REQUEST_KINDS.filter(function (k) { return k[0] === r.kind; })[0] || [null, r.kind])[1];
+      return '<div class="lw-req"><span class="lw-req-k">' + esc(label) + "</span>" +
+        '<span class="lw-req-s is-' + esc(r.status) + '">' + esc(st) + "</span>" +
+        (r.asanaTaskUrl ? '<a class="lw-req-link" href="' + esc(r.asanaTaskUrl) + '" target="_blank" rel="noopener">Asana ↗</a>' : "") +
+        '<span class="lw-req-t">' + esc(when(r.requestedAt)) + "</span></div>";
+    }
+
+    function activityRow(a) {
+      return '<li class="lw-tl-item is-' + esc(a.type) + '"><span class="lw-tl-dot"></span>' +
+        '<span class="lw-tl-body"><span class="lw-tl-label">' + esc(a.label || a.type) + "</span>" +
+        '<span class="lw-tl-meta">' + esc([a.actor, when(a.ts)].filter(Boolean).join(" · ")) + "</span></span></li>";
+    }
+
+    function renderDetail(l) {
+      var appts = l.appointments || [], reqs = l.requests || [], acts = l.activity || [];
+      var gallery = l.galleryPhotos || [];
+      var html = "";
+      html += '<button class="lw-back" id="lwBack" type="button">← All listings</button>';
+      html += '<div class="lw-detail-head">';
+      html += '<div><h1 class="lw-d-addr">' + esc(l.address || "") + "</h1>" +
+        '<p class="lw-d-sub">' + esc([l.neighborhood, money(l.listPrice), l.status].filter(Boolean).join(" · ")) + "</p></div>";
+      html += '<div class="lw-d-actions">' +
+        '<button class="lw-btn" id="lwBook" type="button">Book media</button>' +
+        '<button class="lw-btn is-primary" id="lwShare" type="button">Share with agent</button></div>';
+      html += "</div>";
+
+      // facts + seller
+      var facts = [
+        ["MLS #", l.mlsNumber], ["Beds", l.beds], ["Baths", l.baths],
+        ["Sq ft", l.sqFt != null ? Number(l.sqFt).toLocaleString() : ""],
+        ["Agent", l.agent], ["Co-list", l.coListAgentName], ["List date", l.listDate ? day(l.listDate) : ""]
+      ].filter(function (f) { return f[1] != null && f[1] !== ""; });
+      html += '<div class="lw-panels">';
+      html += '<section class="lw-panel"><h3>Overview</h3><div class="lw-facts">' +
+        facts.map(function (f) { return '<div><dt>' + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</div>";
+      if (l.sellerQuestionnaireContent)
+        html += '<details class="lw-quest"><summary>Seller questionnaire</summary><pre>' + esc(l.sellerQuestionnaireContent) + "</pre></details>";
+      html += "</section>";
+
+      // marketing status
+      html += '<section class="lw-panel"><h3>Marketing status</h3><div class="lw-statuses">' +
+        Object.keys(STATUS_ENUMS).map(function (k) { return statusSelect(k, l[k]); }).join("") + "</div></section>";
+
+      // assets
+      html += '<section class="lw-panel"><h3>Assets</h3><div class="lw-assets">' +
+        ASSET_FIELDS.map(function (f) {
+          return '<label class="lw-field"><span>' + esc(f[1]) + '</span>' +
+            '<input type="url" data-asset="' + f[0] + '" value="' + esc(l[f[0]] || "") + '" placeholder="https://…"></label>';
+        }).join("") +
+        '</div><button class="lw-btn" id="lwSaveAssets" type="button">Save assets</button></section>';
+      html += "</div>"; // panels
+
+      // photos
+      html += '<section class="lw-panel"><h3>Photos <span class="lw-count">' + gallery.length + "</span></h3>" +
+        '<div class="lw-drop" id="lwDrop"><input type="file" id="lwFile" accept="image/*" multiple hidden>' +
+        '<span>Drag photos here or <button class="lw-link" id="lwPick" type="button">browse</button></span>' +
+        '<span class="lw-drop-prog" id="lwProg"></span></div>' +
+        '<div class="lw-photos" id="lwPhotos">' + gallery.map(function (p) { return photoTile(p, l.id); }).join("") + "</div></section>";
+
+      // requests
+      html += '<section class="lw-panel"><h3>Marketing requests</h3>' +
+        '<div class="lw-req-new"><select id="lwReqKind">' +
+        REQUEST_KINDS.map(function (k) { return '<option value="' + k[0] + '">' + esc(k[1]) + "</option>"; }).join("") +
+        '</select><button class="lw-btn" id="lwReqBtn" type="button">Request</button></div>' +
+        '<div class="lw-reqs" id="lwReqs">' + (reqs.length ? reqs.map(requestRow).join("") : '<p class="lw-empty">No requests yet.</p>') + "</div></section>";
+
+      // schedule
+      html += '<section class="lw-panel"><h3>Scheduled media</h3>' +
+        (appts.length ? '<div class="lw-appts">' + appts.map(function (a) {
+          return '<div class="lw-appt"><span class="lw-appt-t">' + esc(a.type || a.title || "Appointment") + "</span>" +
+            '<span class="lw-appt-when">' + esc(when(a.startsAt)) + "</span>" +
+            (a.status ? '<span class="lw-tag">' + esc(a.status) + "</span>" : "") + "</div>";
+        }).join("") + "</div>" : '<p class="lw-empty">No media booked yet.</p>') + "</section>";
+
+      // history
+      html += '<section class="lw-panel"><h3>History</h3>' +
+        (acts.length ? '<ul class="lw-tl">' + acts.map(activityRow).join("") + "</ul>" : '<p class="lw-empty">No activity yet.</p>') + "</section>";
+
+      detailEl.innerHTML = html;
+      bindDetail(l);
+    }
+
+    function bindDetail(l) {
+      document.getElementById("lwBack").addEventListener("click", function () { showList(); });
+
+      // statuses
+      detailEl.querySelectorAll("select[data-status]").forEach(function (sel) {
+        sel.addEventListener("change", async function () {
+          var body = {}; body[sel.getAttribute("data-status")] = sel.value;
+          try { await jsend("PATCH", "/api/admin/listings/" + l.id, body); toast("Status updated"); }
+          catch (e) { toast(e.message || "Update failed", true); }
+        });
+      });
+
+      // assets
+      document.getElementById("lwSaveAssets").addEventListener("click", async function () {
+        var body = {};
+        detailEl.querySelectorAll("input[data-asset]").forEach(function (inp) { body[inp.getAttribute("data-asset")] = inp.value.trim(); });
+        try { await jsend("PATCH", "/api/admin/listings/" + l.id, body); toast("Assets saved"); }
+        catch (e) { toast(e.message || "Save failed", true); }
+      });
+
+      // book media
+      document.getElementById("lwBook").addEventListener("click", async function () {
+        try { var d = await jget("/api/admin/listings/" + l.id + "/acuity-link"); if (d.ok && d.url) window.open(d.url, "_blank", "noopener"); else throw new Error(d.error || "no link"); }
+        catch (e) { toast(e.message || "Could not open Acuity", true); }
+      });
+
+      // share
+      document.getElementById("lwShare").addEventListener("click", async function () {
+        try { var d = await jsend("POST", "/api/admin/listings/" + l.id + "/share", {}); if (d.gmailUrl) window.open(d.gmailUrl, "_blank", "noopener"); toast("Opening email to " + d.to); }
+        catch (e) { toast(e.message || "Share failed", true); }
+      });
+
+      // requests
+      document.getElementById("lwReqBtn").addEventListener("click", async function () {
+        var kind = document.getElementById("lwReqKind").value;
+        try {
+          await jsend("POST", "/api/admin/listings/" + l.id + "/requests", { kind: kind });
+          toast("Request created");
+          await refreshDetail(l.id);
+        } catch (e) { toast(e.message || "Request failed", true); }
+      });
+
+      // photo delete
+      detailEl.querySelectorAll("[data-del]").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          var pid = btn.getAttribute("data-del");
+          if (!pid) return;
+          try { await jsend("DELETE", "/api/admin/photos/" + pid, {}); btn.closest(".lw-photo").remove(); toast("Photo removed"); }
+          catch (e) { toast(e.message || "Delete failed", true); }
+        });
+      });
+
+      // uploads
+      var fileInput = document.getElementById("lwFile");
+      var drop = document.getElementById("lwDrop");
+      document.getElementById("lwPick").addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () { if (fileInput.files.length) uploadPhotos(l.id, fileInput.files); });
+      ["dragover", "dragenter"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
+      ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); }); });
+      drop.addEventListener("drop", function (e) { if (e.dataTransfer && e.dataTransfer.files.length) uploadPhotos(l.id, e.dataTransfer.files); });
+    }
+
+    async function uploadPhotos(id, fileList) {
+      var files = Array.prototype.slice.call(fileList).filter(function (f) { return /^image\//.test(f.type); });
+      if (!files.length) return;
+      var prog = document.getElementById("lwProg");
+      prog.textContent = "Uploading 0/" + files.length + "…";
+      try {
+        var signed = await jsend("POST", "/api/admin/listings/" + id + "/photo-uploads", {
+          files: files.map(function (f) { return { name: f.name, contentType: f.type }; })
+        });
+        var uploads = signed.uploads || [];
+        var registered = [];
+        for (var i = 0; i < uploads.length; i++) {
+          var u = uploads[i], file = files[i];
+          var put = await fetch(u.signedUrl, { method: "PUT", headers: { "content-type": file.type || "application/octet-stream", "x-upsert": "true" }, body: file });
+          if (!put.ok) throw new Error("upload failed (" + put.status + ")");
+          registered.push({ path: u.path, contentType: file.type });
+          prog.textContent = "Uploading " + (i + 1) + "/" + files.length + "…";
+        }
+        await jsend("POST", "/api/admin/listings/" + id + "/photos/register", { photos: registered });
+        prog.textContent = "";
+        toast(registered.length + " photo(s) added");
+        await refreshDetail(id);
+      } catch (e) { prog.textContent = ""; toast(e.message || "Upload failed", true); }
+    }
+
+    async function refreshDetail(id) {
+      try { var data = await jget("/api/admin/listings/" + id); if (data.ok) { current = data.listing; renderDetail(current); } }
+      catch (e) {}
+    }
+
+    /* ---------- wiring ---------- */
+    listEl.addEventListener("click", function (e) {
+      var c = e.target.closest(".lw-card");
+      if (c) openListing(c.getAttribute("data-id"));
+    });
+    calRail.addEventListener("click", function (e) {
+      var c = e.target.closest(".lw-cal-card[data-id]");
+      if (c) openListing(c.getAttribute("data-id"));
+    });
+
+    C.onSurface(function (name) {
+      if (name === "listings" && !loaded) { loaded = true; loadList(); loadCalendar(); }
+    });
+  }
+  boot();
+})();
+</script>

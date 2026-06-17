@@ -630,4 +630,102 @@
     .asg-nav-frost,.asg-nav-wrap,.asg-mobile-panel{ display:none !important; }
     .asg-page-main{ padding-top:0; }
   }
+
+  /* ───────────── Search Homes overlay (nav CTA) ─────────────
+     Injected by the JS injection on every asg page. Blurred page
+     backdrop + centered natural-language search with a rotating
+     lighting ring. Submits to /search-homes?q=… */
+  @property --asg-shx-ang{ syntax:'<angle>'; initial-value:0deg; inherits:false; }
+  .asg-shx-overlay{
+    position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    padding:20px; visibility:hidden; opacity:0;
+    transition:opacity .35s ease, visibility 0s linear .35s;
+    background:rgba(12,12,12,.42);
+    backdrop-filter:blur(0px); -webkit-backdrop-filter:blur(0px);
+  }
+  .asg-shx-overlay.is-open{
+    visibility:visible; opacity:1; transition:opacity .35s ease;
+    backdrop-filter:blur(22px) saturate(120%); -webkit-backdrop-filter:blur(22px) saturate(120%);
+  }
+  .asg-shx-inner{
+    width:100%; max-width:780px; display:flex; flex-direction:column; gap:26px; align-items:center;
+    transform:translateY(26px) scale(.96); opacity:0;
+    transition:transform .45s var(--asg-ease), opacity .45s var(--asg-ease);
+  }
+  .asg-shx-overlay.is-open .asg-shx-inner{ transform:none; opacity:1; transition-delay:.08s; }
+  .asg-shx-kicker{
+    color:rgba(255,255,255,.75); font-size:.78rem; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase; font-family:var(--asg-font-display);
+  }
+  .asg-shx-title{
+    margin:0; color:#fff; font-weight:800; letter-spacing:-.04em; text-align:center;
+    font-size:clamp(1.7rem, 3.6vw, 2.7rem); line-height:1.1;
+    font-family:var(--asg-font-display); text-shadow:0 2px 30px rgba(0,0,0,.3);
+  }
+  .asg-shx-search{ position:relative; width:100%; max-width:720px; border-radius:999px; }
+  .asg-shx-search::before{
+    content:''; position:absolute; inset:-20px; border-radius:999px; z-index:0;
+    background:conic-gradient(from var(--asg-shx-ang),
+      transparent 0deg, #a8c4f0 70deg, transparent 140deg,
+      #e8d9b8 220deg, #ffffff 280deg, transparent 340deg);
+    filter:blur(34px); opacity:.9;
+    animation:asgShxSpin 5.5s linear infinite; pointer-events:none;
+  }
+  .asg-shx-search::after{
+    content:''; position:absolute; inset:-2px; border-radius:999px; z-index:0;
+    background:conic-gradient(from var(--asg-shx-ang),
+      rgba(255,255,255,.18) 0deg, #a8c4f0 80deg, rgba(255,255,255,.18) 150deg,
+      #e8d9b8 250deg, rgba(255,255,255,.18) 330deg);
+    animation:asgShxSpin 5.5s linear infinite; pointer-events:none;
+  }
+  @keyframes asgShxSpin{ to{ --asg-shx-ang:360deg; } }
+  @media (prefers-reduced-motion: reduce){
+    .asg-shx-search::before, .asg-shx-search::after{ animation:none; }
+  }
+  .asg-shx-form{
+    position:relative; z-index:1; display:flex; align-items:center; gap:6px;
+    background:#fff; border-radius:999px; border:1px solid rgba(17,17,17,.12);
+    padding:8px 8px 8px 24px; box-shadow:0 14px 44px rgba(17,17,17,.18);
+  }
+  .asg-shx-input{
+    flex:1; min-width:0; border:0; outline:none; background:transparent;
+    font-family:var(--asg-font-body); font-size:1.08rem; font-weight:500;
+    color:var(--asg-text); padding:14px 6px; letter-spacing:-.01em;
+  }
+  .asg-shx-input::placeholder{ color:rgba(17,17,17,.4); }
+  .asg-shx-submit{
+    flex-shrink:0; border:0; cursor:pointer; background:var(--asg-text); color:#fff;
+    border-radius:999px; padding:15px 30px; font-family:var(--asg-font-display);
+    font-weight:700; font-size:1rem; display:inline-flex; align-items:center; gap:8px;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .asg-shx-submit:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(17,17,17,.22); }
+  .asg-shx-suggest{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .asg-shx-suggest button{
+    appearance:none; cursor:pointer; font-family:var(--asg-font-body);
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff;
+    border-radius:999px; padding:9px 16px; font-size:.86rem; font-weight:600;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:all .18s ease;
+  }
+  .asg-shx-suggest button:hover{ background:rgba(255,255,255,.26); transform:translateY(-1px); }
+  .asg-shx-close{
+    position:absolute; top:26px; right:26px; width:52px; height:52px;
+    border-radius:50%; border:1px solid rgba(255,255,255,.3); cursor:pointer;
+    background:rgba(255,255,255,.12); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:transform .2s ease, background .2s ease;
+  }
+  .asg-shx-close:hover{ transform:rotate(90deg); background:rgba(255,255,255,.24); }
+  .asg-shx-hint{ color:rgba(255,255,255,.55); font-size:.8rem; font-family:var(--asg-font-body); }
+  .asg-shx-hint kbd{
+    font-family:var(--asg-font-body); background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.25); border-radius:6px; padding:2px 7px; font-size:.74rem;
+  }
+  @media (max-width:600px){
+    .asg-shx-form{ padding-left:16px; }
+    .asg-shx-submit{ padding:13px 18px; font-size:.9rem; }
+    .asg-shx-submit span{ display:none; }
+  }
 </style>

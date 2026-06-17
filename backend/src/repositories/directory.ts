@@ -6,27 +6,54 @@ const iso = (v: unknown): string | null =>
 
 export async function getDirectory() {
   const rows = await sql<Row[]>`
-    select slug, name, email, phone, fub_phone, tier, role, dept, hours,
-           headshot_url, bio, seniority_rank, drive_folder_id, quick_links, active
+    select slug, name, email, phone, fub_phone, tier, role, admin_role, dept, hours,
+           headshot_url, icon_photo_url, bio, seniority_rank, drive_folder_id, quick_links,
+           start_date, birthday, next_birthday, headshots_url, landing_page_url,
+           marketing_drive_url, buyer_guide_url, seller_guide_url, listing_presentation_url,
+           business_card_url, buyer_guide_updated_at, seller_guide_updated_at,
+           listing_presentation_updated_at, business_card_updated_at, active
     from agents where active = true
-    order by case tier when 'admin' then 0 else 1 end, seniority_rank asc, name asc
+    order by case tier when 'admin' then 0 else 1 end, seniority_rank asc nulls last, name asc
   `;
-  return rows.map((r) => ({
-    slug: r.slug,
-    name: r.name,
-    email: r.email,
-    phone: r.phone,
-    fubPhone: r.fub_phone,
-    tier: r.tier,
-    role: r.role,
-    dept: r.dept,
-    hours: r.hours,
-    headshot: r.headshot_url,
-    bio: r.bio,
-    seniorityRank: r.seniority_rank,
-    driveFolderId: r.drive_folder_id,
-    quickLinks: r.quick_links ?? [],
-  }));
+  return rows.map((r) => {
+    const photo = (r.icon_photo_url as string) || (r.headshot_url as string) || null;
+    return {
+      slug: r.slug,
+      name: r.name,
+      email: r.email,
+      phone: r.phone,
+      fubPhone: r.fub_phone,
+      tier: r.tier,
+      role: r.role,
+      adminRole: r.admin_role,
+      dept: r.dept,
+      hours: r.hours,
+      // Photo aliases so every existing surface resolves it however it looks:
+      photo,
+      headshot: photo,
+      iconPhotoUrl: r.icon_photo_url,
+      headshotUrl: r.headshot_url,
+      imageUrl: photo,
+      bio: r.bio,
+      seniorityRank: r.seniority_rank,
+      driveFolderId: r.drive_folder_id,
+      quickLinks: r.quick_links ?? [],
+      startDate: iso(r.start_date),
+      birthday: r.birthday,
+      nextBirthday: iso(r.next_birthday),
+      headshotsUrl: r.headshots_url,
+      landingPageUrl: r.landing_page_url,
+      marketingDriveUrl: r.marketing_drive_url,
+      buyerGuideUrl: r.buyer_guide_url,
+      sellerGuideUrl: r.seller_guide_url,
+      listingPresentationUrl: r.listing_presentation_url,
+      businessCardUrl: r.business_card_url,
+      buyerGuideUpdatedAt: r.buyer_guide_updated_at,
+      sellerGuideUpdatedAt: r.seller_guide_updated_at,
+      listingPresentationUpdatedAt: r.listing_presentation_updated_at,
+      businessCardUpdatedAt: r.business_card_updated_at,
+    };
+  });
 }
 
 export async function getEvents() {

@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Buyer Onboarding | Alex Stoykov Group</title>
+<meta name="description" content="Tell us what you're looking for and the Alex Stoykov Group will build your personalized Chicago home search.">
+
+<!--
+  ASG BUYER ONBOARDING WIZARD
+  Host on a Squarespace page at /buyer-onboarding (single code block).
+  Data sources:
+    - Agent roster:  Hub Data API  ?view=directory  (window.ASG_HUB_DATA_API)
+    - Lead intake:   Buyer Intake Apps Script doPost (window.ASG_BUYER_INTAKE_API)
+      -> creates the lead in Follow Up Boss and assigns it to the chosen agent.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   ASG design tokens (matches asg-homepage-redesign.html)
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --bg-deep:#101010;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --shadow-deep:0 24px 60px rgba(17,17,17,.10);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-bento:22px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1080px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; overflow-anchor:none; }
+body{
+  margin:0; background:var(--bg-alt); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SQUARESPACE OVERRIDES: this page only (CSS ships in the code block)
+   ════════════════════════════════════════════════════════════ */
+#header,
+header.Header,
+.Header,
+.Header-inner,
+header#header,
+.header-announcement-bar-wrapper,
+.Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone,
+#announcement-bar-text-inner-id,
+#headerSpacer,
+.header-spacer,
+#footer,
+footer.Footer,
+.Footer,
+.Footer-inner,
+#footer-sections,
+footer.sections{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper,
+.Main,
+.Content-outer,
+.Content-inner,
+.Index,
+.Index-page-content,
+#page,
+.page-section,
+article.sections,
+main#page article{
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+  max-width:none !important;
+}
+.page-section .content-wrapper{
+  padding:0 !important;
+  max-width:none !important;
+}
+
+/* Ignore Squarespace's global image rounding. Class-scoped selectors
+   outrank its bare img rule; only our wrappers apply radii. */
+main img,
+.nav img,
+.nav-logo img,
+.mobile-panel img,
+.footer img,
+.agent-card img,
+.agent-pick img,
+.success-agent img{
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+.agent-card .agent-photo,
+.agent-pick .agent-photo,
+.success-agent .agent-photo{ overflow:hidden !important; border-radius:50% !important; }
+.agent-card .agent-photo img,
+.agent-pick .agent-photo img,
+.success-agent .agent-photo img{ border-radius:50% !important; }
+#obMap, .ob-map-wrap{ border-radius:var(--r-bento) !important; overflow:hidden !important; }
+.info-photo{ border-radius:var(--r-bento) !important; overflow:hidden !important; }
+.info-photo img{ border-radius:0 !important; }
+
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* Lucide sizing */
+.lucide, svg[data-lucide]{ width:18px; height:18px; stroke-width:2; flex-shrink:0; }
+
+/* ════════════════ TOP BAR ════════════════ */
+/* ════════════════ NAV: floating pill (matches homepage) ════════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);
+  -webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom, rgba(246,246,243,.78), rgba(246,246,243,.42) 50%, rgba(246,246,243,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  transition:opacity .3s ease;
+  opacity:0;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease, min-height .35s var(--ease), padding .35s var(--ease);
+}
+.nav.is-scrolled{
+  box-shadow:0 10px 32px rgba(17,17,17,.10);
+  min-height:66px;
+}
+.nav-logo{
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; flex-shrink:0;
+}
+.nav-logo img{
+  width:58px; height:58px;
+  transition:width .35s var(--ease), height .35s var(--ease), transform .3s ease;
+}
+.nav.is-scrolled .nav-logo img{ width:50px; height:50px; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{
+  font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap;
+}
+.nav-links{
+  display:flex; align-items:center; gap:4px;
+  position:relative;
+}
+.nav-link{
+  position:relative; z-index:1;
+  border-radius:var(--r-pill);
+  padding:14px 24px;
+  font-size:1.12rem; font-weight:600;
+  color:var(--muted);
+  text-decoration:none; white-space:nowrap;
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+.nav-pill-ghost{
+  position:absolute; z-index:0;
+  border-radius:var(--r-pill);
+  background:rgba(17,17,17,.05);
+  border:1px solid rgba(17,17,17,.07);
+  opacity:0; pointer-events:none;
+  transition:left .28s var(--ease), width .28s var(--ease), opacity .2s ease;
+  top:0; bottom:0;
+}
+.nav-pill-ghost.is-on{ opacity:1; }
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+.nav-burger{
+  display:none;
+  background:transparent; border:1px solid var(--line);
+  width:50px; height:50px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; color:var(--ink);
+}
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+
+/* Mobile panel */
+.mobile-panel{
+  position:fixed; inset:0; z-index:110;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  padding:100px 22px 40px;
+  display:flex; flex-direction:column; gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  overflow-y:auto;
+}
+.mobile-panel.is-open{ opacity:1; pointer-events:auto; }
+.mobile-panel a.m-link{
+  display:block; padding:17px 20px; border-radius:20px;
+  font-size:1.25rem; font-weight:700; text-decoration:none;
+  border:1px solid var(--line); background:#fff;
+  transform:translateY(14px); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s ease;
+}
+.mobile-panel.is-open a.m-link{ transform:translateY(0); opacity:1; }
+.mobile-panel.is-open a.m-link:nth-child(2){ transition-delay:.05s; }
+.mobile-panel.is-open a.m-link:nth-child(3){ transition-delay:.10s; }
+.mobile-panel.is-open a.m-link:nth-child(4){ transition-delay:.15s; }
+.mobile-panel.is-open a.m-link:nth-child(5){ transition-delay:.20s; }
+.mobile-panel-close{
+  position:absolute; top:22px; right:22px;
+  width:46px; height:46px; border-radius:var(--r-pill);
+  border:1px solid var(--line); background:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.mobile-panel-cta{
+  margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+
+/* ════════════════ BUTTONS (site language) ════════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1; border:none;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+.btn-lg{ padding:18px 44px; font-size:1.14rem; }
+
+/* ════════════════ PAGE HERO + BUYING-WITH-ASG INFO ════════════════ */
+.buy-hero{
+  padding:168px var(--pad-x) 26px;
+}
+@media (max-width: 720px){ .buy-hero{ padding-top:136px; } }
+.buy-hero-inner{ max-width:var(--max); margin:0 auto; }
+.buy-hero .ob-eyebrow{ font-size:.84rem; }
+.buy-hero-h1{
+  font-weight:800; font-size:clamp(2.6rem, 5.4vw, 4.6rem);
+  line-height:.98; letter-spacing:-.05em; margin:0 0 18px; max-width:18ch;
+}
+.buy-hero-lead{
+  font-size:clamp(1.1rem, 1.7vw, 1.3rem); line-height:1.6; color:var(--muted);
+  max-width:62ch; margin:0 0 26px;
+}
+.buy-hero-ctas{ display:flex; gap:10px; flex-wrap:wrap; }
+.buy-hero-stats{
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;
+  margin-top:34px; max-width:680px;
+}
+@media (max-width: 560px){ .buy-hero-stats{ grid-template-columns:1fr; max-width:none; } }
+.buy-stat{
+  background:#fff; border:1px solid var(--line); border-radius:20px;
+  padding:16px 18px; box-shadow:var(--shadow-card);
+}
+.buy-stat .stat-label{
+  font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--muted); margin:0 0 4px;
+}
+.buy-stat .stat-val{
+  font-size:1.6rem; font-weight:800; letter-spacing:-.03em; margin:0; line-height:1;
+}
+
+.buy-info{ padding:26px var(--pad-x) 10px; }
+.buy-info-inner{ max-width:var(--max); margin:0 auto; }
+.buy-info-head{ margin:0 0 22px; }
+.buy-info-head h2{
+  font-weight:800; font-size:clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing:-.04em; line-height:1.05; margin:0 0 8px;
+}
+.info-photo{
+  grid-column:span 5;
+  border-radius:var(--r-bento); overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-card);
+  position:relative; min-height:330px;
+}
+.info-photo img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+}
+.value-stack{
+  grid-column:span 7;
+  display:flex; flex-direction:column; gap:14px;
+}
+@media (max-width: 860px){
+  .info-photo,.value-stack{ grid-column:span 12; }
+  .info-photo{ min-height:230px; }
+}
+.value-row{
+  flex:1; display:flex; align-items:center; gap:16px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-bento);
+  padding:18px 22px; box-shadow:var(--shadow-card);
+}
+.value-icon{
+  width:46px; height:46px; border-radius:14px; flex-shrink:0;
+  background:var(--bg-soft); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.value-icon .lucide{ width:21px; height:21px; }
+.value-row h4{ font-size:1.12rem; font-weight:800; letter-spacing:-.02em; margin:0 0 2px; }
+.value-row p{ font-size:.93rem; line-height:1.5; color:var(--muted); margin:0; }
+.process-strip{
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
+}
+@media (max-width: 860px){ .process-strip{ grid-template-columns:1fr 1fr; } }
+@media (max-width: 520px){ .process-strip{ grid-template-columns:1fr; } }
+.process-step .p-num{
+  font-size:.78rem; font-weight:800; letter-spacing:.08em; color:var(--muted-soft); margin:0 0 8px;
+}
+.process-step h5{ font-size:1.04rem; font-weight:800; letter-spacing:-.02em; margin:0 0 6px; }
+.process-step p{ font-size:.9rem; line-height:1.55; color:var(--muted); margin:0; }
+
+/* ════════════════ WIZARD SECTION ════════════════ */
+.ob-wizard{
+  padding:34px var(--pad-x) 0;
+  scroll-margin-top:108px;
+}
+.ob-wizard-inner{ max-width:var(--max); margin:0 auto; }
+.ob-wizard-head{ margin:0 0 20px; }
+.ob-wizard-head h2{
+  font-weight:800; font-size:clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing:-.04em; line-height:1.05; margin:0 0 8px;
+}
+
+/* ════════════════ PROGRESS ════════════════ */
+.ob-progress{ margin:0 0 6px; }
+.ob-progress-track{
+  height:6px; border-radius:var(--r-pill); background:rgba(17,17,17,.08);
+  overflow:hidden;
+}
+.ob-progress-fill{
+  height:100%; width:0%; border-radius:var(--r-pill);
+  background:var(--ink);
+  transition:width .6s var(--ease);
+}
+.ob-progress-meta{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:10px; font-size:.84rem; font-weight:600; color:var(--muted);
+}
+.ob-progress-meta .step-name{
+  display:inline-flex; align-items:center; gap:7px; color:var(--ink); font-weight:700;
+}
+
+/* ════════════════ WIZARD SHELL ════════════════ */
+.ob-main{ padding:22px 0 0; }
+.ob-step{ display:none; }
+.ob-step.is-active{
+  display:block;
+  animation:stepIn .55s var(--ease);
+}
+@keyframes stepIn{
+  from{ opacity:0; transform:translateY(22px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.ob-step-head{ margin:8px 0 26px; }
+.ob-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--muted); margin:0 0 10px;
+}
+.ob-h1{
+  font-weight:800; font-size:clamp(1.55rem, 2.8vw, 2.25rem);
+  letter-spacing:-.04em; line-height:1.04; margin:0 0 10px;
+}
+.ob-sub{ font-size:1.05rem; color:var(--muted); margin:0; max-width:58ch; }
+
+/* Bento grid */
+.bento{
+  display:grid; grid-template-columns:repeat(12, 1fr); gap:14px;
+}
+.bento-card{
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-bento);
+  padding:22px; box-shadow:var(--shadow-card);
+}
+.bento-card h3{
+  display:flex; align-items:center; gap:9px;
+  font-size:.92rem; font-weight:700; margin:0 0 16px;
+}
+.bento-card h3 .lucide{ color:var(--muted); }
+.span-12{ grid-column:span 12; }
+.span-8{ grid-column:span 8; }
+.span-7{ grid-column:span 7; }
+.span-6{ grid-column:span 6; }
+.span-5{ grid-column:span 5; }
+.span-4{ grid-column:span 4; }
+@media (max-width: 860px){
+  .span-8,.span-7,.span-6,.span-5,.span-4{ grid-column:span 12; }
+}
+
+/* Inputs */
+.ob-label{
+  display:block; font-size:.8rem; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em; margin:0 0 7px;
+}
+.ob-input{
+  width:100%; border:1px solid var(--line-strong); border-radius:var(--r-input);
+  background:#fff; padding:14px 16px; font-family:var(--font);
+  font-size:1.02rem; color:var(--ink); outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.ob-input::placeholder{ color:var(--muted-soft); }
+.ob-input:focus{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,17,17,.08); }
+.ob-field + .ob-field{ margin-top:16px; }
+.ob-field-err{
+  display:none; margin:6px 2px 0; font-size:.82rem; font-weight:600; color:#b00020;
+}
+.ob-field.has-error .ob-field-err{ display:block; }
+.ob-field.has-error .ob-input{ border-color:#b00020; }
+
+/* Choice chips (single + multi) */
+.chip-row{ display:flex; flex-wrap:wrap; gap:9px; }
+.chip{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line-strong); background:#fff; color:var(--ink);
+  border-radius:var(--r-pill); padding:11px 18px;
+  font-family:var(--font); font-size:.95rem; font-weight:600;
+  cursor:pointer; user-select:none;
+  transition:background .18s, color .18s, border-color .18s, transform .18s var(--ease);
+}
+.chip:hover{ transform:translateY(-1px); border-color:var(--ink); }
+.chip.is-on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.chip .lucide{ width:16px; height:16px; }
+
+/* Toggle switch */
+.toggle-row{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 2px;
+}
+.toggle-row + .toggle-row{ border-top:1px solid var(--line); }
+.toggle-label{ display:flex; align-items:center; gap:11px; font-weight:600; font-size:1rem; }
+.toggle-label .lucide{ color:var(--muted); width:20px; height:20px; }
+.toggle{
+  position:relative; width:54px; height:32px; border-radius:var(--r-pill);
+  background:rgba(17,17,17,.14); border:none; cursor:pointer; flex-shrink:0;
+  transition:background .25s var(--ease); padding:0;
+}
+.toggle::after{
+  content:''; position:absolute; top:3px; left:3px;
+  width:26px; height:26px; border-radius:50%; background:#fff;
+  box-shadow:0 2px 6px rgba(17,17,17,.22);
+  transition:transform .25s var(--ease);
+}
+.toggle.is-on{ background:var(--ink); }
+.toggle.is-on::after{ transform:translateX(22px); }
+
+/* Sliders */
+.ob-slider-readout{
+  font-weight:800; font-size:clamp(1.7rem, 3.4vw, 2.5rem); letter-spacing:-.04em;
+  margin:0 0 4px; line-height:1;
+}
+.ob-slider-hint{ font-size:.88rem; color:var(--muted); margin:0 0 18px; }
+input[type="range"].ob-range{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:6px; border-radius:var(--r-pill);
+  background:rgba(17,17,17,.12); outline:none; margin:8px 0 4px;
+}
+input[type="range"].ob-range::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:28px; height:28px; border-radius:50%;
+  background:var(--ink); border:4px solid #fff;
+  box-shadow:0 2px 10px rgba(17,17,17,.3); cursor:pointer;
+}
+input[type="range"].ob-range::-moz-range-thumb{
+  width:20px; height:20px; border-radius:50%;
+  background:var(--ink); border:4px solid #fff;
+  box-shadow:0 2px 10px rgba(17,17,17,.3); cursor:pointer;
+}
+.ob-range-ends{
+  display:flex; justify-content:space-between;
+  font-size:.8rem; font-weight:600; color:var(--muted-soft); margin-top:4px;
+}
+
+/* Agent step */
+.agent-search-wrap{ position:relative; margin-bottom:16px; }
+.agent-search-wrap .lucide{
+  position:absolute; left:16px; top:50%; transform:translateY(-50%);
+  color:var(--muted-soft); width:19px; height:19px; pointer-events:none;
+}
+.agent-search-wrap .ob-input{ padding-left:46px; }
+.agent-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:10px; max-height:430px; overflow-y:auto; padding:2px;
+}
+.agent-card{
+  display:flex; align-items:center; gap:12px; text-align:left;
+  background:#fff; border:1.5px solid var(--line); border-radius:18px;
+  padding:12px 14px; cursor:pointer; font-family:var(--font);
+  transition:border-color .18s, box-shadow .18s, transform .18s var(--ease);
+}
+.agent-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-card); border-color:var(--line-strong); }
+.agent-card.is-on{ border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+.agent-photo{
+  width:46px; height:46px; border-radius:50%; overflow:hidden;
+  background:var(--bg-soft); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1rem; color:var(--muted);
+}
+.agent-photo img{ width:100%; height:100%; object-fit:cover; }
+.agent-card .agent-name{ font-weight:700; font-size:.97rem; margin:0; }
+.agent-card .agent-role{ font-size:.8rem; color:var(--muted); margin:1px 0 0; }
+.agent-card .agent-check{
+  margin-left:auto; width:22px; height:22px; border-radius:50%;
+  border:1.5px solid var(--line-strong); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  color:transparent; transition:all .18s;
+}
+.agent-card.is-on .agent-check{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.agent-check .lucide{ width:13px; height:13px; stroke-width:3; }
+.agent-empty{
+  grid-column:1/-1; text-align:center; color:var(--muted);
+  font-size:.94rem; padding:26px 0;
+}
+
+/* Location step */
+.ob-map-wrap{
+  border-radius:var(--r-bento); overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-card);
+  position:relative;
+}
+#obMap{ width:100%; height:430px; background:var(--bg-soft); z-index:1; }
+.hood-list{
+  display:flex; flex-wrap:wrap; gap:8px;
+  max-height:430px; overflow-y:auto; align-content:flex-start; padding:2px;
+}
+.hood-count{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:.84rem; font-weight:700; color:var(--muted); margin:14px 0 0;
+}
+.other-loc-wrap{ display:none; margin-top:14px; }
+.other-loc-wrap.is-on{ display:block; }
+
+/* Review step */
+.review-list{ display:flex; flex-direction:column; gap:0; }
+.review-row{
+  display:flex; align-items:flex-start; gap:13px;
+  padding:15px 2px;
+}
+.review-row + .review-row{ border-top:1px solid var(--line); }
+.review-row .lucide{ color:var(--muted); margin-top:2px; width:19px; height:19px; }
+.review-row .rv-label{
+  font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--muted); margin:0 0 2px;
+}
+.review-row .rv-val{ font-size:1rem; font-weight:600; margin:0; line-height:1.45; }
+.review-row .rv-edit{
+  margin-left:auto; flex-shrink:0;
+  background:none; border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  font-family:var(--font); font-size:.8rem; font-weight:700; color:var(--muted);
+  padding:6px 14px; cursor:pointer; transition:all .18s;
+}
+.review-row .rv-edit:hover{ border-color:var(--ink); color:var(--ink); }
+
+/* Footer controls */
+.ob-controls{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  margin-top:28px;
+}
+.ob-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  font-family:var(--font); font-weight:700; font-size:1.02rem;
+  border-radius:var(--r-pill); padding:16px 32px;
+  cursor:pointer; text-decoration:none; border:none;
+  transition:transform .25s var(--ease), box-shadow .25s, opacity .2s;
+}
+.ob-btn:active{ transform:scale(.97); }
+.ob-btn-dark{ background:var(--ink); color:#fff; box-shadow:0 6px 20px rgba(17,17,17,.2); }
+.ob-btn-dark:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(17,17,17,.28); }
+.ob-btn-ghost{
+  background:transparent; color:var(--muted);
+  border:1px solid var(--line-strong); box-shadow:none;
+}
+.ob-btn-ghost:hover{ color:var(--ink); border-color:var(--ink); }
+.ob-btn[disabled]{ opacity:.55; cursor:default; transform:none !important; box-shadow:none; }
+.ob-btn .lucide{ width:18px; height:18px; }
+
+/* Success */
+.success-wrap{
+  max-width:620px; margin:0 auto; text-align:center; padding:30px 0 10px;
+}
+.success-check{
+  width:84px; height:84px; border-radius:50%; background:var(--ink);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+  animation:popIn .6s var(--ease);
+}
+.success-check .lucide{ width:38px; height:38px; color:#fff; stroke-width:2.6; }
+@keyframes popIn{
+  from{ transform:scale(.4); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+.success-agent{
+  display:inline-flex; align-items:center; gap:13px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:10px 22px 10px 12px; margin-top:22px; box-shadow:var(--shadow-card);
+}
+.success-agent .agent-photo{ width:52px; height:52px; }
+.success-agent p{ margin:0; text-align:left; }
+
+/* Honeypot */
+.ob-honeypot{
+  position:absolute !important; left:-9999px !important;
+  width:1px; height:1px; opacity:0; pointer-events:none;
+}
+
+/* Leaflet visual tuning */
+.leaflet-container{ font-family:var(--font); }
+.leaflet-control-attribution{ font-size:9px !important; }
+
+/* ════════════════ FOOTER (matches homepage) ════════════════ */
+.footer{
+  padding:52px var(--pad-x) 28px; margin-top:60px;
+  border-top:1px solid var(--line);
+}
+.footer-inner{
+  max-width:var(--max); margin:0 auto;
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px;
+}
+@media (max-width:980px){
+  .footer-inner{ grid-template-columns:1fr 1fr; }
+  .footer-brand{ grid-column:1/-1; }
+}
+.footer-brand{ display:flex; flex-direction:column; gap:14px; }
+.footer-logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; text-decoration:none; }
+.footer-logo img{ width:38px; height:38px; }
+.footer-tag{ font-size:.92rem; line-height:1.55; color:var(--muted); max-width:38ch; margin:0; }
+.footer h4{
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--muted-soft); margin:0 0 14px;
+}
+.footer ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.footer ul a{ font-size:.94rem; text-decoration:none; transition:opacity .18s; }
+.footer ul a:hover{ opacity:.55; }
+.footer-bottom{
+  max-width:var(--max); margin:34px auto 0; padding-top:22px;
+  border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:14px; font-size:.84rem; color:var(--muted);
+}
+.footer-bottom a{ color:var(--muted); text-decoration:none; }
+.footer-bottom a:hover{ color:var(--ink); }
+
+@media (max-width: 640px){
+  #obMap{ height:300px; }
+  .agent-grid{ max-height:340px; }
+  .ob-btn{ padding:14px 24px; font-size:.96rem; }
+}
+@media (prefers-reduced-motion: reduce){
+  .ob-step.is-active{ animation:none; }
+  .success-check{ animation:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-frost" aria-hidden="true" id="navFrost"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span class="nav-wordmark">Alex Stoykov Group</span>
+      </a>
+
+      <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary">
+        <div class="nav-pill-ghost" id="navGhost" aria-hidden="true"></div>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+        <a class="nav-link" href="/blog">Blog</a>
+        <a class="nav-link" href="/#asg-home-contact">Contact Us</a>
+      </div>
+
+      <div class="nav-cta">
+        <a class="btn btn-dark btn-sm" href="#onboarding">Start Onboarding</a>
+      </div>
+
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <button class="mobile-panel-close" id="mobileClose" type="button" aria-label="Close menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <a class="m-link" href="/about">About</a>
+  <a class="m-link" href="/team">Team</a>
+  <a class="m-link" href="/blog">Blog</a>
+  <a class="m-link" href="/#asg-home-contact">Contact Us</a>
+  <div class="mobile-panel-cta">
+    <a class="btn btn-dark" href="#onboarding">Start Onboarding</a>
+    <a class="btn btn-light" href="/">Back Home</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- ═══════════ HERO: BUYING WITH ASG ═══════════ -->
+  <section class="buy-hero">
+    <div class="buy-hero-inner">
+      <p class="ob-eyebrow"><i data-lucide="key-round"></i>For Buyers</p>
+      <h1 class="buy-hero-h1">Buying with the Alex Stoykov Group.</h1>
+      <p class="buy-hero-lead">
+        Buying a home in Chicago is a series of fast, high-stakes decisions. We slow the chaos down. Your ASG agent knows the buildings, the blocks, and the numbers, so when the right home appears, you can move with total confidence.
+      </p>
+      <div class="buy-hero-ctas">
+        <a href="#onboarding" class="btn btn-dark btn-lg">Start My Buyer Profile</a>
+        <a href="/#asg-home-contact" class="btn btn-light btn-lg">Talk to Us First</a>
+      </div>
+      <div class="buy-hero-stats">
+        <div class="buy-stat">
+          <p class="stat-label">All Time Volume</p>
+          <p class="stat-val">$659M+</p>
+        </div>
+        <div class="buy-stat">
+          <p class="stat-label">Avg. Days on Market</p>
+          <p class="stat-val">18</p>
+        </div>
+        <div class="buy-stat">
+          <p class="stat-label">Agents</p>
+          <p class="stat-val">28</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ WHY BUY WITH ASG ═══════════ -->
+  <section class="buy-info">
+    <div class="buy-info-inner">
+      <div class="buy-info-head">
+        <p class="ob-eyebrow"><i data-lucide="sparkles"></i>Why ASG</p>
+        <h2>What working with us looks like.</h2>
+        <p class="ob-sub">No handoffs, no rotating associates, no pressure. Just a sharper way to buy.</p>
+      </div>
+      <div class="bento">
+        <div class="info-photo">
+          <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/c2362ba5-96de-4b98-b4a8-1dcab4905b7f/Team+Photo-7.jpg?format=2500w"
+               alt="The Alex Stoykov Group team" loading="lazy" decoding="async">
+        </div>
+        <div class="value-stack">
+          <div class="value-row">
+            <div class="value-icon"><i data-lucide="user-check"></i></div>
+            <div>
+              <h4>One agent, start to finish</h4>
+              <p>The same agent at every tour, offer, and closing.</p>
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-icon"><i data-lucide="trending-up"></i></div>
+            <div>
+              <h4>Offers built on data</h4>
+              <p>Live comps and market velocity behind every number.</p>
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-icon"><i data-lucide="map"></i></div>
+            <div>
+              <h4>All of Chicagoland</h4>
+              <p>28 agents covering every neighborhood and suburb.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bento-card span-12">
+          <div class="process-strip">
+            <div class="process-step">
+              <p class="p-num">01</p>
+              <h5>Share your profile</h5>
+              <p>Two minutes, mostly taps.</p>
+            </div>
+            <div class="process-step">
+              <p class="p-num">02</p>
+              <h5>Tour with intent</h5>
+              <p>Only homes that fit your must-haves.</p>
+            </div>
+            <div class="process-step">
+              <p class="p-num">03</p>
+              <h5>Offer with confidence</h5>
+              <p>Data-backed terms that win.</p>
+            </div>
+            <div class="process-step">
+              <p class="p-num">04</p>
+              <h5>Close and move in</h5>
+              <p>Everything managed to keys in hand.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ ONBOARDING WIZARD ═══════════ -->
+  <section class="ob-wizard" id="onboarding">
+    <div class="ob-wizard-inner">
+      <div class="ob-wizard-head">
+        <p class="ob-eyebrow"><i data-lucide="clipboard-list"></i>Buyer Onboarding</p>
+        <h2>Build your buyer profile.</h2>
+        <p class="ob-sub">Seven quick steps, mostly taps. Your answers go directly to your agent.</p>
+      </div>
+
+      <div class="ob-progress" id="obProgress">
+        <div class="ob-progress-track"><div class="ob-progress-fill" id="obProgressFill"></div></div>
+        <div class="ob-progress-meta">
+          <span class="step-name" id="obStepName"><i data-lucide="user"></i>Contact</span>
+          <span id="obStepCount">Step 1 of 7</span>
+        </div>
+      </div>
+
+      <div class="ob-main">
+
+  <!-- ═══════════ STEP 1: CONTACT ═══════════ -->
+  <section class="ob-step is-active" data-step="1" aria-label="Contact information">
+    <div class="ob-step-head">
+      <h1 class="ob-h1">First, how do we reach you?</h1>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-7">
+        <h3><i data-lucide="id-card"></i>Your Details</h3>
+        <div class="ob-field" data-field="name">
+          <label class="ob-label" for="obName">Full Name</label>
+          <input class="ob-input" id="obName" type="text" placeholder="Jordan Smith" autocomplete="name">
+          <p class="ob-field-err">Please enter your full name.</p>
+        </div>
+        <div class="ob-field" data-field="email">
+          <label class="ob-label" for="obEmail">Email</label>
+          <input class="ob-input" id="obEmail" type="email" placeholder="jordan@email.com" autocomplete="email">
+          <p class="ob-field-err">Please enter a valid email address.</p>
+        </div>
+        <div class="ob-field" data-field="phone">
+          <label class="ob-label" for="obPhone">Phone</label>
+          <input class="ob-input" id="obPhone" type="tel" placeholder="(312) 555-0142" autocomplete="tel">
+          <p class="ob-field-err">A phone number is needed for calls or texts.</p>
+        </div>
+      </div>
+      <div class="bento-card span-5">
+        <h3><i data-lucide="message-circle"></i>Preferred Contact Method</h3>
+        <div class="chip-row" id="obMethodChips" role="group" aria-label="Preferred contact methods">
+          <button type="button" class="chip" data-value="Text" aria-pressed="false"><i data-lucide="message-square"></i>Text</button>
+          <button type="button" class="chip" data-value="Call" aria-pressed="false"><i data-lucide="phone"></i>Call</button>
+          <button type="button" class="chip" data-value="Email" aria-pressed="false"><i data-lucide="mail"></i>Email</button>
+        </div>
+        <p class="ob-slider-hint" style="margin:8px 0 0;">Select all that apply.</p>
+        <div class="ob-field" data-field="method" style="margin-top:6px;">
+          <p class="ob-field-err">Pick at least one way to hear from us.</p>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:16px 0 2px;"></div>
+
+        <div class="toggle-row" style="border-top:none;">
+          <span class="toggle-label"><i data-lucide="megaphone"></i>General marketing outreach</span>
+          <button type="button" class="toggle is-on" id="obMktToggle" role="switch" aria-checked="true" aria-label="Opt in to general marketing outreach"></button>
+        </div>
+        <div id="obMktFreqWrap" style="padding:0 2px 14px;">
+          <p class="ob-label" style="margin:2px 0 8px;">How often?</p>
+          <div class="chip-row" id="obMktFreqChips" role="radiogroup" aria-label="Marketing email frequency">
+            <button type="button" class="chip" data-value="Weekly">Weekly</button>
+            <button type="button" class="chip is-on" data-value="Monthly">Monthly</button>
+            <button type="button" class="chip" data-value="Quarterly">Quarterly</button>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label"><i data-lucide="home"></i>Search-related emails</span>
+          <button type="button" class="toggle is-on" id="obSearchMailToggle" role="switch" aria-checked="true" aria-label="Opt in to search-related email marketing"></button>
+        </div>
+        <p class="ob-slider-hint" style="margin:2px 0 0;">These emails only contain potential options for you to go see and buy. Nothing else.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 2: AGENT ═══════════ -->
+  <section class="ob-step" data-step="2" aria-label="Choose your agent">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="users"></i>Your guide</p>
+      <h1 class="ob-h1">Who are you working with?</h1>
+      <p class="ob-sub">Start typing a name to find your agent, or let us match you with the right one.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="agent-search-wrap">
+          <i data-lucide="search"></i>
+          <input class="ob-input" id="obAgentSearch" type="text" placeholder="Search our agents by name..." autocomplete="off">
+        </div>
+        <div class="agent-grid" id="obAgentGrid" role="listbox" aria-label="Agents">
+          <p class="agent-empty">Loading our agent directory...</p>
+        </div>
+        <div class="ob-field" data-field="agent" style="margin-top:10px;">
+          <p class="ob-field-err">Select an agent, or choose "Match me with an agent".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 3: LOCATION ═══════════ -->
+  <section class="ob-step" data-step="3" aria-label="Where do you want to live">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="map-pin"></i>Location</p>
+      <h1 class="ob-h1">Where do you want to live?</h1>
+      <p class="ob-sub">Tap every neighborhood you'd consider. They'll light up on the map, and you can tap areas on the map too.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-7" style="padding:10px;">
+        <div class="ob-map-wrap"><div id="obMap" aria-label="Map of Chicago neighborhoods"></div></div>
+      </div>
+      <div class="bento-card span-5">
+        <h3><i data-lucide="list-checks"></i>Neighborhoods</h3>
+        <div class="hood-list" id="obHoodList"></div>
+        <div class="other-loc-wrap" id="obOtherWrap">
+          <label class="ob-label" for="obOtherLoc">Other location</label>
+          <input class="ob-input" id="obOtherLoc" type="text" placeholder="e.g. Evanston, Oak Park, Naperville...">
+        </div>
+        <p class="hood-count" id="obHoodCount"><i data-lucide="map-pin"></i>0 areas selected</p>
+        <div class="ob-field" data-field="location" style="margin-top:6px;">
+          <p class="ob-field-err">Choose at least one neighborhood or type another location.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 4: BUDGET ═══════════ -->
+  <section class="ob-step" data-step="4" aria-label="Budget">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="wallet"></i>Budget</p>
+      <h1 class="ob-h1">What's your budget?</h1>
+      <p class="ob-sub">Slide to your comfortable maximum. Our median purchase is $500,000, so that's where we start you.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12" style="padding:34px 30px;">
+        <p class="ob-slider-readout" id="obBudgetReadout">$500,000</p>
+        <p class="ob-slider-hint" id="obBudgetHint">Right at the ASG median</p>
+        <input type="range" class="ob-range" id="obBudgetRange" min="0" max="113" step="1" value="20" aria-label="Maximum budget">
+        <div class="ob-range-ends"><span>$0</span><span>$15M</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 5: NON-NEGOTIABLES ═══════════ -->
+  <section class="ob-step" data-step="5" aria-label="Non-negotiables">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="shield-check"></i>Non-Negotiables</p>
+      <h1 class="ob-h1">The must-haves.</h1>
+      <p class="ob-sub">These are deal-breakers, not preferences. We'll never show you a home that misses them.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-6">
+        <h3><i data-lucide="bed-double"></i>Minimum Bedrooms</h3>
+        <p class="ob-slider-readout" id="obBedsReadout" style="font-size:1.9rem;">2 Bedrooms</p>
+        <input type="range" class="ob-range" id="obBedsRange" min="0" max="6" step="1" value="2" aria-label="Minimum bedrooms">
+        <div class="ob-range-ends"><span>Studio</span><span>6+</span></div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="bath"></i>Minimum Bathrooms</h3>
+        <p class="ob-slider-readout" id="obBathsReadout" style="font-size:1.9rem;">1.5 Bathrooms</p>
+        <input type="range" class="ob-range" id="obBathsRange" min="1" max="5" step="0.5" value="1.5" aria-label="Minimum bathrooms">
+        <div class="ob-range-ends"><span>1</span><span>5+</span></div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="sparkles"></i>Essentials</h3>
+        <div class="toggle-row">
+          <span class="toggle-label"><i data-lucide="paw-print"></i>Pet Friendly</span>
+          <button type="button" class="toggle" id="obPetToggle" role="switch" aria-checked="false" aria-label="Pet friendly required"></button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label"><i data-lucide="washing-machine"></i>Washer / Dryer In Unit</span>
+          <button type="button" class="toggle" id="obWdToggle" role="switch" aria-checked="false" aria-label="Washer dryer in unit required"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 6: ADDITIONAL DETAILS ═══════════ -->
+  <section class="ob-step" data-step="6" aria-label="Additional details">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="settings-2"></i>Fine tuning</p>
+      <h1 class="ob-h1">A few more details.</h1>
+      <p class="ob-sub">All optional, all tappable. The more we know, the sharper your search.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-6">
+        <h3><i data-lucide="building-2"></i>Property Type</h3>
+        <div class="chip-row" data-detail="propertyType">
+          <button type="button" class="chip" data-value="Condo"><i data-lucide="building"></i>Condo</button>
+          <button type="button" class="chip" data-value="Townhome"><i data-lucide="home"></i>Townhome</button>
+          <button type="button" class="chip" data-value="Single-Family"><i data-lucide="trees"></i>Single-Family</button>
+          <button type="button" class="chip" data-value="Open to all"><i data-lucide="layout-grid"></i>Open to all</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="paintbrush"></i>Condition</h3>
+        <div class="chip-row" data-detail="condition">
+          <button type="button" class="chip" data-value="Move-in ready"><i data-lucide="key-round"></i>Move-in ready</button>
+          <button type="button" class="chip" data-value="Light updates OK"><i data-lucide="brush"></i>Light updates OK</button>
+          <button type="button" class="chip" data-value="Open to renovation"><i data-lucide="hammer"></i>Open to renovation</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="car"></i>Parking</h3>
+        <div class="chip-row" data-detail="parking">
+          <button type="button" class="chip" data-value="Garage required"><i data-lucide="warehouse"></i>Garage required</button>
+          <button type="button" class="chip" data-value="Street parking OK"><i data-lucide="map"></i>Street OK</button>
+          <button type="button" class="chip" data-value="EV charging needed"><i data-lucide="zap"></i>EV charging</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="calendar"></i>Timing</h3>
+        <div class="chip-row" data-detail="timing">
+          <button type="button" class="chip" data-value="0-3 months">0-3 months</button>
+          <button type="button" class="chip" data-value="3-6 months">3-6 months</button>
+          <button type="button" class="chip" data-value="6-12 months">6-12 months</button>
+          <button type="button" class="chip" data-value="Just browsing">Just browsing</button>
+        </div>
+      </div>
+      <div class="bento-card span-12">
+        <h3><i data-lucide="badge-dollar-sign"></i>Financing</h3>
+        <div class="chip-row" data-detail="financing">
+          <button type="button" class="chip" data-value="Pre-approved"><i data-lucide="badge-check"></i>Pre-approved</button>
+          <button type="button" class="chip" data-value="Need a lender intro"><i data-lucide="handshake"></i>Need a lender intro</button>
+          <button type="button" class="chip" data-value="Cash buyer"><i data-lucide="banknote"></i>Cash</button>
+        </div>
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="heart"></i>Top Must-Have <span style="font-weight:500; color:var(--muted-soft); text-transform:none; letter-spacing:0;">(optional)</span></h3>
+        <input class="ob-input" id="obMustHave" type="text" placeholder="e.g. Outdoor space, natural light, home office...">
+      </div>
+      <div class="bento-card span-6">
+        <h3><i data-lucide="ban"></i>Automatic No <span style="font-weight:500; color:var(--muted-soft); text-transform:none; letter-spacing:0;">(optional)</span></h3>
+        <input class="ob-input" id="obAutoNo" type="text" placeholder="e.g. Busy street, no elevator, ground floor...">
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ STEP 7: REVIEW ═══════════ -->
+  <section class="ob-step" data-step="7" aria-label="Review and submit">
+    <div class="ob-step-head">
+      <p class="ob-eyebrow"><i data-lucide="clipboard-check"></i>Almost there</p>
+      <h1 class="ob-h1">Does this look right?</h1>
+      <p class="ob-sub">Review your search profile. Tap edit on anything you'd like to change.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card span-12">
+        <div class="review-list" id="obReviewList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ SUCCESS ═══════════ -->
+  <section class="ob-step" data-step="success" aria-label="Submission received">
+    <div class="success-wrap">
+      <div class="success-check"><i data-lucide="check"></i></div>
+      <h1 class="ob-h1">You're all set.</h1>
+      <p class="ob-sub" style="margin:0 auto;">Your buyer profile is on its way to your agent. Expect a personal follow-up within one business day, by <span id="obSuccessMethod">your preferred method</span>.</p>
+      <div class="success-agent" id="obSuccessAgent" style="display:none;">
+        <div class="agent-photo" id="obSuccessAgentPhoto"></div>
+        <p><strong id="obSuccessAgentName"></strong><br><span style="color:var(--muted); font-size:.85rem;">Your ASG agent</span></p>
+      </div>
+      <div style="margin-top:30px;">
+        <a class="ob-btn ob-btn-dark" href="/">Back to Home<i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honeypot (spam trap, stays empty) -->
+  <input class="ob-honeypot" type="text" name="company" id="obHoneypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+  <!-- ═══════════ CONTROLS ═══════════ -->
+  <div class="ob-controls" id="obControls">
+    <button type="button" class="ob-btn ob-btn-ghost" id="obBack" style="visibility:hidden;">
+      <i data-lucide="arrow-left"></i>Back
+    </button>
+    <button type="button" class="ob-btn ob-btn-dark" id="obNext">
+      Continue<i data-lucide="arrow-right"></i>
+    </button>
+  </div>
+
+      </div><!-- /.ob-main -->
+    </div><!-- /.ob-wizard-inner -->
+  </section><!-- /#onboarding -->
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="footer-logo" href="/">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="">
+        Alex Stoykov Group
+      </a>
+      <p class="footer-tag">A modern real estate experience built around clear strategy, elegant marketing, and high-touch guidance, from first showing to final close.</p>
+      <p class="footer-tag">Brokered by Compass · Chicago, IL</p>
+    </div>
+    <div>
+      <h4>Real Estate</h4>
+      <ul>
+        <li><a href="/listings">Our Listings</a></li>
+        <li><a href="/buyers">Buyers</a></li>
+        <li><a href="/sellers">Sellers</a></li>
+        <li><a href="/neighborhoods">Neighborhoods</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/team">Team</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/careers">Careers</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="/#asg-home-contact">Contact Us</a></li>
+        <li><a href="/client-portal">Client Portal</a></li>
+        <li><a href="https://www.instagram.com/alexstoykovgroup" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+        <li><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© Alex Stoykov Group · All rights reserved</span>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/accessibility">Accessibility</a>
+      <a href="/fair-housing">Fair Housing</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ════════════════ NAV (matches homepage behavior) ════════════════ */
+  var nav = document.getElementById('nav');
+  var frost = document.getElementById('navFrost');
+  var lastScrolled = false;
+  function onScroll(){
+    var scrolled = (window.scrollY || 0) > 24;
+    if (scrolled !== lastScrolled) {
+      nav.classList.toggle('is-scrolled', scrolled);
+      frost.classList.toggle('is-scrolled', scrolled);
+      lastScrolled = scrolled;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var linksWrap = document.getElementById('navLinks');
+  var ghost = document.getElementById('navGhost');
+  linksWrap.querySelectorAll('.nav-link').forEach(function (link) {
+    link.addEventListener('mouseenter', function () {
+      var wrapBox = linksWrap.getBoundingClientRect();
+      var box = link.getBoundingClientRect();
+      ghost.style.left = (box.left - wrapBox.left) + 'px';
+      ghost.style.width = box.width + 'px';
+      ghost.classList.add('is-on');
+    });
+  });
+  linksWrap.addEventListener('mouseleave', function () {
+    ghost.classList.remove('is-on');
+  });
+
+  var burger = document.getElementById('navBurger');
+  var panel = document.getElementById('mobilePanel');
+  var closeBtn = document.getElementById('mobileClose');
+  function openMobile(){
+    panel.classList.add('is-open');
+    burger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobile(){
+    panel.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', openMobile);
+  closeBtn.addEventListener('click', closeMobile);
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') closeMobile();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+  });
+
+  /* Smooth scroll for in-page anchors (Start Onboarding CTAs) */
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!link) return;
+    var id = (link.getAttribute('href') || '').slice(1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, true);
+
+  /* ════════════════ CONFIG ════════════════ */
+  var HUB_DATA_API = String(window.ASG_HUB_DATA_API ||
+    'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
+  /* Buyer Intake Apps Script (BuyerIntake.gs doPost). Leave empty for preview mode. */
+  var INTAKE_API = String(window.ASG_BUYER_INTAKE_API || '').trim();
+
+  var TOTAL_STEPS = 7;
+  var renderedAt = Date.now();
+
+  var STEP_META = {
+    1: { name: 'Contact', icon: 'user' },
+    2: { name: 'Your Agent', icon: 'users' },
+    3: { name: 'Location', icon: 'map-pin' },
+    4: { name: 'Budget', icon: 'wallet' },
+    5: { name: 'Non-Negotiables', icon: 'shield-check' },
+    6: { name: 'Details', icon: 'settings-2' },
+    7: { name: 'Review', icon: 'clipboard-check' }
+  };
+
+  /* ════════════════ STATE ════════════════ */
+  var state = {
+    contact: { name: '', email: '', phone: '', methods: [] },
+    marketing: { generalOptIn: true, frequency: 'Monthly', searchOptIn: true },
+    agent: { name: '', email: '', photo: '', matchMe: false, selected: false },
+    locations: [],
+    otherLocation: '',
+    budget: 500000,
+    bedsMin: 2,
+    bathsMin: 1.5,
+    petFriendly: false,
+    washerDryerInUnit: false,
+    details: { propertyType: '', condition: '', parking: '', timing: '', financing: '', mustHave: '', autoNo: '' }
+  };
+
+  var current = 1;
+
+  function refreshIcons(){
+    if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  /* ════════════════ WIZARD ENGINE ════════════════ */
+  var steps = document.querySelectorAll('.ob-step');
+  var fill = document.getElementById('obProgressFill');
+  var stepName = document.getElementById('obStepName');
+  var stepCount = document.getElementById('obStepCount');
+  var btnBack = document.getElementById('obBack');
+  var btnNext = document.getElementById('obNext');
+  var controls = document.getElementById('obControls');
+  var progressWrap = document.getElementById('obProgress');
+
+  var wizardSection = document.getElementById('onboarding');
+  var booted = false;
+
+  /* The wizard is embedded mid-page, so step changes scroll back to the
+     top of the wizard section (not the page top). Skipped on first paint
+     so visitors land on the hero. */
+  function scrollToWizard(){
+    if (!booted) return;
+    if (wizardSection) wizardSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showStep(n){
+    current = n;
+    steps.forEach(function (s) {
+      s.classList.toggle('is-active', s.getAttribute('data-step') === String(n));
+    });
+    if (n === 'success') {
+      controls.style.display = 'none';
+      progressWrap.style.display = 'none';
+      scrollToWizard();
+      refreshIcons();
+      return;
+    }
+    var meta = STEP_META[n];
+    fill.style.width = ((n / TOTAL_STEPS) * 100) + '%';
+    stepName.innerHTML = '<i data-lucide="' + meta.icon + '"></i>' + escapeHtml(meta.name);
+    stepCount.textContent = 'Step ' + n + ' of ' + TOTAL_STEPS;
+    btnBack.style.visibility = n === 1 ? 'hidden' : 'visible';
+    btnNext.innerHTML = n === TOTAL_STEPS
+      ? 'Submit My Profile<i data-lucide="send"></i>'
+      : 'Continue<i data-lucide="arrow-right"></i>';
+    if (n === 3) setTimeout(initMapOnce, 60);
+    if (n === 7) renderReview();
+    scrollToWizard();
+    refreshIcons();
+  }
+
+  function setFieldError(field, on){
+    var el = document.querySelector('.ob-field[data-field="' + field + '"]');
+    if (el) el.classList.toggle('has-error', !!on);
+  }
+
+  function validateStep(n){
+    var ok = true;
+    if (n === 1) {
+      state.contact.name = document.getElementById('obName').value.trim();
+      state.contact.email = document.getElementById('obEmail').value.trim();
+      state.contact.phone = document.getElementById('obPhone').value.trim();
+      var nameOk = state.contact.name.length >= 2;
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.contact.email);
+      var methodOk = state.contact.methods.length > 0;
+      var phoneNeeded = state.contact.methods.indexOf('Call') >= 0 || state.contact.methods.indexOf('Text') >= 0;
+      var phoneOk = !phoneNeeded || state.contact.phone.replace(/[^0-9]/g, '').length >= 10;
+      setFieldError('name', !nameOk);
+      setFieldError('email', !emailOk);
+      setFieldError('method', !methodOk);
+      setFieldError('phone', !phoneOk);
+      ok = nameOk && emailOk && methodOk && phoneOk;
+    }
+    if (n === 2) {
+      ok = state.agent.selected;
+      setFieldError('agent', !ok);
+    }
+    if (n === 3) {
+      state.otherLocation = document.getElementById('obOtherLoc').value.trim();
+      ok = state.locations.length > 0 || !!state.otherLocation;
+      setFieldError('location', !ok);
+    }
+    if (n === 6) {
+      state.details.mustHave = document.getElementById('obMustHave').value.trim();
+      state.details.autoNo = document.getElementById('obAutoNo').value.trim();
+    }
+    return ok;
+  }
+
+  btnNext.addEventListener('click', function () {
+    if (current === TOTAL_STEPS) { submit(); return; }
+    if (!validateStep(current)) return;
+    showStep(current + 1);
+  });
+  btnBack.addEventListener('click', function () {
+    if (current > 1) showStep(current - 1);
+  });
+
+  /* ════════════════ STEP 1: CONTACT ════════════════ */
+  /* Contact methods: multi-select, pick all that apply */
+  var methodChips = document.getElementById('obMethodChips');
+  methodChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    var val = chip.getAttribute('data-value');
+    var idx = state.contact.methods.indexOf(val);
+    var on = idx < 0;
+    if (on) state.contact.methods.push(val);
+    else state.contact.methods.splice(idx, 1);
+    chip.classList.toggle('is-on', on);
+    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (state.contact.methods.length) setFieldError('method', false);
+  });
+
+  /* Marketing preferences */
+  var mktToggle = document.getElementById('obMktToggle');
+  var mktFreqWrap = document.getElementById('obMktFreqWrap');
+  var mktFreqChips = document.getElementById('obMktFreqChips');
+  var searchMailToggle = document.getElementById('obSearchMailToggle');
+
+  mktToggle.addEventListener('click', function () {
+    state.marketing.generalOptIn = !state.marketing.generalOptIn;
+    mktToggle.classList.toggle('is-on', state.marketing.generalOptIn);
+    mktToggle.setAttribute('aria-checked', state.marketing.generalOptIn ? 'true' : 'false');
+    mktFreqWrap.style.display = state.marketing.generalOptIn ? '' : 'none';
+  });
+  mktFreqChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    state.marketing.frequency = chip.getAttribute('data-value');
+    mktFreqChips.querySelectorAll('.chip').forEach(function (c) {
+      c.classList.toggle('is-on', c === chip);
+    });
+  });
+  searchMailToggle.addEventListener('click', function () {
+    state.marketing.searchOptIn = !state.marketing.searchOptIn;
+    searchMailToggle.classList.toggle('is-on', state.marketing.searchOptIn);
+    searchMailToggle.setAttribute('aria-checked', state.marketing.searchOptIn ? 'true' : 'false');
+  });
+
+  /* ════════════════ STEP 2: AGENT TYPEAHEAD ════════════════ */
+  var agents = [];
+  var agentGrid = document.getElementById('obAgentGrid');
+  var agentSearch = document.getElementById('obAgentSearch');
+
+  function agentPhotoUrl(row){
+    return String((row && (
+      row.icon_photo_url || row.icon_photo || row.iconphoto ||
+      row.image_url || row.photo || row.headshot_url || row.headshot
+    )) || '').trim();
+  }
+
+  function agentInitials(name){
+    return String(name || '').split(/\s+/).slice(0, 2)
+      .map(function (w) { return w.charAt(0).toUpperCase(); }).join('');
+  }
+
+  function loadAgents(){
+    fetch(HUB_DATA_API + '?view=directory', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('directory'); return r.json(); })
+      .then(function (payload) {
+        var rows = (payload && payload.success && payload.data && payload.data.directory &&
+                    Array.isArray(payload.data.directory.rows)) ? payload.data.directory.rows : [];
+        agents = rows
+          .map(function (row) {
+            return {
+              name: String(row.name || row.display_name || '').trim(),
+              email: String(row.email || row.agent_email || '').trim(),
+              role: String(row.tier || row.role_group || 'Agent').trim() || 'Agent',
+              photo: agentPhotoUrl(row)
+            };
+          })
+          .filter(function (a) { return a.name; })
+          .sort(function (a, b) { return a.name.localeCompare(b.name); });
+        renderAgents('');
+      })
+      .catch(function () {
+        agents = [];
+        renderAgents('');
+      });
+  }
+
+  function agentCardHtml(a){
+    var on = state.agent.selected && !state.agent.matchMe && state.agent.email === a.email && state.agent.name === a.name;
+    var photo = a.photo
+      ? '<img src="' + escapeHtml(a.photo) + '" alt="" loading="lazy" decoding="async">'
+      : escapeHtml(agentInitials(a.name));
+    return '' +
+      '<button type="button" class="agent-card' + (on ? ' is-on' : '') + '" role="option"' +
+        ' data-name="' + escapeHtml(a.name) + '" data-email="' + escapeHtml(a.email) + '" data-photo="' + escapeHtml(a.photo) + '">' +
+        '<span class="agent-photo">' + photo + '</span>' +
+        '<span><span class="agent-name">' + escapeHtml(a.name) + '</span>' +
+        '<span class="agent-role" style="display:block;">' + escapeHtml(a.role) + '</span></span>' +
+        '<span class="agent-check"><i data-lucide="check"></i></span>' +
+      '</button>';
+  }
+
+  function matchMeCardHtml(){
+    var on = state.agent.selected && state.agent.matchMe;
+    return '' +
+      '<button type="button" class="agent-card' + (on ? ' is-on' : '') + '" role="option" data-matchme="1">' +
+        '<span class="agent-photo"><i data-lucide="sparkles" style="width:20px;height:20px;"></i></span>' +
+        '<span><span class="agent-name">No preference</span>' +
+        '<span class="agent-role" style="display:block;">Match me with an agent</span></span>' +
+        '<span class="agent-check"><i data-lucide="check"></i></span>' +
+      '</button>';
+  }
+
+  function renderAgents(query){
+    var q = String(query || '').trim().toLowerCase();
+    var list = q
+      ? agents.filter(function (a) { return a.name.toLowerCase().indexOf(q) >= 0; })
+      : agents;
+    var html = matchMeCardHtml() + list.map(agentCardHtml).join('');
+    if (!list.length && q) {
+      html += '<p class="agent-empty">No agents match "' + escapeHtml(query) + '". Try a different spelling, or choose "Match me".</p>';
+    }
+    if (!agents.length && !q) {
+      html = matchMeCardHtml() +
+        '<p class="agent-empty">Couldn\'t load the directory right now. Choose "Match me" and we\'ll pair you up.</p>';
+    }
+    agentGrid.innerHTML = html;
+    refreshIcons();
+  }
+
+  agentSearch.addEventListener('input', function () { renderAgents(agentSearch.value); });
+
+  agentGrid.addEventListener('click', function (e) {
+    var card = e.target.closest('.agent-card');
+    if (!card) return;
+    if (card.hasAttribute('data-matchme')) {
+      state.agent = { name: '', email: '', photo: '', matchMe: true, selected: true };
+    } else {
+      state.agent = {
+        name: card.getAttribute('data-name') || '',
+        email: card.getAttribute('data-email') || '',
+        photo: card.getAttribute('data-photo') || '',
+        matchMe: false,
+        selected: true
+      };
+    }
+    agentGrid.querySelectorAll('.agent-card').forEach(function (c) {
+      c.classList.toggle('is-on', c === card);
+    });
+    setFieldError('agent', false);
+  });
+
+  loadAgents();
+
+  /* ════════════════ STEP 3: LOCATION (Leaflet) ════════════════
+     Simplified polygons approximating popular Chicago neighborhoods.
+     [lat, lng] rings; close enough to orient buyers, not parcel-accurate. */
+  var HOODS = [
+    { id: 'gold-coast',     name: 'Gold Coast',          poly: [[41.9110,-87.6340],[41.9110,-87.6248],[41.9000,-87.6240],[41.9000,-87.6340]] },
+    { id: 'old-town',       name: 'Old Town',            poly: [[41.9110,-87.6450],[41.9110,-87.6340],[41.9000,-87.6340],[41.9000,-87.6450]] },
+    { id: 'river-north',    name: 'River North',         poly: [[41.9000,-87.6420],[41.9000,-87.6240],[41.8890,-87.6240],[41.8860,-87.6400]] },
+    { id: 'streeterville',  name: 'Streeterville',       poly: [[41.9000,-87.6240],[41.9000,-87.6130],[41.8860,-87.6130],[41.8860,-87.6240]] },
+    { id: 'the-loop',       name: 'The Loop',            poly: [[41.8860,-87.6400],[41.8860,-87.6240],[41.8710,-87.6240],[41.8710,-87.6400]] },
+    { id: 'west-loop',      name: 'West Loop',           poly: [[41.8910,-87.6670],[41.8910,-87.6400],[41.8710,-87.6400],[41.8710,-87.6670]] },
+    { id: 'south-loop',     name: 'South Loop',          poly: [[41.8710,-87.6400],[41.8710,-87.6170],[41.8520,-87.6170],[41.8520,-87.6400]] },
+    { id: 'lincoln-park',   name: 'Lincoln Park',        poly: [[41.9320,-87.6650],[41.9320,-87.6350],[41.9110,-87.6248],[41.9110,-87.6650]] },
+    { id: 'lakeview',       name: 'Lakeview',            poly: [[41.9540,-87.6740],[41.9540,-87.6450],[41.9320,-87.6350],[41.9320,-87.6740]] },
+    { id: 'wicker-park',    name: 'Wicker Park',         poly: [[41.9160,-87.6870],[41.9160,-87.6650],[41.9030,-87.6650],[41.9030,-87.6870]] },
+    { id: 'bucktown',       name: 'Bucktown',            poly: [[41.9320,-87.6870],[41.9320,-87.6650],[41.9160,-87.6650],[41.9160,-87.6870]] },
+    { id: 'logan-square',   name: 'Logan Square',        poly: [[41.9320,-87.7270],[41.9320,-87.6870],[41.9170,-87.6870],[41.9170,-87.7270]] },
+    { id: 'ukrainian-vlg',  name: 'Ukrainian Village',   poly: [[41.9030,-87.6870],[41.9030,-87.6670],[41.8910,-87.6670],[41.8910,-87.6870]] },
+    { id: 'river-west',     name: 'River West',          poly: [[41.9030,-87.6650],[41.9030,-87.6420],[41.8910,-87.6420],[41.8910,-87.6650]] },
+    { id: 'north-center',   name: 'North Center',        poly: [[41.9540,-87.7000],[41.9540,-87.6740],[41.9320,-87.6740],[41.9320,-87.7000]] },
+    { id: 'lincoln-square', name: 'Lincoln Square',      poly: [[41.9760,-87.7000],[41.9760,-87.6740],[41.9540,-87.6740],[41.9540,-87.7000]] },
+    { id: 'uptown',         name: 'Uptown',              poly: [[41.9760,-87.6740],[41.9760,-87.6400],[41.9540,-87.6450],[41.9540,-87.6740]] },
+    { id: 'andersonville',  name: 'Andersonville',       poly: [[41.9980,-87.6800],[41.9980,-87.6550],[41.9760,-87.6550],[41.9760,-87.6800]] },
+    { id: 'pilsen',         name: 'Pilsen',              poly: [[41.8570,-87.6750],[41.8570,-87.6400],[41.8430,-87.6400],[41.8430,-87.6750]] },
+    { id: 'bridgeport',     name: 'Bridgeport',          poly: [[41.8430,-87.6650],[41.8430,-87.6300],[41.8250,-87.6300],[41.8250,-87.6650]] },
+    { id: 'bronzeville',    name: 'Bronzeville',         poly: [[41.8430,-87.6300],[41.8430,-87.6050],[41.8100,-87.6050],[41.8100,-87.6300]] },
+    { id: 'hyde-park',      name: 'Hyde Park',           poly: [[41.8090,-87.6100],[41.8090,-87.5800],[41.7800,-87.5800],[41.7800,-87.6100]] }
+  ];
+
+  var map = null;
+  var hoodLayers = {};
+  var hoodList = document.getElementById('obHoodList');
+  var hoodCount = document.getElementById('obHoodCount');
+  var otherWrap = document.getElementById('obOtherWrap');
+
+  var POLY_OFF = { color: '#111111', weight: 1, opacity: .25, fillColor: '#111111', fillOpacity: .04 };
+  var POLY_ON  = { color: '#111111', weight: 2, opacity: .9,  fillColor: '#111111', fillOpacity: .28 };
+
+  function renderHoodChips(){
+    var html = HOODS.map(function (h) {
+      var on = state.locations.indexOf(h.name) >= 0;
+      return '<button type="button" class="chip' + (on ? ' is-on' : '') + '" data-hood="' + h.id + '">' +
+        escapeHtml(h.name) + '</button>';
+    }).join('');
+    html += '<button type="button" class="chip' + (otherWrap.classList.contains('is-on') ? ' is-on' : '') + '" data-hood="__other">' +
+      '<i data-lucide="pencil"></i>Other</button>';
+    hoodList.innerHTML = html;
+    refreshIcons();
+    updateHoodCount();
+  }
+
+  function updateHoodCount(){
+    var n = state.locations.length + (document.getElementById('obOtherLoc').value.trim() ? 1 : 0);
+    hoodCount.innerHTML = '<i data-lucide="map-pin"></i>' + n + (n === 1 ? ' area selected' : ' areas selected');
+    refreshIcons();
+  }
+
+  function toggleHood(id){
+    if (id === '__other') {
+      otherWrap.classList.toggle('is-on');
+      if (otherWrap.classList.contains('is-on')) document.getElementById('obOtherLoc').focus();
+      renderHoodChips();
+      return;
+    }
+    var hood = null;
+    for (var i = 0; i < HOODS.length; i++) if (HOODS[i].id === id) hood = HOODS[i];
+    if (!hood) return;
+    var idx = state.locations.indexOf(hood.name);
+    var on = idx < 0;
+    if (on) state.locations.push(hood.name);
+    else state.locations.splice(idx, 1);
+    if (map && hoodLayers[id]) hoodLayers[id].setStyle(on ? POLY_ON : POLY_OFF);
+    setFieldError('location', false);
+    renderHoodChips();
+  }
+
+  hoodList.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    toggleHood(chip.getAttribute('data-hood'));
+  });
+  document.getElementById('obOtherLoc').addEventListener('input', updateHoodCount);
+
+  var mapInited = false;
+  function initMapOnce(){
+    if (mapInited) { if (map) map.invalidateSize(); return; }
+    if (typeof L === 'undefined') return; /* Leaflet CDN unavailable; chips still work */
+    mapInited = true;
+    map = L.map('obMap', {
+      center: [41.895, -87.655],
+      zoom: 12,
+      scrollWheelZoom: false,
+      attributionControl: true
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 18
+    }).addTo(map);
+    HOODS.forEach(function (h) {
+      var on = state.locations.indexOf(h.name) >= 0;
+      var layer = L.polygon(h.poly, on ? POLY_ON : POLY_OFF).addTo(map);
+      layer.bindTooltip(h.name, { sticky: true, direction: 'top' });
+      layer.on('click', function () { toggleHood(h.id); });
+      hoodLayers[h.id] = layer;
+    });
+    setTimeout(function () { map.invalidateSize(); }, 120);
+  }
+
+  renderHoodChips();
+
+  /* ════════════════ STEP 4: BUDGET ════════════════
+     Nonlinear scale: fine steps where most buyers live, coarse at the top.
+     $0-1M @ $25k, $1M-3M @ $50k, $3M-8M @ $250k, $8M-15M @ $500k. */
+  var BUDGET_STEPS = (function () {
+    var v = [], p;
+    for (p = 0;       p < 1000000;  p += 25000)  v.push(p);
+    for (p = 1000000; p < 3000000;  p += 50000)  v.push(p);
+    for (p = 3000000; p < 8000000;  p += 250000) v.push(p);
+    for (p = 8000000; p <= 15000000; p += 500000) v.push(p);
+    return v;
+  })();
+
+  var budgetRange = document.getElementById('obBudgetRange');
+  var budgetReadout = document.getElementById('obBudgetReadout');
+  var budgetHint = document.getElementById('obBudgetHint');
+  budgetRange.max = String(BUDGET_STEPS.length - 1);
+  budgetRange.value = String(BUDGET_STEPS.indexOf(500000));
+
+  function fmtMoney(n){
+    try { return '$' + Number(n).toLocaleString(); } catch (e) { return '$' + n; }
+  }
+
+  function updateBudget(){
+    var val = BUDGET_STEPS[Number(budgetRange.value)] || 0;
+    state.budget = val;
+    budgetReadout.textContent = val === 0 ? 'No maximum yet' : fmtMoney(val);
+    if (val === 0) budgetHint.textContent = 'Slide right to set your ceiling';
+    else if (val === 500000) budgetHint.textContent = 'Right at the ASG median';
+    else if (val < 500000) budgetHint.textContent = 'Below the ASG median of $500,000';
+    else if (val >= 15000000) budgetHint.textContent = 'The very top of the Chicago market';
+    else budgetHint.textContent = 'Above the ASG median of $500,000';
+  }
+  budgetRange.addEventListener('input', updateBudget);
+  updateBudget();
+
+  /* ════════════════ STEP 5: NON-NEGOTIABLES ════════════════ */
+  var bedsRange = document.getElementById('obBedsRange');
+  var bedsReadout = document.getElementById('obBedsReadout');
+  function updateBeds(){
+    var n = Number(bedsRange.value);
+    state.bedsMin = n;
+    bedsReadout.textContent = n === 0 ? 'Studio' : (n >= 6 ? '6+ Bedrooms' : n + (n === 1 ? ' Bedroom' : ' Bedrooms'));
+  }
+  bedsRange.addEventListener('input', updateBeds);
+  updateBeds();
+
+  var bathsRange = document.getElementById('obBathsRange');
+  var bathsReadout = document.getElementById('obBathsReadout');
+  function updateBaths(){
+    var n = Number(bathsRange.value);
+    state.bathsMin = n;
+    bathsReadout.textContent = (n >= 5 ? '5+' : n) + (n === 1 ? ' Bathroom' : ' Bathrooms');
+  }
+  bathsRange.addEventListener('input', updateBaths);
+  updateBaths();
+
+  function bindToggle(id, key){
+    var t = document.getElementById(id);
+    t.addEventListener('click', function () {
+      state[key] = !state[key];
+      t.classList.toggle('is-on', state[key]);
+      t.setAttribute('aria-checked', state[key] ? 'true' : 'false');
+    });
+  }
+  bindToggle('obPetToggle', 'petFriendly');
+  bindToggle('obWdToggle', 'washerDryerInUnit');
+
+  /* ════════════════ STEP 6: DETAIL CHIP GROUPS ════════════════ */
+  document.querySelectorAll('.chip-row[data-detail]').forEach(function (row) {
+    var key = row.getAttribute('data-detail');
+    row.addEventListener('click', function (e) {
+      var chip = e.target.closest('.chip');
+      if (!chip) return;
+      var val = chip.getAttribute('data-value');
+      var deselect = state.details[key] === val;
+      state.details[key] = deselect ? '' : val;
+      row.querySelectorAll('.chip').forEach(function (c) {
+        c.classList.toggle('is-on', !deselect && c === chip);
+      });
+    });
+  });
+
+  /* ════════════════ STEP 7: REVIEW ════════════════ */
+  function reviewRow(icon, label, value, step){
+    return '' +
+      '<div class="review-row">' +
+        '<i data-lucide="' + icon + '"></i>' +
+        '<div><p class="rv-label">' + escapeHtml(label) + '</p>' +
+        '<p class="rv-val">' + escapeHtml(value || 'Not specified') + '</p></div>' +
+        '<button type="button" class="rv-edit" data-goto="' + step + '">Edit</button>' +
+      '</div>';
+  }
+
+  function renderReview(){
+    var locs = state.locations.slice();
+    var other = document.getElementById('obOtherLoc').value.trim();
+    if (other) locs.push(other);
+
+    var nn = [];
+    nn.push(state.bedsMin === 0 ? 'Studio+' : state.bedsMin + '+ bed');
+    nn.push((state.bathsMin >= 5 ? '5+' : state.bathsMin) + '+ bath');
+    if (state.petFriendly) nn.push('Pet friendly');
+    if (state.washerDryerInUnit) nn.push('W/D in unit');
+
+    var det = [];
+    if (state.details.propertyType) det.push(state.details.propertyType);
+    if (state.details.condition) det.push(state.details.condition);
+    if (state.details.parking) det.push(state.details.parking);
+    if (state.details.timing) det.push('Timing: ' + state.details.timing);
+    if (state.details.financing) det.push(state.details.financing);
+    if (state.details.mustHave) det.push('Must-have: ' + state.details.mustHave);
+    if (state.details.autoNo) det.push('Automatic no: ' + state.details.autoNo);
+
+    var contactLine = state.contact.name + ' · ' + state.contact.email +
+      (state.contact.phone ? ' · ' + state.contact.phone : '') +
+      (state.contact.methods.length ? ' · Prefers ' + state.contact.methods.join(' + ').toLowerCase() : '');
+
+    var mkt = [];
+    mkt.push(state.marketing.generalOptIn
+      ? 'General marketing: opted in (' + state.marketing.frequency.toLowerCase() + ')'
+      : 'General marketing: opted out');
+    mkt.push(state.marketing.searchOptIn
+      ? 'Search-related emails: opted in'
+      : 'Search-related emails: opted out');
+
+    document.getElementById('obReviewList').innerHTML =
+      reviewRow('user', 'Contact', contactLine, 1) +
+      reviewRow('megaphone', 'Email Preferences', mkt.join(' · '), 1) +
+      reviewRow('users', 'Agent', state.agent.matchMe ? 'Match me with an agent' : state.agent.name, 2) +
+      reviewRow('map-pin', 'Locations', locs.join(', '), 3) +
+      reviewRow('wallet', 'Max Budget', state.budget === 0 ? 'No maximum set' : fmtMoney(state.budget), 4) +
+      reviewRow('shield-check', 'Non-Negotiables', nn.join(' · '), 5) +
+      reviewRow('settings-2', 'Details', det.join(' · '), 6);
+    refreshIcons();
+  }
+
+  document.getElementById('obReviewList').addEventListener('click', function (e) {
+    var btn = e.target.closest('.rv-edit');
+    if (!btn) return;
+    showStep(Number(btn.getAttribute('data-goto')));
+  });
+
+  /* ════════════════ SUBMIT ════════════════ */
+  function buildPayload(){
+    var other = document.getElementById('obOtherLoc').value.trim();
+    return {
+      _formType: 'buyer-onboarding',
+      _page: window.location.pathname || '/buyer-onboarding',
+      _submittedAt: new Date().toISOString(),
+      _renderMs: Date.now() - renderedAt,
+      company: document.getElementById('obHoneypot').value || '',
+      contact: state.contact,
+      marketing: state.marketing,
+      agent: { name: state.agent.name, email: state.agent.email, matchMe: state.agent.matchMe },
+      locations: state.locations,
+      otherLocation: other,
+      budgetMax: state.budget,
+      bedsMin: state.bedsMin,
+      bathsMin: state.bathsMin,
+      petFriendly: state.petFriendly,
+      washerDryerInUnit: state.washerDryerInUnit,
+      details: state.details
+    };
+  }
+
+  function showSuccess(){
+    document.getElementById('obSuccessMethod').textContent =
+      state.contact.methods.length ? state.contact.methods.join(' or ').toLowerCase() : 'your preferred method';
+    if (!state.agent.matchMe && state.agent.name) {
+      var wrap = document.getElementById('obSuccessAgent');
+      var photoEl = document.getElementById('obSuccessAgentPhoto');
+      document.getElementById('obSuccessAgentName').textContent = state.agent.name;
+      photoEl.innerHTML = state.agent.photo
+        ? '<img src="' + escapeHtml(state.agent.photo) + '" alt="">'
+        : escapeHtml(agentInitials(state.agent.name));
+      wrap.style.display = 'inline-flex';
+    }
+    showStep('success');
+  }
+
+  var submitting = false;
+  function submit(){
+    if (submitting) return;
+    if (document.getElementById('obHoneypot').value) return;          /* honeypot: bot */
+    if (Date.now() - renderedAt < 4000) return;                       /* time-trap: bot */
+    submitting = true;
+    btnNext.disabled = true;
+    btnNext.innerHTML = 'Sending...<i data-lucide="loader"></i>';
+    refreshIcons();
+
+    var payload = buildPayload();
+    if (!INTAKE_API) {
+      /* Preview mode: backend not wired yet */
+      setTimeout(showSuccess, 700);
+      return;
+    }
+    fetch(INTAKE_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(showSuccess).catch(function () {
+      submitting = false;
+      btnNext.disabled = false;
+      btnNext.innerHTML = 'Submit My Profile<i data-lucide="send"></i>';
+      refreshIcons();
+      alert('Something went wrong sending your profile. Please try again, or email contact@alexstoykovgroup.com.');
+    });
+  }
+
+  /* ════════════════ BOOT ════════════════ */
+  refreshIcons();
+  showStep(1);
+  booted = true;
+})();
+</script>
+</body>
+</html>

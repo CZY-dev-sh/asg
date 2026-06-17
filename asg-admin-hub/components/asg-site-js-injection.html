@@ -6,6 +6,7 @@
   Provides:
     • body.asg-page marker (so site CSS hides native chrome)
     • Floating glass nav (auto-injected at top of <body>)
+    • "Search Homes" nav CTA + blurred lighting search overlay → /search-homes?q=
     • Site footer (auto-injected at end of <body>)
     • Mobile menu
     • Scroll-blur intensifier
@@ -127,9 +128,16 @@
       linksRow.appendChild(a);
     });
 
+    var searchBtn = el('button', {
+      class: 'asg-btn asg-btn-dark asg-btn-sm',
+      type: 'button',
+      'aria-label': 'Search Homes',
+      on: { click: function () { window.asgOpenSearchOverlay && window.asgOpenSearchOverlay(); } }
+    });
+    searchBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="margin-right:6px;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Search Homes';
     var ctaRow = el('div', { class: 'asg-nav-cta' }, [
-      el('a', { class: 'asg-btn asg-btn-light asg-btn-sm', href: '/buyers' }, ["I'm Buying"]),
-      el('a', { class: 'asg-btn asg-btn-dark asg-btn-sm', href: '/sellers' }, ["I'm Selling"])
+      el('a', { class: 'asg-btn asg-btn-light asg-btn-sm', href: '/sellers' }, ["I'm Selling"]),
+      searchBtn
     ]);
 
     var burger = el('button', {
@@ -163,9 +171,17 @@
     panel.appendChild(el('a', { href: '/contact' }, ['Contact']));
     panel.appendChild(el('a', { href: '/client-portal' }, ['Client Portal']));
 
+    var mobileSearchBtn = el('button', {
+      class: 'asg-btn asg-btn-dark',
+      type: 'button',
+      on: { click: function () {
+        closeMobile();
+        window.asgOpenSearchOverlay && window.asgOpenSearchOverlay();
+      } }
+    }, ['Search Homes']);
     var mobileCta = el('div', { class: 'asg-mobile-panel-cta' }, [
-      el('a', { class: 'asg-btn asg-btn-light', href: '/buyers' }, ["I'm Buying"]),
-      el('a', { class: 'asg-btn asg-btn-dark', href: '/sellers' }, ["I'm Selling"])
+      el('a', { class: 'asg-btn asg-btn-light', href: '/sellers' }, ["I'm Selling"]),
+      mobileSearchBtn
     ]);
     panel.appendChild(mobileCta);
 
@@ -207,6 +223,101 @@
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  /* ───────────── Search Homes overlay ─────────────
+     Blurred-backdrop natural-language search, opened from the nav CTA.
+     Styles live in the site CSS injection (.asg-shx-*). Submits to the
+     standalone search page. Pages that ship their own overlay (homepage,
+     /search-homes) don't use the injected nav, so no double-up. */
+  var SEARCH_PAGE_URL = '/search-homes';
+  var SEARCH_SUGGESTIONS = [
+    '3 bed condo in West Loop under $750k',
+    'Single family home with a yard in Lincoln Park',
+    'New construction with parking under $1.2m',
+    'Open house this weekend',
+    '2 bed 2 bath with outdoor space'
+  ];
+  var SEARCH_PLACEHOLDERS = [
+    'Try \u201c3 bed condo in West Loop under $750k with parking\u201d',
+    'Try \u201csingle family home in Lincoln Park with a yard\u201d',
+    'Try \u201cnew construction loft under $1m\u201d',
+    'Try \u201c2 bed with outdoor space near the lake\u201d'
+  ];
+
+  function injectSearchOverlay(){
+    if (document.querySelector('.asg-shx-overlay')) return;
+
+    var input = el('input', {
+      class: 'asg-shx-input', type: 'text', autocomplete: 'off',
+      autocapitalize: 'off', spellcheck: 'false',
+      'aria-label': "Describe the home you're looking for"
+    });
+
+    var submit = el('button', { class: 'asg-shx-submit', type: 'submit' });
+    submit.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>Search</span>';
+
+    var form = el('form', { class: 'asg-shx-form', role: 'search', 'aria-label': 'Search homes' });
+    form.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(17,17,17,.55)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
+    form.appendChild(input);
+    form.appendChild(submit);
+
+    var suggest = el('div', { class: 'asg-shx-suggest' });
+    SEARCH_SUGGESTIONS.forEach(function (s) {
+      suggest.appendChild(el('button', {
+        type: 'button',
+        on: { click: function () { window.location.href = SEARCH_PAGE_URL + '?q=' + encodeURIComponent(s); } }
+      }, [s]));
+    });
+
+    var hint = el('span', { class: 'asg-shx-hint' });
+    hint.innerHTML = 'Press <kbd>Enter</kbd> to search &middot; <kbd>Esc</kbd> to close';
+
+    var closeBtn = el('button', { class: 'asg-shx-close', type: 'button', 'aria-label': 'Close search' });
+    closeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>';
+
+    var inner = el('div', { class: 'asg-shx-inner' }, [
+      el('span', { class: 'asg-shx-kicker' }, ['Alex Stoykov Group \u00b7 MLS Search']),
+      el('h2', { class: 'asg-shx-title' }, ['What does home look like?']),
+      el('div', { class: 'asg-shx-search' }, [form]),
+      suggest,
+      hint
+    ]);
+
+    var overlay = el('div', {
+      class: 'asg-shx-overlay', role: 'dialog',
+      'aria-modal': 'true', 'aria-label': 'Search homes'
+    }, [closeBtn, inner]);
+    document.body.appendChild(overlay);
+
+    function open(){
+      overlay.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { input.focus(); }, 120);
+    }
+    function close(){
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    window.asgOpenSearchOverlay = open;
+
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var q = input.value.trim();
+      window.location.href = SEARCH_PAGE_URL + (q ? '?q=' + encodeURIComponent(q) : '');
+    });
+
+    var phIdx = 0;
+    input.placeholder = SEARCH_PLACEHOLDERS[0];
+    setInterval(function () {
+      phIdx = (phIdx + 1) % SEARCH_PLACEHOLDERS.length;
+      if (!input.value) input.placeholder = SEARCH_PLACEHOLDERS[phIdx];
+    }, 3600);
   }
 
   /* ───────────── Build & inject footer ───────────── */
@@ -369,6 +480,7 @@
   function boot(){
     markPage();
     if (!document.body.classList.contains('asg-page')) return; /* not an ASG page */
+    injectSearchOverlay();
     injectNav();
     injectFooter();
     initReveal();

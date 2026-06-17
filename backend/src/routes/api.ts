@@ -9,6 +9,7 @@ import * as telemetry from '../repositories/telemetry.js';
 import { getCommandCenter } from '../repositories/commandCenter.js';
 import { getMarketingOutput } from '../repositories/marketing.js';
 import { handleIntake } from '../repositories/intake.js';
+import { handleAcuityWebhook } from '../sync/marketing.js';
 import * as portal from '../repositories/portal.js';
 import * as admin from '../repositories/admin.js';
 import { anonClient, requireAuth, requireAgent } from '../auth.js';
@@ -165,6 +166,22 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     } catch (err) {
       log.error('intake route error', err);
       return reply.code(500).send({ success: false, error: String(err) });
+    }
+  });
+
+  // ── Acuity webhook (realtime media booking → listing) ───────────────────
+  // Acuity posts form-encoded { action, id, appointmentID }. Authorize with the
+  // shared secret via ?secret= (configure it on the webhook URL in Acuity).
+  app.post('/api/webhooks/acuity', async (req, reply) => {
+    if (!requireSecret(req, reply)) return;
+    const b = (req.body as Record<string, unknown>) ?? {};
+    const appointmentId = String(b.appointmentID ?? b.id ?? q(req, 'id') ?? '');
+    if (!appointmentId) return reply.code(400).send({ ok: false, error: 'appointmentID required' });
+    try {
+      return await handleAcuityWebhook(appointmentId);
+    } catch (err) {
+      log.error('acuity webhook error', err);
+      return reply.code(500).send({ ok: false, error: String(err) });
     }
   });
 

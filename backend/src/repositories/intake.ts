@@ -8,6 +8,7 @@ type Rec = Record<string, unknown>;
 export interface IntakeResult {
   success: boolean;
   leadId?: string;
+  listingId?: string;
   personId?: unknown;
   noteId?: unknown;
   assignedTo?: { id?: unknown; name?: unknown; email?: unknown };
@@ -52,10 +53,29 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
   `;
   const leadId = lead!.id;
 
+  // A seller onboarding is the trigger for a new listing: create a Pre-Listing
+  // draft so it shows up in the console workshop immediately. Best-effort — a
+  // failure here must not block the lead/FUB flow.
+  let listingId: string | undefined;
+  if (formType === 'seller-onboarding') {
+    try {
+      listingId = await createListingFromSellerIntake(body, {
+        leadId,
+        agentId: agentRow?.id ?? null,
+        agentName: String(agent.name ?? '') || null,
+        sellerName: name,
+        sellerEmail: email,
+        sellerPhone: phone,
+      });
+    } catch (err) {
+      log.warn(`lead ${leadId} listing draft failed: ${String(err)}`);
+    }
+  }
+
   const fub = fubClient();
   if (!fub) {
     log.info(`lead ${leadId} stored (FUB not configured — preview mode)`);
-    return { success: true, leadId, preview: true };
+    return { success: true, leadId, listingId, preview: true };
   }
 
   try {
@@ -66,13 +86,74 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
         fub_synced = true, status = 'synced', updated_at = now()
       where id = ${leadId}
     `;
-    return { success: true, leadId, ...result };
+    return { success: true, leadId, listingId, ...result };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await sql`update leads set status = 'error', error = ${message}, updated_at = now() where id = ${leadId}`;
     log.error(`lead ${leadId} FUB sync failed: ${message}`);
-    return { success: false, leadId, error: message };
+    return { success: false, leadId, listingId, error: message };
   }
+}
+
+/**
+ * Create (or refresh) the Pre-Listing draft for a seller onboarding. Keyed by
+ * the listing's normalized address so a re-submission updates in place. The full
+ * questionnaire is stored on the listing for the workshop, and a milestone is
+ * written to the activity timeline.
+ */
+async function createListingFromSellerIntake(
+  body: Rec,
+  who: {
+    leadId: string;
+    agentId: string | null;
+    agentName: string | null;
+    sellerName: string | null;
+    sellerEmail: string | null;
+    sellerPhone: string | null;
+  },
+): Promise<string | undefined> {
+  const property = (body.property as Rec) ?? {};
+  const address = String(property.address ?? '').trim();
+  if (!address) return undefined;
+  const questionnaire = formatQuestionnaire(body);
+
+  const [row] = await sql<{ id: string; inserted: boolean }[]>`
+    insert into listings (
+      address, status, phase_key, listing_type, source,
+      agent_id, agent_name, seller_name, seller_email, seller_phone,
+      seller_questionnaire_content, seller_questionnaire_sent, seller_questionnaire_sent_at, lead_id
+    ) values (
+      ${address}, 'Pre Listing', 'prelisting', 'Sale', 'onboarding',
+      ${who.agentId}, ${who.agentName}, ${who.sellerName}, ${who.sellerEmail}, ${who.sellerPhone},
+      ${questionnaire}, true, now(), ${who.leadId}
+    )
+    on conflict (address_normalized) do update set
+      agent_id = coalesce(excluded.agent_id, listings.agent_id),
+      agent_name = coalesce(excluded.agent_name, listings.agent_name),
+      seller_name = coalesce(excluded.seller_name, listings.seller_name),
+      seller_email = coalesce(excluded.seller_email, listings.seller_email),
+      seller_phone = coalesce(excluded.seller_phone, listings.seller_phone),
+      seller_questionnaire_content = excluded.seller_questionnaire_content,
+      seller_questionnaire_sent = true,
+      seller_questionnaire_sent_at = now(),
+      lead_id = coalesce(listings.lead_id, excluded.lead_id),
+      updated_at = now()
+    returning id, (xmax = 0) as inserted
+  `;
+  const listingId = String(row!.id);
+  const propertyType = String(property.type ?? '').trim();
+  await sql`
+    insert into listing_activity (listing_id, type, label, actor, meta, client_visible)
+    values (
+      ${listingId},
+      ${row!.inserted ? 'listing_created' : 'status_changed'},
+      ${row!.inserted ? 'New seller onboarding received' : 'Seller onboarding updated'},
+      ${who.agentName ?? who.sellerName ?? 'Seller onboarding'},
+      ${j({ source: 'seller-onboarding', propertyType, leadId: who.leadId })},
+      true
+    )
+  `;
+  return listingId;
 }
 
 async function pushLeadToFub(

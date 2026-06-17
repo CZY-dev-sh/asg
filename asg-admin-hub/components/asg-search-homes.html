@@ -1,0 +1,1780 @@
+<!--
+  ════════════════════════════════════════════════════════════════════
+  ASG SEARCH HOMES — Natural-language MLS search  (/search-homes)
+  ════════════════════════════════════════════════════════════════════
+  Paste this entire file into a Squarespace Code Block on a blank page
+  at /search-homes. Fully self-contained (own nav + overlay + footer),
+  same pattern as asg-homepage-redesign.html — do NOT also add the
+  asg-page-main wrapper, or the injected site nav will double up.
+
+  DATA: reads the Listing Hub web app (?view=active) — the IdxListings
+  sheet mirror that IdxSync.gs refreshes from the IDX/Elm Street API
+  every minute on change (hourly safety net). Override the endpoint by
+  setting window.ASG_LISTINGS_API before this block.
+
+  ENTRY POINTS:
+    /search-homes                → blank search, all live inventory
+    /search-homes?q=3+bed+condo  → query pre-parsed and applied
+  The "Search Homes" nav CTA on other pages opens the lighting overlay
+  and lands here with ?q=.
+-->
+
+<script>
+/* ── EARLY BOOT: fire the listings request during HTML parse ─────────
+   Same pattern as the homepage: network overlaps parsing, and the last
+   good payload is cached in localStorage for instant repeat paints. */
+(function () {
+  'use strict';
+  var API = String(window.ASG_LISTINGS_API ||
+    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec').trim();
+  var CACHE_KEY = 'asg_search_cache_v1';
+  var CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+  var boot = { api: API, cachedRows: null, promise: null, cacheKey: CACHE_KEY };
+  window.__ASG_SEARCH_BOOT = boot;
+
+  try {
+    var raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.t && (Date.now() - parsed.t) < CACHE_MAX_AGE_MS && Array.isArray(parsed.rows)) {
+        boot.cachedRows = parsed.rows;
+      }
+    }
+  } catch (e) {}
+
+  var sep = API.indexOf('?') >= 0 ? '&' : '?';
+  boot.promise = fetch(API + sep + 'view=active')
+    .then(function (res) { return res.json(); })
+    .then(function (payload) {
+      var rows = payload && Array.isArray(payload.listings) ? payload.listings : null;
+      if (rows) {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), rows: rows })); } catch (e2) {}
+      }
+      return rows;
+    })
+    .catch(function () { return null; });
+
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+})();
+</script>
+
+<style>
+/* ════════════ Design tokens (match site-wide injection) ════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --bg-deep:#101010;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --r-shell:34px;
+  --r-card:28px;
+  --r-listing:22px;
+  --r-input:16px;
+  --r-pill:999px;
+  --max:1480px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  /* lighting accents for the search glow */
+  --glow-a:#e8d9b8;   /* champagne */
+  --glow-b:#a8c4f0;   /* soft sky  */
+  --glow-c:#ffffff;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; overflow-anchor:none; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* ── Squarespace overrides: hide native chrome on this page only ── */
+#header, header.Header, .Header, .Header-inner, header#header,
+.header-announcement-bar-wrapper, .Header-announcement-bar-wrapper,
+.sqs-announcement-bar-dropzone, #announcement-bar-text-inner-id,
+#headerSpacer, .header-spacer,
+#footer, footer.Footer, .Footer, .Footer-inner, #footer-sections, footer.sections{
+  display:none !important; visibility:hidden !important;
+  height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important;
+}
+body{ margin:0 !important; padding:0 !important; }
+#siteWrapper, .Main, .Content-outer, .Content-inner, .Index, .Index-page-content,
+#page, .page-section, article.sections, main#page article{
+  background:transparent !important; margin:0 !important; padding:0 !important; max-width:none !important;
+}
+.page-section .content-wrapper{ padding:0 !important; max-width:none !important; }
+main img, .nav img, .nav-logo img, .sh-card-media img, .mobile-panel img{
+  border-radius:0 !important; overflow:visible !important;
+}
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+/* ════════════ NAV (floating pill, matches homepage) ════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none; opacity:0;
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.4) 60%, rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 45%, rgba(0,0,0,0) 100%);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 45%, rgba(0,0,0,0) 100%);
+  transition:opacity .3s ease;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+.nav-wrap{ position:fixed; top:18px; left:0; right:0; z-index:100; padding:0 var(--pad-x); }
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-pill);
+  min-height:64px; padding:8px 10px 8px 18px;
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  box-shadow:0 2px 10px rgba(17,17,17,.05);
+  transition:box-shadow .3s ease, min-height .3s ease;
+}
+.nav.is-scrolled{ box-shadow:0 10px 32px rgba(17,17,17,.10); min-height:58px; }
+.nav-logo{ display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.nav-logo img{ width:46px; height:46px; object-fit:contain; transition:transform .4s var(--ease); }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{ font-weight:800; font-size:1.06rem; letter-spacing:-.02em; white-space:nowrap; }
+.nav-links{ display:flex; align-items:center; gap:4px; }
+.nav-link{
+  position:relative; text-decoration:none; color:var(--muted);
+  font-weight:600; font-size:.95rem; padding:10px 16px; border-radius:var(--r-pill);
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.nav-burger{
+  display:none; background:transparent; border:1px solid var(--line);
+  width:48px; height:48px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; color:var(--ink);
+}
+@media (max-width:980px){
+  .nav-links, .nav-cta .btn-ghosted{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+.mobile-panel{
+  position:fixed; inset:0; z-index:120; background:#fff; padding:110px 28px 40px;
+  display:none; flex-direction:column; gap:6px;
+}
+.mobile-panel.is-open{ display:flex; }
+.mobile-panel a.m-link{
+  text-decoration:none; font-weight:700; font-size:1.5rem; letter-spacing:-.02em;
+  padding:12px 4px; border-bottom:1px solid var(--line);
+}
+.mobile-panel-close{
+  position:absolute; top:26px; right:26px; width:48px; height:48px;
+  border-radius:var(--r-pill); border:1px solid var(--line); background:#fff;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+
+/* ════════════ Buttons ════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+.btn-lg{ padding:18px 44px; font-size:1.14rem; }
+
+/* ════════════ HERO ════════════ */
+.sh-hero{ padding:170px var(--pad-x) 30px; }
+.sh-hero-inner{ max-width:920px; margin:0 auto; text-align:center; display:flex; flex-direction:column; gap:22px; align-items:center; }
+.sh-kicker{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  padding:7px 16px; font-size:.76rem; font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
+}
+.sh-kicker .dot{
+  width:7px; height:7px; border-radius:50%; background:#2eaa5e;
+  box-shadow:0 0 0 0 rgba(46,170,94,.5); animation:shPulse 2.4s infinite;
+}
+@keyframes shPulse{
+  0%{ box-shadow:0 0 0 0 rgba(46,170,94,.45); }
+  70%{ box-shadow:0 0 0 8px rgba(46,170,94,0); }
+  100%{ box-shadow:0 0 0 0 rgba(46,170,94,0); }
+}
+.sh-h1{
+  margin:0; font-weight:800; letter-spacing:-.045em; line-height:1.04;
+  font-size:clamp(2.5rem, 5.4vw, 4.6rem);
+}
+.sh-lead{ margin:0; color:var(--muted); font-size:clamp(1rem, 1.4vw, 1.18rem); max-width:54ch; }
+
+/* word-mask intro (matches homepage hero) */
+.word-mask{ display:inline-block; overflow:hidden; vertical-align:bottom; }
+.word-mask > span{ display:inline-block; transform:translateY(110%); animation:wordUp .9s var(--ease) forwards; }
+@keyframes wordUp{ to{ transform:translateY(0); } }
+.sh-fade{ opacity:0; animation:shFade .9s var(--ease) forwards; }
+@keyframes shFade{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+
+/* ════════════ THE GLOW SEARCH FIELD ════════════ */
+@property --sh-ang{
+  syntax:'<angle>';
+  initial-value:0deg;
+  inherits:false;
+}
+.sh-search{
+  position:relative; width:100%; max-width:760px; border-radius:var(--r-pill);
+}
+/* soft moving aura */
+.sh-search::before{
+  content:''; position:absolute; inset:-14px; border-radius:var(--r-pill); z-index:0;
+  background:conic-gradient(from var(--sh-ang),
+    transparent 0deg, var(--glow-b) 70deg, transparent 140deg,
+    var(--glow-a) 220deg, var(--glow-c) 280deg, transparent 340deg);
+  filter:blur(26px); opacity:.55;
+  animation:shSpin 5.5s linear infinite;
+  pointer-events:none;
+}
+/* crisp rotating rim light */
+.sh-search::after{
+  content:''; position:absolute; inset:-2px; border-radius:var(--r-pill); z-index:0;
+  background:conic-gradient(from var(--sh-ang),
+    rgba(17,17,17,.10) 0deg, var(--glow-b) 80deg, rgba(17,17,17,.10) 150deg,
+    var(--glow-a) 250deg, rgba(17,17,17,.10) 330deg);
+  animation:shSpin 5.5s linear infinite;
+  pointer-events:none;
+}
+@keyframes shSpin{ to{ --sh-ang:360deg; } }
+.sh-search:focus-within::before{ opacity:.85; }
+.sh-search-form{
+  position:relative; z-index:1; display:flex; align-items:center; gap:6px;
+  background:#fff; border-radius:var(--r-pill); border:1px solid rgba(17,17,17,.12);
+  padding:8px 8px 8px 24px; box-shadow:0 14px 44px rgba(17,17,17,.10);
+}
+.sh-search-icon{ flex-shrink:0; color:var(--muted); display:flex; }
+.sh-search-input{
+  flex:1; min-width:0; border:0; outline:none; background:transparent;
+  font-family:var(--font); font-size:1.08rem; font-weight:500; color:var(--ink);
+  padding:14px 6px; letter-spacing:-.01em;
+}
+.sh-search-input::placeholder{ color:var(--muted-soft); }
+.sh-search-clear{
+  display:none; flex-shrink:0; width:36px; height:36px; border-radius:50%;
+  border:0; background:var(--bg-soft); color:var(--muted); cursor:pointer;
+  align-items:center; justify-content:center;
+}
+.sh-search-clear.is-on{ display:inline-flex; }
+.sh-search-btn{
+  flex-shrink:0; border:0; cursor:pointer; background:var(--ink); color:#fff;
+  border-radius:var(--r-pill); padding:15px 30px; font-family:var(--font);
+  font-weight:700; font-size:1rem; display:inline-flex; align-items:center; gap:8px;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.sh-search-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(17,17,17,.22); }
+@media (prefers-reduced-motion: reduce){
+  .sh-search::before, .sh-search::after{ animation:none; }
+  .word-mask > span{ animation-duration:.01s; }
+  .sh-fade{ animation-duration:.01s; }
+}
+
+/* suggestion chips */
+.sh-suggest{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.sh-suggest button{
+  appearance:none; cursor:pointer; font-family:var(--font);
+  background:var(--bg-alt); border:1px solid var(--line); color:var(--muted);
+  border-radius:var(--r-pill); padding:9px 16px; font-size:.86rem; font-weight:600;
+  transition:all .18s ease;
+}
+.sh-suggest button:hover{ background:#fff; color:var(--ink); border-color:var(--line-strong); transform:translateY(-1px); }
+
+/* ════════════ TOOLBAR + FILTER CHIPS ════════════ */
+.sh-body{ max-width:var(--max); margin:0 auto; padding:26px var(--pad-x) 60px; }
+.sh-toolbar{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:14px 0; border-bottom:1px solid var(--line); margin-bottom:8px;
+}
+.sh-count{ font-weight:800; letter-spacing:-.02em; font-size:1.05rem; white-space:nowrap; }
+.sh-meta{ color:var(--muted-soft); font-size:.82rem; white-space:nowrap; }
+.sh-toolbar-spacer{ flex:1; }
+.sh-chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.sh-chip{
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--ink); color:#fff; border-radius:var(--r-pill);
+  padding:8px 8px 8px 14px; font-size:.84rem; font-weight:600;
+  animation:shChipIn .25s var(--ease);
+}
+@keyframes shChipIn{ from{ opacity:0; transform:scale(.85); } to{ opacity:1; transform:scale(1); } }
+.sh-chip button{
+  appearance:none; border:0; cursor:pointer; width:20px; height:20px; border-radius:50%;
+  background:rgba(255,255,255,.18); color:#fff; display:inline-flex;
+  align-items:center; justify-content:center; padding:0; font-size:.8rem; line-height:1;
+}
+.sh-chip button:hover{ background:rgba(255,255,255,.36); }
+.sh-chip-clear{
+  appearance:none; cursor:pointer; background:transparent; border:0;
+  font-family:var(--font); color:var(--muted); font-size:.84rem; font-weight:600;
+  text-decoration:underline; text-underline-offset:3px; padding:6px;
+}
+.sh-tool-btn{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  background:#fff; border:1px solid var(--line-strong); color:var(--ink);
+  border-radius:var(--r-pill); padding:11px 18px; font-family:var(--font);
+  font-size:.9rem; font-weight:700; transition:all .18s ease; white-space:nowrap;
+}
+.sh-tool-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow-card); }
+.sh-tool-btn .bub{
+  background:var(--ink); color:#fff; border-radius:var(--r-pill);
+  font-size:.72rem; min-width:20px; height:20px; display:inline-flex;
+  align-items:center; justify-content:center; padding:0 6px;
+}
+.sh-sort{
+  appearance:none; cursor:pointer; background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;
+  border:1px solid var(--line-strong); color:var(--ink); border-radius:var(--r-pill);
+  padding:11px 38px 11px 18px; font-family:var(--font); font-size:.9rem; font-weight:700;
+}
+
+/* ════════════ FILTER PANEL ════════════ */
+.sh-filters{
+  display:none; background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:var(--r-card); padding:26px; margin:14px 0 8px;
+}
+.sh-filters.is-open{ display:block; animation:shFade .35s var(--ease); }
+.sh-filters-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:24px; }
+@media (max-width:1080px){ .sh-filters-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .sh-filters-grid{ grid-template-columns:1fr; } }
+.sh-f-group h4{
+  margin:0 0 10px; font-size:.74rem; font-weight:800; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted);
+}
+.sh-f-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.sh-f-input{
+  width:100%; max-width:130px; border:1px solid var(--line-strong); border-radius:var(--r-input);
+  background:#fff; font-family:var(--font); font-size:.92rem; font-weight:600;
+  padding:11px 12px; outline:none; color:var(--ink);
+}
+.sh-f-input:focus{ border-color:var(--ink); }
+.sh-seg{ display:flex; flex-wrap:wrap; gap:6px; }
+.sh-seg button{
+  appearance:none; cursor:pointer; font-family:var(--font);
+  background:#fff; border:1px solid var(--line); color:var(--muted);
+  border-radius:var(--r-pill); padding:9px 15px; font-size:.86rem; font-weight:600;
+  transition:all .15s ease;
+}
+.sh-seg button:hover{ border-color:var(--line-strong); color:var(--ink); }
+.sh-seg button.is-on{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.sh-hoods{ display:flex; flex-wrap:wrap; gap:6px; max-height:150px; overflow:auto; padding-right:4px; }
+.sh-filters-foot{
+  display:flex; justify-content:flex-end; gap:10px; margin-top:22px;
+  padding-top:18px; border-top:1px solid var(--line);
+}
+
+/* ════════════ RESULTS GRID ════════════ */
+.sh-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr));
+  gap:18px; padding-top:18px;
+}
+.sh-card{
+  position:relative; background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:var(--r-listing); overflow:hidden; display:flex; flex-direction:column;
+  text-decoration:none; transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+  opacity:0; transform:translateY(14px);
+}
+.sh-card.is-in{ opacity:1; transform:none; transition:opacity .5s var(--ease), transform .5s var(--ease), box-shadow .25s var(--ease); }
+.sh-card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+.sh-card-media{ position:relative; aspect-ratio:16/10; background:#e9e9e4; overflow:hidden; }
+.sh-card-media img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transition:transform .6s var(--ease), opacity .45s ease;
+}
+.sh-card-media img.alt{ opacity:0; }
+.sh-card:hover .sh-card-media img.main{ transform:scale(1.05); }
+.sh-card:hover .sh-card-media img.alt{ opacity:1; transform:scale(1.05); }
+.sh-card-media .ph{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, #ececeb 0%, #dcdcd4 100%);
+  color:var(--muted-soft); font-weight:800; font-size:2rem; letter-spacing:-.03em;
+}
+.sh-flags{ position:absolute; top:12px; left:12px; z-index:2; display:flex; gap:6px; flex-wrap:wrap; }
+.sh-flag{
+  border-radius:var(--r-pill); padding:5px 11px; font-size:.68rem; font-weight:700;
+  letter-spacing:.04em; line-height:1.2; text-transform:capitalize;
+  background:rgba(255,255,255,.92); color:var(--ink);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.sh-flag.active{ background:rgba(17,17,17,.88); color:#fff; }
+.sh-flag.uc{ background:rgba(176,108,0,.92); color:#fff; }
+.sh-flag.oh{ background:rgba(46,170,94,.92); color:#fff; }
+.sh-flag.drop{ background:rgba(180,32,32,.9); color:#fff; }
+.sh-fav{
+  position:absolute; top:10px; right:10px; z-index:2;
+  width:38px; height:38px; border-radius:50%; border:0; cursor:pointer;
+  background:rgba(255,255,255,.92); color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  transition:transform .18s ease;
+}
+.sh-fav:hover{ transform:scale(1.12); }
+.sh-fav.is-fav{ color:#d23030; }
+.sh-fav.is-fav svg{ fill:#d23030; }
+.sh-card-body{ padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
+.sh-price-row{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.sh-price{ font-weight:800; font-size:1.34rem; letter-spacing:-.03em; }
+.sh-price-was{ color:var(--muted-soft); font-size:.9rem; text-decoration:line-through; }
+.sh-specs{ display:flex; gap:14px; color:var(--muted); font-size:.88rem; font-weight:600; flex-wrap:wrap; }
+.sh-specs b{ color:var(--ink); font-weight:800; }
+.sh-addr{ font-size:.95rem; font-weight:600; letter-spacing:-.01em; }
+.sh-hood-line{ color:var(--muted-soft); font-size:.82rem; }
+.sh-attr{ margin-top:auto; padding-top:10px; color:var(--muted-soft); font-size:.74rem; }
+
+/* skeletons */
+.sh-skel{
+  border-radius:var(--r-listing); border:1px solid var(--line); overflow:hidden;
+  background:var(--bg-alt);
+}
+.sh-skel .m{ aspect-ratio:16/10; }
+.sh-skel .l{ height:14px; border-radius:7px; margin:14px 18px; }
+.sh-skel .l.short{ width:46%; }
+.sh-skel .m, .sh-skel .l{
+  background:linear-gradient(100deg, #ececeb 30%, #f7f7f4 50%, #ececeb 70%);
+  background-size:200% 100%; animation:shShimmer 1.4s infinite linear;
+}
+@keyframes shShimmer{ to{ background-position:-200% 0; } }
+
+/* empty / error states */
+.sh-empty{
+  grid-column:1/-1; text-align:center; padding:70px 20px;
+  display:flex; flex-direction:column; gap:14px; align-items:center;
+}
+.sh-empty h3{ margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-.03em; }
+.sh-empty p{ margin:0; color:var(--muted); max-width:52ch; }
+.sh-empty .row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+
+/* concierge band */
+.sh-band{
+  margin-top:46px; background:var(--bg-deep); color:#fff; border-radius:var(--r-shell);
+  padding:38px; display:grid; grid-template-columns:1.4fr auto; gap:24px; align-items:center;
+}
+@media (max-width:760px){ .sh-band{ grid-template-columns:1fr; } }
+.sh-band .kick{
+  color:rgba(255,255,255,.45); font-size:.76rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; margin:0 0 10px;
+}
+.sh-band h2{
+  margin:0 0 8px; font-weight:800; letter-spacing:-.035em; line-height:1.1;
+  font-size:clamp(1.4rem, 2.4vw, 2.2rem);
+}
+.sh-band p{ margin:0; color:rgba(255,255,255,.65); font-size:.95rem; max-width:58ch; }
+
+/* footer / disclaimer */
+.sh-foot{
+  max-width:var(--max); margin:0 auto; padding:30px var(--pad-x) 60px;
+  border-top:1px solid var(--line); display:flex; flex-direction:column; gap:10px;
+}
+.sh-foot p{ margin:0; color:var(--muted-soft); font-size:.78rem; line-height:1.6; }
+.sh-foot .links{ display:flex; gap:18px; flex-wrap:wrap; font-size:.8rem; }
+.sh-foot .links a{ color:var(--muted); text-decoration:none; }
+.sh-foot .links a:hover{ color:var(--ink); }
+
+/* ════════════ SEARCH OVERLAY (nav CTA → blurred lighting modal) ════════════ */
+.sh-overlay{
+  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:20px; visibility:hidden; opacity:0; transition:opacity .35s ease, visibility 0s linear .35s;
+  background:rgba(12,12,12,.42);
+  backdrop-filter:blur(0px); -webkit-backdrop-filter:blur(0px);
+}
+.sh-overlay.is-open{
+  visibility:visible; opacity:1; transition:opacity .35s ease;
+  backdrop-filter:blur(22px) saturate(120%); -webkit-backdrop-filter:blur(22px) saturate(120%);
+}
+.sh-overlay-inner{
+  width:100%; max-width:780px; display:flex; flex-direction:column; gap:26px; align-items:center;
+  transform:translateY(26px) scale(.96); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s var(--ease);
+}
+.sh-overlay.is-open .sh-overlay-inner{ transform:none; opacity:1; transition-delay:.08s; }
+.sh-overlay-kicker{
+  color:rgba(255,255,255,.75); font-size:.78rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.sh-overlay-title{
+  margin:0; color:#fff; font-weight:800; letter-spacing:-.04em; text-align:center;
+  font-size:clamp(1.7rem, 3.6vw, 2.7rem); line-height:1.1;
+  text-shadow:0 2px 30px rgba(0,0,0,.3);
+}
+.sh-overlay .sh-search{ max-width:720px; }
+.sh-overlay .sh-search::before{ opacity:.9; filter:blur(34px); inset:-20px; }
+.sh-overlay-suggest{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.sh-overlay-suggest button{
+  appearance:none; cursor:pointer; font-family:var(--font);
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff;
+  border-radius:var(--r-pill); padding:9px 16px; font-size:.86rem; font-weight:600;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  transition:all .18s ease;
+}
+.sh-overlay-suggest button:hover{ background:rgba(255,255,255,.26); transform:translateY(-1px); }
+.sh-overlay-close{
+  position:absolute; top:26px; right:26px; width:52px; height:52px;
+  border-radius:50%; border:1px solid rgba(255,255,255,.3); cursor:pointer;
+  background:rgba(255,255,255,.12); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  transition:transform .2s ease, background .2s ease;
+}
+.sh-overlay-close:hover{ transform:rotate(90deg); background:rgba(255,255,255,.24); }
+.sh-overlay-hint{ color:rgba(255,255,255,.55); font-size:.8rem; }
+.sh-overlay-hint kbd{
+  font-family:var(--font); background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25);
+  border-radius:6px; padding:2px 7px; font-size:.74rem;
+}
+
+/* responsive tweaks */
+@media (max-width:760px){
+  .sh-hero{ padding-top:130px; }
+  .sh-search-form{ padding-left:16px; }
+  .sh-search-btn{ padding:13px 18px; font-size:.9rem; }
+  .sh-search-btn span{ display:none; } /* icon-only submit on phones */
+  .sh-toolbar{ gap:8px; }
+  .sh-grid{ grid-template-columns:1fr; }
+  .sh-band{ padding:26px; }
+}
+</style>
+
+<!-- ═══════════ NAV ═══════════ -->
+<div class="nav-frost" id="navFrost" aria-hidden="true"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span>Alex Stoykov Group</span>
+      </a>
+      <div class="nav-links" role="navigation" aria-label="Primary">
+        <a class="nav-link" href="/buyers">Buyers</a>
+        <a class="nav-link" href="/sellers">Sellers</a>
+        <a class="nav-link" href="/neighborhoods">Neighborhoods</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/team">Team</a>
+      </div>
+      <div class="nav-cta">
+        <button class="btn btn-dark btn-sm" id="navSearchCta" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Search Homes
+        </button>
+      </div>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <button class="mobile-panel-close" id="mobileClose" type="button" aria-label="Close menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <a class="m-link" href="/buyers">Buyers</a>
+  <a class="m-link" href="/sellers">Sellers</a>
+  <a class="m-link" href="/neighborhoods">Neighborhoods</a>
+  <a class="m-link" href="/about">About</a>
+  <a class="m-link" href="/team">Team</a>
+  <div style="margin-top:18px;">
+    <button class="btn btn-dark" id="mobileSearchCta" type="button" style="width:100%;">Search Homes</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="sh-hero">
+    <div class="sh-hero-inner">
+      <div class="sh-fade" style="animation-delay:.1s;">
+        <span class="sh-kicker"><span class="dot"></span> Live MLS Feed &middot; <span id="heroCount">&hellip;</span></span>
+      </div>
+      <h1 class="sh-h1">
+        <span class="word-mask"><span style="animation-delay:.16s">Just</span></span>
+        <span class="word-mask"><span style="animation-delay:.24s">say</span></span>
+        <span class="word-mask"><span style="animation-delay:.32s">what</span></span>
+        <span class="word-mask"><span style="animation-delay:.40s">you&rsquo;re</span></span><br>
+        <span class="word-mask"><span style="animation-delay:.50s">looking</span></span>
+        <span class="word-mask"><span style="animation-delay:.58s">for.</span></span>
+      </h1>
+      <p class="sh-lead sh-fade" style="animation-delay:.74s;">
+        Describe your next home in plain English — neighborhood, budget, beds, must-haves —
+        and we&rsquo;ll match it against live Chicago MLS listings instantly.
+      </p>
+
+      <div class="sh-search sh-fade" style="animation-delay:.9s;">
+        <form class="sh-search-form" id="heroForm" role="search" aria-label="Search homes">
+          <span class="sh-search-icon" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <input class="sh-search-input" id="heroInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+                 aria-label="Describe the home you're looking for"
+                 placeholder="Try &ldquo;3 bed condo in West Loop under $750k with parking&rdquo;">
+          <button class="sh-search-clear" id="heroClear" type="button" aria-label="Clear search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+          </button>
+          <button class="sh-search-btn" type="submit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Search</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="sh-suggest sh-fade" style="animation-delay:1.05s;" id="heroSuggest"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ RESULTS ═══════════ -->
+  <section class="sh-body">
+
+    <div class="sh-toolbar">
+      <span class="sh-count" id="resultCount">Loading homes&hellip;</span>
+      <span class="sh-meta" id="syncMeta"></span>
+      <span class="sh-toolbar-spacer"></span>
+      <div class="sh-chips" id="chipRow"></div>
+      <button class="sh-tool-btn" id="filtersToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+        Filters <span class="bub" id="filterCountBub" style="display:none;">0</span>
+      </button>
+      <button class="sh-tool-btn" id="favToggle" type="button" aria-pressed="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+        Saved
+      </button>
+      <select class="sh-sort" id="sortSel" aria-label="Sort results">
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
+        <option value="beds">Most bedrooms</option>
+        <option value="sqft">Largest</option>
+      </select>
+    </div>
+
+    <!-- expandable filter panel -->
+    <div class="sh-filters" id="filterPanel">
+      <div class="sh-filters-grid">
+        <div class="sh-f-group">
+          <h4>Price</h4>
+          <div class="sh-f-row">
+            <input class="sh-f-input" id="fPriceMin" type="text" inputmode="numeric" placeholder="No min" aria-label="Minimum price">
+            <span style="color:var(--muted-soft);">&ndash;</span>
+            <input class="sh-f-input" id="fPriceMax" type="text" inputmode="numeric" placeholder="No max" aria-label="Maximum price">
+          </div>
+          <h4 style="margin-top:18px;">Min square feet</h4>
+          <div class="sh-f-row">
+            <input class="sh-f-input" id="fSqft" type="text" inputmode="numeric" placeholder="Any" aria-label="Minimum square feet">
+          </div>
+        </div>
+        <div class="sh-f-group">
+          <h4>Bedrooms</h4>
+          <div class="sh-seg" id="fBeds" role="group" aria-label="Minimum bedrooms"></div>
+          <h4 style="margin-top:18px;">Bathrooms</h4>
+          <div class="sh-seg" id="fBaths" role="group" aria-label="Minimum bathrooms"></div>
+        </div>
+        <div class="sh-f-group">
+          <h4>Home type</h4>
+          <div class="sh-seg" id="fTypes" role="group" aria-label="Home type"></div>
+          <h4 style="margin-top:18px;">Status</h4>
+          <div class="sh-seg" id="fStatus" role="group" aria-label="Listing status"></div>
+        </div>
+        <div class="sh-f-group">
+          <h4>Neighborhood</h4>
+          <div class="sh-hoods sh-seg" id="fHoods" role="group" aria-label="Neighborhoods"></div>
+        </div>
+      </div>
+      <div class="sh-filters-foot">
+        <button class="btn btn-light btn-sm" id="filtersReset" type="button">Reset all</button>
+        <button class="btn btn-dark btn-sm" id="filtersApply" type="button">Show results</button>
+      </div>
+    </div>
+
+    <div class="sh-grid" id="grid" aria-live="polite"></div>
+
+    <!-- concierge band -->
+    <div class="sh-band">
+      <div>
+        <p class="kick">Can&rsquo;t find it? We will.</p>
+        <h2>Tell us what you want — we&rsquo;ll do the search.</h2>
+        <p>Our live feed covers Alex Stoykov Group inventory and partner listings. For the full
+           MLS — every active listing in Chicagoland — run your search on our complete IDX portal,
+           or let an agent surface off-market homes that never go public.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a class="btn btn-light" href="https://search.alexstoykovgroup.com/" target="_blank" rel="noopener noreferrer" id="fullMlsLink">Search the full MLS</a>
+        <a class="btn btn-dark" style="border-color:rgba(255,255,255,.35);" href="/buyer-onboarding">Get matched with an agent</a>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ═══════════ FOOTER / COMPLIANCE ═══════════ -->
+<footer class="sh-foot">
+  <div class="links">
+    <a href="/">Home</a><a href="/buyers">Buyers</a><a href="/sellers">Sellers</a>
+    <a href="/team">Team</a><a href="/contact">Contact</a><a href="/fair-housing">Fair Housing</a>
+  </div>
+  <p id="idxDisclaimer">
+    Listing information is provided in part by Midwest Real Estate Data (MRED) via IDX by Elm Street.
+    Information is deemed reliable but not guaranteed and should be independently verified. Properties
+    displayed may be listed or sold by various participants in the MLS. &copy; <span id="footYear"></span>
+    Alex Stoykov Group &middot; Brokered by Compass &middot; Equal Housing Opportunity.
+  </p>
+</footer>
+
+<!-- ═══════════ SEARCH OVERLAY ═══════════ -->
+<div class="sh-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search homes">
+  <button class="sh-overlay-close" id="overlayClose" type="button" aria-label="Close search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div class="sh-overlay-inner">
+    <span class="sh-overlay-kicker">Alex Stoykov Group &middot; MLS Search</span>
+    <h2 class="sh-overlay-title">What does home look like?</h2>
+    <div class="sh-search">
+      <form class="sh-search-form" id="overlayForm" role="search" aria-label="Search homes">
+        <span class="sh-search-icon" aria-hidden="true">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input class="sh-search-input" id="overlayInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               aria-label="Describe the home you're looking for" placeholder="">
+        <button class="sh-search-btn" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </button>
+      </form>
+    </div>
+    <div class="sh-overlay-suggest" id="overlaySuggest"></div>
+    <span class="sh-overlay-hint">Press <kbd>Enter</kbd> to search &middot; <kbd>Esc</kbd> to close</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ════════════════════════════════════════════════════════════════
+     CONFIG
+     ════════════════════════════════════════════════════════════════ */
+  var boot = window.__ASG_SEARCH_BOOT || { promise: Promise.resolve(null), cachedRows: null, api: '' };
+  var IDX_PORTAL = 'https://search.alexstoykovgroup.com';
+  var FAV_KEY = 'asg_search_favs_v1';
+
+  var SUGGESTIONS = [
+    '3 bed condo in West Loop under $750k',
+    'Single family home with a yard in Lincoln Park',
+    'New construction with parking under $1.2m',
+    'Open house this weekend',
+    '2 bed 2 bath with outdoor space',
+    'Price drops in Gold Coast'
+  ];
+
+  var PLACEHOLDERS = [
+    'Try \u201c3 bed condo in West Loop under $750k with parking\u201d',
+    'Try \u201csingle family home in Lincoln Park with a yard\u201d',
+    'Try \u201cnew construction loft under $1m\u201d',
+    'Try \u201c2 bed with outdoor space near the lake\u201d',
+    'Try \u201copen houses this weekend\u201d'
+  ];
+
+  /* Chicago neighborhoods + nearby suburbs the parser recognizes even
+     when the live inventory doesn't currently include them. */
+  var KNOWN_HOODS = [
+    'west loop','east loop','south loop','river north','river west','gold coast','old town',
+    'lincoln park','lakeview','lake view','wrigleyville','bucktown','wicker park','logan square',
+    'humboldt park','ukrainian village','east village','noble square','west town','fulton market',
+    'streeterville','magnificent mile','near north','near west side','pilsen','bridgeport',
+    'hyde park','kenwood','bronzeville','south shore','beverly','mount greenwood','mckinley park',
+    'andersonville','edgewater','uptown','ravenswood','lincoln square','north center','roscoe village',
+    'irving park','albany park','avondale','portage park','jefferson park','norwood park','edison park',
+    'sauganash','old irving park','university village','little italy','chinatown','printers row',
+    'dearborn park','museum campus','oak park','evanston','skokie','wilmette','winnetka','glenview',
+    'park ridge','elmwood park','berwyn','cicero','naperville','schaumburg','arlington heights'
+  ];
+
+  var TYPE_DEFS = [
+    { key: 'condo',      label: 'Condo' },
+    { key: 'house',      label: 'Single Family' },
+    { key: 'townhouse',  label: 'Townhouse' },
+    { key: 'multi',      label: 'Multi-Unit' },
+    { key: 'land',       label: 'Land' },
+    { key: 'rental',     label: 'Rental' }
+  ];
+
+  var FEATURE_DEFS = {
+    parking:    { label: 'Parking',          words: ['parking','garage','parking spot','garage spot'],
+                  test: function (l) { return l.garageSpaces > 0 || l.parkingTotal > 0 || hasWord(l, ['garage','parking']); } },
+    outdoor:    { label: 'Outdoor space',    words: ['outdoor space','balcony','deck','patio','terrace','yard','backyard','roof deck','rooftop'],
+                  test: function (l) { return hasWord(l, ['balcony','deck','patio','terrace','yard','outdoor','roof']); } },
+    laundry:    { label: 'In-unit laundry',  words: ['in-unit laundry','in unit laundry','washer','laundry in unit','w/d'],
+                  test: function (l) { return hasWord(l, ['in-unit laundry','in unit laundry','washer','laundry']); } },
+    fireplace:  { label: 'Fireplace',        words: ['fireplace'],
+                  test: function (l) { return hasWord(l, ['fireplace']); } },
+    basement:   { label: 'Basement',         words: ['basement'],
+                  test: function (l) { return hasWord(l, ['basement']); } },
+    pool:       { label: 'Pool',             words: ['pool'],
+                  test: function (l) { return hasWord(l, ['pool']); } },
+    elevator:   { label: 'Elevator',         words: ['elevator'],
+                  test: function (l) { return hasWord(l, ['elevator']); } },
+    doorman:    { label: 'Doorman',          words: ['doorman','door staff','24 hour door'],
+                  test: function (l) { return hasWord(l, ['doorman','door staff','door person']); } },
+    hardwood:   { label: 'Hardwood floors',  words: ['hardwood'],
+                  test: function (l) { return hasWord(l, ['hardwood']); } },
+    pets:       { label: 'Pet friendly',     words: ['pet friendly','pets allowed','dog friendly','cats ok','dogs ok'],
+                  test: function (l) { return hasWord(l, ['pet','dog','cat']); } },
+    view:       { label: 'Views',            words: ['skyline view','lake view','city view','views of'],
+                  test: function (l) { return hasWord(l, ['view']); } },
+    lake:       { label: 'Near the lake',    words: ['near the lake','lakefront','by the lake','close to the lake'],
+                  test: function (l) { return hasWord(l, ['lake', 'lakefront']); } }
+  };
+
+  var STOPWORDS = {};
+  ('a an and at by for from i in me my looking find show want would like love need place places home homes house houses property properties listing listings real estate something somewhere that the to with near around under over please can you get give us our ' +
+   'this weekend today tomorrow saturday sunday week month soon asap now currently available'
+  ).split(' ').forEach(function (w) { if (w) STOPWORDS[w] = true; });
+
+  /* ════════════════════════════════════════════════════════════════
+     STATE
+     ════════════════════════════════════════════════════════════════ */
+  var ALL = [];               /* normalized listings */
+  var DATA_HOODS = [];        /* hoods present in live data */
+  var favs = loadFavs();
+  var state = emptyFilters();
+  state.sort = 'newest';
+  state.favoritesOnly = false;
+
+  function emptyFilters() {
+    return {
+      priceMin: null, priceMax: null,
+      beds: null, baths: null, sqftMin: null,
+      types: [], hoods: [], zips: [],
+      status: 'any',           /* any | active | uc */
+      openHouse: false, priceDrop: false, newConstruction: false,
+      features: [], text: [],
+      sort: (state && state.sort) || 'newest',
+      favoritesOnly: state ? state.favoritesOnly : false
+    };
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     HELPERS
+     ════════════════════════════════════════════════════════════════ */
+  function $(id) { return document.getElementById(id); }
+  function num(v) {
+    if (v === null || v === undefined || v === '') return null;
+    var n = Number(String(v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) && n !== 0 ? n : (n === 0 ? 0 : null);
+  }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtPrice(n) {
+    if (n === null || n === undefined) return 'Price on request';
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function fmtShortPrice(n) {
+    if (n === null) return '';
+    if (n >= 1000000) return '$' + (Math.round(n / 100000) / 10) + 'M';
+    if (n >= 1000) return '$' + Math.round(n / 1000) + 'k';
+    return '$' + n;
+  }
+  function titleCase(s) {
+    return String(s || '').replace(/\w\S*/g, function (t) {
+      return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+    });
+  }
+  function hasWord(l, words) {
+    var i;
+    for (i = 0; i < words.length; i++) {
+      if (l.searchText.indexOf(words[i]) >= 0) return true;
+    }
+    return false;
+  }
+  function loadFavs() {
+    try {
+      var raw = localStorage.getItem(FAV_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function saveFavs() {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {}
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     NORMALIZE listings from ?view=active payload
+     ════════════════════════════════════════════════════════════════ */
+  function normalize(rows) {
+    var out = [];
+    (rows || []).forEach(function (r, i) {
+      if (!r || !String(r.address || '').trim()) return;
+
+      var statusRaw = String(r.idxMlsStatus || r.status || '').toLowerCase();
+      if (/closed|sold|cancel|expired|withdrawn/.test(statusRaw)) return;
+      var statusKey = 'active';
+      if (/pending|contingen|under contract/.test(statusRaw)) statusKey = 'uc';
+      if (r.preMls) statusKey = 'comingsoon';
+
+      var photos = [];
+      if (Array.isArray(r.mlsPhotos)) {
+        r.mlsPhotos.forEach(function (p) { if (p && p.url) photos.push(String(p.url)); });
+      }
+      var cover = String(r.coverImage || r.idxCoverImage || '').trim() || photos[0] || '';
+
+      var details = String(r.mlsFullDetailsUrl || r.idxDetailsUrl || '').trim();
+      if (details && !/^https?:\/\//i.test(details)) {
+        details = IDX_PORTAL + (details.charAt(0) === '/' ? '' : '/') + details;
+      }
+
+      var subType = String(r.mlsPropSubType || '').toLowerCase();
+      var homeType = String(r.mlsHomeType || '').toLowerCase();
+      var propType = String(r.mlsPropType || '').toLowerCase();
+      var listingType = String(r.listingType || '').toLowerCase();
+      var typeKey = '';
+      if (listingType === 'lease') typeKey = 'rental';
+      else if (/land|lot/.test(subType + ' ' + propType)) typeKey = 'land';
+      else if (/townhouse|townhome|rowhouse|row home|t3-/.test(subType + ' ' + homeType)) typeKey = 'townhouse';
+      else if (/condo|co-op|coop|highrise|high rise|mid rise|loft/.test(subType + ' ' + homeType)) typeKey = 'condo';
+      else if (/two to four|multi|duplex|flat|units/.test(subType + ' ' + homeType + ' ' + propType)) typeKey = 'multi';
+      else if (/single|detached|residential/.test(subType + ' ' + homeType + ' ' + propType)) typeKey = 'house';
+      else if (/attached/.test(homeType)) typeKey = 'condo';
+
+      var hood = String(r.neighborhood || '').trim() ||
+                 String(r.mlsAreaMajor || '').replace(/^CHI\s*-\s*/i, '').trim();
+      var city = String(r.mlsCity || '').trim();
+      var zip = String(r.mlsZip || '').trim();
+      var remarks = String(r.mlsRemarks || '').trim();
+
+      var price = num(r.listPrice) || num(r.price);
+      var priceWas = num(r.mlsPriceBeforeReduction);
+      var listDateMs = Date.parse(String(r.mlsListDate || r.listDate || '')) || 0;
+      var yearBuilt = num(r.mlsYearBuilt);
+
+      var oh = null;
+      if (Array.isArray(r.openHouses) && r.openHouses.length) oh = r.openHouses[0];
+      else if (String(r.nextOpenHouseDate || '').trim()) {
+        oh = { date: r.nextOpenHouseDate, start: r.nextOpenHouseStart, end: r.nextOpenHouseEnd };
+      }
+
+      var l = {
+        id: String(r.mlsNumber || r.idxListingId || r.address || ('row' + i)),
+        address: String(r.address).trim(),
+        hood: hood,
+        city: city,
+        zip: zip,
+        price: price,
+        priceWas: priceWas && price && priceWas > price ? priceWas : null,
+        beds: num(r.beds),
+        baths: num(r.baths),
+        sqft: num(r.sqFt),
+        typeKey: typeKey,
+        statusKey: statusKey,
+        statusLabel: r.preMls ? 'Coming Soon' : titleCase(String(r.idxMlsStatus || r.status || 'Active')),
+        cover: cover,
+        photoAlt: photos.length > 1 ? photos[1] : '',
+        detailsUrl: details,
+        agent: String(r.agent || '').trim(),
+        office: String(r.mlsListOffice || '').trim(),
+        dom: num(r.mlsDaysOnMarket),
+        listDateMs: listDateMs,
+        yearBuilt: yearBuilt,
+        garageSpaces: num(r.mlsGarageSpaces) || 0,
+        parkingTotal: num(r.mlsParking) || 0,
+        openHouse: oh,
+        searchText: (r.address + ' ' + hood + ' ' + city + ' ' + zip + ' ' + subType + ' ' +
+                     homeType + ' ' + remarks).toLowerCase()
+      };
+      out.push(l);
+    });
+    return out;
+  }
+
+  function collectHoods(listings) {
+    var seen = {};
+    var out = [];
+    listings.forEach(function (l) {
+      var h = String(l.hood || '').trim();
+      if (!h) return;
+      var k = h.toLowerCase();
+      if (seen[k]) return;
+      seen[k] = true;
+      out.push(h);
+    });
+    out.sort(function (a, b) { return a.localeCompare(b); });
+    return out;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     NATURAL-LANGUAGE PARSER  →  filters object
+     ════════════════════════════════════════════════════════════════ */
+  var WORD_NUMS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8 };
+
+  function parseMoney(raw, suffix) {
+    var n = Number(String(raw).replace(/[,$\s]/g, ''));
+    if (!isFinite(n)) return null;
+    var s = String(suffix || '').toLowerCase();
+    if (s.indexOf('m') === 0 || s.indexOf('mil') === 0) n *= 1000000;
+    else if (s.indexOf('k') === 0) n *= 1000;
+    else if (n > 0 && n < 10) n *= 1000000;       /* "under 2" → $2M */
+    else if (n >= 10 && n < 10000) n *= 1000;     /* "under 750" → $750k */
+    return Math.round(n);
+  }
+
+  function parseQuery(q) {
+    var f = emptyFilters();
+    f.sort = state.sort;
+    f.favoritesOnly = false;
+    var text = ' ' + String(q || '').toLowerCase()
+      .replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"') + ' ';
+    if (!text.trim()) return f;
+    var consumed = [];
+    function eat(match) { if (match) consumed.push(match); }
+
+    /* money amounts must not be bed/bath/sqft counts ("under 2 beds",
+       "over 2000 sqft") — the digit guard also stops backtracked partial
+       matches like "200" inside "2000" */
+    var MONEY = '\\$?([0-9][0-9.,]*)\\s*(m\\b|mil(?:lion)?|k\\b|thousand)?';
+    var NOT_BEDBATH = '(?![0-9])(?!\\s*\\+?\\s*(?:bed|bath|br\\b|bd\\b|ba\\b|sq|car))';
+    var m;
+
+    /* between X and Y / from X to Y / X - Y */
+    m = text.match(new RegExp('(?:between|from)\\s+' + MONEY + '\\s*(?:and|to|-|\u2013)\\s*' + MONEY + NOT_BEDBATH));
+    if (!m) m = text.match(new RegExp(MONEY + '\\s*(?:-|\u2013|to)\\s*' + MONEY + NOT_BEDBATH));
+    if (m) {
+      var lo = parseMoney(m[1], m[2]);
+      var hi = parseMoney(m[3], m[4]);
+      if (lo !== null && hi !== null && lo > 1000 && hi > lo) {
+        f.priceMin = lo; f.priceMax = hi; eat(m[0]);
+      }
+    }
+    /* under / below / less than / max / up to X */
+    m = text.match(new RegExp('(?:under|below|less than|at most|max(?:imum)?(?: of)?|up to|no more than)\\s+' + MONEY + NOT_BEDBATH));
+    if (m) { var v1 = parseMoney(m[1], m[2]); if (v1 !== null && v1 > 1000) { f.priceMax = v1; eat(m[0]); } }
+    /* over / above / at least / min X */
+    m = text.match(new RegExp('(?:over|above|more than|at least|min(?:imum)?(?: of)?|starting at)\\s+' + MONEY + NOT_BEDBATH));
+    if (m) { var v2 = parseMoney(m[1], m[2]); if (v2 !== null && v2 > 1000) { f.priceMin = v2; eat(m[0]); } }
+    /* around / about X → ±12% */
+    m = text.match(new RegExp('(?:around|about|approx(?:imately)?)\\s+' + MONEY + NOT_BEDBATH));
+    if (m) {
+      var v3 = parseMoney(m[1], m[2]);
+      if (v3 !== null && v3 > 10000 && f.priceMin === null && f.priceMax === null) {
+        f.priceMin = Math.round(v3 * 0.88); f.priceMax = Math.round(v3 * 1.12); eat(m[0]);
+      }
+    }
+    /* bare "$750k" with no qualifier → max */
+    if (f.priceMin === null && f.priceMax === null) {
+      m = text.match(/\$([0-9][0-9.,]*)\s*(m\b|mil(?:lion)?|k\b|thousand)?/);
+      if (m) { var v4 = parseMoney(m[1], m[2]); if (v4 !== null && v4 > 10000) { f.priceMax = v4; eat(m[0]); } }
+    }
+
+    /* beds: "3 bed", "3br", "3+ bedrooms", "three bedroom", "studio" */
+    m = text.match(/([0-9]+|one|two|three|four|five|six|seven|eight)\s*\+?\s*(?:bed(?:room)?s?|br\b|bd\b)/);
+    if (m) {
+      var b = WORD_NUMS[m[1]] !== undefined ? WORD_NUMS[m[1]] : parseInt(m[1], 10);
+      if (isFinite(b) && b > 0 && b < 20) { f.beds = b; eat(m[0]); }
+    }
+    if (/\bstudios?\b/.test(text)) { f.beds = 0; eat('studio'); }
+
+    /* baths: "2 bath", "2.5 ba" */
+    m = text.match(/([0-9]+(?:\.[0-9])?|one|two|three|four)\s*\+?\s*(?:bath(?:room)?s?|ba\b)/);
+    if (m) {
+      var ba = WORD_NUMS[m[1]] !== undefined ? WORD_NUMS[m[1]] : parseFloat(m[1]);
+      if (isFinite(ba) && ba > 0 && ba < 15) { f.baths = ba; eat(m[0]); }
+    }
+
+    /* sqft: "over 2000 sqft", "1500 square feet" */
+    m = text.match(/(?:over|at least|more than|min(?:imum)?)?\s*([0-9][0-9,]{2,5})\s*(?:sq\.?\s?ft|sqft|sf\b|square feet|square foot)/);
+    if (m) {
+      var sq = num(m[1]);
+      if (sq && sq >= 200) { f.sqftMin = sq; eat(m[0]); }
+    }
+
+    /* status-ish intents — parsed BEFORE home types so "open house" and
+       "new construction" don't false-positive the 'house'/'new' words */
+    if (/open houses?|open this (?:weekend|saturday|sunday)/.test(text)) {
+      f.openHouse = true;
+      eat('open houses'); eat('open house');
+      text = text.replace(/open houses?/g, ' ');
+    }
+    if (/price (?:drops?|reduc\w*|cuts?)|reduced|marked down/.test(text)) { f.priceDrop = true; eat('price drop'); }
+    if (/under contract|pending|contingent/.test(text)) { f.status = 'uc'; eat('under contract'); }
+    if (/new construction|newly built|new builds?/.test(text)) {
+      f.newConstruction = true;
+      eat('new construction');
+      text = text.replace(/new construction|newly built|new builds?/g, ' ');
+    }
+
+    /* home types */
+    var typeWords = [
+      [/\bcondos?\b|\bcondominiums?\b|\bapartments?\b|\blofts?\b/, 'condo'],
+      [/single[- ]family|detached|\bhouses?\b/, 'house'],
+      [/\btownhouses?\b|\btownhomes?\b|\brow ?houses?\b|\brow ?homes?\b/, 'townhouse'],
+      [/multi[- ]?units?|multi[- ]?family|\bduplex(?:es)?\b|[23][- ]flats?\b|two[- ]flat|three[- ]flat|investment property/, 'multi'],
+      [/\bland\b|\blots?\b|\bvacant\b/, 'land'],
+      [/\brentals?\b|for rent|\bleases?\b|\brenting\b/, 'rental']
+    ];
+    typeWords.forEach(function (tw) {
+      var mm = text.match(tw[0]);
+      if (mm && f.types.indexOf(tw[1]) < 0) {
+        f.types.push(tw[1]);
+        eat(mm[0]);
+      }
+    });
+
+    /* neighborhoods: longest names first so "old irving park" beats "irving park" */
+    var hoodPool = {};
+    KNOWN_HOODS.forEach(function (h) { hoodPool[h] = true; });
+    DATA_HOODS.forEach(function (h) { hoodPool[h.toLowerCase()] = true; });
+    Object.keys(hoodPool)
+      .sort(function (a, b) { return b.length - a.length; })
+      .forEach(function (h) {
+        if (text.indexOf(h) >= 0 && f.hoods.indexOf(h) < 0) {
+          var already = f.hoods.some(function (x) { return x.indexOf(h) >= 0; });
+          if (!already) { f.hoods.push(h); eat(h); }
+        }
+      });
+
+    /* zips */
+    var zips = text.match(/\b60[0-9]{3}\b/g);
+    if (zips) { zips.forEach(function (z) { if (f.zips.indexOf(z) < 0) f.zips.push(z); eat(z); }); }
+
+    /* features — match longest phrases first so "roof deck" beats "deck" */
+    Object.keys(FEATURE_DEFS).forEach(function (key) {
+      var def = FEATURE_DEFS[key];
+      var words = def.words.slice().sort(function (a, b) { return b.length - a.length; });
+      var i;
+      for (i = 0; i < words.length; i++) {
+        if (text.indexOf(words[i]) >= 0) {
+          if (f.features.indexOf(key) < 0) f.features.push(key);
+          eat(words[i]);
+          break;
+        }
+      }
+    });
+
+    /* leftover meaningful words → free-text terms */
+    var leftovers = text;
+    consumed.forEach(function (c) { leftovers = leftovers.split(c).join(' '); });
+    leftovers.replace(/[^a-z0-9']+/g, ' ').split(' ').forEach(function (w) {
+      w = w.trim();
+      if (w.length < 3 || STOPWORDS[w]) return;
+      if (/^(bed|beds|bath|baths|bedroom|bedrooms|bathroom|bathrooms)$/.test(w)) return;
+      if (f.text.indexOf(w) < 0) f.text.push(w);
+    });
+    /* keep free-text light: too many leftover tokens = noisy match-all-words */
+    if (f.text.length > 4) f.text = f.text.slice(0, 4);
+
+    return f;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     FILTERING + SORTING
+     ════════════════════════════════════════════════════════════════ */
+  function applyFilters(listings, f) {
+    var out = listings.filter(function (l) {
+      if (f.favoritesOnly && favs.indexOf(l.id) < 0) return false;
+      if (f.priceMin !== null && (l.price === null || l.price < f.priceMin)) return false;
+      if (f.priceMax !== null && (l.price === null || l.price > f.priceMax)) return false;
+      if (f.beds !== null && (l.beds === null || l.beds < f.beds)) return false;
+      if (f.baths !== null && (l.baths === null || l.baths < f.baths)) return false;
+      if (f.sqftMin !== null && (l.sqft === null || l.sqft < f.sqftMin)) return false;
+      if (f.types.length && f.types.indexOf(l.typeKey) < 0) return false;
+      if (f.status === 'active' && l.statusKey !== 'active') return false;
+      if (f.status === 'uc' && l.statusKey !== 'uc') return false;
+      if (f.openHouse && !l.openHouse) return false;
+      if (f.priceDrop && !l.priceWas) return false;
+      if (f.newConstruction) {
+        var thisYear = new Date().getFullYear();
+        var isNew = (l.yearBuilt && l.yearBuilt >= thisYear - 2) ||
+                    l.searchText.indexOf('new construction') >= 0;
+        if (!isNew) return false;
+      }
+      if (f.hoods.length) {
+        var hoodHit = f.hoods.some(function (h) { return l.searchText.indexOf(h) >= 0; });
+        if (!hoodHit) return false;
+      }
+      if (f.zips.length && f.zips.indexOf(l.zip) < 0) return false;
+      if (f.features.length) {
+        var featOk = f.features.every(function (key) {
+          var def = FEATURE_DEFS[key];
+          return def ? def.test(l) : true;
+        });
+        if (!featOk) return false;
+      }
+      if (f.text.length) {
+        var textOk = f.text.every(function (w) { return l.searchText.indexOf(w) >= 0; });
+        if (!textOk) return false;
+      }
+      return true;
+    });
+
+    var sorters = {
+      'newest':     function (a, b) { return (b.listDateMs || 0) - (a.listDateMs || 0); },
+      'price-asc':  function (a, b) { return (a.price || 9e9) - (b.price || 9e9); },
+      'price-desc': function (a, b) { return (b.price || 0) - (a.price || 0); },
+      'beds':       function (a, b) { return (b.beds || 0) - (a.beds || 0); },
+      'sqft':       function (a, b) { return (b.sqft || 0) - (a.sqft || 0); }
+    };
+    out.sort(sorters[f.sort] || sorters.newest);
+    return out;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CHIPS — visualize active filters, each removable
+     ════════════════════════════════════════════════════════════════ */
+  function chipList(f) {
+    var chips = [];
+    function add(label, undo) { chips.push({ label: label, undo: undo }); }
+    if (f.priceMin !== null && f.priceMax !== null) {
+      add(fmtShortPrice(f.priceMin) + ' \u2013 ' + fmtShortPrice(f.priceMax),
+        function () { f.priceMin = null; f.priceMax = null; });
+    } else if (f.priceMax !== null) {
+      add('Under ' + fmtShortPrice(f.priceMax), function () { f.priceMax = null; });
+    } else if (f.priceMin !== null) {
+      add('Over ' + fmtShortPrice(f.priceMin), function () { f.priceMin = null; });
+    }
+    if (f.beds !== null) add(f.beds === 0 ? 'Studio' : f.beds + '+ beds', function () { f.beds = null; });
+    if (f.baths !== null) add(f.baths + '+ baths', function () { f.baths = null; });
+    if (f.sqftMin !== null) add(f.sqftMin.toLocaleString() + '+ sqft', function () { f.sqftMin = null; });
+    f.types.forEach(function (t) {
+      var def = null;
+      TYPE_DEFS.forEach(function (d) { if (d.key === t) def = d; });
+      add(def ? def.label : t, function () { f.types = f.types.filter(function (x) { return x !== t; }); });
+    });
+    f.hoods.forEach(function (h) {
+      add(titleCase(h), function () { f.hoods = f.hoods.filter(function (x) { return x !== h; }); });
+    });
+    f.zips.forEach(function (z) {
+      add(z, function () { f.zips = f.zips.filter(function (x) { return x !== z; }); });
+    });
+    if (f.status === 'active') add('Active only', function () { f.status = 'any'; });
+    if (f.status === 'uc') add('Under contract', function () { f.status = 'any'; });
+    if (f.openHouse) add('Open house', function () { f.openHouse = false; });
+    if (f.priceDrop) add('Price drop', function () { f.priceDrop = false; });
+    if (f.newConstruction) add('New construction', function () { f.newConstruction = false; });
+    f.features.forEach(function (key) {
+      var def = FEATURE_DEFS[key];
+      add(def ? def.label : key, function () { f.features = f.features.filter(function (x) { return x !== key; }); });
+    });
+    f.text.forEach(function (w) {
+      add('\u201c' + w + '\u201d', function () { f.text = f.text.filter(function (x) { return x !== w; }); });
+    });
+    return chips;
+  }
+
+  function renderChips() {
+    var row = $('chipRow');
+    var chips = chipList(state);
+    row.innerHTML = '';
+    chips.forEach(function (c) {
+      var el = document.createElement('span');
+      el.className = 'sh-chip';
+      el.appendChild(document.createTextNode(c.label));
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.setAttribute('aria-label', 'Remove filter: ' + c.label);
+      x.innerHTML = '&times;';
+      x.addEventListener('click', function () { c.undo(); refresh(); });
+      el.appendChild(x);
+      row.appendChild(el);
+    });
+    if (chips.length) {
+      var clear = document.createElement('button');
+      clear.className = 'sh-chip-clear';
+      clear.type = 'button';
+      clear.textContent = 'Clear all';
+      clear.addEventListener('click', function () {
+        var sort = state.sort;
+        state = emptyFilters();
+        state.sort = sort;
+        $('heroInput').value = '';
+        $('heroClear').classList.remove('is-on');
+        refresh();
+      });
+      row.appendChild(clear);
+    }
+    var bub = $('filterCountBub');
+    bub.textContent = String(chips.length);
+    bub.style.display = chips.length ? 'inline-flex' : 'none';
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CARD RENDERING
+     ════════════════════════════════════════════════════════════════ */
+  function cardHtml(l) {
+    var flags = '<div class="sh-flags">';
+    if (l.statusKey === 'uc') flags += '<span class="sh-flag uc">' + esc(l.statusLabel) + '</span>';
+    else if (l.statusKey === 'comingsoon') flags += '<span class="sh-flag">Coming Soon</span>';
+    else flags += '<span class="sh-flag active">' + esc(l.statusLabel) + '</span>';
+    if (l.openHouse && l.openHouse.date) flags += '<span class="sh-flag oh">Open ' + esc(shortDate(l.openHouse.date)) + '</span>';
+    if (l.priceWas) flags += '<span class="sh-flag drop">Price drop</span>';
+    flags += '</div>';
+
+    var media;
+    if (l.cover) {
+      media = '<img class="main" loading="lazy" src="' + esc(l.cover) + '" alt="' + esc(l.address) + '">' +
+        (l.photoAlt ? '<img class="alt" loading="lazy" src="' + esc(l.photoAlt) + '" alt="">' : '');
+    } else {
+      media = '<span class="ph">' + esc((l.address.match(/[a-zA-Z]/) || ['•'])[0].toUpperCase()) + '</span>';
+    }
+
+    var specs = '';
+    if (l.beds !== null) specs += '<span><b>' + (l.beds === 0 ? 'Studio' : l.beds) + '</b>' + (l.beds === 0 ? '' : ' bd') + '</span>';
+    if (l.baths !== null) specs += '<span><b>' + l.baths + '</b> ba</span>';
+    if (l.sqft) specs += '<span><b>' + l.sqft.toLocaleString() + '</b> sqft</span>';
+    if (l.dom !== null && l.dom >= 0) specs += '<span>' + l.dom + ' DOM</span>';
+
+    var hoodLine = [l.hood, l.city, l.zip].filter(Boolean).join(' \u00b7 ');
+    var attr = l.agent ? 'Listed by ' + esc(l.agent) + (l.office ? ' \u00b7 ' + esc(l.office) : '') :
+               (l.office ? 'Courtesy of ' + esc(l.office) : '');
+
+    var isFav = favs.indexOf(l.id) >= 0;
+
+    return '' +
+      '<a class="sh-card" data-id="' + esc(l.id) + '"' +
+        (l.detailsUrl ? ' href="' + esc(l.detailsUrl) + '" target="_blank" rel="noopener noreferrer"' : ' href="#" tabindex="0"') + '>' +
+        '<div class="sh-card-media">' + flags +
+          '<button class="sh-fav' + (isFav ? ' is-fav' : '') + '" type="button" data-fav="' + esc(l.id) + '" aria-label="Save home" aria-pressed="' + isFav + '">' +
+            '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>' +
+          '</button>' + media +
+        '</div>' +
+        '<div class="sh-card-body">' +
+          '<div class="sh-price-row"><span class="sh-price">' + fmtPrice(l.price) + '</span>' +
+            (l.priceWas ? '<span class="sh-price-was">' + fmtPrice(l.priceWas) + '</span>' : '') + '</div>' +
+          '<div class="sh-specs">' + specs + '</div>' +
+          '<div class="sh-addr">' + esc(l.address) + '</div>' +
+          (hoodLine ? '<div class="sh-hood-line">' + esc(hoodLine) + '</div>' : '') +
+          (attr ? '<div class="sh-attr">' + attr + '</div>' : '') +
+        '</div>' +
+      '</a>';
+  }
+
+  function shortDate(raw) {
+    var d = new Date(raw);
+    if (isNaN(d.getTime())) return String(raw);
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+
+  function renderSkeletons() {
+    var html = '';
+    var i;
+    for (i = 0; i < 6; i++) {
+      html += '<div class="sh-skel"><div class="m"></div><div class="l"></div><div class="l short"></div></div>';
+    }
+    $('grid').innerHTML = html;
+  }
+
+  function renderResults(rows) {
+    var grid = $('grid');
+    if (!rows.length) {
+      var favMode = state.favoritesOnly;
+      grid.innerHTML =
+        '<div class="sh-empty">' +
+          '<h3>' + (favMode ? 'No saved homes yet' : 'No matches in our live inventory') + '</h3>' +
+          '<p>' + (favMode
+            ? 'Tap the heart on any listing to save it here.'
+            : 'Our feed covers Alex Stoykov Group and partner inventory. Your criteria may match homes elsewhere in the MLS \u2014 run the same search on the full portal, or let us find it for you.') + '</p>' +
+          '<div class="row">' +
+            (favMode ? '' :
+              '<a class="btn btn-dark" id="emptyMlsBtn" href="' + esc(IDX_PORTAL) + '/" target="_blank" rel="noopener noreferrer">Search the full MLS</a>' +
+              '<a class="btn btn-light" href="/buyer-onboarding">Get matched with an agent</a>') +
+            '<button class="btn btn-light" id="emptyClearBtn" type="button">Clear filters</button>' +
+          '</div>' +
+        '</div>';
+      var clearBtn = $('emptyClearBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          var sort = state.sort;
+          state = emptyFilters();
+          state.sort = sort;
+          state.favoritesOnly = false;
+          setFavToggle(false);
+          $('heroInput').value = '';
+          $('heroClear').classList.remove('is-on');
+          refresh();
+        });
+      }
+      return;
+    }
+
+    grid.innerHTML = rows.map(cardHtml).join('');
+
+    /* staggered entrance */
+    var cards = grid.querySelectorAll('.sh-card');
+    Array.prototype.forEach.call(cards, function (c, i) {
+      setTimeout(function () { c.classList.add('is-in'); }, Math.min(i, 12) * 45);
+    });
+
+    /* favorites */
+    Array.prototype.forEach.call(grid.querySelectorAll('[data-fav]'), function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = btn.getAttribute('data-fav');
+        var i = favs.indexOf(id);
+        if (i >= 0) favs.splice(i, 1); else favs.push(id);
+        saveFavs();
+        btn.classList.toggle('is-fav', i < 0);
+        btn.setAttribute('aria-pressed', String(i < 0));
+        if (state.favoritesOnly) refresh();
+      });
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     MASTER REFRESH
+     ════════════════════════════════════════════════════════════════ */
+  function refresh() {
+    renderChips();
+    syncPanelFromState();
+    var rows = applyFilters(ALL, state);
+    var label = rows.length === 1 ? '1 home' : rows.length.toLocaleString() + ' homes';
+    $('resultCount').textContent = state.favoritesOnly ? label + ' saved' : label;
+    renderResults(rows);
+  }
+
+  function runQuery(q, pushUrl) {
+    var favOnly = state.favoritesOnly;
+    state = parseQuery(q);
+    state.favoritesOnly = favOnly;
+    if (pushUrl !== false) {
+      var url = location.pathname + (q ? '?q=' + encodeURIComponent(q) : '');
+      try { history.replaceState(null, '', url); } catch (e) {}
+    }
+    refresh();
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     FILTER PANEL UI
+     ════════════════════════════════════════════════════════════════ */
+  function seg(containerId, options, getActive, onPick) {
+    var box = $(containerId);
+    box.innerHTML = '';
+    options.forEach(function (opt) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = opt.label;
+      b.dataset.val = String(opt.value);
+      if (getActive(opt.value)) b.classList.add('is-on');
+      b.addEventListener('click', function () { onPick(opt.value, b); });
+      box.appendChild(b);
+    });
+  }
+
+  function buildPanel() {
+    var bedOpts = [{ label: 'Any', value: '' }, { label: 'Studio+', value: 0 }];
+    [1, 2, 3, 4, 5].forEach(function (n) { bedOpts.push({ label: n + '+', value: n }); });
+    seg('fBeds', bedOpts,
+      function (v) { return v === '' ? state.beds === null : state.beds === v; },
+      function (v) { state.beds = (v === '' ? null : v); refresh(); });
+
+    var bathOpts = [{ label: 'Any', value: '' }];
+    [1, 1.5, 2, 3].forEach(function (n) { bathOpts.push({ label: n + '+', value: n }); });
+    seg('fBaths', bathOpts,
+      function (v) { return v === '' ? state.baths === null : state.baths === v; },
+      function (v) { state.baths = (v === '' ? null : v); refresh(); });
+
+    seg('fTypes', TYPE_DEFS.map(function (d) { return { label: d.label, value: d.key }; }),
+      function (v) { return state.types.indexOf(v) >= 0; },
+      function (v) {
+        var i = state.types.indexOf(v);
+        if (i >= 0) state.types.splice(i, 1); else state.types.push(v);
+        refresh();
+      });
+
+    seg('fStatus', [
+      { label: 'All', value: 'any' },
+      { label: 'Active', value: 'active' },
+      { label: 'Under contract', value: 'uc' },
+      { label: 'Open house', value: 'oh' },
+      { label: 'Price drop', value: 'drop' }
+    ],
+      function (v) {
+        if (v === 'oh') return state.openHouse;
+        if (v === 'drop') return state.priceDrop;
+        return state.status === v && v !== 'any' ? true : (v === 'any' && state.status === 'any' && !state.openHouse && !state.priceDrop);
+      },
+      function (v) {
+        if (v === 'oh') state.openHouse = !state.openHouse;
+        else if (v === 'drop') state.priceDrop = !state.priceDrop;
+        else if (v === 'any') { state.status = 'any'; state.openHouse = false; state.priceDrop = false; }
+        else state.status = (state.status === v ? 'any' : v);
+        refresh();
+      });
+
+    buildHoodSeg();
+  }
+
+  function buildHoodSeg() {
+    var opts = DATA_HOODS.map(function (h) { return { label: h, value: h.toLowerCase() }; });
+    if (!opts.length) {
+      $('fHoods').innerHTML = '<span style="color:var(--muted-soft);font-size:.85rem;">Neighborhoods appear as inventory loads.</span>';
+      return;
+    }
+    seg('fHoods', opts,
+      function (v) { return state.hoods.indexOf(v) >= 0; },
+      function (v) {
+        var i = state.hoods.indexOf(v);
+        if (i >= 0) state.hoods.splice(i, 1); else state.hoods.push(v);
+        refresh();
+      });
+  }
+
+  function syncPanelFromState() {
+    /* re-render segments so .is-on matches state */
+    buildPanel();
+    $('fPriceMin').value = state.priceMin !== null ? state.priceMin.toLocaleString() : '';
+    $('fPriceMax').value = state.priceMax !== null ? state.priceMax.toLocaleString() : '';
+    $('fSqft').value = state.sqftMin !== null ? String(state.sqftMin) : '';
+    $('sortSel').value = state.sort;
+  }
+
+  function readPriceInputs() {
+    var lo = num($('fPriceMin').value);
+    var hi = num($('fPriceMax').value);
+    state.priceMin = lo && lo > 0 ? lo : null;
+    state.priceMax = hi && hi > 0 ? hi : null;
+    var sq = num($('fSqft').value);
+    state.sqftMin = sq && sq > 0 ? sq : null;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     OVERLAY
+     ════════════════════════════════════════════════════════════════ */
+  var overlay = $('searchOverlay');
+  var overlayInput = $('overlayInput');
+  function openOverlay() {
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    overlayInput.value = $('heroInput').value;
+    setTimeout(function () { overlayInput.focus(); }, 120);
+  }
+  function closeOverlay() {
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+  $('navSearchCta').addEventListener('click', openOverlay);
+  $('overlayClose').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeOverlay();
+  });
+  $('overlayForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var q = overlayInput.value.trim();
+    $('heroInput').value = q;
+    $('heroClear').classList.toggle('is-on', !!q);
+    closeOverlay();
+    runQuery(q);
+    var toolbar = document.querySelector('.sh-toolbar');
+    if (toolbar) toolbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  var mobileSearch = $('mobileSearchCta');
+  if (mobileSearch) {
+    mobileSearch.addEventListener('click', function () {
+      $('mobilePanel').classList.remove('is-open');
+      openOverlay();
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     HERO SEARCH + SUGGESTIONS + ROTATING PLACEHOLDER
+     ════════════════════════════════════════════════════════════════ */
+  $('heroForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    runQuery($('heroInput').value.trim());
+  });
+  $('heroInput').addEventListener('input', function () {
+    $('heroClear').classList.toggle('is-on', !!$('heroInput').value);
+  });
+  $('heroClear').addEventListener('click', function () {
+    $('heroInput').value = '';
+    $('heroClear').classList.remove('is-on');
+    runQuery('');
+    $('heroInput').focus();
+  });
+
+  function buildSuggest(containerId, fill) {
+    var box = $(containerId);
+    SUGGESTIONS.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = s;
+      b.addEventListener('click', function () { fill(s); });
+      box.appendChild(b);
+    });
+  }
+  buildSuggest('heroSuggest', function (s) {
+    $('heroInput').value = s;
+    $('heroClear').classList.add('is-on');
+    runQuery(s);
+  });
+  buildSuggest('overlaySuggest', function (s) {
+    overlayInput.value = s;
+    overlayInput.focus();
+  });
+
+  /* rotating placeholder (only while inputs are empty) */
+  (function rotatePlaceholders() {
+    var idx = 0;
+    overlayInput.placeholder = PLACEHOLDERS[0];
+    setInterval(function () {
+      idx = (idx + 1) % PLACEHOLDERS.length;
+      if (!$('heroInput').value) $('heroInput').placeholder = PLACEHOLDERS[idx];
+      if (!overlayInput.value) overlayInput.placeholder = PLACEHOLDERS[idx];
+    }, 3600);
+  })();
+
+  /* "/" focuses search like a pro app */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && !/input|textarea|select/i.test((e.target && e.target.tagName) || '')) {
+      e.preventDefault();
+      $('heroInput').focus();
+    }
+  });
+
+  /* ════════════════════════════════════════════════════════════════
+     TOOLBAR EVENTS
+     ════════════════════════════════════════════════════════════════ */
+  $('filtersToggle').addEventListener('click', function () {
+    var panel = $('filterPanel');
+    var open = panel.classList.toggle('is-open');
+    $('filtersToggle').setAttribute('aria-expanded', String(open));
+  });
+  $('filtersApply').addEventListener('click', function () {
+    readPriceInputs();
+    $('filterPanel').classList.remove('is-open');
+    $('filtersToggle').setAttribute('aria-expanded', 'false');
+    refresh();
+  });
+  $('filtersReset').addEventListener('click', function () {
+    var sort = state.sort;
+    state = emptyFilters();
+    state.sort = sort;
+    $('heroInput').value = '';
+    $('heroClear').classList.remove('is-on');
+    refresh();
+  });
+  ['fPriceMin', 'fPriceMax', 'fSqft'].forEach(function (id) {
+    $(id).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); readPriceInputs(); refresh(); }
+    });
+    $(id).addEventListener('blur', function () { readPriceInputs(); });
+  });
+  $('sortSel').addEventListener('change', function () {
+    state.sort = $('sortSel').value;
+    refresh();
+  });
+
+  function setFavToggle(on) {
+    state.favoritesOnly = on;
+    var btn = $('favToggle');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.style.background = on ? 'var(--ink)' : '';
+    btn.style.color = on ? '#fff' : '';
+    btn.style.borderColor = on ? 'var(--ink)' : '';
+  }
+  $('favToggle').addEventListener('click', function () {
+    setFavToggle(!state.favoritesOnly);
+    refresh();
+  });
+
+  /* ════════════════════════════════════════════════════════════════
+     NAV + MOBILE
+     ════════════════════════════════════════════════════════════════ */
+  (function navScroll() {
+    var nav = $('nav');
+    var frost = $('navFrost');
+    var last = false;
+    function onScroll() {
+      var scrolled = (window.scrollY || 0) > 20;
+      if (scrolled !== last) {
+        nav.classList.toggle('is-scrolled', scrolled);
+        frost.classList.toggle('is-scrolled', scrolled);
+        last = scrolled;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+  $('navBurger').addEventListener('click', function () {
+    $('mobilePanel').classList.add('is-open');
+    $('navBurger').setAttribute('aria-expanded', 'true');
+  });
+  $('mobileClose').addEventListener('click', function () {
+    $('mobilePanel').classList.remove('is-open');
+    $('navBurger').setAttribute('aria-expanded', 'false');
+  });
+
+  $('footYear').textContent = String(new Date().getFullYear());
+
+  /* ════════════════════════════════════════════════════════════════
+     BOOT: paint cache instantly, swap in fresh payload when it lands
+     ════════════════════════════════════════════════════════════════ */
+  function ingest(rows) {
+    ALL = normalize(rows);
+    DATA_HOODS = collectHoods(ALL);
+    $('heroCount').textContent = ALL.length ? ALL.length + ' homes live' : 'Chicago';
+    refresh();
+  }
+
+  renderSkeletons();
+  var initialQ = '';
+  try { initialQ = new URLSearchParams(location.search).get('q') || ''; } catch (e) {}
+  if (initialQ) {
+    $('heroInput').value = initialQ;
+    $('heroClear').classList.add('is-on');
+  }
+
+  var painted = false;
+  if (boot.cachedRows && boot.cachedRows.length) {
+    painted = true;
+    ingest(boot.cachedRows);
+    if (initialQ) runQuery(initialQ, false);
+  }
+
+  boot.promise.then(function (rows) {
+    if (rows && rows.length) {
+      ingest(rows);
+      if (initialQ) runQuery(initialQ, false);
+    } else if (!painted) {
+      $('resultCount').textContent = 'Live feed unavailable';
+      $('grid').innerHTML =
+        '<div class="sh-empty">' +
+          '<h3>We couldn&rsquo;t load the live feed</h3>' +
+          '<p>The MLS portal still has every listing \u2014 or tell us what you need and we&rsquo;ll send a curated list.</p>' +
+          '<div class="row">' +
+            '<a class="btn btn-dark" href="' + esc(IDX_PORTAL) + '/" target="_blank" rel="noopener noreferrer">Open MLS search</a>' +
+            '<a class="btn btn-light" href="/buyer-onboarding">Get matched with an agent</a>' +
+          '</div>' +
+        '</div>';
+    }
+  });
+
+  /* sync freshness label (non-blocking, best-effort) */
+  (function syncMeta() {
+    var api = boot.api;
+    if (!api) return;
+    var sep = api.indexOf('?') >= 0 ? '&' : '?';
+    fetch(api + sep + 'view=idxsync')
+      .then(function (r) { return r.json(); })
+      .then(function (p) {
+        var at = p && p.idx && p.idx.lastSyncedAt;
+        if (!at) return;
+        var mins = Math.max(0, Math.round((Date.now() - Date.parse(at)) / 60000));
+        $('syncMeta').textContent = 'MLS data synced ' + (mins < 1 ? 'just now' : mins + ' min ago');
+      })
+      .catch(function () {});
+  })();
+})();
+</script>

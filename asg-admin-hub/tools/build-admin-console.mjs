@@ -44,7 +44,8 @@ function patchListings(src) {
 const surfaces = {
   overview: patchOverview(read(resolve(comp, "admin-dashboard.html"))),
   deals: read(resolve(comp, "deal-tracker.html")),
-  listings: patchListings(read(resolve(comp, "listing-hub-standalone.html"))),
+  // Listings surface is the Supabase-backed Listing Workshop (reads window.ASGConsole).
+  listings: read(resolve(comp, "listing-workshop.html")),
   directory: read(resolve(comp, "team-directory.html")),
   command: read(resolve(comp, "command-center.html")),
 };
