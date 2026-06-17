@@ -48,36 +48,51 @@ export class IdxClient {
     this.base = base.replace(/\/$/, '');
   }
 
-  private async req<T>(path: string): Promise<T> {
-    const res = await httpFetch(`${this.base}${path}`, {
+  private async req<T>(pathOrUrl: string): Promise<T> {
+    const url = pathOrUrl.startsWith('http') ? pathOrUrl : `${this.base}${pathOrUrl}`;
+    const res = await httpFetch(url, {
+      // No `Accept` header: IDX's Apache front-end runs content negotiation and
+      // returns 406 when Accept is application/json. `outputtype: json` is what
+      // actually selects the JSON representation.
       headers: {
         accesskey: this.accessKey,
         outputtype: 'json',
         apiversion: this.version,
-        Accept: 'application/json',
       },
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      throw new Error(`IDX ${res.status} ${path}: ${body.slice(0, 400)}`);
+      throw new Error(`IDX ${res.status} ${pathOrUrl}: ${body.slice(0, 400)}`);
     }
-    const json = (await res.json()) as T;
-    return json;
+    return (await res.json()) as T;
   }
 
-  /** featured | soldpending | supplemental — each returns a keyed object. */
+  /**
+   * featured | soldpending | supplemental. As of API v1.8 each response is an
+   * envelope `{ total, next, data: { key: listing } }`; older accounts return a
+   * flat object or array. We unwrap `.data`, follow `next` for pagination, and
+   * merge everything into one keyed object.
+   */
   async feed(name: 'featured' | 'soldpending' | 'supplemental'): Promise<Record<string, unknown>> {
-    const data = await this.req<unknown>(`/clients/${name}`);
-    if (Array.isArray(data)) {
-      // some accounts return an array; key it by listingID
-      const obj: Record<string, unknown> = {};
-      for (const item of data as Record<string, unknown>[]) {
-        const id = String(item.listingID ?? item.idxID ?? item.listingId ?? '');
-        if (id) obj[id] = item;
+    const merged: Record<string, unknown> = {};
+    let path: string | null = `/clients/${name}?disclaimers=true`;
+    let guard = 0;
+    while (path && guard < 200) {
+      guard++;
+      const body: Record<string, unknown> = await this.req<Record<string, unknown>>(path);
+      const payload: unknown = body['data'] !== undefined ? body['data'] : body;
+      if (Array.isArray(payload)) {
+        for (const item of payload as Record<string, unknown>[]) {
+          const id = String(item.listingID ?? item.idxID ?? item.listingId ?? '');
+          if (id) merged[id] = item;
+        }
+      } else if (payload && typeof payload === 'object') {
+        Object.assign(merged, payload as Record<string, unknown>);
       }
-      return obj;
+      const next: unknown = body['next'];
+      path = next ? String(next) : null;
     }
-    return (data as Record<string, unknown>) ?? {};
+    return merged;
   }
 
   async allListings(): Promise<NormalizedIdxListing[]> {

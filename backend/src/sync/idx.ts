@@ -50,7 +50,25 @@ export async function syncIdx(): Promise<SyncResult> {
       and lower(a.name) = lower(l.co_agent_name)
   `;
 
-  return { source: 'idx', records: listings.length, meta: { feeds: 3 } };
+  // Materialize an editable ASG listing row for every MLS listing that doesn't
+  // already have one (matched above by address/idx id). This makes the IDX feed
+  // the source of truth for the inventory while letting admins layer marketing
+  // assets on top. Pre-listings created at onboarding already linked above, so
+  // they are skipped here. MLS facts are NOT copied onto listings — the
+  // listings_enriched view coalesces them live from idx_listings.
+  const materialized = await sql`
+    insert into listings (address, idx_listing_id, source, status)
+    select x.address, x.idx_listing_id, 'idx', x.status
+    from idx_listings x
+    where x.address is not null
+      and x.address_normalized is not null
+      and not exists (select 1 from listings l where l.idx_listing_id = x.idx_listing_id)
+      and not exists (select 1 from listings l where l.address_normalized = x.address_normalized)
+    on conflict (address_normalized) do nothing
+  `;
+  const created = (materialized as unknown as { count?: number }).count ?? 0;
+
+  return { source: 'idx', records: listings.length, meta: { feeds: 3, listingsCreated: created } };
 }
 
 async function upsertIdxListing(L: NormalizedIdxListing): Promise<void> {

@@ -48,7 +48,7 @@ const schema = z.object({
 
   // IDX Broker
   IDX_ACCESS_KEY: z.string().optional().default(''),
-  IDX_API_VERSION: z.string().default('1.7'),
+  IDX_API_VERSION: z.string().default('1.8'),
   IDX_API_BASE_URL: z.string().default('https://api.idxbroker.com'),
 
   // Google Drive
