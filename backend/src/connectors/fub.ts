@@ -104,6 +104,56 @@ export class FubClient {
     );
   }
 
+  /**
+   * Find an existing contact to avoid duplicates. Matches on email, then phone,
+   * then exact full name (any one is enough). FUB's name filter is fuzzy, so we
+   * verify candidates against the actual emails/phones/name before returning.
+   */
+  async findExistingPerson(input: {
+    email?: string | null;
+    phone?: string | null;
+    name?: string | null;
+  }): Promise<Record<string, unknown> | null> {
+    const fields = 'id,name,firstName,lastName,emails,phones,tags,assignedUserId,stage';
+    const search = async (
+      params: Record<string, string>,
+      ok: (p: Record<string, unknown>) => boolean,
+    ): Promise<Record<string, unknown> | null> => {
+      const people = await this.collect('/people', 'people', { ...params, fields }, { max: 50 });
+      return people.find(ok) ?? null;
+    };
+
+    const email = input.email?.trim().toLowerCase() || '';
+    if (email) {
+      const m = await search({ email }, (p) =>
+        ((p.emails as { value?: string }[]) ?? []).some(
+          (e) => String(e.value ?? '').trim().toLowerCase() === email,
+        ),
+      );
+      if (m) return m;
+    }
+
+    const digits = (input.phone ?? '').replace(/\D/g, '');
+    if (digits.length >= 7) {
+      const last10 = digits.slice(-10);
+      const m = await search({ phone: input.phone as string }, (p) =>
+        ((p.phones as { value?: string }[]) ?? []).some(
+          (ph) => String(ph.value ?? '').replace(/\D/g, '').endsWith(last10),
+        ),
+      );
+      if (m) return m;
+    }
+
+    const name = input.name?.trim().toLowerCase() || '';
+    if (name) {
+      const m = await search({ name: input.name as string }, (p) =>
+        String(p.name ?? '').trim().toLowerCase() === name,
+      );
+      if (m) return m;
+    }
+    return null;
+  }
+
   /** Create/update a lead via the events endpoint (fires action plans, dedupes). */
   createEvent(event: Record<string, unknown>) {
     return this.req<Record<string, unknown>>('/events', {
@@ -130,6 +180,12 @@ export class FubClient {
   createDeal(body: Record<string, unknown>) {
     return this.req<Record<string, unknown>>('/deals', {
       method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+  updateDeal(id: string | number, body: Record<string, unknown>) {
+    return this.req<Record<string, unknown>>(`/deals/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(body),
     });
   }

@@ -58,9 +58,10 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
   // draft so it shows up in the console workshop immediately. Best-effort — a
   // failure here must not block the lead/FUB flow.
   let listingId: string | undefined;
+  let existingDealId: string | null = null;
   if (formType === 'seller-onboarding') {
     try {
-      listingId = await createListingFromSellerIntake(body, {
+      const res = await createListingFromSellerIntake(body, {
         leadId,
         agentId: agentRow?.id ?? null,
         agentName: String(agent.name ?? '') || null,
@@ -68,6 +69,8 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
         sellerEmail: email,
         sellerPhone: phone,
       });
+      listingId = res?.listingId;
+      existingDealId = res?.fubDealId ?? null;
     } catch (err) {
       log.warn(`lead ${leadId} listing draft failed: ${String(err)}`);
     }
@@ -80,7 +83,7 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
   }
 
   try {
-    const result = await pushLeadToFub(fub, body, formType, { name, email, phone, agentEmail });
+    const result = await pushLeadToFub(fub, body, formType, { name, email, phone, agentEmail }, { existingDealId });
     await sql`
       update leads set fub_person_id = ${String(result.personId ?? '')},
         fub_note_id = ${result.noteId != null ? String(result.noteId) : null},
@@ -120,13 +123,13 @@ async function createListingFromSellerIntake(
     sellerEmail: string | null;
     sellerPhone: string | null;
   },
-): Promise<string | undefined> {
+): Promise<{ listingId: string; fubDealId: string | null } | undefined> {
   const property = (body.property as Rec) ?? {};
   const address = String(property.address ?? '').trim();
   if (!address) return undefined;
   const questionnaire = formatQuestionnaire(body);
 
-  const [row] = await sql<{ id: string; inserted: boolean }[]>`
+  const [row] = await sql<{ id: string; inserted: boolean; fub_deal_id: string | null }[]>`
     insert into listings (
       address, status, phase_key, listing_type, source,
       agent_id, agent_name, seller_name, seller_email, seller_phone,
@@ -147,7 +150,7 @@ async function createListingFromSellerIntake(
       seller_questionnaire_sent_at = now(),
       lead_id = coalesce(listings.lead_id, excluded.lead_id),
       updated_at = now()
-    returning id, (xmax = 0) as inserted
+    returning id, (xmax = 0) as inserted, fub_deal_id
   `;
   const listingId = String(row!.id);
   const propertyType = String(property.type ?? '').trim();
@@ -162,7 +165,7 @@ async function createListingFromSellerIntake(
       true
     )
   `;
-  return listingId;
+  return { listingId, fubDealId: row!.fub_deal_id ?? null };
 }
 
 async function pushLeadToFub(
@@ -170,6 +173,7 @@ async function pushLeadToFub(
   body: Rec,
   formType: string,
   who: { name: string | null; email: string | null; phone: string | null; agentEmail: string | null },
+  opts: { existingDealId?: string | null } = {},
 ) {
   const isSeller = formType === 'seller-onboarding';
   const fallbackEmail = isSeller ? env.SELLER_INTAKE_FALLBACK_EMAIL : env.BUYER_INTAKE_FALLBACK_EMAIL;
@@ -189,22 +193,41 @@ async function pushLeadToFub(
   if (marketing.generalOptIn === false) tags.push('Marketing Opt-Out');
   if (marketing.searchOptIn === false) tags.push(isSeller ? 'Market Updates Opt-Out' : 'Search Emails Opt-Out');
 
-  const person: Rec = {
-    name: who.name,
-    emails: who.email ? [{ value: who.email }] : [],
-    phones: who.phone ? [{ value: who.phone }] : [],
-    tags,
-  };
-  if (assignedUser?.id != null) person.assignedUserId = assignedUser.id;
+  // Dedupe: if this seller is already a contact (match email, then phone, then
+  // exact full name — any one is enough), attach to that record instead of
+  // creating a duplicate. We preserve their current owner and only merge tags.
+  const existing = (who.email || who.phone || who.name)
+    ? await fub.findExistingPerson({ email: who.email, phone: who.phone, name: who.name })
+    : null;
 
-  const event = await fub.createEvent({ source, system, type: 'Registration', person });
-  const personId = (event.person as Rec | undefined)?.id ?? (event as Rec).id;
-
-  if (personId != null && assignedUser?.id != null) {
+  let personId: unknown;
+  if (existing?.id != null) {
+    personId = existing.id;
+    const current = Array.isArray(existing.tags) ? (existing.tags as string[]) : [];
+    const mergedTags = Array.from(new Set([...current, ...tags]));
     try {
-      await fub.updatePerson(personId as string | number, { assignedUserId: assignedUser.id });
+      await fub.updatePerson(personId as string | number, { tags: mergedTags });
     } catch (err) {
-      log.warn(`reassign failed for person ${String(personId)}: ${String(err)}`);
+      log.warn(`tag merge failed for person ${String(personId)}: ${String(err)}`);
+    }
+  } else {
+    const person: Rec = {
+      name: who.name,
+      emails: who.email ? [{ value: who.email }] : [],
+      phones: who.phone ? [{ value: who.phone }] : [],
+      tags,
+    };
+    if (assignedUser?.id != null) person.assignedUserId = assignedUser.id;
+
+    const event = await fub.createEvent({ source, system, type: 'Registration', person });
+    personId = (event.person as Rec | undefined)?.id ?? (event as Rec).id;
+
+    if (personId != null && assignedUser?.id != null) {
+      try {
+        await fub.updatePerson(personId as string | number, { assignedUserId: assignedUser.id });
+      } catch (err) {
+        log.warn(`reassign failed for person ${String(personId)}: ${String(err)}`);
+      }
     }
   }
 
@@ -214,26 +237,36 @@ async function pushLeadToFub(
     noteId = note.id;
   }
 
-  // A seller onboarding is the start of a sale: open a deal in the Sellers
-  // pipeline so the agent tracks it from the first touch. Best-effort.
-  let dealId: unknown = null;
+  // A seller onboarding is the start of a sale: open (or update) a deal in the
+  // Sellers pipeline. If the Pre-Listing already has a deal id (re-submission),
+  // we update it instead of creating a duplicate. The deal is owned by the
+  // contact's current owner so the right agent sees it. Best-effort.
+  let dealId: unknown = opts.existingDealId ?? null;
   if (isSeller && env.FUB_CREATE_SELLER_DEAL && personId != null) {
     try {
       const property = (body.property as Rec) ?? {};
       const address = String(property.address ?? '').trim();
       const dealName = address || `${who.name ?? 'Seller'} — Listing`;
       const price = parsePrice(property.price ?? property.estimatedValue ?? property.listPrice);
-      const deal: Rec = {
-        name: dealName,
-        stageId: env.FUB_SELLER_DEAL_STAGE_ID,
-        peopleIds: [personId],
-      };
-      if (assignedUser?.id != null) deal.userIds = [assignedUser.id];
-      if (price != null) deal.price = price;
-      const created = await fub.createDeal(deal);
-      dealId = (created as Rec).id ?? null;
+      const ownerId = (existing?.assignedUserId as unknown) ?? assignedUser?.id ?? null;
+      if (opts.existingDealId) {
+        const update: Rec = { name: dealName };
+        if (price != null) update.price = price;
+        await fub.updateDeal(opts.existingDealId, update);
+        dealId = opts.existingDealId;
+      } else {
+        const deal: Rec = {
+          name: dealName,
+          stageId: env.FUB_SELLER_DEAL_STAGE_ID,
+          peopleIds: [personId],
+        };
+        if (ownerId != null) deal.userIds = [ownerId];
+        if (price != null) deal.price = price;
+        const created = await fub.createDeal(deal);
+        dealId = (created as Rec).id ?? null;
+      }
     } catch (err) {
-      log.warn(`seller deal create failed for person ${String(personId)}: ${String(err)}`);
+      log.warn(`seller deal upsert failed for person ${String(personId)}: ${String(err)}`);
     }
   }
 
@@ -243,7 +276,9 @@ async function pushLeadToFub(
     dealId,
     assignedTo: assignedUser
       ? { id: assignedUser.id, name: assignedUser.name, email: assignedUser.email }
-      : undefined,
+      : existing?.assignedUserId != null
+        ? { id: existing.assignedUserId }
+        : undefined,
   };
 }
 
