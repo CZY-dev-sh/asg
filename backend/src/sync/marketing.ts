@@ -7,6 +7,7 @@ import {
   isMediaAppointment,
   type AcuityAppointment,
 } from '../connectors/acuity.js';
+import { fetchIcsAppointments } from '../connectors/acuityIcs.js';
 import { parseDate, parseDateTime, trim, normalizeAddress } from '../util/text.js';
 import type { SyncResult } from './runner.js';
 
@@ -43,6 +44,12 @@ export async function syncMarketing(): Promise<SyncResult> {
     for (const a of appts) {
       count += await upsertAppointment(a);
     }
+  } else if (have.acuityIcs()) {
+    // No-API fallback: read bookings from the iCal/ICS calendar feed(s).
+    const appts = await fetchIcsAppointments();
+    for (const a of appts) {
+      count += await upsertAppointment(a);
+    }
   }
 
   // Reflect Asana task status onto the listing requests they fulfill.
@@ -57,13 +64,30 @@ async function upsertAppointment(a: AcuityAppointment): Promise<number> {
   const propertyAddress = addressFromAppointment(a);
   const startsAt = parseDateTime(a.datetime);
 
-  // Resolve the listing this booking is for (exact normalized address).
+  // Resolve the listing this booking is for. Try an exact normalized match
+  // first, then fall back to the standardized street-core match (handles
+  // "Pl" vs "Place", units, trailing city/state) — but only when it is
+  // unambiguous, so a booking never links to the wrong unit in a building.
   let listingId: string | null = null;
   if (propertyAddress) {
     const norm = normalizeAddress(propertyAddress);
-    const [match] = await sql<Row[]>`
+    const [exact] = await sql<Row[]>`
       select id from listings where address_normalized = ${norm} limit 1`;
-    listingId = match ? String(match.id) : null;
+    if (exact) {
+      listingId = String(exact.id);
+    } else {
+      const cands = await sql<Row[]>`
+        select id from listings
+        where address_std is not null
+          and address_std(${propertyAddress}) is not null
+          and (
+            address_std = address_std(${propertyAddress})
+            or address_std like address_std(${propertyAddress}) || ' %'
+            or address_std(${propertyAddress}) like address_std || ' %'
+          )
+        limit 2`;
+      if (cands.length === 1) listingId = String(cands[0]!.id);
+    }
   }
 
   // Was this appointment already linked? (avoid re-logging the milestone)

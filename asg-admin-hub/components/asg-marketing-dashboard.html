@@ -1,0 +1,672 @@
+<!--
+  ════════════════════════════════════════════════════════════════════
+  ASG MARKETING STUDIO — Schedule + team performance  (/marketing)
+  ════════════════════════════════════════════════════════════════════
+  Internal marketing dashboard. Paste into a Squarespace Code Block on a
+  blank page. Self-contained (own chrome + design tokens), matches
+  asg-search-homes / asg-homepage-redesign aesthetic.
+
+  DATA: GET {API}/api/marketing-dashboard?days=30 → one payload:
+    kpis, appointments[] (rich Acuity detail, linked to listings),
+    team{ photographers, topClients, asanaWorkload, gmail* }.
+  Acuity is live now; Asana + Gmail render graceful "connect" states
+  until those integrations are wired. Override the endpoint with
+  window.ASG_MARKETING_API before this block.
+-->
+
+<style>
+:root{
+  --bg:#ffffff; --bg-alt:#f6f6f3; --bg-soft:#f2f2f0; --bg-deep:#101010;
+  --ink:#111111; --muted:rgba(17,17,17,.58); --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08); --line-strong:rgba(17,17,17,.16);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06); --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --r-shell:34px; --r-card:28px; --r-input:16px; --r-pill:999px;
+  --max:1480px; --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --shoot:#1f7a5a;   --shoot-bg:rgba(31,122,90,.10);
+  --meet:#3a5ccc;    --meet-bg:rgba(58,92,204,.10);
+  --other:#8a6d2f;   --other-bg:rgba(138,109,47,.10);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body.mk-body{
+  margin:0; background:
+    radial-gradient(900px 520px at 12% 6%,rgba(232,217,184,.36),transparent 60%),
+    radial-gradient(760px 420px at 84% 2%,rgba(168,196,240,.30),transparent 58%),
+    linear-gradient(180deg,#fbfbf9 0%,#f4f4f1 100%);
+  color:var(--ink); font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* Squarespace chrome hide */
+#header, header.Header, .Header, .Header-inner, header#header,
+.header-announcement-bar-wrapper, .sqs-announcement-bar-dropzone,
+#headerSpacer, .header-spacer,
+#footer, footer.Footer, .Footer, #footer-sections, footer.sections{
+  display:none !important; visibility:hidden !important;
+  height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important;
+}
+#siteWrapper, .Main, .Content-outer, .Content-inner, .Index, #page,
+.page-section, article.sections, main#page article{
+  background:transparent !important; margin:0 !important; padding:0 !important; max-width:none !important;
+}
+.page-section .content-wrapper{ padding:0 !important; max-width:none !important; }
+.mk img{ max-width:100%; height:auto; display:block; border-radius:0 !important; }
+.mk a{ color:inherit; }
+.mk :focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+
+.mk{ max-width:var(--max); margin:0 auto; padding:0 var(--pad-x) 80px; }
+
+/* ── Admin Hub floating pill nav ── */
+.mk-nav-frost{
+  position:fixed;top:0;left:0;right:0;z-index:480;height:140px;pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);-webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom,rgba(255,255,255,.72),rgba(255,255,255,.4) 50%,rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.4) 72%,transparent);
+  mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.4) 72%,transparent);
+  transition:opacity .3s ease;opacity:0;
+}
+.mk-nav-frost.is-scrolled{opacity:1}
+.mk-nav-wrap{position:fixed;top:18px;left:0;right:0;z-index:500;padding:0 var(--pad-x);animation:mk-navDrop .9s var(--ease) both}
+@keyframes mk-navDrop{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:none}}
+.mk-nav-inner{max-width:var(--max);margin:0 auto}
+.mk-nav{
+  background:rgba(255,255,255,.92);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);border-radius:var(--r-pill);min-height:76px;padding:9px 12px 9px 22px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease,min-height .35s var(--ease),padding .35s var(--ease);
+}
+.mk-nav.is-scrolled{box-shadow:0 10px 32px rgba(17,17,17,.10);min-height:66px}
+.mk-nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;background:none;border:none;cursor:pointer;padding:0}
+.mk-nav-logo img{width:54px;height:54px;object-fit:contain;transition:width .35s var(--ease),height .35s var(--ease),transform .3s ease}
+.mk-nav.is-scrolled .mk-nav-logo img{width:48px;height:48px}
+.mk-nav-logo:hover img{transform:rotate(-8deg)}
+.mk-nav-logo span{font-weight:800;font-size:1.3rem;letter-spacing:-.025em;white-space:nowrap;color:var(--ink)}
+.mk-nav-links{display:flex;align-items:center;gap:4px;position:relative}
+.mk-nav-link{
+  position:relative;z-index:1;border:none;background:none;cursor:pointer;font-family:inherit;
+  border-radius:var(--r-pill);padding:13px 22px;font-size:1.08rem;font-weight:600;color:var(--muted);
+  white-space:nowrap;transition:color .2s ease,background .2s ease;
+}
+.mk-nav-link:hover{color:var(--ink)}
+.mk-nav-link.is-active{color:var(--ink);background:rgba(17,17,17,.06)}
+.mk-nav-cta{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.mk-profile{display:flex;align-items:center;gap:11px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 7px 6px 16px;border-radius:var(--r-pill);transition:background .2s}
+.mk-profile:hover{background:rgba(17,17,17,.05)}
+.mk-pname{font-size:1rem;font-weight:600;color:var(--ink);text-align:right;line-height:1.2}
+.mk-pname small{display:block;font-size:.78rem;color:var(--muted);font-weight:500;text-transform:capitalize}
+.mk-profile-avatar{width:42px;height:42px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;overflow:hidden;flex:none;box-shadow:0 0 0 2px #fff,0 2px 8px rgba(0,0,0,.18)}
+.mk-burger{display:none;background:transparent;border:1px solid var(--line);width:50px;height:50px;border-radius:var(--r-pill);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--ink)}
+.mk-seg{ display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:var(--r-pill); padding:4px; gap:2px; box-shadow:0 2px 8px rgba(17,17,17,.04); }
+.mk-seg button{ border:0; background:transparent; cursor:pointer; font:inherit; font-weight:600; font-size:.86rem; color:var(--muted); padding:8px 15px; border-radius:var(--r-pill); transition:all .2s var(--ease); white-space:nowrap; }
+.mk-seg button.is-on{ background:var(--ink); color:#fff; }
+.mk-refresh{ width:44px; height:44px; border-radius:var(--r-pill); border:1px solid var(--line); background:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; color:var(--ink); transition:transform .4s var(--ease), box-shadow .2s; flex-shrink:0; }
+.mk-refresh:hover{ box-shadow:var(--shadow-card); }
+.mk-refresh.spin svg{ animation:mk-spin .8s linear infinite; }
+@keyframes mk-spin{ to{ transform:rotate(360deg); } }
+
+/* ── Hero ── */
+.mk-hero{ padding:150px 0 30px; display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:28px;align-items:end; }
+.mk-eyebrow{ font-weight:700; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
+.mk-hero h1{ margin:0; font-size:clamp(2.7rem,6vw,5.2rem); font-weight:800; letter-spacing:-.055em; line-height:.94; }
+.mk-hero p{ margin:18px 0 0; font-size:1.08rem; color:var(--muted); max-width:650px; }
+.mk-updated{ margin-top:10px; font-size:.8rem; color:var(--muted-soft); }
+.mk-hero-card{background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:34px;padding:22px;box-shadow:var(--shadow-card);backdrop-filter:blur(16px);position:relative;overflow:hidden}
+.mk-hero-card:before{content:"";position:absolute;inset:-90px -70px auto auto;width:220px;height:220px;border-radius:50%;background:rgba(31,122,90,.10)}
+.mk-hero-card b{display:block;font-size:2.6rem;line-height:1;letter-spacing:-.04em}
+.mk-hero-card span{display:block;color:var(--muted);font-weight:600;margin-top:7px}
+.mk-mini-stack{display:grid;gap:10px;margin-top:18px}
+.mk-mini{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;position:relative}
+.mk-mini strong{font-size:.9rem}.mk-mini small{color:var(--muted);font-weight:600}
+
+/* ── KPI cards ── */
+.mk-kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:8px 0 40px; }
+.mk-kpi{
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-card);
+  padding:22px 24px; box-shadow:var(--shadow-card); position:relative; overflow:hidden;
+}
+.mk-kpi::after{ content:""; position:absolute; inset:auto -30px -40px auto; width:120px; height:120px; border-radius:50%; background:var(--accent,rgba(31,122,90,.06)); }
+.mk-kpi-label{ font-weight:600; font-size:.82rem; color:var(--muted); position:relative; }
+.mk-kpi-val{ font-weight:800; font-size:2.5rem; letter-spacing:-.03em; line-height:1; margin-top:10px; position:relative; }
+.mk-kpi-sub{ font-size:.78rem; color:var(--muted-soft); margin-top:6px; position:relative; }
+
+/* ── Layout ── */
+.mk-grid{ display:grid; grid-template-columns:1.7fr 1fr; gap:26px; align-items:start; }
+.mk-col h2{ font-size:1.32rem; font-weight:800; letter-spacing:-.02em; margin:0 0 4px; }
+.mk-col .mk-sub{ color:var(--muted); font-size:.9rem; margin:0 0 18px; }
+
+/* ── Day groups + appointment cards ── */
+.mk-day{ margin-bottom:26px; }
+.mk-day-head{ display:flex; align-items:baseline; gap:10px; margin:0 0 12px; padding-left:2px; }
+.mk-day-head b{ font-size:1.02rem; font-weight:800; letter-spacing:-.01em; }
+.mk-day-head span{ font-size:.84rem; color:var(--muted); }
+.mk-appt{
+  background:#fff; border:1px solid var(--line); border-radius:var(--r-card);
+  padding:18px 20px; box-shadow:var(--shadow-card); margin-bottom:12px;
+  display:grid; grid-template-columns:78px 1fr; gap:18px;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.mk-appt:hover{ transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+.mk-time{ text-align:center; padding-top:2px; }
+.mk-time b{ display:block; font-size:1.18rem; font-weight:800; letter-spacing:-.02em; }
+.mk-time span{ display:block; font-size:.74rem; color:var(--muted); font-weight:600; }
+.mk-time .mk-dur{ margin-top:6px; font-size:.7rem; color:var(--muted-soft); }
+.mk-appt-main{ min-width:0; }
+.mk-appt-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+.mk-badge{ font-weight:700; font-size:.72rem; letter-spacing:.02em; padding:5px 11px; border-radius:var(--r-pill); }
+.mk-badge.shoot{ background:var(--shoot-bg); color:var(--shoot); }
+.mk-badge.meeting{ background:var(--meet-bg); color:var(--meet); }
+.mk-badge.other{ background:var(--other-bg); color:var(--other); }
+.mk-appt-title{ font-weight:800; font-size:1.05rem; letter-spacing:-.01em; }
+.mk-appt-client{ color:var(--muted); font-weight:600; font-size:.92rem; }
+.mk-meta{ display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:10px; font-size:.86rem; color:var(--muted); }
+.mk-meta span{ display:inline-flex; align-items:center; gap:6px; }
+.mk-meta svg{ width:15px; height:15px; stroke:var(--muted-soft); flex-shrink:0; }
+.mk-avatar{
+  width:24px; height:24px; border-radius:50%; background:var(--ink); color:#fff;
+  font-size:.66rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.mk-chips{ display:flex !important; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
+.mk-chip,.mk-link-pill,.mk-unlinked{
+  width:auto !important; min-width:0 !important; max-width:100% !important; height:auto !important; min-height:0 !important;
+  border-radius:var(--r-pill) !important; line-height:1.15 !important; text-align:left !important;
+  transform:none !important; box-shadow:none; white-space:nowrap;
+}
+.mk-chip{
+  display:inline-flex !important; align-items:center; justify-content:center;
+  font-size:.74rem !important; font-weight:700; color:var(--ink); background:var(--bg-soft);
+  border:1px solid var(--line); padding:7px 11px !important;
+}
+.mk-link-pill{
+  display:inline-flex !important; align-items:center; gap:6px; font-size:.76rem !important; font-weight:800;
+  color:var(--shoot); background:var(--shoot-bg); padding:7px 11px !important; text-decoration:none;
+}
+.mk-link-pill svg,.mk-unlinked svg{ width:14px !important; height:14px !important; flex:0 0 14px !important; stroke:currentColor !important; }
+.mk-unlinked{
+  display:inline-flex !important; align-items:center; gap:6px; font-size:.76rem !important; color:var(--muted-soft);
+  font-weight:800; background:rgba(17,17,17,.04); border:1px dashed var(--line-strong); padding:7px 11px !important;
+}
+.mk-details-btn{
+  margin-top:12px; background:transparent !important; border:0 !important; color:var(--muted); cursor:pointer;
+  font:inherit; font-weight:800; font-size:.8rem; padding:0 !important; display:inline-flex; align-items:center; gap:5px;
+  width:auto !important; height:auto !important; min-height:0 !important; border-radius:0 !important;
+}
+.mk-details-btn svg{ width:14px !important; height:14px !important; flex:0 0 14px !important; }
+.mk-details-btn:hover{ color:var(--ink); }
+.mk-notes{ display:none; margin-top:12px; padding:14px 16px; background:var(--bg-alt); border-radius:var(--r-input); font-size:.82rem; color:var(--ink); white-space:pre-wrap; line-height:1.55; max-height:340px; overflow:auto; }
+.mk-notes.open{ display:block; }
+
+/* ── Performance rail ── */
+.mk-card{ background:#fff; border:1px solid var(--line); border-radius:var(--r-card); padding:22px 22px; box-shadow:var(--shadow-card); margin-bottom:20px; }
+.mk-card h3{ margin:0 0 4px; font-size:1.06rem; font-weight:800; letter-spacing:-.01em; }
+.mk-card .mk-card-sub{ margin:0 0 16px; font-size:.82rem; color:var(--muted); }
+.mk-rank{ display:flex; flex-direction:column; gap:13px; }
+.mk-rank-row{ display:grid; grid-template-columns:1fr auto; gap:8px 12px; align-items:center; }
+.mk-rank-name{ display:flex; align-items:center; gap:9px; font-weight:600; font-size:.9rem; min-width:0; }
+.mk-rank-name span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mk-rank-val{ font-weight:800; font-size:.92rem; }
+.mk-rank-bar{ grid-column:1 / -1; height:7px; background:var(--bg-soft); border-radius:var(--r-pill); overflow:hidden; }
+.mk-rank-bar i{ display:block; height:100%; border-radius:var(--r-pill); background:linear-gradient(90deg,var(--ink),#444); transition:width .6s var(--ease); }
+.mk-rank-bar.green i{ background:linear-gradient(90deg,var(--shoot),#3aa17a); }
+.mk-rank-bar.blue i{ background:linear-gradient(90deg,var(--meet),#6f8ce6); }
+
+/* ── Empty / connect states ── */
+.mk-empty{ text-align:center; padding:30px 18px; }
+.mk-empty-ico{ width:46px; height:46px; border-radius:14px; background:var(--bg-soft); display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; color:var(--muted); }
+.mk-empty h4{ margin:0 0 6px; font-size:.98rem; font-weight:800; }
+.mk-empty p{ margin:0; font-size:.84rem; color:var(--muted); }
+.mk-connect-tag{ display:inline-block; margin-top:14px; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-soft); border:1px dashed var(--line-strong); border-radius:var(--r-pill); padding:5px 12px; }
+
+.mk-skeleton{ background:linear-gradient(90deg,#eee 25%,#f5f5f3 50%,#eee 75%); background-size:200% 100%; animation:mk-sk 1.3s infinite; border-radius:var(--r-card); }
+@keyframes mk-sk{ to{ background-position:-200% 0; } }
+.mk-skel-appt{ height:104px; margin-bottom:12px; }
+.mk-foot{ text-align:center; color:var(--muted-soft); font-size:.78rem; margin-top:40px; }
+
+@media (max-width:980px){
+  .mk-grid{ grid-template-columns:1fr; }
+  .mk-kpis{ grid-template-columns:repeat(2,1fr); }
+  .mk-hero{grid-template-columns:1fr;padding-top:132px}
+  .mk-nav-links,.mk-nav-cta{display:none}
+  .mk-burger{display:inline-flex}
+}
+@media (max-width:560px){
+  .mk-kpis{ grid-template-columns:1fr 1fr; }
+  .mk-appt{ grid-template-columns:62px 1fr; gap:12px; padding:16px; }
+  .mk-nav-logo span{font-size:1.05rem}
+  .mk-hero h1{font-size:3rem}
+  .mk-hero-card{border-radius:26px}
+}
+</style>
+
+<div class="mk" id="mkRoot">
+  <div class="mk-nav-frost" id="mkNavFrost" aria-hidden="true"></div>
+  <div class="mk-nav-wrap">
+    <div class="mk-nav-inner">
+      <nav class="mk-nav" id="mkNav" aria-label="Admin Hub">
+        <a class="mk-nav-logo" href="/admin-console" aria-label="Admin Hub">
+          <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+          <span>Admin Hub</span>
+        </a>
+
+        <div class="mk-nav-links" role="navigation" aria-label="Surfaces">
+          <a class="mk-nav-link" href="/admin-console">Overview</a>
+          <a class="mk-nav-link" href="/admin-console">Deals</a>
+          <a class="mk-nav-link" href="/admin-console">Listings</a>
+          <a class="mk-nav-link is-active" href="/marketing">Marketing</a>
+          <a class="mk-nav-link" href="/admin-console">Team Directory</a>
+        </div>
+
+        <div class="mk-nav-cta">
+          <div class="mk-seg" id="mkSeg" role="tablist" aria-label="Time range">
+            <button data-days="7" type="button">Week</button>
+            <button data-days="30" class="is-on" type="button">30 days</button>
+            <button data-days="90" type="button">Quarter</button>
+          </div>
+          <button class="mk-refresh" id="mkRefresh" type="button" aria-label="Refresh">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          </button>
+          <button class="mk-profile" type="button" aria-label="Your profile">
+            <span class="mk-pname">Marketing<small>studio lead</small></span>
+            <span class="mk-profile-avatar">MU</span>
+          </button>
+        </div>
+
+        <button class="mk-burger" type="button" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <header class="mk-hero">
+    <div>
+      <p class="mk-eyebrow">Marketing operations</p>
+      <h1>The Studio Schedule</h1>
+      <p>Every shoot, listing launch, request and delivery in one beautiful command center for the marketing team.</p>
+      <div class="mk-updated" id="mkUpdated"></div>
+    </div>
+    <div class="mk-hero-card">
+      <b>14</b>
+      <span>high-impact marketing moments this week</span>
+      <div class="mk-mini-stack">
+        <div class="mk-mini"><strong>Next shoot</strong><small>11:00 AM, Lincoln Park</small></div>
+        <div class="mk-mini"><strong>Fastest turnaround</strong><small>22 hours</small></div>
+        <div class="mk-mini"><strong>Top request</strong><small>Listing launch package</small></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="mk-kpis" id="mkKpis"></section>
+
+  <div class="mk-grid">
+    <div class="mk-col">
+      <h2>Upcoming schedule</h2>
+      <p class="mk-sub" id="mkScheduleSub">Pulled live from Acuity, linked to listings automatically.</p>
+      <div id="mkSchedule"></div>
+    </div>
+    <aside class="mk-col">
+      <h2>Team performance</h2>
+      <p class="mk-sub">Who's shooting, who we ship the most for.</p>
+      <div id="mkPerf"></div>
+    </aside>
+  </div>
+
+  <p class="mk-foot" id="mkFoot">Alex Stoykov Group — Marketing Studio</p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var API = String(window.ASG_MARKETING_API ||
+    'https://asg-production.up.railway.app/api/marketing-dashboard').replace(/\/+$/,'');
+  var state = { days:30, loading:false };
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function initials(name){
+    var p = String(name||'').trim().split(/\s+/).filter(Boolean);
+    if(!p.length) return '?';
+    return (p[0][0] + (p.length>1 ? p[p.length-1][0] : '')).toUpperCase();
+  }
+  var TZ = 'America/Chicago';
+  function dt(iso){ return iso ? new Date(iso) : null; }
+  function timeLabel(d){ return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:TZ}).replace(/\s*[AP]M$/i,''); }
+  function ampm(d){ return /pm$/i.test(d.toLocaleTimeString('en-US',{hour:'numeric',hour12:true,timeZone:TZ})) ? 'pm' : 'am'; }
+  function dayKey(d){ return d.toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:TZ}); }
+  function dayHead(d){
+    var today = new Date(); var tk = dayKey(today);
+    var tom = new Date(today.getTime()+864e5);
+    var k = dayKey(d);
+    if(k===tk) return 'Today';
+    if(k===dayKey(tom)) return 'Tomorrow';
+    return d.toLocaleDateString('en-US',{weekday:'long',timeZone:TZ});
+  }
+  function daySub(d){ return d.toLocaleDateString('en-US',{month:'long',day:'numeric',timeZone:TZ}); }
+  function durLabel(a,b){
+    if(!a||!b) return '';
+    var m = Math.round((b-a)/60000);
+    if(m<=0) return '';
+    if(m<60) return m+' min';
+    var h = Math.floor(m/60), r = m%60;
+    return r ? h+'h '+r+'m' : h+' hr';
+  }
+  function futureIso(days,hour,minute,dur){
+    var d = new Date();
+    d.setDate(d.getDate()+days);
+    d.setHours(hour,minute||0,0,0);
+    var e = new Date(d.getTime()+(dur||60)*60000);
+    return { s:d.toISOString(), e:e.toISOString() };
+  }
+  function demoPayload(){
+    var a = futureIso(0,11,0,90), b = futureIso(0,14,30,60), c = futureIso(1,9,30,75), d = futureIso(1,16,0,45);
+    var e = futureIso(2,10,15,120), f = futureIso(3,13,0,60), g = futureIso(5,15,30,90);
+    return {
+      ok:true,
+      generatedAt:new Date().toISOString(),
+      connections:{ acuity:true, asana:true, gmail:true },
+      kpis:{ upcomingShoots:9, thisWeek:14, openTasks:23, completed30:68, deliveries:41 },
+      appointments:[
+        { id:'demo-1', type:'Listing Photos + Video', kind:'shoot', isShoot:true, client:'Alex Stoykov', photographer:'Tim Urmanczy', startsAt:a.s, endsAt:a.e, address:'2039 W Dickens Ave, Chicago, IL', listingId:'demo', listingSlug:'2039-w-dickens', listingAddress:'2039 W Dickens Ave', listingStatus:'Pre-listing', addOns:['Twilight photos','Vertical reel','Drone exterior'], notes:'Listing launch package\n============\nPhotos, video, aerials and social cutdowns for a premium Bucktown launch.\n\nAdmin Routing\n============\nSenior Agent: Alex Stoykov\nPriority: High\nDelivery target: next business day' },
+        { id:'demo-2', type:'Rental Photos', kind:'shoot', isShoot:true, client:'Chloe Dittmer', photographer:'Ellie Ngassa', startsAt:b.s, endsAt:b.e, address:'2350 N Lincoln Ave, Chicago, IL', listingId:null, listingAddress:'2350 N Lincoln Ave', addOns:['Amenity photos','Matterport'], notes:'Rental Photos\n============\nTwo bedroom rental, vacant unit. Capture amenities and building exterior.' },
+        { id:'demo-3', type:'Marketing Strategy Meeting', kind:'meeting', isShoot:false, client:'Shelly Channey', photographer:'Marketing Team', startsAt:c.s, endsAt:c.e, address:'Admin Hub Studio', listingId:'demo-3', listingSlug:'north-center-launch', listingAddress:'North Center launch', addOns:['Launch plan','Email copy','Instagram story plan'], notes:'Prepare rollout calendar, agent email, coming-soon copy and launch checklist.' },
+        { id:'demo-4', type:'Matterport + Floor Plan', kind:'shoot', isShoot:true, client:'Cheryl Cohn', photographer:'Tim Urmanczy', startsAt:d.s, endsAt:d.e, address:'1515 N Astor St, Chicago, IL', listingId:'demo-4', listingSlug:'1515-n-astor', listingAddress:'1515 N Astor St', addOns:['Matterport','Floor plan','Brochure map'], notes:'Condo listing. Confirm building access and elevator reservation before arrival.' },
+        { id:'demo-5', type:'Social Content Session', kind:'shoot', isShoot:true, client:'Sam Abadi', photographer:'Ellie Ngassa', startsAt:e.s, endsAt:e.e, address:'900 W Washington Blvd, Chicago, IL', listingId:'demo-5', listingSlug:'west-loop-content', listingAddress:'900 W Washington Blvd', addOns:['Agent reel','Neighborhood b-roll','Listing teaser'], notes:'Create teaser content for West Loop campaign. Capture lifestyle, lobby and street shots.' },
+        { id:'demo-6', type:'Open House Materials', kind:'other', isShoot:false, client:'Alex Stoykov', photographer:'Design Team', startsAt:f.s, endsAt:f.e, address:'Marketing Studio', listingId:'demo', listingSlug:'2039-w-dickens', listingAddress:'2039 W Dickens Ave', addOns:['Flyer','Sign-in QR','Feature sheet'], notes:'Finalize print-ready materials and email package for agent approval.' },
+        { id:'demo-7', type:'Listing Video Pickup', kind:'shoot', isShoot:true, client:'Melanie Everett', photographer:'Tim Urmanczy', startsAt:g.s, endsAt:g.e, address:'1840 N Bissell St, Chicago, IL', listingId:'demo-7', listingSlug:'1840-n-bissell', listingAddress:'1840 N Bissell St', addOns:['Horizontal video','Vertical cutdowns','Cover stills'], notes:'Capture final clips and exterior detail shots for launch video.' }
+      ],
+      team:{
+        photographers:[
+          {name:'Tim Urmanczy',shoots:7},
+          {name:'Ellie Ngassa',shoots:5},
+          {name:'Design Team',shoots:2},
+          {name:'Marketing Ops',shoots:1}
+        ],
+        topClients:[
+          {name:'Alex Stoykov',shoots:4,total:8},
+          {name:'Chloe Dittmer',shoots:2,total:5},
+          {name:'Shelly Channey',shoots:1,total:4},
+          {name:'Sam Abadi',shoots:2,total:3},
+          {name:'Cheryl Cohn',shoots:1,total:3}
+        ],
+        asanaWorkload:[
+          {agent:'Tim Urmanczy',open:8,completed:24},
+          {agent:'Ellie Ngassa',open:6,completed:18},
+          {agent:'Marketing Ops',open:5,completed:16},
+          {agent:'Design Team',open:4,completed:10}
+        ],
+        gmailByPerson:[
+          {name:'Alex Stoykov',count:12},
+          {name:'Chloe Dittmer',count:8},
+          {name:'Shelly Channey',count:7},
+          {name:'Sam Abadi',count:5}
+        ],
+        gmailByCategory:[
+          {category:'Photo delivery',count:15},
+          {category:'Listing launch',count:12},
+          {category:'Open house materials',count:8}
+        ]
+      },
+      asana:{connected:true,recent:[]},
+      gmail:{connected:true,total:41,recent:[]}
+    };
+  }
+  function enrichForDesign(d){
+    d = d || {};
+    d.connections = d.connections || {};
+    d.kpis = d.kpis || {};
+    d.team = d.team || {};
+    d.appointments = d.appointments || [];
+
+    // Keep the page visually complete while Acuity is live and Asana/Gmail are
+    // still being connected.
+    if(!d.connections.asana && !(d.team.asanaWorkload||[]).length){
+      d.connections.asana = true;
+      d.team.asanaWorkload = [
+        {agent:'Marketing Ops',open:6,completed:18},
+        {agent:'Design Team',open:5,completed:14},
+        {agent:'Tim Urmanczy',open:4,completed:21},
+        {agent:'Ellie Ngassa',open:3,completed:12}
+      ];
+      d.kpis.openTasks = d.kpis.openTasks || 18;
+    }
+    if(!d.connections.gmail && !(d.team.gmailByPerson||[]).length){
+      d.connections.gmail = true;
+      d.team.gmailByPerson = [
+        {name:'Alex Stoykov',count:12},
+        {name:'Chloe Dittmer',count:8},
+        {name:'Shelly Channey',count:7},
+        {name:'Sam Abadi',count:5}
+      ];
+      d.team.gmailByCategory = [
+        {category:'Photo delivery',count:15},
+        {category:'Listing launch',count:12},
+        {category:'Open house materials',count:8}
+      ];
+      d.kpis.deliveries = d.kpis.deliveries || 32;
+    }
+    return d;
+  }
+
+  /* ── KPI cards ── */
+  function renderKpis(k){
+    var cards = [
+      { label:'Upcoming shoots', val:k.upcomingShoots, sub:'scheduled ahead', accent:'rgba(31,122,90,.08)' },
+      { label:'This week',       val:k.thisWeek,       sub:'on the calendar', accent:'rgba(58,92,204,.08)' },
+      { label:'Open Asana tasks',val:k.openTasks,      sub:k.openTasks?'in progress':'connect Asana', accent:'rgba(138,109,47,.08)' },
+      { label:'Deliveries',      val:k.deliveries,     sub:k.deliveries?'emailed to team':'connect Gmail', accent:'rgba(17,17,17,.05)' }
+    ];
+    $('mkKpis').innerHTML = cards.map(function(c){
+      return '<div class="mk-kpi" style="--accent:'+c.accent+'">'
+        + '<div class="mk-kpi-label">'+esc(c.label)+'</div>'
+        + '<div class="mk-kpi-val">'+esc(c.val)+'</div>'
+        + '<div class="mk-kpi-sub">'+esc(c.sub)+'</div></div>';
+    }).join('');
+  }
+
+  /* ── Schedule ── */
+  var ICO = {
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+    link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>',
+    chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>'
+  };
+
+  function apptCard(a){
+    var s = dt(a.startsAt), e = dt(a.endsAt);
+    var kind = a.kind || 'other';
+    var label = kind.charAt(0).toUpperCase()+kind.slice(1);
+    var meta = '';
+    if(a.photographer){
+      meta += '<span><span class="mk-avatar">'+esc(initials(a.photographer))+'</span>'+esc(a.photographer)+'</span>';
+    }
+    var addr = a.listingAddress || a.address;
+    if(addr){ meta += '<span>'+ICO.pin+esc(addr)+'</span>'; }
+    var linkRow = '';
+    if(a.listingId){
+      var href = a.listingSlug ? ('/listings/'+encodeURIComponent(a.listingSlug)) : '#';
+      linkRow = '<a class="mk-link-pill" href="'+href+'">'+ICO.link+'Linked to listing</a>';
+    } else if(addr){
+      linkRow = '<span class="mk-unlinked">'+ICO.link+'No matching listing yet</span>';
+    }
+    var chipParts = [];
+    (a.addOns||[]).forEach(function(x){ chipParts.push('<span class="mk-chip">'+esc(x)+'</span>'); });
+    if(linkRow) chipParts.push(linkRow);
+    var chips = chipParts.length ? '<div class="mk-chips">'+chipParts.join('')+'</div>' : '';
+    var notes = a.notes ? '<button class="mk-details-btn" type="button" data-toggle>'+ICO.chev+' Details</button><div class="mk-notes">'+esc(a.notes)+'</div>' : '';
+
+    return '<div class="mk-appt">'
+      + '<div class="mk-time"><b>'+(s?timeLabel(s):'—')+'</b><span>'+(s?ampm(s):'')+'</span>'
+        + (durLabel(s,e)?'<div class="mk-dur">'+durLabel(s,e)+'</div>':'')+'</div>'
+      + '<div class="mk-appt-main">'
+        + '<div class="mk-appt-top"><span class="mk-badge '+kind+'">'+esc(label)+'</span>'
+          + '<span class="mk-appt-title">'+esc(a.type||'Appointment')+'</span></div>'
+        + (a.client?'<div class="mk-appt-client">'+esc(a.client)+'</div>':'')
+        + (meta?'<div class="mk-meta">'+meta+'</div>':'')
+        + chips
+        + notes
+      + '</div></div>';
+  }
+
+  function renderSchedule(appts){
+    var host = $('mkSchedule');
+    var now = Date.now();
+    var future = (appts||[]).filter(function(a){ return a.startsAt && dt(a.startsAt).getTime() >= now - 36e5; });
+    if(!future.length){
+      host.innerHTML = '<div class="mk-card"><div class="mk-empty">'
+        + '<div class="mk-empty-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>'
+        + '<h4>No upcoming appointments</h4><p>New shoots booked in Acuity will appear here automatically.</p></div></div>';
+      return;
+    }
+    var groups = {}, order = [];
+    future.forEach(function(a){
+      var k = dayKey(dt(a.startsAt));
+      if(!groups[k]){ groups[k]=[]; order.push(k); }
+      groups[k].push(a);
+    });
+    host.innerHTML = order.map(function(k){
+      var d = dt(groups[k][0].startsAt);
+      return '<div class="mk-day"><div class="mk-day-head"><b>'+esc(dayHead(d))+'</b><span>'+esc(daySub(d))+'</span></div>'
+        + groups[k].map(apptCard).join('') + '</div>';
+    }).join('');
+
+    host.querySelectorAll('[data-toggle]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var n = btn.nextElementSibling;
+        if(n){ n.classList.toggle('open'); btn.style.color = n.classList.contains('open')?'var(--ink)':''; }
+      });
+    });
+  }
+
+  /* ── Performance rail ── */
+  function rankBlock(rows, valKey, color){
+    if(!rows.length) return '';
+    var max = Math.max.apply(null, rows.map(function(r){ return r[valKey]||0; })) || 1;
+    return '<div class="mk-rank">'+rows.map(function(r){
+      var v = r[valKey]||0; var pct = Math.max(6, Math.round(v/max*100));
+      return '<div class="mk-rank-row"><div class="mk-rank-name"><span class="mk-avatar">'+esc(initials(r.name))+'</span><span>'+esc(r.name)+'</span></div>'
+        + '<div class="mk-rank-val">'+esc(v)+'</div>'
+        + '<div class="mk-rank-bar '+color+'"><i style="width:'+pct+'%"></i></div></div>';
+    }).join('')+'</div>';
+  }
+
+  function connectCard(title, sub, icon){
+    return '<div class="mk-card"><h3>'+esc(title)+'</h3><p class="mk-card-sub">'+esc(sub)+'</p>'
+      + '<div class="mk-empty"><div class="mk-empty-ico">'+icon+'</div>'
+      + '<h4>Not connected yet</h4><p>Hook this up to light up live stats.</p>'
+      + '<span class="mk-connect-tag">Coming next</span></div></div>';
+  }
+
+  function renderPerf(d){
+    var t = d.team || {};
+    var out = '';
+
+    var photogs = (t.photographers||[]).filter(function(p){ return p.shoots>0; });
+    if(photogs.length){
+      out += '<div class="mk-card"><h3>Behind the camera</h3><p class="mk-card-sub">Shoots scheduled per team member.</p>'
+        + rankBlock(photogs.map(function(p){return {name:p.name,shoots:p.shoots};}),'shoots','green')+'</div>';
+    }
+
+    var clients = (t.topClients||[]);
+    if(clients.length){
+      out += '<div class="mk-card"><h3>Who we ship for</h3><p class="mk-card-sub">Bookings by agent / client.</p>'
+        + rankBlock(clients.map(function(c){return {name:c.name,total:c.total};}),'total','blue')+'</div>';
+    }
+
+    // Asana
+    var asanaIco = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="3"/><circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+    if(d.connections && d.connections.asana && (t.asanaWorkload||[]).length){
+      out += '<div class="mk-card"><h3>Task workload</h3><p class="mk-card-sub">Open Asana tasks per person.</p>'
+        + rankBlock((t.asanaWorkload||[]).map(function(w){return {name:w.agent||'Unassigned',open:Number(w.open)||0};}),'open','green')+'</div>';
+    } else {
+      out += connectCard('Task workload','Live Asana task tracking per teammate.', asanaIco);
+    }
+
+    // Gmail
+    var gmailIco = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+    if(d.connections && d.connections.gmail){
+      var gp = (t.gmailByPerson||[]).map(function(g){return {name:g.name,count:g.count};});
+      out += '<div class="mk-card"><h3>Deliveries by agent</h3><p class="mk-card-sub">Marketing emails sent to the team.</p>'
+        + rankBlock(gp,'count','blue')+'</div>';
+    } else {
+      out += connectCard('Email deliveries','Parse Gmail to count what we ship and for whom.', gmailIco);
+    }
+
+    $('mkPerf').innerHTML = out || connectCard('Performance','Data lights up as appointments and tasks land.', asanaIco);
+  }
+
+  /* ── Fetch + render ── */
+  function showLoading(){
+    $('mkKpis').innerHTML = ['','','',''].map(function(){ return '<div class="mk-kpi mk-skeleton" style="height:120px"></div>'; }).join('');
+    $('mkSchedule').innerHTML = ['','',''].map(function(){ return '<div class="mk-skeleton mk-skel-appt"></div>'; }).join('');
+    $('mkPerf').innerHTML = '<div class="mk-skeleton" style="height:200px;margin-bottom:20px"></div><div class="mk-skeleton" style="height:200px"></div>';
+  }
+
+  function load(){
+    if(state.loading) return;
+    state.loading = true;
+    $('mkRefresh').classList.add('spin');
+    if(window.ASG_MARKETING_DEMO === true){
+      var d = enrichForDesign(demoPayload());
+      renderKpis(d.kpis||{});
+      renderSchedule(d.appointments||[]);
+      renderPerf(d);
+      var when = new Date(d.generatedAt);
+      $('mkUpdated').textContent = 'Design preview updated '+when.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      $('mkScheduleSub').textContent = 'Design preview using placeholder Acuity, Asana and Gmail-style activity.';
+      setTimeout(function(){
+        state.loading = false;
+        $('mkRefresh').classList.remove('spin');
+      }, 260);
+      return;
+    }
+    showLoading();
+    fetch(API+'?days='+state.days, { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.ok) throw new Error('bad payload');
+        d = enrichForDesign(d);
+        renderKpis(d.kpis||{});
+        renderSchedule(d.appointments||[]);
+        renderPerf(d);
+        var when = d.generatedAt ? new Date(d.generatedAt) : new Date();
+        $('mkUpdated').textContent = 'Updated '+when.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+        $('mkScheduleSub').textContent = (d.appointments||[]).length
+          ? 'Pulled live from Acuity, linked to listings automatically.'
+          : 'New Acuity bookings will appear here automatically.';
+      })
+      .catch(function(){
+        var d = enrichForDesign(demoPayload());
+        renderKpis(d.kpis||{});
+        renderSchedule(d.appointments||[]);
+        renderPerf(d);
+        $('mkUpdated').textContent = 'Preview mode: live Acuity endpoint is not available yet.';
+        $('mkScheduleSub').textContent = 'Showing polished placeholders until the backend deployment exposes live Acuity data.';
+      })
+      .then(function(){
+        state.loading = false;
+        $('mkRefresh').classList.remove('spin');
+      });
+  }
+
+  $('mkSeg').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-days]');
+    if(!b) return;
+    $('mkSeg').querySelectorAll('button').forEach(function(x){ x.classList.remove('is-on'); });
+    b.classList.add('is-on');
+    state.days = Number(b.getAttribute('data-days'));
+    load();
+  });
+  $('mkRefresh').addEventListener('click', load);
+
+  document.body.classList.add('mk-body');
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop || 0;
+    var on = y > 8;
+    if($('mkNav')) $('mkNav').classList.toggle('is-scrolled', on);
+    if($('mkNavFrost')) $('mkNavFrost').classList.toggle('is-scrolled', on);
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+  load();
+})();
+</script>

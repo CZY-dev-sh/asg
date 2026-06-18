@@ -7,7 +7,7 @@ import * as crm from '../repositories/crm.js';
 import * as directory from '../repositories/directory.js';
 import * as telemetry from '../repositories/telemetry.js';
 import { getCommandCenter } from '../repositories/commandCenter.js';
-import { getMarketingOutput } from '../repositories/marketing.js';
+import { getMarketingOutput, getMarketingDashboard } from '../repositories/marketing.js';
 import { handleIntake } from '../repositories/intake.js';
 import { handleAcuityWebhook } from '../sync/marketing.js';
 import * as portal from '../repositories/portal.js';
@@ -158,6 +158,11 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   // ── Marketing output ────────────────────────────────────────────────────
   app.get('/api/marketing-output', async (req) =>
     getMarketingOutput(q(req, 'days') ? Number(q(req, 'days')) : 30),
+  );
+
+  // ── Marketing dashboard (schedule + Acuity/Asana/Gmail performance) ──────
+  app.get('/api/marketing-dashboard', async (req) =>
+    getMarketingDashboard(q(req, 'days') ? Number(q(req, 'days')) : 30),
   );
 
   // ── Lead intake (buyer/seller onboarding) ──────────────────────────────

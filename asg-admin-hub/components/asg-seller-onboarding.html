@@ -762,6 +762,23 @@ textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
   .ob-step.is-active{ animation:none; }
   .success-check{ animation:none; }
 }
+
+/* ── Google Places address autocomplete ──────────────────────────────── */
+/* The widget is a <gmp-place-autocomplete> web component. It only honors this
+   fixed set of CSS properties (no ::part), and defaults to color-scheme:
+   light dark — so we pin it to light to match the rest of the form. */
+.ob-addr-ac{ width:100%; }
+.ob-addr-ac[hidden]{ display:none; }
+gmp-place-autocomplete{
+  width:100%;
+  background-color:#fff;
+  color:var(--ink, #1a1a1a);
+  border:1px solid var(--line, #e2e2e2);
+  border-radius:14px;
+  font-family:inherit;
+  font-size:1rem;
+  color-scheme:light;
+}
 </style>
 </head>
 <body>
@@ -992,9 +1009,15 @@ textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
       <div class="bento-card span-12">
         <div class="ob-field" data-field="address">
           <label class="ob-label" for="obAddress">Full Property Address</label>
+          <div class="ob-addr-ac" id="obAddrAc" hidden></div>
           <input class="ob-input" id="obAddress" type="text" placeholder="123 Main St, Chicago, IL 60610" data-required data-bind="property.address">
-          <p class="ob-help" id="obAddressHelp">Include unit, parking, and storage numbers if applicable.</p>
+          <p class="ob-help" id="obAddressHelp">Search and select your address, then add your unit number below if you have one.</p>
           <p class="ob-field-err">Please enter the property address.</p>
+        </div>
+        <div class="ob-field" data-field="unit" style="margin-top:14px;">
+          <label class="ob-label" for="obUnit">Unit / Apt / Suite # <span style="color:var(--muted); font-weight:400;">(if applicable)</span></label>
+          <input class="ob-input" id="obUnit" type="text" placeholder="e.g. 1120, 3N, PH-2" autocomplete="off" data-bind="property.unit">
+          <p class="ob-help">Address search usually leaves out the unit number, so please add yours here.</p>
         </div>
       </div>
     </div>
@@ -1695,6 +1718,9 @@ textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
     'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
   /* Seller Intake Apps Script (SellerIntake.gs doPost). Leave empty for preview mode. */
   var INTAKE_API = String(window.ASG_SELLER_INTAKE_API || '').trim();
+  /* Google Maps JS API key (Maps JavaScript API + Places API New, referrer-restricted).
+     Override per-page with window.ASG_MAPS_API_KEY; empty -> plain manual address input. */
+  var MAPS_API_KEY = String(window.ASG_MAPS_API_KEY || 'AIzaSyDJrlOh35B-jqEAx0rIxBjxjjc0bC6DlLg').trim();
 
   var renderedAt = Date.now();
 
@@ -1730,7 +1756,7 @@ textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
     howHeard: '', howHeardOther: '',
     marketing: { generalOptIn: true, frequency: 'Monthly', searchOptIn: true },
     agent: { name: '', email: '', photo: '', matchMe: false, selected: false },
-    property: { type: '', address: '' },
+    property: { type: '', address: '', unit: '', placeId: '', lat: null, lng: null, components: null, googleFormatted: '' },
     sf: { access: '', showings: '', mechanicals: [], updates: '', comed: '', gas: '',
           utilities: [], hoa: '', hoaDetails: '', occupancy: '', rent: '', leaseExp: '', anythingElse: '' },
     condo: { occupancy: '', rent: '', leaseExp: '', assessment: '', included: [],
@@ -2650,12 +2676,162 @@ textarea.ob-input{ resize:vertical; min-height:96px; line-height:1.5; }
     });
   }
 
+  /* ════════════════ GOOGLE PLACES ADDRESS AUTOCOMPLETE ════════════════ */
+  /* Loads the Maps JS API (Places), mounts the autocomplete widget above the
+     manual address input, and on selection writes a clean, standardized
+     address into #obAddress (still editable for unit/parking notes) plus the
+     structured components onto state.property — so the backend gets a tidy
+     address that matches the IDX/MLS format. No key -> plain input fallback. */
+  function pickComponent(comps, type, useShort){
+    var c = (comps || []).find(function (x) { return (x.types || []).indexOf(type) !== -1; });
+    if (!c) return '';
+    return useShort ? (c.shortText || c.short_name || '') : (c.longText || c.long_name || '');
+  }
+
+  /* Build the final address string from the selected place's parts plus the
+     separate unit field, inserting the unit right after the street (before the
+     city) so it matches the MLS/IDX format ("123 Main St 4B, Chicago, IL"). */
+  function composeAddress(){
+    var manual = document.getElementById('obAddress');
+    var unitEl = document.getElementById('obUnit');
+    var unit = unitEl ? (unitEl.value || '').trim() : (state.property.unit || '').trim();
+    var c = state.property.components;
+    var full;
+    if (c && (c.streetNumber || c.route)) {
+      var street = [c.streetNumber, c.route].filter(Boolean).join(' ');
+      if (unit) street += ' ' + unit;
+      full = [street, c.city, [c.state, c.zip].filter(Boolean).join(' ')]
+        .filter(Boolean).join(', ');
+    } else {
+      /* Manual / fallback typed address: splice the unit in before the first comma. */
+      var base = (manual ? manual.value : (state.property.address || '')).trim();
+      if (unit && base && base.toLowerCase().indexOf(unit.toLowerCase()) === -1) {
+        var ci = base.indexOf(',');
+        base = ci > -1 ? (base.slice(0, ci).trim() + ' ' + unit + base.slice(ci)) : (base + ' ' + unit);
+      }
+      full = base;
+    }
+    state.property.unit = unit;
+    if (manual && typeof full === 'string') {
+      manual.value = full;
+      manual.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  function applyPlace(comps, fallbackFormatted){
+    var subprem = pickComponent(comps, 'subpremise');
+    state.property.components = {
+      streetNumber: pickComponent(comps, 'street_number'),
+      route:        pickComponent(comps, 'route'),
+      city:         pickComponent(comps, 'locality') || pickComponent(comps, 'sublocality') ||
+                    pickComponent(comps, 'postal_town'),
+      state:        pickComponent(comps, 'administrative_area_level_1', true),
+      zip:          pickComponent(comps, 'postal_code')
+    };
+    state.property.googleFormatted = fallbackFormatted || '';
+    /* If Google happened to include a unit, prefill the unit field. */
+    var unitEl = document.getElementById('obUnit');
+    if (subprem && unitEl && !unitEl.value) {
+      unitEl.value = subprem;
+      unitEl.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    composeAddress();
+  }
+
+  function initAddressAutocomplete(){
+    var mount = document.getElementById('obAddrAc');
+    var manual = document.getElementById('obAddress');
+    if (!mount || !MAPS_API_KEY || !window.google || !google.maps || !google.maps.importLibrary) return;
+
+    google.maps.importLibrary('places').then(function (places){
+      var PAC = places.PlaceAutocompleteElement;
+      if (!PAC) return;
+      var el = new PAC({});
+      try { el.includedRegionCodes = ['us']; } catch (e) {}
+      el.setAttribute('aria-label', 'Search property address');
+      try { el.placeholder = '123 Main St, Chicago, IL 60610'; } catch (e) {}
+      mount.appendChild(el);
+      mount.hidden = false;
+      if (manual) manual.style.display = 'none';   /* widget is now the single bar */
+      try { console.info('[ASG] Places autocomplete mounted'); } catch (e) {}
+
+      /* If the API rejects the request (key restriction, API not enabled,
+         billing, etc.) fall back to the manual input so the field still works. */
+      el.addEventListener('gmp-error', function (err){
+        try { console.warn('[ASG] Places request denied:', err); } catch (e) {}
+        el.remove();
+        mount.hidden = true;
+        if (manual) manual.style.display = '';
+      });
+
+      /* Mirror free-typed text so addresses the user types (without picking a
+         suggestion) and any appended unit/parking notes are still captured. */
+      el.addEventListener('input', function (ev){
+        var v = (ev && ev.target && typeof ev.target.value === 'string') ? ev.target.value : (el.value || '');
+        if (manual && typeof v === 'string') {
+          /* User is typing/searching: drop any prior selection's parts and treat
+             the raw text as the base, then re-merge the unit. */
+          state.property.components = null;
+          manual.value = v.replace(/,?\s*(usa|united states)\s*$/i, '');
+          composeAddress();
+        }
+      });
+
+      el.addEventListener('gmp-select', function (ev){
+        var pred = ev && ev.placePrediction;
+        if (!pred) return;
+        var place = pred.toPlace();
+        place.fetchFields({ fields: ['addressComponents', 'formattedAddress', 'location'] })
+          .then(function (){
+            applyPlace(place.addressComponents, place.formattedAddress);
+            if (place.location) {
+              state.property.lat = typeof place.location.lat === 'function' ? place.location.lat() : place.location.lat;
+              state.property.lng = typeof place.location.lng === 'function' ? place.location.lng() : place.location.lng;
+            }
+            state.property.placeId = place.id || '';
+          })
+          .catch(function (err){ try { console.warn('Place fetch failed', err); } catch (e) {} });
+      });
+    }).catch(function (err){ try { console.warn('Places load failed', err); } catch (e) {} });
+  }
+
+  function loadGoogleMaps(){
+    if (!MAPS_API_KEY) return;
+    if (window.google && google.maps && google.maps.importLibrary) { initAddressAutocomplete(); return; }
+    /* Official inline bootstrap loader (loads the API once, async). */
+    (function (g){
+      var h, a, k, p = 'The Google Maps JavaScript API', c = 'google', l = 'importLibrary',
+          q = '__ib__', m = document, b = window;
+      b = b[c] || (b[c] = {});
+      var d = b.maps || (b.maps = {}), r = new Set(), e = new URLSearchParams(),
+          u = function (){ return h || (h = new Promise(function (f, n){
+            a = m.createElement('script');
+            e.set('libraries', [].concat(Array.from(r)) + '');
+            for (k in g) e.set(k.replace(/[A-Z]/g, function (t){ return '_' + t[0].toLowerCase(); }), g[k]);
+            e.set('callback', c + '.maps.' + q);
+            a.src = 'https://maps.' + c + 'apis.com/maps/api/js?' + e;
+            d[q] = f; a.onerror = function (){ h = n(Error(p + ' could not load.')); };
+            m.head.append(a);
+          })); };
+      if (d[l]) { console.warn(p + ' only loads once. Ignoring:', g); }
+      else {
+        d[l] = function (f){
+          var n = Array.prototype.slice.call(arguments, 1);
+          return r.add(f) && u().then(function (){ return d[l].apply(d, [f].concat(n)); });
+        };
+      }
+    })({ key: MAPS_API_KEY, v: 'weekly' });
+    initAddressAutocomplete();
+  }
+
   /* ════════════════ BOOT ════════════════ */
   seedMechanicals();
   renderAllMechanicals();
   updateAddressHelp();
   updateReveals();
   initSearchClears();
+  (function (u){ if (u) u.addEventListener('input', composeAddress); })(document.getElementById('obUnit'));
+  loadGoogleMaps();
   refreshIcons();
   showStep(0);
   booted = true;

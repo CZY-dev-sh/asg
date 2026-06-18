@@ -12,7 +12,7 @@ export interface AcuityForm {
 }
 
 export interface AcuityAppointment {
-  id: number;
+  id: number | string;
   firstName?: string;
   lastName?: string;
   type?: string;

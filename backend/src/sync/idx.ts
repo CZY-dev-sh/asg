@@ -17,7 +17,7 @@ export async function syncIdx(): Promise<SyncResult> {
     await refreshIdxPhotos(L);
   }
 
-  // Auto-link ASG listings to their IDX match by normalized address.
+  // 1) Exact normalized-address link (fast path).
   await sql`
     update listings l
     set idx_listing_id = x.idx_listing_id, updated_at = now()
@@ -25,6 +25,33 @@ export async function syncIdx(): Promise<SyncResult> {
     where l.idx_listing_id is null
       and l.address_normalized is not null
       and l.address_normalized = x.address_normalized
+  `;
+
+  // 2) Standardized link: align the street core across the two address formats
+  // ("Pl" vs "Place", "W" vs "West", "Unit 3" vs "#3", trailing city/state/zip)
+  // via exact-or-prefix on address_std. We link only when a listing maps to
+  // exactly ONE idx row, so a unit-less address never silently links to the
+  // wrong unit in the same building.
+  await sql`
+    update listings l
+    set idx_listing_id = c.idx_listing_id, updated_at = now()
+    from (
+      select l2.id as listing_id, min(x.idx_listing_id) as idx_listing_id
+      from listings l2
+      join idx_listings x
+        on l2.address_std is not null and x.address_std is not null
+       and (
+         x.address_std = l2.address_std
+         or x.address_std like l2.address_std || ' %'
+         or l2.address_std like x.address_std || ' %'
+       )
+      where l2.idx_listing_id is null
+      group by l2.id
+      having count(*) = 1
+    ) c
+    where l.id = c.listing_id
+      and l.idx_listing_id is null
+      and not exists (select 1 from listings l3 where l3.idx_listing_id = c.idx_listing_id)
   `;
 
   // Co-listing agent groundwork: pull the co-list agent name from the IDX raw
@@ -64,6 +91,14 @@ export async function syncIdx(): Promise<SyncResult> {
       and x.address_normalized is not null
       and not exists (select 1 from listings l where l.idx_listing_id = x.idx_listing_id)
       and not exists (select 1 from listings l where l.address_normalized = x.address_normalized)
+      and not exists (
+        select 1 from listings l
+        where l.address_std is not null and (
+          l.address_std = x.address_std
+          or x.address_std like l.address_std || ' %'
+          or l.address_std like x.address_std || ' %'
+        )
+      )
     on conflict (address_normalized) do nothing
   `;
   const created = (materialized as unknown as { count?: number }).count ?? 0;

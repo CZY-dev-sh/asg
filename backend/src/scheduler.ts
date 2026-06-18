@@ -28,5 +28,6 @@ export function startScheduler(): void {
   if (have.fub()) schedule(env.CRON_FUB, 'fub', () => runJob('fub'));
   schedule(env.CRON_PIPELINE, 'pipeline', () => runJob('pipeline'));
   schedule(env.CRON_DIRECTORY, 'directory', () => runJob('directory'));
-  if (have.asana() || have.acuity()) schedule(env.CRON_MARKETING, 'marketing', () => runJob('marketing'));
+  if (have.asana() || have.acuity() || have.acuityIcs())
+    schedule(env.CRON_MARKETING, 'marketing', () => runJob('marketing'));
 }

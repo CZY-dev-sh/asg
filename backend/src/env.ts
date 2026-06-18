@@ -78,6 +78,11 @@ const schema = z.object({
   ACUITY_SOURCE_VALUE: z.string().default('Admin Hub'),
   // Appointment types that count as media/photo shoots (substring match, csv).
   ACUITY_MEDIA_KEYWORDS: csv(),
+  // No-API fallback: ingest bookings from Acuity's iCal/ICS calendar feed(s).
+  // Works on any Acuity plan. Comma-separated webcal:// or https:// .ics URLs.
+  ACUITY_ICS_URLS: csv(),
+  // Timezone used to interpret ICS times that lack an explicit offset/TZID.
+  ACUITY_TIMEZONE: z.string().default('America/Chicago'),
 
   // Pipeline CSVs
   PIPELINE_BUYERS_CSV: z.string().optional().default(''),
@@ -113,5 +118,6 @@ export const have = {
   drive: () => Boolean(env.GOOGLE_SERVICE_ACCOUNT_JSON || env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE),
   asana: () => Boolean(env.ASANA_TOKEN && env.ASANA_WORKSPACE_GID),
   acuity: () => Boolean(env.ACUITY_USER_ID && env.ACUITY_API_KEY),
+  acuityIcs: () => env.ACUITY_ICS_URLS.length > 0,
   pipeline: () => Boolean(env.PIPELINE_BUYERS_CSV || env.PIPELINE_SELLERS_CSV),
 };

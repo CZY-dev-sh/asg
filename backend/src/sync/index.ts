@@ -50,6 +50,6 @@ export async function syncAll(opts: { mirrorIdx?: boolean } = {}) {
   }
   if (have.fub()) results.push(await runJob('fub'));
   results.push(await runJob('pipeline'));
-  if (have.asana() || have.acuity()) results.push(await runJob('marketing'));
+  if (have.asana() || have.acuity() || have.acuityIcs()) results.push(await runJob('marketing'));
   return results;
 }
