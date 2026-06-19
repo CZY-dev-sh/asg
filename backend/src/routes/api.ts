@@ -248,10 +248,15 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await requireAuth(req, reply);
     if (!ctx) return;
     const body = (req.body as Record<string, unknown>) ?? {};
+    if ((body.clientType ?? body.client_type) != null && ctx.profile?.role !== 'client') {
+      return reply.code(403).send({ ok: false, error: 'clientType is only editable by client accounts' });
+    }
     try {
       const profile = await admin.updateOwnProfile(ctx.userId, {
         fullName: body.fullName ?? body.full_name,
         phone: body.phone,
+        clientType: body.clientType ?? body.client_type,
+        portalPreferences: body.portalPreferences ?? body.portal_preferences,
       });
       return { ok: true, profile };
     } catch (err) {
@@ -261,6 +266,13 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // ── Client portal ───────────────────────────────────────────────────────
+  app.get('/api/portal/home', async (req, reply) => {
+    const ctx = await requireAuth(req, reply);
+    if (!ctx) return;
+    if (!ctx.profile) return reply.code(404).send({ ok: false, error: 'profile not found' });
+    return portal.getPortalHome(ctx.userId, ctx.profile);
+  });
+
   app.get('/api/portal/deals', async (req, reply) => {
     const ctx = await requireAuth(req, reply);
     if (!ctx) return;

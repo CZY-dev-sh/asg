@@ -1,0 +1,466 @@
+<!--
+  ASG Client Portal (/client-portal)
+  Self-contained Squarespace block. Uses Supabase Auth directly in the browser
+  for Google, Apple and phone OTP, then calls the ASG backend with the Supabase
+  access token for client-scoped portal data.
+
+  Required Supabase setup:
+  - Add https://www.alexstoykovgroup.com/client-portal to Auth URL allow-list.
+  - Enable Google provider.
+  - Enable Apple provider after Apple Developer credentials are ready.
+  - Enable Phone provider with SMS credentials before phone OTP works live.
+-->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --cp-bg:#ffffff;--cp-bg-alt:#f6f6f3;--cp-bg-soft:#f1f1ee;--cp-ink:#111;
+  --cp-muted:rgba(17,17,17,.58);--cp-muted-soft:rgba(17,17,17,.42);
+  --cp-line:rgba(17,17,17,.08);--cp-line-strong:rgba(17,17,17,.16);
+  --cp-card:#fff;--cp-pill:999px;--cp-card-r:30px;--cp-max:1480px;--cp-padx:20px;
+  --cp-shadow:0 12px 34px rgba(17,17,17,.07);--cp-shadow-hover:0 20px 48px rgba(17,17,17,.13);
+  --cp-font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --cp-ease:cubic-bezier(.16,1,.3,1);
+  --cp-green:#1f7a5a;--cp-blue:#3a5ccc;--cp-gold:#8a6d2f;
+}
+*,*::before,*::after{box-sizing:border-box}
+body.cp-body{
+  margin:0!important;background:
+    radial-gradient(900px 520px at 12% 4%,rgba(232,217,184,.42),transparent 60%),
+    radial-gradient(760px 460px at 88% 0%,rgba(168,196,240,.30),transparent 58%),
+    linear-gradient(180deg,#fbfbf9 0%,#f4f4f1 100%)!important;
+  color:var(--cp-ink);font-family:var(--cp-font);-webkit-font-smoothing:antialiased;
+}
+#header,header.Header,.Header,.Header-inner,header#header,
+.header-announcement-bar-wrapper,.sqs-announcement-bar-dropzone,#headerSpacer,.header-spacer,
+#footer,footer.Footer,.Footer,#footer-sections,footer.sections{
+  display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;
+}
+#siteWrapper,.Main,.Content-outer,.Content-inner,.Index,#page,.page-section,article.sections,main#page article{
+  background:transparent!important;margin:0!important;padding:0!important;max-width:none!important;
+}
+.page-section .content-wrapper{padding:0!important;max-width:none!important}
+.cp{max-width:var(--cp-max);margin:0 auto;padding:0 var(--cp-padx) 80px;color:var(--cp-ink)}
+.cp *{box-sizing:border-box}
+.cp img{max-width:100%;display:block}
+.cp a{color:inherit}
+.cp :focus-visible{outline:2px solid var(--cp-ink);outline-offset:2px;border-radius:10px}
+
+/* Admin Hub style nav */
+.cp-nav-frost{
+  position:fixed;top:0;left:0;right:0;z-index:480;height:140px;pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);-webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom,rgba(255,255,255,.72),rgba(255,255,255,.4) 50%,rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.4) 72%,transparent);
+  mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.4) 72%,transparent);
+  transition:opacity .3s ease;opacity:0;
+}
+.cp-nav-frost.is-scrolled{opacity:1}
+.cp-nav-wrap{position:fixed;top:18px;left:0;right:0;z-index:500;padding:0 var(--cp-padx);animation:cpNavDrop .9s var(--cp-ease) both}
+@keyframes cpNavDrop{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:none}}
+.cp-nav-inner{max-width:var(--cp-max);margin:0 auto}
+.cp-nav{
+  background:rgba(255,255,255,.92);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--cp-line);border-radius:var(--cp-pill);min-height:76px;padding:9px 12px 9px 22px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease,min-height .35s var(--cp-ease);
+}
+.cp-nav.is-scrolled{box-shadow:0 10px 32px rgba(17,17,17,.10);min-height:66px}
+.cp-nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.cp-nav-logo img{width:54px;height:54px;object-fit:contain;transition:width .35s var(--cp-ease),height .35s var(--cp-ease),transform .3s ease}
+.cp-nav.is-scrolled .cp-nav-logo img{width:48px;height:48px}
+.cp-nav-logo:hover img{transform:rotate(-8deg)}
+.cp-nav-logo span{font-weight:800;font-size:1.3rem;letter-spacing:-.025em;white-space:nowrap}
+.cp-nav-links{display:flex;align-items:center;gap:4px}
+.cp-nav-link{border:0;background:none;text-decoration:none;border-radius:var(--cp-pill);padding:13px 22px;font-size:1.08rem;font-weight:600;color:var(--cp-muted);white-space:nowrap;transition:color .2s,background .2s}
+.cp-nav-link:hover,.cp-nav-link.is-active{color:var(--cp-ink);background:rgba(17,17,17,.06)}
+.cp-profile{display:flex;align-items:center;gap:11px;background:none;border:0;font-family:inherit;padding:6px 7px 6px 16px;border-radius:var(--cp-pill);cursor:pointer}
+.cp-profile:hover{background:rgba(17,17,17,.05)}
+.cp-pname{font-size:1rem;font-weight:600;text-align:right;line-height:1.2}
+.cp-pname small{display:block;font-size:.78rem;color:var(--cp-muted);font-weight:500;text-transform:capitalize}
+.cp-avatar{width:42px;height:42px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;overflow:hidden;flex:none;box-shadow:0 0 0 2px #fff,0 2px 8px rgba(0,0,0,.18)}
+
+.cp-hero{padding:150px 0 30px;display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:28px;align-items:end}
+.cp-eyebrow{margin:0 0 12px;color:var(--cp-muted);font-weight:800;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase}
+.cp-hero h1{margin:0;font-size:clamp(2.7rem,6vw,5.35rem);line-height:.94;letter-spacing:-.055em;font-weight:800}
+.cp-hero p{margin:18px 0 0;max-width:650px;color:var(--cp-muted);font-size:1.08rem}
+.cp-status{margin-top:12px;color:var(--cp-muted-soft);font-size:.85rem;font-weight:600}
+.cp-hero-card{background:rgba(255,255,255,.80);border:1px solid var(--cp-line);border-radius:34px;padding:22px;box-shadow:var(--cp-shadow);backdrop-filter:blur(16px);position:relative;overflow:hidden}
+.cp-hero-card:before{content:"";position:absolute;inset:-90px -70px auto auto;width:220px;height:220px;border-radius:50%;background:rgba(31,122,90,.10)}
+.cp-hero-card b{display:block;font-size:2.7rem;line-height:1;letter-spacing:-.04em;position:relative}
+.cp-hero-card span{display:block;color:var(--cp-muted);font-weight:700;margin-top:7px;position:relative}
+.cp-mini-stack{display:grid;gap:10px;margin-top:18px;position:relative}
+.cp-mini{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--cp-line);border-radius:18px;padding:12px 14px}
+.cp-mini strong{font-size:.9rem}.cp-mini small{color:var(--cp-muted);font-weight:700}
+
+.cp-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:start}
+.cp-card{background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-card-r);box-shadow:var(--cp-shadow);padding:24px;position:relative;overflow:hidden}
+.cp-card:hover{box-shadow:var(--cp-shadow-hover)}
+.cp-card h2,.cp-card h3{margin:0 0 6px;letter-spacing:-.025em;line-height:1.05}
+.cp-card h2{font-size:1.6rem}.cp-card h3{font-size:1.14rem}
+.cp-sub{margin:0 0 18px;color:var(--cp-muted);font-size:.95rem}
+.cp-actions{display:flex;flex-wrap:wrap;gap:10px}
+.cp-btn{
+  border:1px solid var(--cp-line);background:#fff;color:var(--cp-ink);border-radius:var(--cp-pill);
+  padding:12px 17px;font-family:inherit;font-weight:800;font-size:.92rem;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:transform .2s var(--cp-ease),box-shadow .2s,background .2s;
+}
+.cp-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(17,17,17,.08)}
+.cp-btn.dark{background:#111;color:#fff;border-color:#111}
+.cp-btn.soft{background:var(--cp-bg-soft)}
+.cp-btn.full{width:100%}
+.cp-btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+.cp-input{width:100%;border:1px solid var(--cp-line);border-radius:18px;background:#fff;padding:14px 16px;font:inherit;font-weight:650;color:var(--cp-ink);outline:none}
+.cp-input:focus{border-color:rgba(17,17,17,.34);box-shadow:0 0 0 4px rgba(17,17,17,.05)}
+.cp-field{display:grid;gap:7px;margin:0 0 13px}
+.cp-field label{font-size:.82rem;font-weight:800;color:var(--cp-muted)}
+.cp-error{margin-top:12px;color:#b42318;font-size:.86rem;font-weight:700}
+.cp-success{margin-top:12px;color:var(--cp-green);font-size:.86rem;font-weight:800}
+
+.cp-auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.cp-phone-panel{background:var(--cp-bg-alt);border:1px solid var(--cp-line);border-radius:24px;padding:18px}
+.cp-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cp-choice{border:1px solid var(--cp-line);background:#fff;border-radius:26px;padding:22px;text-align:left;cursor:pointer;font-family:inherit;transition:transform .25s var(--cp-ease),box-shadow .25s,border .2s}
+.cp-choice:hover{transform:translateY(-3px);box-shadow:var(--cp-shadow-hover);border-color:var(--cp-line-strong)}
+.cp-choice i{width:42px;height:42px;border-radius:15px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;margin-bottom:16px}
+.cp-choice b{display:block;font-size:1.2rem;letter-spacing:-.025em}.cp-choice span{display:block;color:var(--cp-muted);font-weight:600;margin-top:7px}
+
+.cp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.cp-kpi{background:#fff;border:1px solid var(--cp-line);border-radius:24px;padding:18px;box-shadow:var(--cp-shadow)}
+.cp-kpi b{display:block;font-size:2rem;letter-spacing:-.04em}.cp-kpi span{display:block;color:var(--cp-muted);font-weight:700;font-size:.82rem}
+.cp-list{display:grid;gap:12px}
+.cp-row{background:#fff;border:1px solid var(--cp-line);border-radius:22px;padding:16px;display:grid;gap:8px}
+.cp-row-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cp-row b{font-size:1rem}.cp-row span,.cp-row p{color:var(--cp-muted);font-size:.9rem;margin:0;font-weight:600}
+.cp-pill{display:inline-flex;align-items:center;gap:6px;border-radius:var(--cp-pill);background:var(--cp-bg-soft);border:1px solid var(--cp-line);padding:6px 11px;font-weight:800;font-size:.76rem;white-space:nowrap}
+.cp-pill.green{background:rgba(31,122,90,.10);color:var(--cp-green)}.cp-pill.blue{background:rgba(58,92,204,.10);color:var(--cp-blue)}.cp-pill.gold{background:rgba(138,109,47,.10);color:var(--cp-gold)}
+.cp-progress{height:8px;background:var(--cp-bg-soft);border-radius:999px;overflow:hidden}.cp-progress i{display:block;height:100%;background:#111;border-radius:999px}
+.cp-empty{text-align:center;padding:28px 18px;color:var(--cp-muted);font-weight:650}
+.cp-empty b{display:block;color:var(--cp-ink);font-size:1.05rem;margin-bottom:6px}
+.cp-hidden{display:none!important}
+
+@media(max-width:1040px){
+  .cp-nav-links,.cp-profile{display:none}.cp-hero{grid-template-columns:1fr;padding-top:132px}.cp-grid{grid-template-columns:1fr}.cp-choice-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .cp-auth-grid,.cp-kpis{grid-template-columns:1fr}.cp-hero h1{font-size:3rem}.cp-nav-logo span{font-size:1.05rem}.cp-card{padding:20px;border-radius:24px}
+}
+</style>
+
+<div class="cp" id="cpRoot">
+  <div class="cp-nav-frost" id="cpNavFrost" aria-hidden="true"></div>
+  <div class="cp-nav-wrap">
+    <div class="cp-nav-inner">
+      <nav class="cp-nav" id="cpNav" aria-label="Client Portal">
+        <a class="cp-nav-logo" href="/" aria-label="Alex Stoykov Group">
+          <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+          <span>Client Portal</span>
+        </a>
+        <div class="cp-nav-links">
+          <a class="cp-nav-link is-active" href="/client-portal">Dashboard</a>
+          <a class="cp-nav-link" href="/search-homes">Search Homes</a>
+          <a class="cp-nav-link" href="/sellers">Sellers</a>
+          <a class="cp-nav-link" href="/buyers">Buyers</a>
+        </div>
+        <button class="cp-profile cp-hidden" id="cpProfileBtn" type="button">
+          <span class="cp-pname" id="cpProfileName">Account<small id="cpProfileType">client</small></span>
+          <span class="cp-avatar" id="cpAvatar">AS</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <header class="cp-hero">
+    <div>
+      <p class="cp-eyebrow">Private client dashboard</p>
+      <h1>Your ASG portal</h1>
+      <p>Sign in once, choose your path, and track the important next steps for buying, selling, or renting with Alex Stoykov Group.</p>
+      <div class="cp-status" id="cpStatus">Checking your session...</div>
+    </div>
+    <div class="cp-hero-card">
+      <b id="cpHeroNumber">3</b>
+      <span id="cpHeroText">personalized paths for buyers, sellers and renters</span>
+      <div class="cp-mini-stack">
+        <div class="cp-mini"><strong>Secure login</strong><small>Google, Apple or SMS</small></div>
+        <div class="cp-mini"><strong>Private updates</strong><small>Only your account</small></div>
+        <div class="cp-mini"><strong>Next steps</strong><small>Clear and simple</small></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="cpApp"></main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var API = String(window.ASG_API_BASE || 'https://asg-production.up.railway.app').replace(/\/+$/,'');
+  var SUPABASE_URL = window.ASG_SUPABASE_URL || 'https://ikaeggxiazzwtofntqji.supabase.co';
+  var SUPABASE_ANON_KEY = window.ASG_SUPABASE_ANON_KEY || 'sb_publishable_y6o4SQQf9430Nl24W53TBA_aLP3t82Z';
+  var REDIRECT_TO = window.ASG_CLIENT_PORTAL_REDIRECT || window.location.origin + window.location.pathname;
+  var sb = null;
+  var state = { session:null, me:null, home:null, phoneSent:false };
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function initials(name,email){
+    var base = String(name || email || 'Client').trim();
+    var p = base.split(/\s+/).filter(Boolean);
+    if(!p.length) return 'C';
+    return (p[0][0] + (p.length > 1 ? p[p.length-1][0] : '')).toUpperCase();
+  }
+  function money(v){ return v ? Number(v).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}) : 'Not set'; }
+  function dateLabel(iso){ return iso ? new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'TBD'; }
+  function authHeaders(){ return state.session ? { Authorization:'Bearer '+state.session.access_token } : {}; }
+  function setStatus(msg){ $('cpStatus').textContent = msg || ''; }
+  function clientTypeLabel(t){ return t === 'buyer' ? 'Buyer' : t === 'seller' ? 'Seller' : t === 'renter' ? 'Renter' : 'Client'; }
+
+  function initSupabase(){
+    if(!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+  }
+
+  async function api(path, opts){
+    var res = await fetch(API + path, Object.assign({
+      headers:Object.assign({'content-type':'application/json'}, authHeaders())
+    }, opts || {}));
+    var json = await res.json().catch(function(){ return {}; });
+    if(!res.ok || json.ok === false) throw new Error(json.error || 'Request failed');
+    return json;
+  }
+
+  function renderAuth(error){
+    $('cpProfileBtn').classList.add('cp-hidden');
+    $('cpHeroNumber').textContent = '1';
+    $('cpHeroText').textContent = 'seamless account to track your ASG journey';
+    $('cpApp').innerHTML =
+      '<div class="cp-grid">'
+      + '<section class="cp-card"><h2>Create your portal</h2><p class="cp-sub">Use the fastest option for you. Google and Apple redirect securely; phone login sends a one-time code.</p>'
+      + '<div class="cp-auth-grid">'
+      + '<button class="cp-btn dark full" id="cpGoogle" type="button">Continue with Google</button>'
+      + '<button class="cp-btn full" id="cpApple" type="button">Continue with Apple</button>'
+      + '</div>'
+      + '<div class="cp-phone-panel"><h3>Use your phone number</h3><p class="cp-sub">Enter a mobile number that can receive texts.</p>'
+      + '<div class="cp-field"><label for="cpPhone">Mobile phone</label><input class="cp-input" id="cpPhone" type="tel" placeholder="+1 312 555 1234" autocomplete="tel"></div>'
+      + '<button class="cp-btn soft full" id="cpSendCode" type="button">'+(state.phoneSent?'Send code again':'Send text code')+'</button>'
+      + '<div id="cpCodeWrap" class="'+(state.phoneSent?'':'cp-hidden')+'"><div class="cp-field" style="margin-top:13px"><label for="cpCode">Verification code</label><input class="cp-input" id="cpCode" inputmode="numeric" placeholder="123456"></div><button class="cp-btn dark full" id="cpVerifyCode" type="button">Verify and continue</button></div>'
+      + (error?'<div class="cp-error">'+esc(error)+'</div>':'')+'</div></section>'
+      + '<aside class="cp-card"><h3>What you get inside</h3><div class="cp-list">'
+      + infoRow('Buyer dashboard','Saved search details, milestones and next steps.')
+      + infoRow('Seller dashboard','Marketing progress, listing prep and launch milestones.')
+      + infoRow('Renter dashboard','Rental profile, tours and application status.')
+      + '</div></aside></div>';
+    bindAuth();
+  }
+
+  function infoRow(title, text){
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(title)+'</b><span class="cp-pill">Private</span></div><p>'+esc(text)+'</p></div>';
+  }
+
+  function bindAuth(){
+    var google = $('cpGoogle'), apple = $('cpApple'), send = $('cpSendCode'), verify = $('cpVerifyCode');
+    if(google) google.addEventListener('click', function(){ oauth('google'); });
+    if(apple) apple.addEventListener('click', function(){ oauth('apple'); });
+    if(send) send.addEventListener('click', sendCode);
+    if(verify) verify.addEventListener('click', verifyCode);
+  }
+
+  async function oauth(provider){
+    try{
+      if(!sb) throw new Error('Supabase is not loaded yet.');
+      var out = await sb.auth.signInWithOAuth({ provider:provider, options:{ redirectTo:REDIRECT_TO } });
+      if(out.error) throw out.error;
+    }catch(err){ renderAuth(err.message || String(err)); }
+  }
+  async function sendCode(){
+    try{
+      var phone = $('cpPhone').value.trim();
+      if(!phone) throw new Error('Enter your mobile number first.');
+      var out = await sb.auth.signInWithOtp({ phone:phone });
+      if(out.error) throw out.error;
+      state.phoneSent = true;
+      renderAuth();
+      setStatus('Code sent. Enter it below to continue.');
+      setTimeout(function(){ var p = $('cpPhone'); if(p) p.value = phone; }, 0);
+    }catch(err){ renderAuth(err.message || String(err)); }
+  }
+  async function verifyCode(){
+    try{
+      var phone = $('cpPhone').value.trim();
+      var token = $('cpCode').value.trim();
+      if(!phone || !token) throw new Error('Enter your phone and verification code.');
+      var out = await sb.auth.verifyOtp({ phone:phone, token:token, type:'sms' });
+      if(out.error) throw out.error;
+      state.session = out.data.session;
+      await loadAuthed();
+    }catch(err){ renderAuth(err.message || String(err)); }
+  }
+
+  function renderChoice(profile){
+    $('cpHeroNumber').textContent = '3';
+    $('cpHeroText').textContent = 'choose the path that fits your current move';
+    $('cpApp').innerHTML =
+      '<section class="cp-card"><h2>What are you here for?</h2><p class="cp-sub">Pick one now. You can always change this later from your profile.</p>'
+      + '<div class="cp-choice-grid">'
+      + choice('buyer','B','I am buying','Track your search, offer process and closing milestones.')
+      + choice('seller','S','I am selling','Follow listing prep, marketing, MLS launch and deal progress.')
+      + choice('renter','R','I am renting','Keep rental preferences, tours and applications organized.')
+      + '</div></section>';
+    document.querySelectorAll('[data-client-type]').forEach(function(btn){
+      btn.addEventListener('click', function(){ saveClientType(btn.getAttribute('data-client-type')); });
+    });
+    updateProfileNav(profile);
+  }
+  function choice(type, icon, title, text){
+    return '<button class="cp-choice" type="button" data-client-type="'+type+'"><i>'+icon+'</i><b>'+esc(title)+'</b><span>'+esc(text)+'</span></button>';
+  }
+  async function saveClientType(type){
+    try{
+      setStatus('Saving your portal path...');
+      await api('/api/auth/me',{ method:'PATCH', body:JSON.stringify({ clientType:type }) });
+      await loadHome();
+      renderDashboard();
+    }catch(err){ setStatus(err.message || String(err)); }
+  }
+
+  function updateProfileNav(profile){
+    $('cpProfileBtn').classList.remove('cp-hidden');
+    $('cpProfileName').innerHTML = esc(profile.fullName || profile.email || 'Client') + '<small>'+esc(clientTypeLabel(profile.clientType || 'undecided'))+'</small>';
+    $('cpAvatar').textContent = initials(profile.fullName, profile.email);
+  }
+
+  async function loadAuthed(){
+    setStatus('Loading your private portal...');
+    var me = await api('/api/auth/me');
+    state.me = me;
+    updateProfileNav(me.profile);
+    if(!me.profile || !me.profile.portalOnboardingCompleted || me.profile.clientType === 'undecided'){
+      setStatus('Choose your portal path to continue.');
+      renderChoice(me.profile || {});
+      return;
+    }
+    await loadHome();
+    renderDashboard();
+  }
+  async function loadHome(){
+    state.home = await api('/api/portal/home');
+    state.me = { profile:state.home.profile };
+    updateProfileNav(state.home.profile);
+    setStatus('Signed in as '+(state.home.profile.email || state.home.profile.phone || 'client')+'.');
+  }
+
+  function renderDashboard(){
+    var h = state.home || {};
+    var p = h.profile || {};
+    var type = p.clientType || 'undecided';
+    $('cpHeroNumber').textContent = type === 'seller' ? String((h.seller && h.seller.listings || []).length || 1) : String((h.deals || []).length || 1);
+    $('cpHeroText').textContent = clientTypeLabel(type) + ' portal ready for your next move';
+    var deals = h.deals || [];
+    var drafts = h.drafts || [];
+    $('cpApp').innerHTML =
+      '<section class="cp-kpis">'
+      + kpi(deals.length,'Linked deals')
+      + kpi(drafts.length,'Saved drafts')
+      + kpi((h.recommendedActions||[]).length,'Next steps')
+      + '</section>'
+      + '<div class="cp-grid"><section class="cp-card">'+surface(type,h)+'</section>'
+      + '<aside class="cp-card"><h3>Recommended next steps</h3><p class="cp-sub">A clean checklist for what matters right now.</p><div class="cp-list">'
+      + (h.recommendedActions||[]).map(function(a){ return infoRow(a.label,a.description); }).join('')
+      + '</div></aside></div>';
+  }
+  function kpi(n,label){ return '<div class="cp-kpi"><b>'+esc(n)+'</b><span>'+esc(label)+'</span></div>'; }
+
+  function surface(type,h){
+    if(type === 'seller') return sellerSurface(h);
+    if(type === 'renter') return renterSurface(h);
+    return buyerSurface(h);
+  }
+  function buyerSurface(h){
+    var deals = h.deals || [];
+    return '<h2>Buyer transaction dashboard</h2><p class="cp-sub">Your home search is managed through Compass. This portal turns on when you are actively transacting with ASG.</p>'
+      + (deals.length ? '<div class="cp-list">'+deals.map(dealRow).join('')+'</div>' : empty('No active transaction yet','Once you are under contract or your agent links an active buyer deal, inspection, attorney review, mortgage, final walkthrough and closing milestones will appear here.'))
+      + draftBlock(h.drafts,'buyer-onboarding');
+  }
+  function sellerSurface(h){
+    var listings = (h.seller && h.seller.listings) || [];
+    var activity = (h.seller && h.seller.activity) || [];
+    var docs = (h.seller && h.seller.documents) || [];
+    var plan = (h.seller && h.seller.actionPlan) || { asg:[], client:[] };
+    var metrics = (h.seller && h.seller.metrics) || { openHouses:0, leads:0, upcoming:[] };
+    var primary = listings[0] || {};
+    var title = primary.address || 'Your new sale';
+    return '<h2>'+esc(title)+'</h2><p class="cp-sub">Your private sale dashboard: listing prep, ASG marketing work, your action items, documents, and buyer interest after launch.</p>'
+      + (listings.length ? '<div class="cp-list">'+listings.map(listingRow).join('')+'</div>' : empty('No linked seller listing yet','Seller onboarding and matched listings will appear here automatically.'))
+      + '<h3 style="margin-top:24px">What ASG is working on</h3><div class="cp-list">'+(plan.asg||[]).map(actionRow).join('')+'</div>'
+      + '<h3 style="margin-top:24px">Your action items</h3><div class="cp-list">'+(plan.client||[]).map(actionRow).join('')+'</div>'
+      + '<h3 style="margin-top:24px">Documents</h3>'
+      + (docs.length ? '<div class="cp-list">'+docs.map(docRow).join('')+'</div>' : empty('No documents uploaded yet','Listing agreement, disclosures, marketing docs and other client-visible files will appear here.'))
+      + '<h3 style="margin-top:24px">Interest metrics</h3><div class="cp-list">'
+      + infoRow('Open houses hosted', String(metrics.openHouses || 0))
+      + infoRow('Open house leads captured', String(metrics.leads || 0))
+      + (metrics.upcoming && metrics.upcoming.length ? metrics.upcoming.map(function(o){ return infoRow('Upcoming open house', dateLabel(o.startsAt)); }).join('') : infoRow('Open house QR lead capture','Coming next: visitors scan a QR code, submit their info, and are added to Follow Up Boss.'))
+      + '</div>'
+      + (activity.length ? '<h3 style="margin-top:24px">Recent activity</h3><div class="cp-list">'+activity.map(activityRow).join('')+'</div>' : '')
+      + draftBlock(h.drafts,'seller-onboarding');
+  }
+  function renterSurface(h){
+    return '<h2>Renter dashboard</h2><p class="cp-sub">Keep rental preferences, tours and application progress organized.</p>'
+      + '<div class="cp-list">'
+      + infoRow('Rental profile','Tell us your budget, move-in timing, neighborhoods, pets and must-haves.')
+      + infoRow('Tour planning','Upcoming rental tours and notes will appear here once connected.')
+      + infoRow('Applications','Application status and document checklists will live here next.')
+      + '</div>' + draftBlock(h.drafts,'renter-onboarding');
+  }
+  function dealRow(d){
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(d.address || 'Active deal')+'</b><span class="cp-pill blue">'+esc(d.stage || d.status || 'Open')+'</span></div>'
+      + '<p>'+esc(d.agent || 'ASG team')+' · '+money(d.price)+' · Closing '+dateLabel(d.closeDate)+'</p>'
+      + '<div class="cp-progress"><i style="width:'+Math.max(5,Number(d.progress||0))+'%"></i></div></div>';
+  }
+  function listingRow(l){
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(l.address || 'Listing')+'</b><span class="cp-pill green">'+esc(l.status || 'Pre-listing')+'</span></div>'
+      + '<p>Marketing: '+esc(l.marketingStatus || 'Getting started')+' · Photos: '+esc(l.photosStatus || 'Not scheduled')+'</p>'
+      + '<div class="cp-actions"><span class="cp-pill">'+esc(l.idxListingId ? 'MLS linked' : 'Waiting for MLS')+'</span><span class="cp-pill gold">Photos '+esc(l.photosDeliveredAt ? 'delivered' : 'pending')+'</span></div></div>';
+  }
+  function actionRow(a){
+    var cls = a.status === 'done' ? 'green' : a.status === 'in_progress' ? 'blue' : 'gold';
+    var label = a.status === 'done' ? 'Done' : a.status === 'in_progress' ? 'In progress' : 'To do';
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(a.label)+'</b><span class="cp-pill '+cls+'">'+label+'</span></div><p>'+esc(a.description || '')+'</p></div>';
+  }
+  function docRow(d){
+    var link = d.url ? '<a class="cp-btn soft" href="'+esc(d.url)+'" target="_blank" rel="noopener">View document</a>' : '<span class="cp-pill">Stored securely</span>';
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(d.title || 'Document')+'</b><span class="cp-pill">'+esc(d.category || 'Document')+'</span></div><p>Uploaded '+dateLabel(d.createdAt)+(d.uploadedBy?' by '+esc(d.uploadedBy):'')+'</p><div class="cp-actions">'+link+'</div></div>';
+  }
+  function activityRow(a){
+    return '<div class="cp-row"><div class="cp-row-top"><b>'+esc(a.label || a.type || 'Update')+'</b><span class="cp-pill">'+dateLabel(a.ts)+'</span></div><p>'+esc(a.actor || 'ASG team')+'</p></div>';
+  }
+  function draftBlock(drafts, formType){
+    var d = (drafts || []).find(function(x){ return x.formType === formType; });
+    if(!d) return '';
+    return '<h3 style="margin-top:24px">Saved onboarding</h3><div class="cp-row"><div class="cp-row-top"><b>'+esc(formType.replace('-',' '))+'</b><span class="cp-pill '+(d.completed?'green':'gold')+'">'+(d.completed?'Submitted':'In progress')+'</span></div><p>Step '+esc(d.step)+' · Updated '+dateLabel(d.updatedAt)+'</p></div>';
+  }
+  function empty(title,text){ return '<div class="cp-empty"><b>'+esc(title)+'</b>'+esc(text)+'</div>'; }
+
+  async function boot(){
+    document.body.classList.add('cp-body');
+    function onScroll(){
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      $('cpNav').classList.toggle('is-scrolled', y > 8);
+      $('cpNavFrost').classList.toggle('is-scrolled', y > 8);
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+    sb = initSupabase();
+    if(!sb){ renderAuth('Supabase browser auth is not configured.'); return; }
+    sb.auth.onAuthStateChange(function(_event, session){
+      state.session = session || state.session;
+    });
+    var out = await sb.auth.getSession();
+    state.session = out.data && out.data.session;
+    if(!state.session){ setStatus('Sign in or create an account to continue.'); renderAuth(); return; }
+    try{ await loadAuthed(); }catch(err){ renderAuth(err.message || String(err)); }
+  }
+  boot();
+})();
+</script>

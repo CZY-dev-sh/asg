@@ -23,6 +23,9 @@ export interface Profile {
   fullName: string | null;
   phone: string | null;
   role: 'client' | 'agent' | 'admin';
+  clientType: 'buyer' | 'seller' | 'renter' | 'undecided';
+  portalOnboardingCompleted: boolean;
+  portalPreferences: Record<string, unknown>;
   agentId: string | null;
   contactId: string | null;
 }
@@ -52,7 +55,8 @@ export async function getAuthContext(req: FastifyRequest): Promise<AuthContext |
 
 export async function loadProfile(userId: string): Promise<Profile | null> {
   const [row] = await sql<Record<string, unknown>[]>`
-    select id, email, full_name, phone, role, agent_id, contact_id
+    select id, email, full_name, phone, role, client_type, portal_onboarding_completed,
+           portal_preferences, agent_id, contact_id
     from profiles where id = ${userId} limit 1
   `;
   if (!row) return null;
@@ -62,6 +66,9 @@ export async function loadProfile(userId: string): Promise<Profile | null> {
     fullName: (row.full_name as string) ?? null,
     phone: (row.phone as string) ?? null,
     role: row.role as Profile['role'],
+    clientType: (row.client_type as Profile['clientType']) ?? 'undecided',
+    portalOnboardingCompleted: Boolean(row.portal_onboarding_completed),
+    portalPreferences: (row.portal_preferences as Record<string, unknown>) ?? {},
     agentId: (row.agent_id as string) ?? null,
     contactId: (row.contact_id as string) ?? null,
   };
@@ -98,6 +105,9 @@ const SERVICE_CONTEXT: AuthContext = {
     fullName: 'Service (X-Asg-Secret)',
     phone: null,
     role: 'admin',
+    clientType: 'undecided',
+    portalOnboardingCompleted: true,
+    portalPreferences: {},
     agentId: null,
     contactId: null,
   },

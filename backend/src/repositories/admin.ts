@@ -769,18 +769,38 @@ const LANDING_JSON_COL: Record<string, string> = {
  * by the guard_profile_update trigger — clients/agents cannot escalate. */
 export async function updateOwnProfile(
   userId: string,
-  body: { fullName?: unknown; phone?: unknown },
+  body: { fullName?: unknown; phone?: unknown; clientType?: unknown; portalPreferences?: unknown },
 ): Promise<Row | null> {
   const fullName = body.fullName == null ? null : String(body.fullName);
   const phone = body.phone == null ? null : String(body.phone);
-  if (fullName == null && phone == null) throw new ApiError(400, 'nothing to update');
+  const rawClientType = body.clientType == null ? null : String(body.clientType).trim().toLowerCase();
+  const clientType =
+    rawClientType && ['buyer', 'seller', 'renter', 'undecided'].includes(rawClientType) ? rawClientType : null;
+  if (rawClientType && !clientType) throw new ApiError(400, 'invalid clientType');
+  const portalPreferences =
+    body.portalPreferences && typeof body.portalPreferences === 'object'
+      ? (body.portalPreferences as Record<string, unknown>)
+      : null;
+  if (fullName == null && phone == null && clientType == null && portalPreferences == null)
+    throw new ApiError(400, 'nothing to update');
   await sql`
     update profiles set
       full_name = coalesce(${fullName}, full_name),
-      phone = coalesce(${phone}, phone)
+      phone = coalesce(${phone}, phone),
+      client_type = coalesce(${clientType}::client_type, client_type),
+      portal_onboarding_completed = case
+        when ${clientType}::text in ('buyer', 'seller', 'renter') then true
+        else portal_onboarding_completed
+      end,
+      portal_preferences = case
+        when ${portalPreferences ? true : false} then ${j(portalPreferences ?? {})}
+        else portal_preferences
+      end
     where id = ${userId}::uuid`;
   const [row] = await sql<Row[]>`
-    select id, email, full_name, phone, role, agent_id, contact_id from profiles where id = ${userId}::uuid`;
+    select id, email, full_name, phone, role, client_type, portal_onboarding_completed,
+           portal_preferences, agent_id, contact_id
+    from profiles where id = ${userId}::uuid`;
   return row ?? null;
 }
 

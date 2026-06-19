@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 /* ════════════════════════════════════════════════════════════
@@ -779,9 +780,56 @@ gmp-place-autocomplete{
   font-size:1rem;
   color-scheme:light;
 }
+
+/* ── Client account gate ──────────────────────────────────────────────── */
+.ob-auth-modal{
+  position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center;
+  padding:24px; background:rgba(246,246,243,.72); backdrop-filter:blur(22px) saturate(120%);
+  -webkit-backdrop-filter:blur(22px) saturate(120%);
+}
+.ob-auth-modal.is-open{ display:flex; }
+.ob-auth-card{
+  width:min(100%,520px); background:rgba(255,255,255,.94); border:1px solid var(--line);
+  border-radius:32px; box-shadow:0 30px 90px rgba(17,17,17,.18); padding:28px;
+  animation:obAuthPop .35s var(--ease) both;
+}
+@keyframes obAuthPop{ from{ opacity:0; transform:translateY(14px) scale(.98); } to{ opacity:1; transform:none; } }
+.ob-auth-logo{ width:52px; height:52px; border-radius:18px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; margin-bottom:16px; }
+.ob-auth-card h2{ margin:0; font-size:1.7rem; letter-spacing:-.03em; line-height:1.05; }
+.ob-auth-card p{ margin:10px 0 18px; color:var(--muted); }
+.ob-auth-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.ob-auth-btn{
+  border:1px solid var(--line); background:#fff; border-radius:999px; padding:13px 16px;
+  font:inherit; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+}
+.ob-auth-btn.dark{ background:#111; color:#fff; border-color:#111; }
+.ob-auth-phone{ background:var(--bg-alt); border:1px solid var(--line); border-radius:24px; padding:16px; display:grid; gap:10px; }
+.ob-auth-phone input{ width:100%; border:1px solid var(--line); border-radius:16px; padding:13px 14px; font:inherit; font-weight:650; }
+.ob-auth-msg{ min-height:18px; margin-top:12px; color:var(--muted); font-size:.88rem; font-weight:700; }
+body.ob-auth-required{ overflow:hidden; }
+body.ob-auth-required main{ filter:blur(8px); pointer-events:none; user-select:none; }
+@media(max-width:560px){ .ob-auth-grid{ grid-template-columns:1fr; } .ob-auth-card{ padding:22px; border-radius:26px; } }
 </style>
 </head>
 <body>
+<div class="ob-auth-modal" id="obAuthModal" role="dialog" aria-modal="true" aria-label="Create your seller portal account">
+  <div class="ob-auth-card">
+    <div class="ob-auth-logo">AS</div>
+    <h2>Create your seller portal first</h2>
+    <p>Your seller form creates a private dashboard where you can track listing prep, marketing, documents, and sale progress.</p>
+    <div class="ob-auth-grid">
+      <button class="ob-auth-btn dark" id="obAuthGoogle" type="button">Continue with Google</button>
+      <button class="ob-auth-btn" id="obAuthApple" type="button">Continue with Apple</button>
+    </div>
+    <div class="ob-auth-phone">
+      <input id="obAuthPhone" type="tel" placeholder="+1 312 555 1234" autocomplete="tel">
+      <button class="ob-auth-btn" id="obAuthSend" type="button">Send text code</button>
+      <input id="obAuthCode" type="text" inputmode="numeric" placeholder="Verification code" style="display:none;">
+      <button class="ob-auth-btn dark" id="obAuthVerify" type="button" style="display:none;">Verify and continue</button>
+    </div>
+    <div class="ob-auth-msg" id="obAuthMsg">Sign in or create an account to begin.</div>
+  </div>
+</div>
 
 <!-- ═══════════ NAV ═══════════ -->
 <div class="nav-frost" aria-hidden="true" id="navFrost"></div>
@@ -1718,9 +1766,17 @@ gmp-place-autocomplete{
     'https://script.google.com/macros/s/AKfycbwjiT7IwZMjs8kZsvld-1aGjupkYmGGDfKpjukhR_UvKwyreZWihqlyU2ZAjm1-EBhNmQ/exec').trim();
   /* Seller Intake Apps Script (SellerIntake.gs doPost). Leave empty for preview mode. */
   var INTAKE_API = String(window.ASG_SELLER_INTAKE_API || '').trim();
+  var API_BASE = String(window.ASG_API_BASE || 'https://asg-production.up.railway.app').replace(/\/+$/, '');
+  var CLIENT_PORTAL_URL = String(window.ASG_CLIENT_PORTAL_URL || '/client-portal');
+  var SUPABASE_URL = window.ASG_SUPABASE_URL || 'https://ikaeggxiazzwtofntqji.supabase.co';
+  var SUPABASE_ANON_KEY = window.ASG_SUPABASE_ANON_KEY || 'sb_publishable_y6o4SQQf9430Nl24W53TBA_aLP3t82Z';
+  var REDIRECT_TO = window.ASG_SELLER_AUTH_REDIRECT || window.location.origin + window.location.pathname;
   /* Google Maps JS API key (Maps JavaScript API + Places API New, referrer-restricted).
      Override per-page with window.ASG_MAPS_API_KEY; empty -> plain manual address input. */
   var MAPS_API_KEY = String(window.ASG_MAPS_API_KEY || 'AIzaSyDJrlOh35B-jqEAx0rIxBjxjjc0bC6DlLg').trim();
+  var supa = null;
+  var authSession = null;
+  var authReady = false;
 
   var renderedAt = Date.now();
 
@@ -1781,6 +1837,102 @@ gmp-place-autocomplete{
 
   function refreshIcons(){
     if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
+
+  /* ════════════════ CLIENT PORTAL AUTH GATE ════════════════ */
+  function authMsg(msg){ var el = document.getElementById('obAuthMsg'); if (el) el.textContent = msg || ''; }
+  function authHeaders(){ return authSession ? { Authorization: 'Bearer ' + authSession.access_token } : {}; }
+  function portalFetch(path, opts){
+    return fetch(API_BASE + path, Object.assign({
+      headers: Object.assign({ 'content-type': 'application/json' }, authHeaders())
+    }, opts || {})).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(json){
+        if (!res.ok || json.ok === false) throw new Error(json.error || 'Request failed');
+        return json;
+      });
+    });
+  }
+  function openAuthGate(){
+    document.body.classList.add('ob-auth-required');
+    var modal = document.getElementById('obAuthModal');
+    if (modal) modal.classList.add('is-open');
+  }
+  function closeAuthGate(){
+    document.body.classList.remove('ob-auth-required');
+    var modal = document.getElementById('obAuthModal');
+    if (modal) modal.classList.remove('is-open');
+  }
+  function completedSellerPortal(home){
+    var drafts = (home && home.drafts) || [];
+    var doneDraft = drafts.some(function(d){ return d.formType === 'seller-onboarding' && d.completed; });
+    return doneDraft || !!(home && home.seller && home.seller.listings && home.seller.listings.length);
+  }
+  function afterAuthed(){
+    authMsg('Loading your seller portal...');
+    return portalFetch('/api/auth/me', { method:'PATCH', body:JSON.stringify({ clientType:'seller' }) })
+      .then(function(){ return portalFetch('/api/portal/home'); })
+      .then(function(home){
+        authReady = true;
+        if (completedSellerPortal(home)) {
+          window.location.href = CLIENT_PORTAL_URL;
+          return;
+        }
+        closeAuthGate();
+        authMsg('Signed in. Complete the seller form to create your dashboard.');
+      })
+      .catch(function(err){ openAuthGate(); authMsg(err.message || String(err)); });
+  }
+  function initPortalAuth(){
+    if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      openAuthGate();
+      authMsg('Account login is loading. Refresh if this message stays visible.');
+      return;
+    }
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+    });
+    supa.auth.onAuthStateChange(function(_event, session){
+      authSession = session || authSession;
+    });
+    supa.auth.getSession().then(function(out){
+      authSession = out.data && out.data.session;
+      if (authSession) return afterAuthed();
+      openAuthGate();
+    });
+    var google = document.getElementById('obAuthGoogle');
+    var apple = document.getElementById('obAuthApple');
+    var send = document.getElementById('obAuthSend');
+    var verify = document.getElementById('obAuthVerify');
+    if (google) google.addEventListener('click', function(){
+      supa.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:REDIRECT_TO } });
+    });
+    if (apple) apple.addEventListener('click', function(){
+      supa.auth.signInWithOAuth({ provider:'apple', options:{ redirectTo:REDIRECT_TO } });
+    });
+    if (send) send.addEventListener('click', function(){
+      var phone = (document.getElementById('obAuthPhone').value || '').trim();
+      if (!phone) return authMsg('Enter your mobile number first.');
+      send.disabled = true;
+      supa.auth.signInWithOtp({ phone:phone }).then(function(out){
+        send.disabled = false;
+        if (out.error) throw out.error;
+        document.getElementById('obAuthCode').style.display = '';
+        verify.style.display = '';
+        authMsg('Text code sent. Enter it below.');
+      }).catch(function(err){ send.disabled = false; authMsg(err.message || String(err)); });
+    });
+    if (verify) verify.addEventListener('click', function(){
+      var phone = (document.getElementById('obAuthPhone').value || '').trim();
+      var token = (document.getElementById('obAuthCode').value || '').trim();
+      if (!phone || !token) return authMsg('Enter your phone and verification code.');
+      verify.disabled = true;
+      supa.auth.verifyOtp({ phone:phone, token:token, type:'sms' }).then(function(out){
+        verify.disabled = false;
+        if (out.error) throw out.error;
+        authSession = out.data.session;
+        return afterAuthed();
+      }).catch(function(err){ verify.disabled = false; authMsg(err.message || String(err)); });
+    });
   }
 
   function escapeHtml(s){
@@ -2637,6 +2789,34 @@ gmp-place-autocomplete{
     refreshIcons();
 
     var payload = buildPayload();
+    if (!authSession || !authReady) {
+      submitting = false;
+      btnNext.disabled = false;
+      btnNext.innerHTML = 'Submit My Profile<i data-lucide="send"></i>';
+      refreshIcons();
+      openAuthGate();
+      authMsg('Create your account first, then submit your seller profile.');
+      return;
+    }
+    portalFetch('/api/portal/onboarding/seller-onboarding', {
+      method:'PUT',
+      body:JSON.stringify({ step: current, data: payload })
+    }).then(function(){
+      return portalFetch('/api/portal/onboarding/seller-onboarding/submit', {
+        method:'POST',
+        body:JSON.stringify(payload)
+      });
+    }).then(function(){
+      showSuccess();
+      setTimeout(function(){ window.location.href = CLIENT_PORTAL_URL; }, 900);
+    }).catch(function(err){
+      submitting = false;
+      btnNext.disabled = false;
+      btnNext.innerHTML = 'Submit My Profile<i data-lucide="send"></i>';
+      refreshIcons();
+      alert((err && err.message) || 'Something went wrong sending your profile. Please try again.');
+    });
+    return;
     if (!INTAKE_API) {
       /* Preview mode: backend not wired yet */
       setTimeout(showSuccess, 700);
@@ -2832,6 +3012,7 @@ gmp-place-autocomplete{
   initSearchClears();
   (function (u){ if (u) u.addEventListener('input', composeAddress); })(document.getElementById('obUnit'));
   loadGoogleMaps();
+  initPortalAuth();
   refreshIcons();
   showStep(0);
   booted = true;
