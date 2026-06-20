@@ -2,7 +2,8 @@ import { sql, j } from '../db/client.js';
 import { uploadObject, supabase, createSignedUpload, publicUrlFor } from '../storage.js';
 import { slugify, parseNumber, parseBool, parseDate, parseDateTime } from '../util/text.js';
 import { env, have } from '../env.js';
-import { createProject, createTaskInProject } from '../connectors/asana.js';
+import { createTaskInProject } from '../connectors/asana.js';
+import { asanaAssigneeForName, ensureListingAsanaProject, listingMarketingRequestLabel } from './asanaListings.js';
 import { log } from '../logger.js';
 
 type Row = Record<string, unknown>;
@@ -409,16 +410,6 @@ export async function reorderListingPhotos(
 
 // ── Marketing requests (drive Asana from our DB) ──────────────────────────
 
-const REQUEST_KIND_LABEL: Record<string, string> = {
-  open_house_materials: 'Open House Materials',
-  fact_sheet: 'Fact Sheet',
-  photos: 'Listing Photos',
-  matterport: 'Matterport',
-  floor_plan: 'Floor Plan',
-  video: 'Video',
-  other: 'Marketing Request',
-};
-
 /** Status column + requested-at column a request kind drives on the listing. */
 const REQUEST_STATUS_COL: Record<string, { status: string; requestedAt?: string }> = {
   open_house_materials: { status: 'open_house_materials_status', requestedAt: 'open_house_materials_requested_at' },
@@ -436,36 +427,37 @@ const REQUEST_STATUS_COL: Record<string, { status: string; requestedAt?: string 
  */
 export async function createRequest(
   listingId: string,
-  input: { kind?: string; notes?: string; materials?: unknown; requestedBy?: string },
+  input: { kind?: string; notes?: string; materials?: unknown; requestedBy?: string; assignee?: string },
 ): Promise<Row> {
   const listing = await fetchOne('listings', listingId);
   if (!listing) throw new ApiError(404, 'listing not found');
   const kind = String(input.kind ?? 'other');
-  const label = REQUEST_KIND_LABEL[kind] ?? REQUEST_KIND_LABEL.other!;
+  const label = listingMarketingRequestLabel(kind);
   const address = String(listing.address ?? '');
   const materials = Array.isArray(input.materials) ? input.materials : input.materials ? [input.materials] : [];
+  const assignee = input.assignee ? String(input.assignee) : null;
 
   const [req] = await sql<Row[]>`
-    insert into listing_requests (listing_id, kind, status, materials, notes, requested_by)
-    values (${listingId}::uuid, ${kind}, 'requested', ${j(materials)}, ${input.notes ?? null}, ${input.requestedBy ?? null})
+    insert into listing_requests (listing_id, kind, status, materials, notes, requested_by, assignee)
+    values (${listingId}::uuid, ${kind}, 'requested', ${j(materials)}, ${input.notes ?? null}, ${input.requestedBy ?? null}, ${assignee})
     returning *`;
   const requestId = String(req!.id);
 
   // Ensure an Asana project for the listing, then create a task for the request.
   if (have.asana()) {
     try {
-      let projectGid: string | null = (listing.asana_project_gid as string | null) ?? null;
-      if (!projectGid) {
-        const project = await createProject({ name: `${address} — Marketing` });
-        projectGid = project?.gid ?? null;
-        if (projectGid)
-          await sql`update listings set asana_project_gid = ${projectGid} where id = ${listingId}::uuid`;
-      }
+      const project = await ensureListingAsanaProject(listingId, { seedTasks: false });
+      const projectGid = project.projectGid;
       if (projectGid) {
         const task = await createTaskInProject({
           projectGid,
           name: `${label} — ${address}`,
-          notes: input.notes ?? '',
+          notes: [
+            input.notes ?? '',
+            input.requestedBy ? `Requested by: ${input.requestedBy}` : '',
+            assignee ? `Requested assignee: ${assignee}` : '',
+          ].filter(Boolean).join('\n\n'),
+          assigneeGid: asanaAssigneeForName(assignee),
         });
         if (task?.gid) {
           await sql`
@@ -495,6 +487,28 @@ export async function createRequest(
   await logActivity(listingId, 'materials_requested', `${label} requested`, input.requestedBy ?? null, { kind, requestId }, true);
 
   return (await sql<Row[]>`select * from listing_requests where id = ${requestId}::uuid`)[0]!;
+}
+
+export async function canAgentAccessListing(input: {
+  listingId: string;
+  agentId?: string | null;
+  email?: string | null;
+}): Promise<boolean> {
+  if (!input.agentId && !input.email) return false;
+  const [row] = await sql<Row[]>`
+    select id
+    from listings_enriched
+    where id = ${input.listingId}::uuid
+      and (
+        (${input.agentId ?? null}::uuid is not null and (agent_id = ${input.agentId ?? null}::uuid or co_agent_id = ${input.agentId ?? null}::uuid))
+        or (${input.email ?? null}::text is not null and (
+          lower(coalesce(agent_email,'')) = lower(${input.email ?? null})
+          or lower(coalesce(co_agent_email,'')) = lower(${input.email ?? null})
+        ))
+      )
+    limit 1
+  `;
+  return Boolean(row);
 }
 
 // ── Share with agent (pre-filled compose) ─────────────────────────────────

@@ -87,12 +87,29 @@ export async function createProject(input: {
   return data.data ?? null;
 }
 
+/** Add an existing project to an Asana portfolio. */
+export async function addProjectToPortfolio(input: {
+  portfolioGid: string;
+  projectGid: string;
+}): Promise<boolean> {
+  if (!have.asana() || !input.portfolioGid || !input.projectGid) return false;
+  await httpJson<{ data: unknown }>(`${BASE}/portfolios/${encodeURIComponent(input.portfolioGid)}/addItem`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.ASANA_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      data: { item: input.projectGid },
+    }),
+  });
+  return true;
+}
+
 /** Create a task inside a specific project (the listing's project). */
 export async function createTaskInProject(input: {
   projectGid: string;
   name: string;
   notes?: string;
   dueOn?: string;
+  assigneeGid?: string | null;
 }): Promise<{ gid: string; permalink_url?: string } | null> {
   if (!have.asana()) return null;
   const data = await httpJson<{ data: { gid: string; permalink_url?: string } }>(`${BASE}/tasks`, {
@@ -103,6 +120,7 @@ export async function createTaskInProject(input: {
         name: input.name,
         notes: input.notes ?? '',
         due_on: input.dueOn,
+        assignee: input.assigneeGid || undefined,
         projects: [input.projectGid],
         workspace: env.ASANA_WORKSPACE_GID,
       },

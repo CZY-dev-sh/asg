@@ -2,6 +2,7 @@ import { sql, j } from '../db/client.js';
 import { env } from '../env.js';
 import { fubClient } from '../connectors/fub.js';
 import { log } from '../logger.js';
+import { ensureListingAsanaProject } from './asanaListings.js';
 
 type Rec = Record<string, unknown>;
 
@@ -71,6 +72,13 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
       });
       listingId = res?.listingId;
       existingDealId = res?.fubDealId ?? null;
+      if (listingId) {
+        try {
+          await ensureListingAsanaProject(listingId, { seedTasks: true });
+        } catch (err) {
+          log.warn(`lead ${leadId} asana project failed: ${String(err)}`);
+        }
+      }
     } catch (err) {
       log.warn(`lead ${leadId} listing draft failed: ${String(err)}`);
     }

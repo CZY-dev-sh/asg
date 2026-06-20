@@ -193,11 +193,20 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await requireWrite(req, reply, STAFF);
     if (!ctx) return;
     try {
+      if (ctx.profile?.role === 'agent') {
+        const ok = await admin.canAgentAccessListing({
+          listingId: param(req, 'id'),
+          agentId: ctx.profile.agentId,
+          email: ctx.email ?? ctx.profile.email,
+        });
+        if (!ok) return reply.code(403).send({ ok: false, error: 'listing access required' });
+      }
       const b = body(req);
       const request = await admin.createRequest(param(req, 'id'), {
         kind: b.kind as string | undefined,
         notes: b.notes as string | undefined,
         materials: b.materials,
+        assignee: b.assignee as string | undefined,
         requestedBy: actorOf(ctx),
       });
       return { ok: true, request };
