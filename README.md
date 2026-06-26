@@ -1,133 +1,77 @@
-# ASG TV Remote Workspace
+# Alex Stoykov Group — Real Estate Platform
 
-Organized project workspace for ASG TV remote, dashboard pages, data files, and supporting scripts.
+A production system for a Chicago real estate team (the Alex Stoykov Group, operating under Compass). It replaces a sprawl of per-page Google Apps Scripts with **one Supabase system-of-record**, a typed **Fastify API**, and an **AI agent** that drafts on-brand, Fair-Housing-aware listing marketing for human review.
 
-## Project Structure
+This is a working system, not a demo: it ingests Follow Up Boss, IDX/MLS, Google Drive, Asana, and Acuity into Postgres; serves every public and internal UI surface; and powers a client/agent portal backed by Supabase Auth and Row Level Security.
 
-- `index.html` - remote control UI for phone/tablet
-- `server.js` - Node server and remote control API
-- `pages/` - selected dashboard/standalone HTML pages
-- `docs/` - project documentation and endpoint/design references
-- `data/` - shared data files
-- `scripts/start-dashboard.sh` - kiosk launcher for fullscreen dashboard
-- `systemd/` - ready-to-use service files for boot automation
-- `asg-admin-hub/` - dashboard components and consolidated Apps Script modules
+> **Looking for the engineering?** Start with [`apps/backend`](apps/backend) — it's the core of this repo. See [`ARCHITECTURE.md`](ARCHITECTURE.md) for how the pieces fit together.
 
-## Quick Start
+---
 
-1. Install Node.js 18+.
-2. Run:
+## Repository layout
 
-   ```bash
-   npm start
-   ```
+| Path | What it is | Stack |
+|---|---|---|
+| [`apps/backend`](apps/backend) | **The platform.** Supabase system-of-record, sync/ETL jobs, serving + admin API, auth/portal, and the AI listing-marketing agent. | TypeScript, Node 18, Fastify, Postgres (postgres.js), Supabase, Anthropic SDK, node-cron, Zod |
+| [`apps/admin-hub`](apps/admin-hub) | Squarespace code blocks and Google Apps Script modules for the admin/agent dashboards the backend feeds. | HTML/CSS/JS, Apps Script |
+| [`infra/pi-remote`](infra/pi-remote) | A Raspberry Pi kiosk + remote that drives the office TV dashboard (Node static server, systemd units, deploy scripts). | Node (no deps), bash, systemd |
+| [`design`](design) | Design references and scraped style extractions used while building the UI surfaces. Reference material, not application code. | — |
+| [`docs`](docs) | System documentation: API endpoints, deployment, client-portal auth, component map, project phases. | — |
+| [`data`](data) | Shared static data (team roster) referenced by the dashboards. | — |
 
-3. Open:
+---
 
-   ```text
-   http://<HOST_IP>:8080
-   ```
+## The backend in one diagram
 
-4. Open the TV dashboard on the display device:
+```
+        ┌──────────────── SOURCES ────────────────┐
+  Follow Up Boss · IDX/MLS · Google Drive · Asana  
+  Acuity · Pipeline CSVs · Lead intake (write-back) 
+        └────────────────────┬─────────────────────┘
+                             │  sync / ETL  (src/sync, scheduled)
+                             ▼
+              ┌──────────────────────────────┐
+              │  SUPABASE — system of record  │
+              │  Postgres tables + views      │
+              │  Storage buckets (photos)     │
+              └───────────────┬───────────────┘
+                              │  serving + admin API (src/routes)
+                              ▼
+   Squarespace surfaces · admin/agent hubs · client portal · TV dashboard
+```
 
-   ```text
-   http://<HOST_IP>:8080/dashboard
-   ```
+**Why it's built this way:** every legacy "API" was a separate Apps Script hitting a third-party API on each page load. Here, sync jobs pull each source into Supabase on a schedule and the serving API reads only from Supabase, so the site is fast, resilient to upstream outages, and backed by real relational data and a photo CDN.
 
-## Remote Access Link (Control From Anywhere)
+---
 
-Set a token so only authorized links can send control commands:
+## Highlight: the AI listing-marketing agent
+
+When a seller onboarding creates a listing, the backend enqueues a best-effort job; an out-of-band worker drafts a complete marketing package (MLS description, social captions, an email blast, a fact sheet, and a content-pillar tag) for human review. It is engineered around real production concerns:
+
+- **Drafts only** — it never auto-publishes to the site, FUB, or MLS.
+- **Idempotent + auditable** — a job table keys on an `input_hash` of the questionnaire and MLS facts, so re-submitting an unchanged form never triggers a paid re-run; every run records model, token counts, and estimated cost.
+- **Grounded** — a ResearchAgent assembles only verified facts (never invents features); a CopyAgent writes strictly from those facts and the ASG brand guide.
+- **Cost-capped** — a per-run token ceiling aborts the run before it can run up a bill (a single listing should never cost more than ~$1), with prompt caching on the static brand guide.
+
+Code: [`apps/backend/src/agents`](apps/backend/src/agents), schema in `apps/backend/supabase/migrations/0017_listing_marketing_agent.sql`.
+
+---
+
+## Quick start (backend)
 
 ```bash
-REMOTE_TOKEN="your-strong-token" npm start
+cd apps/backend
+cp .env.example .env      # fill in DATABASE_URL, SUPABASE_*, source credentials
+npm install
+npm run db:migrate        # create schema + serving views + storage buckets
+npm run db:seed           # load the team roster
+npm run dev               # tsx watch; GET /health
 ```
 
-Use this remote control URL on phone/laptop:
+Full setup, the complete endpoint contract, and deployment notes live in [`apps/backend/README.md`](apps/backend/README.md) and [`docs/`](docs).
 
-```text
-http://<HOST_OR_PUBLIC_DOMAIN>:8080/?token=your-strong-token
-```
+---
 
-If you expose the Pi publicly, place it behind HTTPS reverse proxy (Cloudflare Tunnel, Nginx Proxy Manager, or Tailscale Funnel).
+## Deployment
 
-## Raspberry Pi Setup Notes
-
-Install `xdotool` on Pi:
-
-```bash
-sudo apt install xdotool
-```
-
-The server expects an X11 session on `DISPLAY=:0` when sending key events.
-
-## Auto-start On Boot (Server + Fullscreen Dashboard)
-
-Copy provided units:
-
-```bash
-sudo cp systemd/tv-remote.service /etc/systemd/system/
-sudo cp systemd/tv-dashboard-kiosk.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable tv-remote.service
-sudo systemctl enable tv-dashboard-kiosk.service
-sudo systemctl start tv-remote.service
-sudo systemctl start tv-dashboard-kiosk.service
-```
-
-When Pi boots:
-- Node server starts automatically
-- Chromium opens `http://127.0.0.1:8080/dashboard` in fullscreen
-- Remote URL can control dashboard immediately
-
-## Deploy From Mac Studio
-
-Edit locally on your Mac, then deploy to Pi with one command.
-
-Default assumptions used by deploy script:
-- Pi host: `10.52.20.121`
-- SSH user: `asgtech`
-- Project path on Pi: `/home/asgtech/Desktop/Cursor`
-
-Override if needed:
-
-```bash
-PI_HOST=10.52.20.121 PI_USER=asgtech PI_PROJECT_DIR=/home/asgtech/Desktop/Cursor bash scripts/deploy-pi.sh remote
-```
-
-Common deploy commands:
-
-```bash
-# Remote UI + server + previews
-npm run deploy:pi:remote
-
-# Dashboard pages
-npm run deploy:pi:dashboard
-
-# Entire workspace (excluding .git/node_modules)
-npm run deploy:pi:all
-```
-
-Skip restart if you only want to sync files:
-
-```bash
-bash scripts/deploy-pi.sh remote --no-restart
-```
-
-If SSH is not set up yet:
-
-```bash
-ssh-copy-id asgtech@10.52.20.121
-```
-
-## Power On/Off Notes
-
-- **Power off** is supported from remote (`shutdown`).
-- **Power on** from remote uses Wake-on-LAN (`wake`) and requires:
-  - Pi/network hardware that supports WoL
-  - `wakeonlan` or `etherwake` installed on the machine sending the packet
-  - `WAKE_MAC` environment variable configured in `tv-remote.service`
-- If WoL is not available on your setup, use smart plug/relay or manual power button.
-
-## Security
-
-The server listens on `0.0.0.0:8080`. Keep it on a trusted LAN or protect it behind authenticated access.
+The backend deploys to **Railway** from `apps/backend` (Nixpacks build, `npm run build` → `npm start`, health check at `/health`). The Pi kiosk is deployed over SSH/rsync from [`infra/pi-remote`](infra/pi-remote). See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).

@@ -162,7 +162,7 @@ Create a project at supabase.com, then grab from **Project Settings**:
 
 ### 2. Configure env
 ```bash
-cd backend
+cd apps/backend
 cp .env.example .env
 # fill in DATABASE_URL, SUPABASE_*, and whichever source credentials you have
 npm install

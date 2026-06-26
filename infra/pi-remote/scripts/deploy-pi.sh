@@ -4,7 +4,8 @@ set -euo pipefail
 MODE="${1:-remote}"
 NO_RESTART="${2:-}"
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# This script lives at infra/pi-remote/scripts/; the repo root is three levels up.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PI_HOST="${PI_HOST:-10.52.20.121}"
 PI_USER="${PI_USER:-asgtech}"
 PI_PROJECT_DIR="${PI_PROJECT_DIR:-/home/asgtech/Desktop/Cursor}"
@@ -31,7 +32,7 @@ sync_paths() {
   local -a rel_paths=("$@")
   local -a abs_paths=()
   for rel in "${rel_paths[@]}"; do
-    abs_paths+=("${ROOT_DIR}/${rel}")
+    abs_paths+=("${REPO_ROOT}/${rel}")
   done
   rsync -az "${abs_paths[@]}" "${SSH_TARGET}:${PI_PROJECT_DIR}/"
 }
@@ -40,11 +41,11 @@ case "${MODE}" in
   remote)
     echo "Syncing remote UI files..."
     sync_paths \
-      "index.html" \
-      "server.js" \
-      "previews/" \
-      "asg-admin-hub/asg-remote/index.html" \
-      "asg-admin-hub/asg-remote/server.js"
+      "infra/pi-remote/index.html" \
+      "infra/pi-remote/server.js" \
+      "infra/pi-remote/previews/" \
+      "apps/admin-hub/asg-remote/index.html" \
+      "apps/admin-hub/asg-remote/server.js"
     if [[ "${NO_RESTART}" != "--no-restart" ]]; then
       echo "Restarting tv-remote service..."
       ssh "${SSH_TARGET}" "sudo systemctl restart tv-remote && sudo systemctl status tv-remote --no-pager -n 12"
@@ -53,9 +54,7 @@ case "${MODE}" in
   dashboard)
     echo "Syncing dashboard files..."
     sync_paths \
-      "pages/admin-dashboard.html" \
-      "pages/tv-dashboard.html" \
-      "asg-admin-hub/components/tv-dashboard-multiview.html"
+      "apps/admin-hub/components/tv-dashboard-multiview.html"
     if [[ "${NO_RESTART}" != "--no-restart" ]]; then
       echo "Restarting tv-remote and kiosk services..."
       ssh "${SSH_TARGET}" "sudo systemctl restart tv-remote tv-dashboard-kiosk && sudo systemctl status tv-dashboard-kiosk --no-pager -n 12"
@@ -67,14 +66,14 @@ case "${MODE}" in
       --exclude ".git" \
       --exclude "node_modules" \
       --exclude ".DS_Store" \
-      "${ROOT_DIR}/" "${SSH_TARGET}:${PI_PROJECT_DIR}/"
+      "${REPO_ROOT}/" "${SSH_TARGET}:${PI_PROJECT_DIR}/"
     if [[ "${NO_RESTART}" != "--no-restart" ]]; then
       echo "Restarting tv-remote and kiosk services..."
       ssh "${SSH_TARGET}" "sudo systemctl restart tv-remote tv-dashboard-kiosk && sudo systemctl status tv-remote --no-pager -n 12"
     fi
     ;;
   *)
-    echo "Usage: bash scripts/deploy-pi.sh [remote|dashboard|all] [--no-restart]"
+    echo "Usage: bash infra/pi-remote/scripts/deploy-pi.sh [remote|dashboard|all] [--no-restart]"
     exit 1
     ;;
 esac

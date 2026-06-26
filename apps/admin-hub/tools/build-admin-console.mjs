@@ -3,7 +3,7 @@
    the existing admin surfaces under one Google-login + chip-bar shell, repointed
    at the Supabase backend. Re-run after editing any source surface or shell asset.
 
-   Usage:  node asg-admin-hub/tools/build-admin-console.mjs
+   Usage:  node apps/admin-hub/tools/build-admin-console.mjs
 */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -78,8 +78,8 @@ inject("    <!--SURFACE:command-->", "command", true);
 /* --- assemble --- */
 const out = `<!-- ════════════════════════════════════════════════════════════════
      ASG ADMIN CONSOLE  —  GENERATED FILE, DO NOT EDIT BY HAND
-     Source: asg-admin-hub/tools/* + the live surface components.
-     Rebuild: node asg-admin-hub/tools/build-admin-console.mjs
+     Source: apps/admin-hub/tools/* + the live surface components.
+     Rebuild: node apps/admin-hub/tools/build-admin-console.mjs
 
      One Squarespace code block. Composes Overview (admin dashboard), Deals,
      Listings, Team Directory and Command Center behind a Google login, with a

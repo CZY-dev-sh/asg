@@ -4,7 +4,9 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
-const ROOT = path.resolve(__dirname, "..");
+// This script lives at infra/pi-remote/scripts/; the repo root is three levels up.
+const ROOT = path.resolve(__dirname, "..", "..", "..");
+const ADMIN_HUB = path.join(ROOT, "apps", "admin-hub");
 
 async function pathExists(filePath) {
   try {
@@ -42,7 +44,7 @@ async function listFilesByExt(dirPath, ext) {
 }
 
 async function syncComponentsToPages() {
-  const componentsDir = path.join(ROOT, "asg-admin-hub", "components");
+  const componentsDir = path.join(ADMIN_HUB, "components");
   const pagesDir = path.join(ROOT, "pages");
   const componentFiles = await listFilesByExt(componentsDir, ".html");
   const pageFiles = await listFilesByExt(pagesDir, ".html");
@@ -59,7 +61,7 @@ async function syncComponentsToPages() {
 }
 
 async function syncPagesToComponents() {
-  const componentsDir = path.join(ROOT, "asg-admin-hub", "components");
+  const componentsDir = path.join(ADMIN_HUB, "components");
   const pagesDir = path.join(ROOT, "pages");
   const pageFiles = await listFilesByExt(pagesDir, ".html");
   let changed = 0;
@@ -79,7 +81,7 @@ async function syncAppsScriptToRootModules() {
 
 async function syncDocsBidirectionalNewestWins() {
   const rootDocs = path.join(ROOT, "docs");
-  const asgDocs = path.join(ROOT, "asg-admin-hub", "docs");
+  const asgDocs = path.join(ADMIN_HUB, "docs");
   const [rootFiles, asgFiles] = await Promise.all([
     listFilesByExt(rootDocs, ".md"),
     listFilesByExt(asgDocs, ".md")

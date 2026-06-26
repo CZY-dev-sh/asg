@@ -4,7 +4,9 @@ const path = require("path");
 const { execSync, execFileSync } = require("child_process");
 
 const PORT = 8080;
-const ROOT_DIR = __dirname;
+// This server lives at infra/pi-remote/ but serves the whole repo workspace
+// (so the kiosk can open dashboard pages under apps/). Resolve to the repo root.
+const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const EXCLUDED_DIRS = new Set([".git", "node_modules"]);
 const REMOTE_TOKEN = process.env.REMOTE_TOKEN || "";
 const WAKE_MAC = process.env.WAKE_MAC || "";
@@ -191,7 +193,7 @@ function wakePi() {
 }
 
 function runDashboardUpdate(branch = "main") {
-  const scriptPath = path.join(ROOT_DIR, "scripts", "pi-update-dashboard.sh");
+  const scriptPath = path.join(__dirname, "scripts", "pi-update-dashboard.sh");
   if (!fs.existsSync(scriptPath)) {
     throw new Error("Update script not found: " + scriptPath);
   }
@@ -229,7 +231,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === "GET" && pathname === "/dashboard") {
-    const dashboardPath = path.join(__dirname, "asg-admin-hub", "components", "tv-dashboard-multiview.html");
+    const dashboardPath = path.join(ROOT_DIR, "apps", "admin-hub", "components", "tv-dashboard-multiview.html");
     try {
       res.writeHead(200, {
         "Content-Type": "text/html; charset=utf-8",
