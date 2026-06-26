@@ -3,6 +3,7 @@ import { env } from '../env.js';
 import { fubClient } from '../connectors/fub.js';
 import { log } from '../logger.js';
 import { ensureListingAsanaProject } from './asanaListings.js';
+import { enqueueListingMarketing } from './listingMarketing.js';
 
 type Rec = Record<string, unknown>;
 
@@ -77,6 +78,14 @@ export async function handleIntake(body: Rec, ip?: string): Promise<IntakeResult
           await ensureListingAsanaProject(listingId, { seedTasks: true });
         } catch (err) {
           log.warn(`lead ${leadId} asana project failed: ${String(err)}`);
+        }
+        // Best-effort: queue an AI marketing-draft job. Idempotent via input_hash,
+        // so a re-submitted questionnaire with unchanged answers is a no-op. Never
+        // runs the model in the request path; the worker picks it up out-of-band.
+        try {
+          await enqueueListingMarketing(listingId);
+        } catch (err) {
+          log.warn(`lead ${leadId} marketing enqueue failed: ${String(err)}`);
         }
       }
     } catch (err) {

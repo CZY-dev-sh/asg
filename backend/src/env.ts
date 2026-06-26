@@ -92,6 +92,17 @@ const schema = z.object({
   PIPELINE_BUYERS_CSV: z.string().optional().default(''),
   PIPELINE_SELLERS_CSV: z.string().optional().default(''),
 
+  // Anthropic (listing marketing agent). Drafts only — never auto-publishes.
+  ANTHROPIC_API_KEY: z.string().optional().default(''),
+  ANTHROPIC_BASE_URL: z.string().optional().default(''),
+  CLAUDE_MODEL: z.string().default('claude-sonnet-4-6'),
+  // Cheaper model for deterministic sub-steps (pillar tag, fact extraction).
+  CLAUDE_HAIKU_MODEL: z.string().default('claude-haiku-4-5'),
+  // Master switch for the agent worker/cron (in addition to having an API key).
+  LISTING_AGENT_ENABLED: bool(false),
+  // Hard ceiling per run so a bug can't run up a bill. ~$1/listing budget.
+  LISTING_AGENT_MAX_TOKENS_PER_RUN: z.coerce.number().int().default(120000),
+
   // Scheduler
   ENABLE_SCHEDULER: bool(false),
   CRON_IDX: z.string().default('*/15 * * * *'),
@@ -100,6 +111,7 @@ const schema = z.object({
   CRON_PHOTOS: z.string().default('0 * * * *'),
   CRON_DIRECTORY: z.string().default('0 6 * * *'),
   CRON_MARKETING: z.string().default('*/30 * * * *'),
+  CRON_LISTING_AGENT: z.string().default('*/2 * * * *'),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -124,4 +136,5 @@ export const have = {
   acuity: () => Boolean(env.ACUITY_USER_ID && env.ACUITY_API_KEY),
   acuityIcs: () => env.ACUITY_ICS_URLS.length > 0,
   pipeline: () => Boolean(env.PIPELINE_BUYERS_CSV || env.PIPELINE_SELLERS_CSV),
+  anthropic: () => Boolean(env.ANTHROPIC_API_KEY),
 };

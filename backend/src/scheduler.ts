@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { env, have } from './env.js';
 import { runJob } from './sync/index.js';
+import { runListingMarketingWorker } from './agents/worker.js';
 import { log } from './logger.js';
 
 /** Register cron jobs that keep Supabase in sync with every source. */
@@ -30,4 +31,6 @@ export function startScheduler(): void {
   schedule(env.CRON_DIRECTORY, 'directory', () => runJob('directory'));
   if (have.asana() || have.acuity() || have.acuityIcs())
     schedule(env.CRON_MARKETING, 'marketing', () => runJob('marketing'));
+  if (have.anthropic() && env.LISTING_AGENT_ENABLED)
+    schedule(env.CRON_LISTING_AGENT, 'listing-agent', () => runListingMarketingWorker());
 }
