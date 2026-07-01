@@ -1,10 +1,33 @@
 import { sql, j } from '../db/client.js';
 import { ROSTER, QUICK_LINKS } from '../data/roster.js';
 import { slugify } from '../util/text.js';
-import { fubClient } from '../connectors/fub.js';
+import { fubClient, type FubClient } from '../connectors/fub.js';
 import type { SyncResult } from './runner.js';
 
 const tierRank: Record<string, number> = { senior: 1, junior: 2, admin: 3 };
+
+/**
+ * Match every `agents` row to a FUB user by email and stamp `fub_user_id`.
+ * Deliberately decoupled from `syncDirectory` below: the Sheet-driven directory
+ * push (`upsertDirectory` in repositories/admin.ts) can correct an agent's email
+ * at any time, and `syncFub` runs every 30 minutes — far more often than this
+ * function's other caller, the daily roster cron — so calling this at the start
+ * of every FUB sync means a corrected email starts resolving deals within
+ * minutes instead of waiting up to a day for the next directory cron.
+ */
+export async function enrichAgentFubIds(fub: FubClient): Promise<number> {
+  let matched = 0;
+  const users = await fub.users();
+  for (const u of users as Array<{ id?: unknown; email?: string }>) {
+    if (!u.email || u.id == null) continue;
+    const res = await sql`
+      update agents set fub_user_id = ${String(u.id)}, updated_at = now()
+      where lower(email) = ${u.email.toLowerCase()} and fub_user_id is distinct from ${String(u.id)}
+    `;
+    matched += (res as unknown as { count?: number }).count ?? 0;
+  }
+  return matched;
+}
 
 /**
  * Seed the agents directory from the hardcoded roster, then enrich with FUB user
@@ -53,14 +76,7 @@ export async function syncDirectory(): Promise<SyncResult> {
   const fub = fubClient();
   if (fub) {
     try {
-      const users = await fub.users();
-      for (const u of users as Array<{ id?: unknown; email?: string }>) {
-        if (!u.email || u.id == null) continue;
-        await sql`
-          update agents set fub_user_id = ${String(u.id)}, updated_at = now()
-          where lower(email) = ${u.email.toLowerCase()}
-        `;
-      }
+      await enrichAgentFubIds(fub);
     } catch {
       // FUB optional for directory sync
     }

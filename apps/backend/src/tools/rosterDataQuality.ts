@@ -18,6 +18,26 @@ interface AgentRow {
   fub_user_id: string | null;
 }
 
+/**
+ * Manually maintained exceptions so this report stays useful instead of
+ * re-surfacing already-explained noise every run. There's no `agents` column
+ * for "pending FUB invite" or "departed" yet — if this list grows past a
+ * handful of entries, that's a sign it should become a real column instead.
+ */
+const KNOWN_EXCEPTIONS = {
+  /** Left FUB entirely (not just unmatched) — never show as "orphaned". */
+  departedFubUsers: new Set<string>(['james.basile@compass.com']),
+  /** Agents who don't have a FUB seat yet — expected, not a data bug. */
+  pendingFubOnboarding: new Set<string>([
+    'barbara.laken@compass.com',
+    'breanna.raspopovich@compass.com',
+    'chloe.dittmer@compass.com',
+    'danica.thomas@compass.com',
+    'deannine.weberronan@compass.com',
+    'preety.sidhu@compass.com',
+  ]),
+};
+
 async function main(): Promise<void> {
   const fub = fubClient();
   if (!fub) {
@@ -30,12 +50,23 @@ async function main(): Promise<void> {
     where active = true order by tier, name
   `;
   const fubUsers = (await fub.users()) as Array<{ id?: unknown; name?: string; email?: string }>;
-  const fubByEmail = new Map(fubUsers.map((u) => [String(u.email ?? '').toLowerCase(), u]));
 
-  console.log('=== Agents with no FUB user match (email mismatch — hub will look empty) ===');
-  const unmatched = agents.filter((a) => a.active && !a.fub_user_id);
+  console.log('=== Agents pending FUB onboarding (known, not a data bug) ===');
+  const pending = agents.filter((a) => KNOWN_EXCEPTIONS.pendingFubOnboarding.has(a.email.toLowerCase()));
+  if (!pending.length) {
+    console.log('  none.');
+  }
+  for (const a of pending) {
+    console.log(`  ${a.name} <${a.email}> (${a.tier}) — no FUB seat yet.`);
+  }
+
+  console.log('');
+  console.log('=== Agents with an unexplained FUB mismatch (needs investigation) ===');
+  const unmatched = agents.filter(
+    (a) => !a.fub_user_id && !KNOWN_EXCEPTIONS.pendingFubOnboarding.has(a.email.toLowerCase()),
+  );
   if (!unmatched.length) {
-    console.log('  none — every active agent has a matching FUB user id.');
+    console.log('  none.');
   }
   for (const a of unmatched) {
     const fuzzy = fubUsers.find((u) => namesLooselyMatch(u.name, a.name));
@@ -50,7 +81,12 @@ async function main(): Promise<void> {
   console.log('');
   console.log('=== FUB users with no matching active agent (orphaned in the roster) ===');
   const agentEmails = new Set(agents.map((a) => a.email.toLowerCase()));
-  const orphaned = fubUsers.filter((u) => u.email && !agentEmails.has(u.email.toLowerCase()));
+  const orphaned = fubUsers.filter(
+    (u) =>
+      u.email &&
+      !agentEmails.has(u.email.toLowerCase()) &&
+      !KNOWN_EXCEPTIONS.departedFubUsers.has(u.email.toLowerCase()),
+  );
   if (!orphaned.length) {
     console.log('  none.');
   }

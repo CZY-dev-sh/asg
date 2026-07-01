@@ -2,6 +2,7 @@ import { sql, j } from '../db/client.js';
 import { fubClient } from '../connectors/fub.js';
 import { env } from '../env.js';
 import { log } from '../logger.js';
+import { enrichAgentFubIds } from './directory.js';
 import { parseDate, parseDateTime, parseNumber, trim } from '../util/text.js';
 import type { SyncResult } from './runner.js';
 
@@ -56,6 +57,15 @@ function mapDealStatus(raw: string): string {
 export async function syncFub(): Promise<SyncResult> {
   const fub = fubClient();
   if (!fub) throw new Error('FUB not configured (FUB_API_KEY)');
+
+  // Re-check email → fub_user_id matches first, so a directory-side email fix
+  // (e.g. the Google Sheet) starts resolving deals in this same run instead of
+  // waiting for tomorrow's directory cron.
+  const enriched = await enrichAgentFubIds(fub).catch((err) => {
+    log.warn('syncFub: agent fub_user_id enrichment failed (continuing)', err);
+    return 0;
+  });
+  if (enriched > 0) log.info(`syncFub: re-matched ${enriched} agent(s) to a FUB user id`);
 
   // ── schema catalog (pipelines, stages, custom fields) ──
   const [pipelines, stages, customFields] = await Promise.all([
