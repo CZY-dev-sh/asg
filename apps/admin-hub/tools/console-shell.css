@@ -111,14 +111,14 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
 }
 .asgc-nav.is-scrolled{box-shadow:0 10px 32px rgba(17,17,17,.10);min-height:66px}
 .asgc-nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;background:none;border:none;cursor:pointer;padding:0}
-.asgc-nav-logo img{width:54px;height:54px;object-fit:contain;transition:width .35s var(--asgc-ease),height .35s var(--asgc-ease),transform .3s ease}
-.asgc-nav.is-scrolled .asgc-nav-logo img{width:48px;height:48px}
+.asgc-nav-logo img{width:58px;height:58px;object-fit:contain;transition:width .35s var(--asgc-ease),height .35s var(--asgc-ease),transform .3s ease}
+.asgc-nav.is-scrolled .asgc-nav-logo img{width:50px;height:50px}
 .asgc-nav-logo:hover img{transform:rotate(-8deg)}
 .asgc-nav-logo span{font-weight:800;font-size:1.3rem;letter-spacing:-.025em;white-space:nowrap;color:var(--asgc-ink)}
 .asgc-nav-links{display:flex;align-items:center;gap:4px;position:relative}
 .asgc-nav-link{
   position:relative;z-index:1;border:none;background:none;cursor:pointer;font-family:inherit;
-  border-radius:var(--asgc-pill);padding:13px 22px;font-size:1.08rem;font-weight:600;color:var(--asgc-muted);
+  border-radius:var(--asgc-pill);padding:14px 24px;font-size:1.12rem;font-weight:600;color:var(--asgc-muted);
   white-space:nowrap;transition:color .2s ease,background .2s ease;
 }
 .asgc-nav-link:hover{color:var(--asgc-ink)}
@@ -198,6 +198,25 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
 .asgc-act-row .ts{color:var(--asgc-muted);white-space:nowrap;font-size:12px}
 .asgc-signout{margin-top:16px;background:#fff;border:1.5px solid var(--asgc-red);color:var(--asgc-red);border-radius:12px;padding:11px;width:100%;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:.18s}
 .asgc-signout:hover{background:var(--asgc-red);color:#fff}
+
+/* ── Pending invites (Settings) ────────────────────────────── */
+.asgc-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 4px}
+.asgc-panel-head h3{margin:0}
+.asgc-panel-sub{margin:0 0 14px;color:var(--asgc-muted);font-size:12px}
+.asgc-mini-btn{background:#111;color:#fff;border:none;border-radius:10px;padding:8px 12px;font-family:inherit;font-weight:600;font-size:12px;cursor:pointer;transition:.18s;white-space:nowrap}
+.asgc-mini-btn:hover{opacity:.88}
+.asgc-invites{max-height:340px;overflow:auto}
+.asgc-invite-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.asgc-invite-row:last-child{border-bottom:none}
+.asgc-invite-main{min-width:0}
+.asgc-invite-email{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.asgc-invite-meta{color:var(--asgc-muted);font-size:12px;margin-top:2px}
+.asgc-invite-status{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;margin-right:8px}
+.asgc-invite-status.is-pending{background:#fef3c7;color:#92400e}
+.asgc-invite-status.is-claimed{background:#dcfce7;color:#166534}
+.asgc-invite-status.is-revoked{background:#f3f4f6;color:#6b7280}
+.asgc-invite-revoke{background:#fff;border:1.5px solid var(--asgc-red);color:var(--asgc-red);border-radius:9px;padding:6px 12px;font-family:inherit;font-weight:600;font-size:12px;cursor:pointer;transition:.18s;white-space:nowrap}
+.asgc-invite-revoke:hover{background:var(--asgc-red);color:#fff}
 
 /* ── Floating action button ────────────────────────────────── */
 #asgc-fab{

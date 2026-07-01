@@ -129,18 +129,20 @@ All of this is **fully implemented** on the backend. `repositories/admin.ts` exp
 
 **Asana integration (`connectors/asana.ts`, recently expanded +114 lines):** project/task creation, portfolio routing were already there; this pass adds `setTaskCompleted` (outbound completion sync) and a set of read-only discovery helpers (`getMe`, `listWorkspaces`, `listUsers`, `typeaheadUsers`, `listPortfolios`, `listProjects`) that back a new CLI dev tool, `npm run asana:inspect`, used to find workspace/portfolio/user GIDs to paste into Railway env vars.
 
-**Admin role model (`auth.ts`):** `profiles.role = 'admin'` is a plain Postgres value; there is **no in-product way to promote someone to admin** — it's a manual SQL update today (`UPDATE profiles SET role = 'admin' WHERE email = '...'`), guarded by a trigger that prevents anyone from escalating their own role.
+**Admin role model (`auth.ts`):** `profiles.role = 'admin'` is a plain Postgres value, guarded by a trigger that prevents anyone from escalating their own role. **✅ No longer manual-SQL-only** — see §4.5: an admin can now grant `role = 'admin'` to a new hire via an in-console invite.
 
-### 4.5 New requirement: admin onboarding flow
+### 4.5 Admin onboarding flow
 
-New requirement, not yet built: a real onboarding flow for new admin/ops hires that ends with them landing in the Admin Console, instead of today's process (someone runs a manual SQL update to set `role = 'admin'`).
+**✅ Shipped.** New admin/ops hires no longer need a manual SQL update — an existing admin invites them by email from the console, and they land in the Admin Console themselves.
 
-**Proposed flow:**
-1. An existing admin invites a new admin by email — a new capability; today there is no invite mechanism at all.
-2. The invited person signs up (or accepts the invite) with their `@compass.com` email, and their `role` is set to `admin` directly by the invite record, not inferred from domain or roster membership the way `role = agent` is.
-3. A short onboarding step collects whatever's needed for their console profile (name, phone, area of responsibility) and lands them directly in the Admin Console at `/adminhub`.
+**How it works:**
+1. An admin opens the FAB ("Take action") → **Invite admin** → enters the person's email (and optionally their name). This calls `POST /api/admin/invites`.
+2. That writes a row to `admin_invites` and calls Supabase Auth's `inviteUserByEmail()` — Supabase sends its own sign-up email (magic link), so **no separate email service was needed**. `handle_new_user()` (the same trigger that gates `role = agent` signups, see `0009_accounts.sql`) was extended in `0020_admin_invites.sql` to check `admin_invites` first: a matching pending, unexpired invite sets `role = 'admin'` directly on the new profile — independent of domain or roster membership, since a new ops hire isn't necessarily an agent.
+3. If the email already has an account (any role), Supabase can't send a fresh invite — the same endpoint instead promotes their existing profile to `admin` directly, which is what the admin actually wants in that case.
+4. The invited person clicks the email link (lands on `ADMIN_CONSOLE_URL`), which authenticates them before a password is set (a known Supabase quirk — see `supabase/supabase#45210`). The console detects this via the `type=invite` URL param and shows a **set-password gate** before anything else loads.
+5. Once their password is set, since their profile has `role = 'admin'` and `portal_onboarding_completed = false`, they see a short **onboarding gate** (name, phone, area of responsibility) before `PATCH /api/auth/me` (extended with a `completeOnboarding` flag) marks onboarding done and drops them straight into the console.
 
-This directly depends on building the **admin provisioning flow** already flagged in §6.1 as a high-severity gap and scheduled in §7 P2 — this section elevates it because it's now an explicit, requested feature rather than just a hardening item. Full cross-hub framing is in `docs/PLATFORM-ARCHITECTURE.md` §5.2.
+**Not yet built (fine for current team size):** a UI list of pending/claimed invites (the backend already supports it via `GET /api/admin/invites` and `DELETE /api/admin/invites/:id`, just not surfaced in the console yet), and resending an invite that a recipient never completed can occasionally surface a raw Supabase error instead of a clean message (an upstream Supabase Auth inconsistency, not this app's bug — see `supabase/auth#2057`).
 
 ### 4.6 New requirement: admin visibility into agent hub usage/performance
 
@@ -175,7 +177,7 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 ### 6.1 Security / correctness — fix first
 - **Command Center API is unauthenticated** and exposes pipeline volume, deal counts, adoption data, and marketing ops detail to anyone with the URL. This should require the same admin/staff auth as the rest of `/api/admin/*`, independent of whether it gets a nav entry.
 - **Admin listing pickers use the public, unauthenticated `/api/listings?view=all`** (in both the Overview surface and the FAB's listing picker) rather than an authenticated admin read — low severity today since listing data isn't sensitive, but worth aligning for consistency once other endpoints are locked down.
-- **No admin provisioning API** — promoting someone to `admin` is a manual database edit. Fine at current team size, but a real risk as the team grows or if Tim is unavailable.
+- **✅ Fixed:** promoting someone to `admin` no longer requires a manual database edit — see §4.5 (invite-by-email, `admin_invites` table + `handle_new_user()`).
 
 ### 6.2 Data integrity gaps
 - **Deal Tracker checklist and earnest-money edits persist only to `localStorage`** in the Deals tab, even though the backend already has `POST /api/admin/deal-workflow` for exactly this. Two admins on two devices will see different "truth" for the same deal.
@@ -211,7 +213,7 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 5. Update `docs/COMPONENT-MAP.md` and `docs/DEPLOYMENT.md` to describe the console architecture, and give `docs/API-ENDPOINTS.md` a real `/api/admin/*` section.
 
 ### P2 — Depth and safety
-1. Build the **admin onboarding/provisioning flow** (§4.5): invite-by-email → signup → auto-assigned `admin` role → lands in console — not just a "promote user" button, since the ask is a full onboarding experience, not only a permissions fix.
+1. **✅ Shipped:** admin onboarding/provisioning flow (§4.5) — invite-by-email → signup → auto-assigned `admin` role → set-password + short onboarding step → lands in console. Remaining polish: a pending-invites list in the console UI (backend already supports it).
 2. Add **inbound Asana sync for general marketing tasks** (mirroring what listing requests already have), so completing a task in Asana reflects back automatically.
 3. Add **delete/bulk actions** for marketing tasks, leads, and agents.
 4. Turn the usage-beacon + listing-activity combination into something closer to a real **audit log** for admin actions (who changed what listing/task/lead, when).
@@ -229,7 +231,7 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 - [ ] `admin-dashboard.html` vs `admin-master-dashboard.html` — which one (if either) is canonical, and does the richer one's forecasting/Buy-Sell-Closed-Data view get ported into the console?
 - [ ] Should sellers/clients ever see more marketing detail than they do today (this is a shared decision with the Client Hub PRD, since it's driven by the same `marketingStatus.ts` engine)?
 - [ ] Who should be able to create/assign general marketing tasks — admin only, or should any agent be able to request work for themselves without going through Tim/Ellie (the Marketing tab already technically supports an agent self-serve mode)?
-- [ ] Is the current manual-SQL admin promotion process acceptable long-term, or does it need a real UI before the next hire?
+- [x] ~~Is the current manual-SQL admin promotion process acceptable long-term?~~ Resolved — see §4.5, admin invites shipped.
 - [ ] Should Command Center become the "leadership home" tab in the console, or a separate protected page entirely?
 
 ## 9. Success Metrics (proposed)
@@ -288,6 +290,7 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 | `repositories/marketingTasks.ts` | General marketing task CRUD + Asana mirror (new) |
 | `repositories/marketingStatus.ts` | Shared listing-request status/delivery engine (new) |
 | `repositories/commandCenter.ts` | Executive/adoption/marketing/system aggregation |
+| `repositories/adminInvites.ts` | Admin invite create/list/revoke + Supabase `inviteUserByEmail` (new) |
 | `repositories/directory.ts` | Roster read API + sync helpers |
 | `repositories/telemetry.ts` | Usage/adoption/QA-log data |
 | `connectors/asana.ts` | Asana project/task/portfolio + discovery helpers |
@@ -296,6 +299,7 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 | `scheduler.ts` | Cron registration for all sync jobs |
 | `auth.ts` | Role model, `requireAdmin`/`requireWrite` middleware |
 | `supabase/migrations/0018_marketing_tasks.sql` | `marketing_tasks` table + `v_marketing_work` view (new, unapplied) |
+| `supabase/migrations/0020_admin_invites.sql` | `admin_invites` table + extends `handle_new_user()` to grant `role='admin'` from an invite record (new, applied) |
 
 ### Related docs
 

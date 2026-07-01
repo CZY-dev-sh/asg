@@ -17,6 +17,19 @@ export class FubClient {
     this.authHeader = 'Basic ' + Buffer.from(`${apiKey}:`).toString('base64');
   }
 
+  /** GET an arbitrary FUB URL (e.g. a webhook event's `uri`, which is already
+   * fully-formed with its own filters) or a relative path. Public so webhook
+   * processing can fetch just the changed record(s) without re-implementing auth. */
+  get<T>(urlOrPath: string): Promise<T> {
+    return this.req<T>(urlOrPath);
+  }
+  post<T>(path: string, body: Record<string, unknown>): Promise<T> {
+    return this.req<T>(path, { method: 'POST', body: JSON.stringify(body) });
+  }
+  del<T>(path: string): Promise<T> {
+    return this.req<T>(path, { method: 'DELETE' });
+  }
+
   private async req<T>(path: string, init: RequestInit = {}): Promise<T> {
     const url = path.startsWith('http') ? path : `${this.base}${path}`;
     const res = await httpFetch(url, {
@@ -25,7 +38,8 @@ export class FubClient {
         Authorization: this.authHeader,
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        'X-System': 'ASG-Backend',
+        'X-System': env.FUB_SYSTEM_NAME,
+        ...(env.FUB_SYSTEM_KEY ? { 'X-System-Key': env.FUB_SYSTEM_KEY } : {}),
         ...(init.headers ?? {}),
       },
     });

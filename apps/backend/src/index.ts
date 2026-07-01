@@ -23,6 +23,18 @@ async function main() {
 
   await app.register(rateLimit, { max: 600, timeWindow: '1 minute' });
 
+  // Preserve the exact raw request body alongside Fastify's normal JSON parsing.
+  // Needed for the FUB webhook route, which must HMAC the *exact bytes* FUB
+  // sent (not a re-serialized copy) to verify the FUB-Signature header.
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+    (req as unknown as { rawBody: string }).rawBody = body as string;
+    try {
+      done(null, body ? JSON.parse(body as string) : {});
+    } catch (err) {
+      done(err as Error, undefined);
+    }
+  });
+
   app.get('/health', async () => ({
     ok: true,
     service: 'asg-backend',

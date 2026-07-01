@@ -2,7 +2,16 @@ import { runJob, syncAll, type SyncJob } from './index.js';
 import { closeDb } from '../db/client.js';
 import { log } from '../logger.js';
 
-const VALID: SyncJob[] = ['directory', 'idx', 'photos', 'drive-folders', 'fub', 'pipeline', 'marketing'];
+const VALID: SyncJob[] = [
+  'directory',
+  'idx',
+  'photos',
+  'drive-folders',
+  'fub',
+  'fub-webhooks',
+  'pipeline',
+  'marketing',
+];
 
 async function main() {
   const arg = (process.argv[2] ?? 'all').toLowerCase();

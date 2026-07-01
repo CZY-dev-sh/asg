@@ -1,0 +1,257 @@
+<!-- Leads triage surface — lists buyer/seller onboarding submissions from the
+     `leads` table and lets an admin filter and assign them to an agent.
+     Wired to GET /api/admin/leads and PATCH /api/admin/leads/:id via ASGConsole
+     (apiBase, authHeaders, profile, toast, onSurface). -->
+<div id="asg-leads-triage"></div>
+
+<style>
+  #asg-leads-triage{
+    --lt-card:#fff; --lt-ink:#111; --lt-muted:rgba(17,17,17,.6);
+    --lt-line:rgba(17,17,17,.08); --lt-shadow:0 14px 34px rgba(0,0,0,.06);
+    font-family:"Satoshi","Outfit","Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--lt-ink); width:100%;
+  }
+  #asg-leads-triage *{box-sizing:border-box;}
+  .lt-shell{width:min(100%,1600px);margin:0 auto;padding:24px 0 12px;}
+  .lt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:18px;}
+  .lt-head h2{margin:0;font-size:clamp(24px,3vw,30px);letter-spacing:-.03em;font-weight:800;}
+  .lt-head p{margin:6px 0 0;color:var(--lt-muted);font-size:13px;font-weight:500;}
+  .lt-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px;}
+  @media (max-width:900px){.lt-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .lt-kpi{background:var(--lt-card);border:1px solid var(--lt-line);border-radius:20px;padding:18px 20px;box-shadow:var(--lt-shadow);}
+  .lt-kpi-label{font-size:.82rem;color:var(--lt-muted);margin-bottom:8px;}
+  .lt-kpi-value{font-size:1.9rem;font-weight:800;letter-spacing:-.03em;line-height:1;}
+  .lt-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+  .lt-search{flex:1;min-width:240px;height:48px;border:1px solid var(--lt-line);border-radius:999px;padding:0 18px;background:#fff;font-size:1rem;outline:none;}
+  .lt-search:focus{border-color:rgba(17,17,17,.2);}
+  .lt-pills{display:flex;gap:8px;flex-wrap:wrap;}
+  .lt-pill{appearance:none;border:1px solid var(--lt-line);background:#fff;color:var(--lt-ink);border-radius:999px;padding:10px 15px;font-size:.92rem;font-weight:600;line-height:1;cursor:pointer;transition:.16s;}
+  .lt-pill.is-active{background:var(--lt-ink);color:#fff;border-color:var(--lt-ink);}
+  .lt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;}
+  .lt-card{background:var(--lt-card);border:1px solid var(--lt-line);border-radius:22px;box-shadow:var(--lt-shadow);padding:20px;display:flex;flex-direction:column;min-width:0;}
+  .lt-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px;}
+  .lt-name{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lt-when{font-size:.78rem;color:var(--lt-muted);white-space:nowrap;flex-shrink:0;}
+  .lt-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .lt-badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:.72rem;font-weight:700;letter-spacing:.02em;border:1px solid var(--lt-line);background:#f4f4f2;}
+  .lt-badge.is-buyer{background:#eaf2ff;color:#1d4ed8;border-color:#cfe0ff;}
+  .lt-badge.is-seller{background:#eaf6ee;color:#256844;border-color:#cfe8d8;}
+  .lt-badge.is-new{background:#fef3c7;color:#92400e;border-color:#fde68a;}
+  .lt-badge.is-synced{background:#dcfce7;color:#166534;border-color:#bbf7d0;}
+  .lt-badge.is-error{background:#fbeceb;color:#a33d34;border-color:#f0c9c5;}
+  .lt-info{display:grid;gap:8px;margin-bottom:16px;}
+  .lt-line{display:flex;justify-content:space-between;gap:12px;font-size:.9rem;padding:7px 0;border-top:1px solid rgba(17,17,17,.06);}
+  .lt-line:first-child{border-top:0;}
+  .lt-label{color:var(--lt-muted);flex-shrink:0;}
+  .lt-value{font-weight:600;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lt-value a{color:inherit;text-decoration:none;}
+  .lt-value a:hover{text-decoration:underline;}
+  .lt-assign{margin-top:auto;}
+  .lt-assign label{display:block;font-size:.78rem;color:var(--lt-muted);margin-bottom:6px;font-weight:600;}
+  .lt-select{width:100%;height:46px;border:1px solid var(--lt-line);border-radius:12px;padding:0 12px;background:#fff;font-family:inherit;font-size:.94rem;cursor:pointer;}
+  .lt-empty,.lt-loading{border:1px solid var(--lt-line);border-radius:20px;background:#fff;padding:28px;box-shadow:var(--lt-shadow);color:var(--lt-muted);font-size:1rem;font-weight:600;text-align:center;}
+</style>
+
+<script>
+(function () {
+  function boot() {
+    var C = window.ASGConsole;
+    if (!C || !C.apiBase) return setTimeout(boot, 250);
+    var api = C.apiBase.replace(/\/+$/, "");
+    var root = document.getElementById("asg-leads-triage");
+    if (!root) return;
+
+    var state = { leads: [], agents: [], formType: "all", status: "all", search: "", loaded: false };
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function day(s) { try { return s ? new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : ""; } catch (e) { return ""; } }
+    function telClean(s) { return String(s || "").replace(/[^\d+]/g, ""); }
+    function toast(m, e) { if (C.toast) C.toast(m, e); }
+
+    function formLabel(t) {
+      if (/buyer/i.test(t)) return "Buyer";
+      if (/seller/i.test(t)) return "Seller";
+      return t || "Lead";
+    }
+    function formClass(t) {
+      if (/buyer/i.test(t)) return "is-buyer";
+      if (/seller/i.test(t)) return "is-seller";
+      return "";
+    }
+
+    root.innerHTML =
+      '<section class="lt-shell">' +
+        '<div class="lt-head"><div><h2>Leads Triage</h2><p>Buyer &amp; seller onboarding submissions — assign each to an agent.</p></div></div>' +
+        '<div class="lt-kpis">' +
+          '<div class="lt-kpi"><div class="lt-kpi-label">Total leads</div><div class="lt-kpi-value" id="ltKpiTotal">–</div></div>' +
+          '<div class="lt-kpi"><div class="lt-kpi-label">New / untriaged</div><div class="lt-kpi-value" id="ltKpiNew">–</div></div>' +
+          '<div class="lt-kpi"><div class="lt-kpi-label">Unassigned</div><div class="lt-kpi-value" id="ltKpiUnassigned">–</div></div>' +
+          '<div class="lt-kpi"><div class="lt-kpi-label">Buyers / Sellers</div><div class="lt-kpi-value" id="ltKpiMix">–</div></div>' +
+        '</div>' +
+        '<div class="lt-controls">' +
+          '<input class="lt-search" type="text" placeholder="Search name, email, phone…" aria-label="Search leads">' +
+          '<div class="lt-pills" data-group="formType">' +
+            '<button class="lt-pill is-active" data-value="all">All</button>' +
+            '<button class="lt-pill" data-value="buyer-onboarding">Buyers</button>' +
+            '<button class="lt-pill" data-value="seller-onboarding">Sellers</button>' +
+          '</div>' +
+          '<div class="lt-pills" data-group="status">' +
+            '<button class="lt-pill is-active" data-value="all">Any status</button>' +
+            '<button class="lt-pill" data-value="new">New</button>' +
+            '<button class="lt-pill" data-value="synced">Synced</button>' +
+            '<button class="lt-pill" data-value="error">Error</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="lt-loading" id="ltLoading">Loading leads…</div>' +
+        '<div class="lt-empty" id="ltEmpty" style="display:none;">No leads match these filters.</div>' +
+        '<div class="lt-grid" id="ltGrid"></div>' +
+      '</section>';
+
+    var grid = root.querySelector("#ltGrid");
+    var empty = root.querySelector("#ltEmpty");
+    var loading = root.querySelector("#ltLoading");
+    var search = root.querySelector(".lt-search");
+
+    function agentOptions(selectedEmail) {
+      var opts = '<option value="">Unassigned</option>';
+      state.agents.forEach(function (a) {
+        var sel = (a.email && selectedEmail && a.email.toLowerCase() === String(selectedEmail).toLowerCase()) ? " selected" : "";
+        opts += '<option value="' + esc(a.email) + '" data-name="' + esc(a.name) + '"' + sel + ">" + esc(a.name) + "</option>";
+      });
+      // If the current assignee isn't in the roster, still show them.
+      if (selectedEmail && !state.agents.some(function (a) { return a.email && a.email.toLowerCase() === String(selectedEmail).toLowerCase(); })) {
+        opts += '<option value="' + esc(selectedEmail) + '" selected>' + esc(selectedEmail) + " (off-roster)</option>";
+      }
+      return opts;
+    }
+
+    function filtered() {
+      var q = state.search.trim().toLowerCase();
+      return state.leads.filter(function (l) {
+        if (state.formType !== "all" && l.form_type !== state.formType) return false;
+        if (state.status !== "all" && l.status !== state.status) return false;
+        if (q) {
+          var hay = [l.name, l.email, l.phone, l.agent_name].join(" ").toLowerCase();
+          if (hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderKpis() {
+      var total = state.leads.length;
+      var news = state.leads.filter(function (l) { return l.status === "new"; }).length;
+      var unassigned = state.leads.filter(function (l) { return !l.agent_email && !l.agent_name; }).length;
+      var buyers = state.leads.filter(function (l) { return /buyer/i.test(l.form_type); }).length;
+      var sellers = state.leads.filter(function (l) { return /seller/i.test(l.form_type); }).length;
+      root.querySelector("#ltKpiTotal").textContent = total;
+      root.querySelector("#ltKpiNew").textContent = news;
+      root.querySelector("#ltKpiUnassigned").textContent = unassigned;
+      root.querySelector("#ltKpiMix").textContent = buyers + " / " + sellers;
+    }
+
+    function render() {
+      renderKpis();
+      var rows = filtered();
+      empty.style.display = rows.length ? "none" : "block";
+      grid.innerHTML = rows.map(function (l) {
+        var status = String(l.status || "new").toLowerCase();
+        return '<article class="lt-card" data-id="' + esc(l.id) + '">' +
+          '<div class="lt-card-top">' +
+            '<h3 class="lt-name">' + esc(l.name || "(no name)") + "</h3>" +
+            '<span class="lt-when">' + esc(day(l.created_at)) + "</span>" +
+          "</div>" +
+          '<div class="lt-badges">' +
+            '<span class="lt-badge ' + formClass(l.form_type) + '">' + esc(formLabel(l.form_type)) + "</span>" +
+            '<span class="lt-badge is-' + esc(status) + '">' + esc(status) + "</span>" +
+            (l.fub_synced ? '<span class="lt-badge is-synced">In FUB</span>' : "") +
+          "</div>" +
+          '<div class="lt-info">' +
+            (l.email ? '<div class="lt-line"><span class="lt-label">Email</span><span class="lt-value"><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + "</a></span></div>" : "") +
+            (l.phone ? '<div class="lt-line"><span class="lt-label">Phone</span><span class="lt-value"><a href="tel:' + esc(telClean(l.phone)) + '">' + esc(l.phone) + "</a></span></div>" : "") +
+            '<div class="lt-line"><span class="lt-label">Assigned</span><span class="lt-value">' + esc(l.agent_name || "—") + "</span></div>" +
+          "</div>" +
+          '<div class="lt-assign">' +
+            "<label>Assign to agent</label>" +
+            '<select class="lt-select" data-assign="' + esc(l.id) + '">' + agentOptions(l.agent_email) + "</select>" +
+          "</div>" +
+        "</article>";
+      }).join("");
+    }
+
+    async function assign(id, email, name) {
+      try {
+        var body = { agentEmail: email || "", agentName: name || "" };
+        var res = await fetch(api + "/api/admin/leads/" + encodeURIComponent(id), {
+          method: "PATCH", headers: C.authHeaders(), body: JSON.stringify(body)
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+        var lead = state.leads.filter(function (l) { return String(l.id) === String(id); })[0];
+        if (lead) { lead.agent_email = email || null; lead.agent_name = name || null; }
+        toast(email ? "Assigned to " + name : "Unassigned");
+        render();
+      } catch (e) { toast(e.message || "Assign failed", true); }
+    }
+
+    grid.addEventListener("change", function (e) {
+      var sel = e.target.closest("[data-assign]");
+      if (!sel) return;
+      var opt = sel.options[sel.selectedIndex];
+      assign(sel.getAttribute("data-assign"), sel.value, opt ? (opt.getAttribute("data-name") || "") : "");
+    });
+
+    search.addEventListener("input", function () { state.search = search.value; render(); });
+
+    root.querySelectorAll(".lt-pills").forEach(function (group) {
+      group.addEventListener("click", function (e) {
+        var btn = e.target.closest(".lt-pill");
+        if (!btn) return;
+        var key = group.getAttribute("data-group");
+        state[key] = btn.getAttribute("data-value");
+        group.querySelectorAll(".lt-pill").forEach(function (b) { b.classList.toggle("is-active", b === btn); });
+        render();
+      });
+    });
+
+    async function loadAgents() {
+      try {
+        var res = await fetch(api + "/api/directory", { cache: "no-store" });
+        var data = await res.json();
+        var rows = (data && data.success && Array.isArray(data.directory)) ? data.directory : [];
+        state.agents = rows
+          .filter(function (r) { return r.email && String(r.tier || "").toLowerCase() !== "admin"; })
+          .map(function (r) { return { name: r.name, email: r.email }; });
+      } catch (e) { state.agents = []; }
+    }
+
+    async function load() {
+      loading.style.display = "block";
+      try {
+        if (!state.agents.length) await loadAgents();
+        var res = await fetch(api + "/api/admin/leads?limit=300", { headers: C.authHeaders() });
+        var data = await res.json();
+        if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+        state.leads = data.leads || [];
+        state.loaded = true;
+        loading.style.display = "none";
+        render();
+      } catch (e) {
+        loading.style.display = "none";
+        empty.style.display = "block";
+        empty.textContent = "Could not load leads. " + (e.message || "");
+      }
+    }
+
+    // Load when the surface is first shown (keeps the initial console boot light),
+    // and immediately if we're already on it.
+    if (C.onSurface) C.onSurface(function (name) { if (name === "leads" && !state.loaded) load(); });
+    load();
+  }
+  boot();
+})();
+</script>

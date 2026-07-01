@@ -804,7 +804,13 @@ const LANDING_JSON_COL: Record<string, string> = {
  * by the guard_profile_update trigger — clients/agents cannot escalate. */
 export async function updateOwnProfile(
   userId: string,
-  body: { fullName?: unknown; phone?: unknown; clientType?: unknown; portalPreferences?: unknown },
+  body: {
+    fullName?: unknown;
+    phone?: unknown;
+    clientType?: unknown;
+    portalPreferences?: unknown;
+    completeOnboarding?: unknown;
+  },
 ): Promise<Row | null> {
   const fullName = body.fullName == null ? null : String(body.fullName);
   const phone = body.phone == null ? null : String(body.phone);
@@ -816,7 +822,11 @@ export async function updateOwnProfile(
     body.portalPreferences && typeof body.portalPreferences === 'object'
       ? (body.portalPreferences as Record<string, unknown>)
       : null;
-  if (fullName == null && phone == null && clientType == null && portalPreferences == null)
+  // Explicit onboarding-complete flag — used by flows that don't set
+  // clientType (e.g. the admin onboarding wizard), which already
+  // auto-completes onboarding as a side effect below.
+  const completeOnboarding = body.completeOnboarding === true;
+  if (fullName == null && phone == null && clientType == null && portalPreferences == null && !completeOnboarding)
     throw new ApiError(400, 'nothing to update');
   await sql`
     update profiles set
@@ -825,6 +835,7 @@ export async function updateOwnProfile(
       client_type = coalesce(${clientType}::client_type, client_type),
       portal_onboarding_completed = case
         when ${clientType}::text in ('buyer', 'seller', 'renter') then true
+        when ${completeOnboarding} then true
         else portal_onboarding_completed
       end,
       portal_preferences = case

@@ -18,6 +18,8 @@
     "sync:idx": "tsx src/sync/cli.ts idx",
     "sync:photos": "tsx src/sync/cli.ts photos",
     "sync:fub": "tsx src/sync/cli.ts fub",
+    "sync:fub-webhooks": "tsx src/sync/cli.ts fub-webhooks",
+    "fub:webhooks": "tsx src/tools/fubWebhooks.ts",
     "sync:pipeline": "tsx src/sync/cli.ts pipeline",
     "sync:directory": "tsx src/sync/cli.ts directory",
     "sync:marketing": "tsx src/sync/cli.ts marketing",

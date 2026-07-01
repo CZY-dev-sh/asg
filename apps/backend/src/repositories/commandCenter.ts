@@ -69,6 +69,16 @@ async function buildExecutive() {
     const k = String(r.phase_key) as keyof typeof mixListings;
     if (k in mixListings) mixListings[k] = Number(r.n);
   }
+
+  // Real buy/sell/rent mix, keyed off the deal `side` populated at sync time
+  // from the FUB pipeline (Buyers→buy, Sellers→sell, Renters→rent).
+  const sideMix = await sql<Row[]>`select side, count(*)::int n from deals where side is not null group by side`;
+  const dealMix = { buy: 0, sell: 0, rent: 0 };
+  for (const r of sideMix) {
+    const k = String(r.side) as keyof typeof dealMix;
+    if (k in dealMix) dealMix[k] = Number(r.n);
+  }
+
   return {
     summary: {
       totalVolume: stats.summary.grandTotal,
@@ -82,16 +92,24 @@ async function buildExecutive() {
       name: a.name, grandTotal: a.grandTotal, totalDeals: a.totalDeals,
       pendingVolume: a.pendingVolume, pendingDeals: a.pendingDeals,
     })),
-    alerts: [],
+    // `null` = not tracked yet (UI shows a placeholder instead of a fake 0).
+    alerts: null,
     fub: {
       newLeads: Number(funnel?.new_leads ?? 0),
-      appointments: 0,
+      appointments: null,
       signed: Number(fub?.won ?? 0),
-      overdueTasks: 0,
-      staleLeads: 0,
+      overdueTasks: null,
+      staleLeads: null,
     },
-    funnel: { newLeads: Number(funnel?.new_leads ?? 0), appointments: 0, buyerConsults: 0, sellerConsults: 0, signed: Number(fub?.won ?? 0), closed: Number(fub?.won ?? 0) },
-    mix: { buy: 0, sell: 0, cash: 0, listings: mixListings },
+    funnel: {
+      newLeads: Number(funnel?.new_leads ?? 0),
+      appointments: null,
+      buyerConsults: null,
+      sellerConsults: null,
+      signed: Number(fub?.won ?? 0),
+      closed: Number(fub?.won ?? 0),
+    },
+    mix: { ...dealMix, listings: mixListings },
   };
 }
 
@@ -102,10 +120,12 @@ async function buildSystem() {
   `;
   const errors = runs.filter((r) => r.status === 'error').length;
   return {
-    summary: { commits30: 0, openIssues: 0, appsScriptErrors: errors, staleDashboards: 0 },
-    commits: [],
+    // `null` = not wired to a real source yet (GitHub, etc.); `appsScriptErrors`
+    // is real (derived from sync_runs below).
+    summary: { commits30: null, openIssues: null, appsScriptErrors: errors, staleDashboards: null },
+    commits: null,
     qa: await getQaLog(),
     syncRuns: runs.map((r) => ({ source: r.source, status: r.status, finishedAt: iso(r.finished_at), records: Number(r.records ?? 0), error: r.error })),
-    ownership: [],
+    ownership: null,
   };
 }

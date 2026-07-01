@@ -39,14 +39,21 @@ Lender/attorney contacts, earnest money tracking, and the inspection/attorney/ap
 
 Add them to FUB with their exact `@compass.com` email on day one — ideally the same day they're added to the roster/directory sheet. If FUB access lags behind roster access, their hub will look broken (no deals, no stats) until it's added, even though nothing is actually wrong with their account.
 
-## One thing to expect, not report as a bug
+## How fresh is the data?
 
-Sync runs every 30 minutes, not instantly — so an edit in FUB can take up to half an hour to show up in the Admin Hub or Agent Hub. That's normal.
+Two mechanisms feed the Hubs now, once FUB webhooks are registered (see below):
+
+- **Webhooks (primary):** the moment a deal, contact, task, note, or appointment changes in FUB, FUB pushes a notification to the backend, which fetches just that record and updates Supabase — typically within seconds.
+- **Polling (safety net):** a background job still re-pulls everything on a schedule (currently every ~4 minutes for FUB, given a full pass takes that long), so nothing is missed if a webhook is ever dropped, delayed, or arrives while the backend is deploying.
+
+Refreshing a Hub page always pulls the latest row currently in Supabase — there's no separate frontend cache — so the ceiling on freshness is whichever of the two mechanisms above last ran, not the page itself.
+
+**Until webhooks are registered** (a one-time manual step — see `apps/backend/src/tools/fubWebhooks.ts`), only the polling path is active and the lag can be a few minutes.
 
 ---
 
-**Concept — What:** *Polling sync* means a background job wakes up on a schedule (here, every 30 minutes) and pulls the latest data from another system, rather than that system pushing updates the instant they happen (a "webhook").
-**Why it matters:** it explains the up-to-30-minute lag above — it's a deliberate tradeoff (simpler and more reliable than webhooks) that's expected behavior, not a delay you should chase down as a bug.
-**Here:** `apps/backend/src/scheduler.ts` registers the `fub` job on a 30-minute interval; `apps/backend/src/sync/fub.ts` is what runs each time.
+**Concept — What:** *Polling* means a background job wakes up on a schedule and pulls the latest data from another system. A *webhook* is the opposite: the other system (FUB) pushes a notification to us the instant something changes, instead of us asking repeatedly.
+**Why it matters:** polling alone means real edits can sit unseen for minutes; webhooks close that gap to seconds, which is what makes the Hubs feel "live." We keep polling running anyway as a safety net, since FUB's own guide is to never depend on webhooks 100% (deploys restart, deliveries can fail).
+**Here:** `apps/backend/src/routes/api.ts` (`POST /api/webhooks/fub`) receives the push; `apps/backend/src/sync/fubWebhooks.ts` processes it; `apps/backend/src/scheduler.ts` still runs the `fub` and `fub-webhooks` polling/safety-net jobs.
 
 Ask "explain polling vs. webhooks" to go deeper.

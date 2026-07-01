@@ -27,6 +27,8 @@ export function startScheduler(): void {
     schedule(env.CRON_PHOTOS, 'photos', () => runJob('photos'));
   }
   if (have.fub()) schedule(env.CRON_FUB, 'fub', () => runJob('fub'));
+  if (have.fubWebhooks())
+    schedule(env.CRON_FUB_WEBHOOKS, 'fub-webhooks', () => runJob('fub-webhooks'));
   schedule(env.CRON_PIPELINE, 'pipeline', () => runJob('pipeline'));
   schedule(env.CRON_DIRECTORY, 'directory', () => runJob('directory'));
   if (have.asana() || have.acuity() || have.acuityIcs())

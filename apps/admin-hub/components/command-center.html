@@ -627,6 +627,11 @@
     n = Number(n) || 0;
     return n.toLocaleString();
   }
+  // For fields the backend deliberately returns as null ("not tracked yet"):
+  // show an em-dash placeholder instead of a misleading 0.
+  function fmtNumOrDash(n){
+    return (n == null) ? "—" : fmtNum(n);
+  }
   function fmtPct(n, digits){
     n = Number(n) || 0;
     return (digits ? n.toFixed(digits) : Math.round(n)) + "%";
@@ -675,7 +680,13 @@
 
   function fetchJson(url, opts){
     if (!url) return Promise.reject(new Error("Endpoint not configured"));
-    return fetch(url, opts || {}).then(function(res){
+    opts = opts || {};
+    // When embedded in the Admin Console, attach the signed-in staff bearer
+    // token so authenticated endpoints (e.g. /api/command-center) succeed.
+    if (window.ASGConsole && typeof window.ASGConsole.authHeaders === "function") {
+      opts.headers = Object.assign({}, window.ASGConsole.authHeaders(), opts.headers || {});
+    }
+    return fetch(url, opts).then(function(res){
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
     });
@@ -728,16 +739,18 @@
   function renderExecKpis(p){
     var s = (p && p.executive && p.executive.summary) || {};
     var fub = (p && p.executive && p.executive.fub) || {};
-    var conv = s.appointmentsSet ? Math.round((s.signedClients || 0) / s.appointmentsSet * 100) : 0;
+    // Conversion needs appointments; when that's not tracked yet, show "—".
+    var apptsKnown = fub.appointments != null;
+    var conv = apptsKnown && fub.appointments ? Math.round((fub.signed || 0) / fub.appointments * 100) : null;
     renderKpis("cc-exec-kpis", [
       { label: "YTD Volume",      value: fmtMoney(s.totalVolume), sub: fmtNum(s.totalDeals) + " transactions", chip: "Live", chipClass: "is-green" },
       { label: "Closed Volume",   value: fmtMoney(s.closedVolume), sub: fmtNum(s.closedDeals) + " closed" },
       { label: "Pending Volume",  value: fmtMoney(s.pendingVolume), sub: fmtNum(s.pendingDeals) + " pending", chip: "Pipeline", chipClass: "is-purple" },
       { label: "Est. GCI",        value: fmtMoney((s.totalVolume || 0) * 0.025), sub: "@ 2.5% blended" },
       { label: "New Leads",       value: fmtNum(fub.newLeads || 0), sub: "Last " + state.period.toUpperCase() + " · FUB" },
-      { label: "Appointments",    value: fmtNum(fub.appointments || 0), sub: "Set in period" },
+      { label: "Appointments",    value: fmtNumOrDash(fub.appointments), sub: apptsKnown ? "Set in period" : "Not tracked yet" },
       { label: "Signed Clients",  value: fmtNum(fub.signed || s.closedDeals || 0), sub: "Buyer + seller agreements" },
-      { label: "Conversion",      value: fmtPct(conv), sub: "Appts → signed", chip: conv >= 35 ? "Healthy" : "Watch", chipClass: conv >= 35 ? "is-green" : "is-amber" }
+      { label: "Conversion",      value: conv == null ? "—" : fmtPct(conv), sub: conv == null ? "Needs appt tracking" : "Appts → signed", chip: conv == null ? null : (conv >= 35 ? "Healthy" : "Watch"), chipClass: conv >= 35 ? "is-green" : "is-amber" }
     ]);
   }
 
@@ -790,21 +803,23 @@
 
   function renderExecFunnel(p){
     var f = (p && p.executive && p.executive.funnel) || {};
+    // value === null means "not tracked yet": show a dash, no bar.
     var stages = [
-      { label: "New Leads",      value: f.newLeads     || 0 },
-      { label: "Appts Set",      value: f.appointments || 0 },
-      { label: "Buyer Consults", value: f.buyerConsults|| 0 },
-      { label: "Seller Consults",value: f.sellerConsults || 0 },
-      { label: "Signed",         value: f.signed       || 0 },
-      { label: "Closed",         value: f.closed       || 0 }
+      { label: "New Leads",      value: f.newLeads == null ? null : f.newLeads },
+      { label: "Appts Set",      value: f.appointments },
+      { label: "Buyer Consults", value: f.buyerConsults },
+      { label: "Seller Consults",value: f.sellerConsults },
+      { label: "Signed",         value: f.signed == null ? null : f.signed },
+      { label: "Closed",         value: f.closed == null ? null : f.closed }
     ];
-    var max = Math.max.apply(null, stages.map(function(s){ return s.value; })) || 1;
+    var max = Math.max.apply(null, stages.map(function(s){ return Number(s.value) || 0; })) || 1;
     var html = stages.map(function(s){
-      var pct = Math.round((s.value / max) * 100);
+      var known = s.value != null;
+      var pct = known ? Math.round((s.value / max) * 100) : 0;
       return ''
         + '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-top:8px;">'
         +   '<span style="color:var(--muted);">' + escapeHtml(s.label) + '</span>'
-        +   '<span>' + fmtNum(s.value) + '</span>'
+        +   '<span>' + fmtNumOrDash(s.value) + '</span>'
         + '</div>'
         + '<div class="cc-bar-track" style="margin-top:4px;"><div class="cc-bar-fill" style="width:' + pct + '%;"></div></div>';
     }).join("");
@@ -818,7 +833,7 @@
       + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">'
       +   '<span class="cc-status-chip is-active">' + fmtNum(mix.buy || 0) + ' Buy</span>'
       +   '<span class="cc-status-chip is-done">' + fmtNum(mix.sell || 0) + ' Sell</span>'
-      +   '<span class="cc-status-chip">' + fmtNum(mix.cash || 0) + ' Cash</span>'
+      +   '<span class="cc-status-chip is-review">' + fmtNum(mix.rent || 0) + ' Rent</span>'
       + '</div>'
       + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:8px 0 6px;">Listing pipeline</div>'
       + '<div class="cc-mr-row is-head" style="grid-template-columns: 1fr 0.6fr; padding:6px 0;">'
@@ -1021,10 +1036,10 @@
   function renderSysKpis(p){
     var s = (p && p.system && p.system.summary) || {};
     renderKpis("cc-sys-kpis", [
-      { label: "Releases (30d)",   value: fmtNum(s.commits30 || 0), sub: "Commits to ASG OS repo", chip: "GitHub", chipClass: "is-purple" },
-      { label: "Open Issues",      value: fmtNum(s.openIssues || 0), sub: "Tracked QA items", chip: s.openIssues > 0 ? "Action" : "Clean", chipClass: s.openIssues > 0 ? "is-amber" : "is-green" },
-      { label: "Apps Script Errs", value: fmtNum(s.appsScriptErrors || 0), sub: "Last 24h" },
-      { label: "Stale Dashboards", value: fmtNum(s.staleDashboards || 0), sub: "Data > 24h old" }
+      { label: "Releases (30d)",   value: fmtNumOrDash(s.commits30), sub: s.commits30 == null ? "Not tracked yet" : "Commits to ASG OS repo", chip: "GitHub", chipClass: "is-purple" },
+      { label: "Open Issues",      value: fmtNumOrDash(s.openIssues), sub: s.openIssues == null ? "Not tracked yet" : "Tracked QA items", chip: s.openIssues > 0 ? "Action" : null, chipClass: "is-amber" },
+      { label: "Sync Errors (7d)", value: fmtNum(s.appsScriptErrors || 0), sub: "Failed sync runs" },
+      { label: "Stale Dashboards", value: fmtNumOrDash(s.staleDashboards), sub: s.staleDashboards == null ? "Not tracked yet" : "Data > 24h old" }
     ]);
   }
 

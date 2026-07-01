@@ -32,11 +32,21 @@ const schema = z.object({
   STORAGE_BUCKET_LISTINGS: z.string().default('listing-photos'),
   STORAGE_BUCKET_HEADSHOTS: z.string().default('headshots'),
   STORAGE_BUCKET_BRAND: z.string().default('brand-assets'),
+  // Where an invited admin's email link lands them — the live Admin Console page.
+  ADMIN_CONSOLE_URL: z.string().default('https://www.alexstoykovgroup.com/adminhub'),
 
   // Follow Up Boss
   FUB_API_KEY: z.string().optional().default(''),
   FUB_API_BASE_URL: z.string().default('https://api.followupboss.com/v1'),
   FUB_ADMIN_USER_IDS: csv(),
+  // "System" identity registered at https://apps.followupboss.com/system-registration
+  // (one-time, requires the FUB account owner). Required to create/receive webhooks —
+  // general API calls work without FUB_SYSTEM_KEY but get looser rate limits.
+  FUB_SYSTEM_NAME: z.string().default('ASG-Backend'),
+  FUB_SYSTEM_KEY: z.string().optional().default(''),
+  // Public HTTPS base URL FUB should POST webhook events to, e.g. the Railway
+  // domain. Only needed to run `npm run fub:webhooks -- register`.
+  PUBLIC_BACKEND_URL: z.string().optional().default(''),
   FUB_DEAL_TRACKER_SMART_LIST_ID: z.string().default('172'),
   FUB_DEAL_TRACKER_SMART_LIST_NAME: z.string().default('Current Deals'),
   BUYER_INTAKE_SOURCE: z.string().default('ASG Website - Buyer Onboarding'),
@@ -108,6 +118,10 @@ const schema = z.object({
   ENABLE_SCHEDULER: bool(false),
   CRON_IDX: z.string().default('*/15 * * * *'),
   CRON_FUB: z.string().default('* * * * *'),
+  // Safety net only — the webhook route processes fresh events itself within
+  // seconds of arrival. This just picks up anything left 'pending' (e.g. a
+  // deploy restarted mid-flight) so nothing is silently lost.
+  CRON_FUB_WEBHOOKS: z.string().default('* * * * *'),
   CRON_PIPELINE: z.string().default('*/30 * * * *'),
   CRON_PHOTOS: z.string().default('0 * * * *'),
   CRON_DIRECTORY: z.string().default('0 6 * * *'),
@@ -131,6 +145,7 @@ export const have = {
   auth: () => Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
   authSignup: () => Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY),
   fub: () => Boolean(env.FUB_API_KEY),
+  fubWebhooks: () => Boolean(env.FUB_API_KEY && env.FUB_SYSTEM_KEY),
   idx: () => Boolean(env.IDX_ACCESS_KEY),
   drive: () => Boolean(env.GOOGLE_SERVICE_ACCOUNT_JSON || env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE),
   asana: () => Boolean(env.ASANA_TOKEN && env.ASANA_WORKSPACE_GID),

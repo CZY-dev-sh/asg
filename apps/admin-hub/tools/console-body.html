@@ -55,6 +55,7 @@
           <button class="asgc-nav-link" data-go="listings" type="button">Listings</button>
           <button class="asgc-nav-link" data-go="marketing" type="button">Marketing</button>
           <button class="asgc-nav-link" data-go="directory" type="button">Team Directory</button>
+          <button class="asgc-nav-link" data-go="leads" type="button">Leads</button>
         </div>
 
         <div class="asgc-nav-cta">
@@ -82,6 +83,7 @@
     <button class="asgc-mlink" data-go="listings" type="button">Listings</button>
     <button class="asgc-mlink" data-go="marketing" type="button">Marketing</button>
     <button class="asgc-mlink" data-go="directory" type="button">Team Directory</button>
+    <button class="asgc-mlink" data-go="leads" type="button">Leads</button>
     <button class="asgc-mlink" data-go="account" type="button">My profile</button>
     <button class="asgc-msignout" id="asgcSignOutM" type="button">Sign out</button>
   </div>
@@ -93,7 +95,7 @@
     <!--SURFACE:listings-->
     <!--SURFACE:marketing-->
     <!--SURFACE:directory-->
-    <!--SURFACE:command-->
+    <!--SURFACE:leads-->
 
     <section class="asgc-surface" data-surface="account" hidden>
       <div class="asgc-acct-wrap">
@@ -114,6 +116,14 @@
           <div class="asgc-panel">
             <h3>Your recent activity</h3>
             <div class="asgc-activity" id="asgcActivity"><p style="color:rgba(0,0,0,.4);font-size:13px">Loading activity…</p></div>
+          </div>
+          <div class="asgc-panel" id="asgcInvitesPanel" hidden>
+            <div class="asgc-panel-head">
+              <h3>Pending admin invites</h3>
+              <button class="asgc-mini-btn" id="asgcInviteNew" type="button">Invite admin</button>
+            </div>
+            <p class="asgc-panel-sub">People invited to the Admin Hub who haven't set up their account yet.</p>
+            <div class="asgc-invites" id="asgcInvitesList"><p style="color:rgba(0,0,0,.4);font-size:13px">Loading invites…</p></div>
           </div>
         </div>
       </div>

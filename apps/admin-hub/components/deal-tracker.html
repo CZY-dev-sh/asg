@@ -106,6 +106,7 @@
 .asg-dt-chip-buy{background:rgba(59,130,246,.1);color:#1d4ed8;border-color:rgba(59,130,246,.22)}
 .asg-dt-chip-sell{background:rgba(16,185,129,.11);color:#047857;border-color:rgba(16,185,129,.28)}
 .asg-dt-chip-cash{background:rgba(139,92,246,.1);color:#6d28d9;border-color:rgba(139,92,246,.22)}
+.asg-dt-chip-rent{background:rgba(234,179,8,.12);color:#92400e;border-color:rgba(234,179,8,.3)}
 .asg-dt-chip-status{
   padding:4px 10px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
   border-radius:999px;line-height:1;display:inline-flex;align-items:center;gap:6px;
@@ -496,14 +497,18 @@
     return 'ontrack';
   }
 
-  // derive checklist progress
+  // derive checklist progress — count only the items visible for this deal's
+  // side (same onlyIf/hideIf rules the card uses), so a Rent deal isn't marked
+  // incomplete for inspection/appraisal steps that never apply to a lease.
   function checklistProgress(deal){
-    const keys = Object.keys(deal.checklist).filter(k => {
-      if(k === 'commissionStatement') return deal.side === 'sell';
+    const items = CHECKLIST_ITEMS.filter(item => {
+      if(item.onlyIf && !item.onlyIf(deal)) return false;
+      if(item.hideIf && item.hideIf(deal)) return false;
       return true;
     });
-    const done = keys.filter(k => deal.checklist[k]).length;
-    return {done, total:keys.length, pct:Math.round((done/keys.length)*100)};
+    const total = items.length || 1;
+    const done = items.filter(item => !!deal.checklist[item.key]).length;
+    return {done, total:items.length, pct:Math.round((done/total)*100)};
   }
 
   // overall deal status
@@ -520,16 +525,20 @@
   // ─────────────────────────────────────────────────────────────
   // CHECKLIST DEFINITIONS
   // ─────────────────────────────────────────────────────────────
+  // A lease has no inspection/appraisal/mortgage/final-walk, so those items are
+  // hidden for rent deals (hideIf side==='rent'); the generic closing/social/
+  // follow-up/commission items stay. `commissionStatement` applies to sell and
+  // rent (both earn commission), not buy.
   const CHECKLIST_ITEMS = [
-    {key:'inspectionScheduled', label:'Inspection scheduled', meta:'Usually day 1–3'},
-    {key:'inspectionDone',      label:'Inspection completed', meta:'By day 5'},
-    {key:'appraisalDone',       label:'Appraisal done',       meta:'Lender-ordered', hideIf:d=>d.side==='cash'},
-    {key:'mortgageCommitment',  label:'Mortgage commitment',  meta:'~7 biz days pre-close', hideIf:d=>d.side==='cash'},
-    {key:'finalWalkScheduled',  label:'Final walk scheduled', meta:'Day before close'},
-    {key:'finalWalkDone',       label:'Final walk completed', meta:''},
-    {key:'closingStatement',    label:'Closing statement on file', meta:'Required'},
+    {key:'inspectionScheduled', label:'Inspection scheduled', meta:'Usually day 1–3', hideIf:d=>d.side==='rent'},
+    {key:'inspectionDone',      label:'Inspection completed', meta:'By day 5', hideIf:d=>d.side==='rent'},
+    {key:'appraisalDone',       label:'Appraisal done',       meta:'Lender-ordered', hideIf:d=>d.side==='cash'||d.side==='rent'},
+    {key:'mortgageCommitment',  label:'Mortgage commitment',  meta:'~7 biz days pre-close', hideIf:d=>d.side==='cash'||d.side==='rent'},
+    {key:'finalWalkScheduled',  label:'Final walk scheduled', meta:'Day before close', hideIf:d=>d.side==='rent'},
+    {key:'finalWalkDone',       label:'Final walk completed', meta:'', hideIf:d=>d.side==='rent'},
+    {key:'closingStatement',    label:'Closing / move-in on file', meta:'Required'},
     {key:'reviewSent',          label:'Review sent to client', meta:'Post-close'},
-    {key:'commissionStatement', label:'Commission statement sent', meta:'2 days prior (sell)', onlyIf:d=>d.side==='sell'},
+    {key:'commissionStatement', label:'Commission statement sent', meta:'2 days prior', onlyIf:d=>d.side==='sell'||d.side==='rent'},
     {key:'socialPost',          label:'Social media post ready', meta:''},
     {key:'followUp3wk',         label:'3-week follow-up set',  meta:'Post-close check-in'}
   ];
@@ -551,9 +560,9 @@
 
   const FILTERS = [
     {id:'all',     label:'All Deals'},
-    {id:'buy',     label:'Buy Side'},
-    {id:'sell',    label:'Sell Side'},
-    {id:'cash',    label:'Cash'},
+    {id:'buy',     label:'Buy'},
+    {id:'sell',    label:'Sell'},
+    {id:'rent',    label:'Rent'},
     {id:'closing', label:'Closing ≤ 7 days'},
     {id:'risk',    label:'At Risk'}
   ];
@@ -565,7 +574,7 @@
 
   function matchesFilter(deal, f){
     if(f === 'all') return true;
-    if(f === 'buy' || f === 'sell' || f === 'cash') return deal.side === f;
+    if(f === 'buy' || f === 'sell' || f === 'rent') return deal.side === f;
     if(f === 'closing'){
       const delta = daysBetween(deal.dates.closing, TODAY.toISOString().slice(0,10));
       return delta != null && delta >= 0 && delta <= 7;
@@ -590,7 +599,7 @@
       all: deals.length,
       buy: deals.filter(d=>d.side==='buy').length,
       sell: deals.filter(d=>d.side==='sell').length,
-      cash: deals.filter(d=>d.side==='cash').length,
+      rent: deals.filter(d=>d.side==='rent').length,
       closing: deals.filter(d=>{const delta=daysBetween(d.dates.closing, TODAY.toISOString().slice(0,10));return delta!=null && delta>=0 && delta<=7;}).length,
       risk: deals.filter(d=>{const s=dealStatus(d);return s==='risk'||s==='late';}).length
     };
@@ -700,12 +709,15 @@
     const sideChip = {
       buy:  `<span class="asg-dt-chip asg-dt-chip-buy">Buy Side</span>`,
       sell: `<span class="asg-dt-chip asg-dt-chip-sell">Sell Side</span>`,
+      rent: `<span class="asg-dt-chip asg-dt-chip-rent">Rental</span>`,
       cash: `<span class="asg-dt-chip asg-dt-chip-cash">Cash Deal</span>`
-    }[deal.side];
+    }[deal.side] || '';
 
     const priceHTML = deal.side === 'cash'
       ? `<span class="asg-dt-price is-cash">CASH</span>`
-      : `<span class="asg-dt-price">${fmtMoney(deal.price)}</span>`;
+      : deal.side === 'rent'
+        ? `<span class="asg-dt-price">${fmtMoney(deal.price)}<small style="font-weight:600;color:#6b7280">/mo</small></span>`
+        : `<span class="asg-dt-price">${fmtMoney(deal.price)}</span>`;
 
     // Timeline steps
     const today = TODAY.toISOString().slice(0,10);
@@ -718,17 +730,18 @@
       closing: false
     };
 
+    const isRent = deal.side === 'rent';
     const steps = [
-      {key:'contract',          label:'Contract',    date:deal.dates.contract},
-      {key:'inspection',        label:'Inspection',  date:deal.dates.inspection},
+      {key:'contract',          label:isRent?'Lease':'Contract', date:deal.dates.contract},
+      {key:'inspection',        label:'Inspection',  date:deal.dates.inspection, rentHide:true},
       {key:'attorney',          label:'Attorney',    date:deal.dates.attorney},
-      {key:'appraisal',         label:'Appraisal',   date:deal.dates.appraisal, cashHide:true},
-      {key:'mortgageCommitment',label:'Mortgage',    date:deal.dates.mortgageCommitment, cashHide:true},
-      {key:'closing',           label:'Closing',     date:deal.dates.closing}
+      {key:'appraisal',         label:'Appraisal',   date:deal.dates.appraisal, cashHide:true, rentHide:true},
+      {key:'mortgageCommitment',label:'Mortgage',    date:deal.dates.mortgageCommitment, cashHide:true, rentHide:true},
+      {key:'closing',           label:isRent?'Move-in':'Closing', date:deal.dates.closing}
     ];
 
     const timelineHTML = steps.map(step => {
-      const isCashHide = step.cashHide && deal.side === 'cash';
+      const isCashHide = (step.cashHide && deal.side === 'cash') || (step.rentHide && isRent);
       const st = isCashHide ? 'empty' : dateStatus(step.date, checkedMap[step.key]);
       const ext = deal.extended && deal.extended[step.key];
       const rel = step.date && !isCashHide ? relativeText(step.date) : '';
@@ -804,9 +817,9 @@
   }
 
   function renderPeople(deal){
-    const clientLabel = deal.side === 'sell' ? 'Seller' : 'Buyer';
-    const lenderCell = deal.side === 'cash'
-      ? `<div class="asg-dt-person-value is-muted">Cash — no financing</div>`
+    const clientLabel = deal.side === 'sell' ? 'Seller' : deal.side === 'rent' ? 'Tenant' : 'Buyer';
+    const lenderCell = (deal.side === 'cash' || deal.side === 'rent')
+      ? `<div class="asg-dt-person-value is-muted">${deal.side === 'rent' ? 'Lease — no financing' : 'Cash — no financing'}</div>`
       : deal.lender
         ? `<div class="asg-dt-person-value">${escapeHTML(deal.lender.name)}</div>
            ${deal.lender.company ? `<div class="asg-dt-person-sub">${escapeHTML(deal.lender.company)}</div>`:''}`
@@ -841,6 +854,8 @@
   }
 
   function renderEarnestSection(deal){
+    // A lease has no earnest-money escrow, so skip the section entirely for rent.
+    if(deal.side === 'rent') return '';
     if(deal.side === 'cash'){
       return `
         <section class="asg-dt-em">

@@ -8,6 +8,7 @@ import * as marketingTasks from '../repositories/marketingTasks.js';
 import { getCalendar } from '../repositories/marketing.js';
 import { buildBookingUrl } from '../connectors/acuity.js';
 import { upsertDealWorkflow } from '../repositories/crm.js';
+import * as adminInvites from '../repositories/adminInvites.js';
 
 /** Display name to attribute a write to (admin full name, email, or service). */
 const actorOf = (ctx: AuthContext): string =>
@@ -398,6 +399,43 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
       const rows = (b.directory ?? b.rows ?? b.agents) as unknown;
       const deactivateMissing = b.deactivateMissing === undefined ? true : Boolean(b.deactivateMissing);
       return await admin.upsertDirectory(rows, { deactivateMissing });
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // ── Admin invites (admin only) — onboarding a new ops/leadership hire.
+  //    Grants role=admin via the invite record itself (see 0020_admin_invites.sql),
+  //    not domain/roster inference. Uses Supabase's own invite email. ──
+  app.post('/api/admin/invites', async (req, reply) => {
+    const ctx = await requireWrite(req, reply);
+    if (!ctx) return;
+    try {
+      const b = body(req);
+      const email = String(b.email ?? '');
+      const fullName = b.fullName != null ? String(b.fullName) : (b.full_name != null ? String(b.full_name) : undefined);
+      const invitedBy = ctx.userId === 'service' ? null : ctx.userId;
+      const result = await adminInvites.createInvite(invitedBy, email, fullName);
+      return { ok: true, ...result };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  app.get('/api/admin/invites', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      return { ok: true, invites: await adminInvites.listInvites() };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  app.delete('/api/admin/invites/:id', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      await adminInvites.revokeInvite(param(req, 'id'));
+      return { ok: true };
     } catch (err) {
       return fail(reply, err);
     }

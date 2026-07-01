@@ -4,6 +4,7 @@ import { syncDirectory } from './directory.js';
 import { syncIdx } from './idx.js';
 import { syncPhotos, syncDriveFolders } from './photos.js';
 import { syncFub } from './fub.js';
+import { syncFubWebhooks } from './fubWebhooks.js';
 import { syncPipeline } from './pipeline.js';
 import { syncMarketing } from './marketing.js';
 
@@ -13,6 +14,7 @@ export type SyncJob =
   | 'photos'
   | 'drive-folders'
   | 'fub'
+  | 'fub-webhooks'
   | 'pipeline'
   | 'marketing';
 
@@ -28,6 +30,8 @@ export async function runJob(job: SyncJob, opts: { mirrorIdx?: boolean } = {}) {
       return runSync('drive-folders', syncDriveFolders);
     case 'fub':
       return runSync('fub', syncFub);
+    case 'fub-webhooks':
+      return runSync('fub-webhooks', syncFubWebhooks);
     case 'pipeline':
       return runSync('pipeline', syncPipeline);
     case 'marketing':
@@ -48,7 +52,10 @@ export async function syncAll(opts: { mirrorIdx?: boolean } = {}) {
     results.push(await runJob('photos', opts));
     results.push(await runJob('drive-folders'));
   }
-  if (have.fub()) results.push(await runJob('fub'));
+  if (have.fub()) {
+    results.push(await runJob('fub'));
+    if (have.fubWebhooks()) results.push(await runJob('fub-webhooks'));
+  }
   results.push(await runJob('pipeline'));
   if (have.asana() || have.acuity() || have.acuityIcs()) results.push(await runJob('marketing'));
   return results;

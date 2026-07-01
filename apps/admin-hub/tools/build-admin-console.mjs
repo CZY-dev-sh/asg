@@ -40,16 +40,19 @@ function patchListings(src) {
   return overridable(src, "var", "LISTINGS_API", "ASG_LISTINGS_API");
 }
 
-/* --- load + patch the five surfaces --- */
+/* --- load + patch the surfaces ---
+   Overview is now the Command Center (real pipeline/adoption/marketing/system
+   data), replacing the legacy admin-dashboard.html. Leads is a triage surface
+   over the existing /api/admin/leads routes. */
 const surfaces = {
-  overview: patchOverview(read(resolve(comp, "admin-dashboard.html"))),
+  overview: read(resolve(comp, "command-center.html")),
   deals: read(resolve(comp, "deal-tracker.html")),
   // Listings surface is the Supabase-backed Listing Workshop (reads window.ASGConsole).
   listings: read(resolve(comp, "listing-workshop.html")),
   // Marketing workload board (role-aware: admin assigns/tracks, agents self-serve).
   marketing: read(resolve(comp, "marketing-workload.html")),
   directory: read(resolve(comp, "team-directory.html")),
-  command: read(resolve(comp, "command-center.html")),
+  leads: read(resolve(comp, "leads-triage.html")),
 };
 
 function section(name, content, hidden) {
@@ -76,7 +79,7 @@ inject("    <!--SURFACE:deals-->", "deals", true);
 inject("    <!--SURFACE:listings-->", "listings", true);
 inject("    <!--SURFACE:marketing-->", "marketing", true);
 inject("    <!--SURFACE:directory-->", "directory", true);
-inject("    <!--SURFACE:command-->", "command", true);
+inject("    <!--SURFACE:leads-->", "leads", true);
 
 /* --- assemble --- */
 const out = `<!-- ════════════════════════════════════════════════════════════════

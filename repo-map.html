@@ -1,0 +1,1263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ASG Platform - Interactive Repo Graph</title>
+<style>
+  :root {
+    --bg: #0f1012;
+    --bg2: #15171a;
+    --panel: #1a1d22;
+    --panel2: #23272d;
+    --line: #3c434d;
+    --line2: #59626f;
+    --text: #f2f3f5;
+    --muted: #b1b5bc;
+    --faint: #858b95;
+    --accent: #d0d3d8;
+    --live: #3ce6b1;
+    --progress: #ffd166;
+    --ready: #79b9ff;
+    --stub: #ff9f5a;
+    --legacy: #9aa7b7;
+    --backlog: #b690ff;
+    --shadow: 0 18px 45px rgba(0,0,0,.5);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: radial-gradient(1300px 900px at 10% -10%, #2a2d33 0%, var(--bg) 58%) fixed;
+    color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .wrap {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 14px 14px 10px;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 10px;
+  }
+  header.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 16px; }
+  .kicker { color: var(--accent); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
+  h1 { margin: 0; font-size: 31px; letter-spacing: -.02em; }
+  .title p { margin: 6px 0 0; max-width: 880px; color: var(--muted); font-size: 14px; }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; }
+  .stat {
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.015));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    min-width: 106px;
+    padding: 9px 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  }
+  .stat b { display: block; font-size: 20px; line-height: 1; color: #fff; }
+  .stat span { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .search { flex: 1 1 320px; position: relative; }
+  .search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  .search input {
+    width: 100%;
+    padding: 11px 13px 11px 35px;
+    background: rgba(26,29,34,.95);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(208,211,216,.18); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: .12s ease;
+    font-size: 12px;
+  }
+  .chip.on { background: var(--panel2); border-color: var(--line2); color: #fff; }
+  .chip.off { opacity: .38; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+  .dot.live { background: var(--live); }
+  .dot.progress { background: var(--progress); }
+  .dot.ready { background: var(--ready); }
+  .dot.stub { background: var(--stub); }
+  .dot.legacy { background: var(--legacy); }
+  .dot.backlog { background: var(--backlog); }
+  .chip .n { color: var(--faint); font-variant-numeric: tabular-nums; }
+
+  .graph-shell {
+    position: relative;
+    background: linear-gradient(180deg, #171a1f, #121418);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+  }
+  .graph-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(89,98,111,.45);
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  }
+  .graph-bar .hint { color: var(--muted); font-size: 12px; }
+  .graph-bar .actions { display: flex; gap: 8px; align-items: center; }
+  .btn {
+    border: 1px solid var(--line2);
+    background: var(--panel2);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn:hover { filter: brightness(1.1); }
+
+  .graph-wrap { position: relative; height: 100%; min-height: 0; }
+  svg#graphSvg { width: 100%; height: 100%; display: block; background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 200px); cursor: grab; }
+  svg#graphSvg.panning { cursor: grabbing; }
+  .map-watermark { position: absolute; bottom: 10px; right: 14px; color: rgba(164,183,207,.45); font-size: 11px; pointer-events: none; }
+
+  .edge { fill: none; stroke: #5d6570; stroke-width: 1.8; opacity: .8; }
+  .edge.dim { opacity: .15; }
+  .node-g { cursor: pointer; }
+  .node-g .node-box {
+    fill: url(#nodeGrad);
+    stroke: #4d5560;
+    stroke-width: 1.2;
+    filter: url(#ds);
+  }
+  .node-g.dir .node-box { stroke-width: 1.4; }
+  .node-g.live .node-box { stroke: #2ad69d; }
+  .node-g.progress .node-box { stroke: #f2c14d; }
+  .node-g.ready .node-box { stroke: #68abf3; }
+  .node-g.stub .node-box { stroke: #f08b4a; }
+  .node-g.legacy .node-box { stroke: #8e98a5; }
+  .node-g.backlog .node-box { stroke: #a57bff; }
+  .node-g:hover .node-box { stroke-width: 2; }
+  .node-g .label { fill: #f5f9ff; font-size: 12px; dominant-baseline: middle; pointer-events: none; }
+  .node-g .meta { fill: #b4bac3; font-size: 10px; dominant-baseline: middle; pointer-events: none; }
+  .node-g .toggle {
+    fill: #1b1f25;
+    stroke: #646d79;
+    stroke-width: 1;
+  }
+  .node-g .toggle-text {
+    fill: #d6dae0;
+    font-size: 10px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+  }
+  .node-g.dim { opacity: .22; }
+
+  .drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 430px;
+    max-width: 94vw;
+    height: 100%;
+    background: #171b21;
+    border-left: 1px solid var(--line2);
+    box-shadow: -20px 0 56px rgba(0,0,0,.55);
+    transform: translateX(100%);
+    transition: transform .24s ease;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer.open { transform: translateX(0); }
+  .dhead { position: relative; padding: 18px 20px 13px; border-bottom: 1px solid rgba(89,98,111,.35); }
+  .close { position: absolute; right: 17px; top: 13px; font-size: 22px; color: var(--muted); cursor: pointer; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 8px;
+    background: var(--panel2);
+    margin-bottom: 10px;
+  }
+  .dhead h2 { margin: 0 0 4px; font-size: 19px; }
+  .grp { color: var(--muted); font-size: 12px; }
+  .dbody { padding: 18px 20px; overflow-y: auto; }
+  .path {
+    word-break: break-all;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: #d7dbe1;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+  }
+  .desc { font-size: 13px; color: #edf0f4; line-height: 1.5; }
+  .scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s;
+    z-index: 30;
+  }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  footer.foot { color: var(--faint); font-size: 12px; margin-top: 14px; text-align: center; }
+
+  @media (max-width: 800px) {
+    h1 { font-size: 24px; }
+    .wrap { padding: 10px; }
+    .graph-bar { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title">
+      <div class="kicker">ASG Platform</div>
+      <h1>Interactive Repo Graph</h1>
+      <p>Mermaid-style component map of the whole repo. Click folders to expand/collapse. Click files for details. Pan/zoom to navigate.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="controls">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+      <input id="search" placeholder="Search by component or file path..." autocomplete="off" />
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <section class="graph-shell">
+    <div class="graph-bar">
+      <div class="hint">Top-down map: click +/- to expand branches, click names for details, drag background to pan.</div>
+      <div class="actions">
+        <button class="btn" id="fitView">Center View</button>
+        <button class="btn" id="expandAll">Expand All</button>
+        <button class="btn" id="collapseAll">Collapse All</button>
+      </div>
+    </div>
+    <div class="graph-wrap">
+      <svg id="graphSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMinYMin meet">
+        <defs>
+          <linearGradient id="nodeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a2f36"></stop>
+            <stop offset="100%" stop-color="#1c2026"></stop>
+          </linearGradient>
+          <filter id="ds" x="-20%" y="-20%" width="140%" height="180%">
+            <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity=".45"></feDropShadow>
+          </filter>
+        </defs>
+        <g id="graphScene"></g>
+      </svg>
+      <div class="map-watermark">ASG repo map</div>
+    </div>
+  </section>
+  <footer class="foot">Generated from tracked repo files. Self-contained, no internet required.</footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="dhead">
+    <span class="close" id="dclose">&times;</span>
+    <div class="badge" id="dbadge"></div>
+    <h2 id="dtitle"></h2>
+    <div class="grp" id="dgrp"></div>
+  </div>
+  <div class="dbody">
+    <div class="path" id="dpath"></div>
+    <div class="desc" id="ddesc"></div>
+  </div>
+</aside>
+
+<script id="data" type="application/json">
+{
+  "generatedAt": "2026-07-01",
+  "dirtyPaths": [
+    "apps/backend/.env.example",
+    "apps/backend/package.json",
+    "apps/backend/src/connectors/fub.ts",
+    "apps/backend/src/env.ts",
+    "apps/backend/src/index.ts",
+    "apps/backend/src/routes/api.ts",
+    "apps/backend/src/scheduler.ts",
+    "apps/backend/src/sync/cli.ts",
+    "apps/backend/src/sync/fub.ts",
+    "apps/backend/src/sync/index.ts",
+    "apps/backend/src/sync/fubWebhooks.ts",
+    "apps/backend/src/tools/fubWebhooks.ts",
+    "apps/backend/supabase/migrations/0019_fub_webhooks.sql",
+    "docs/FUB-DATA-STANDARDS.md",
+    "repo-map.html"
+  ]
+}
+</script>
+<script>
+(() => {
+  const config = JSON.parse(document.getElementById("data").textContent || "{}");
+  const DIRTY = new Set(config.dirtyPaths || []);
+  const STATUS = {
+    live: { label: "Active", dot: "live" },
+    progress: { label: "Semi-built", dot: "progress" },
+    ready: { label: "Built", dot: "ready" },
+    stub: { label: "Prototype", dot: "stub" },
+    legacy: { label: "Legacy", dot: "legacy" },
+    backlog: { label: "Backlog", dot: "backlog" }
+  };
+  const STATUS_PRIORITY = ["live", "progress", "legacy", "stub", "backlog", "ready"];
+
+  const RAW_PATHS = `
+./repo-map.html
+./docs/FUB-DATA-STANDARDS.md
+./apps/backend/.env.example
+./apps/backend/package.json
+./apps/backend/src/sync/cli.ts
+./apps/backend/src/tools/fubWebhooks.ts
+./apps/backend/src/connectors/fub.ts
+./apps/backend/src/scheduler.ts
+./apps/backend/src/env.ts
+./apps/backend/src/sync/index.ts
+./apps/backend/src/routes/api.ts
+./apps/backend/src/index.ts
+./apps/backend/src/sync/fubWebhooks.ts
+./apps/backend/src/sync/fub.ts
+./apps/backend/supabase/migrations/0019_fub_webhooks.sql
+./apps/backend/src/sync/runner.ts
+./docs/ADMIN-HUB-PRD.md
+./docs/AGENT-HUB-PRD.md
+./apps/backend/src/tools/rosterDataQuality.ts
+./apps/backend/src/sync/directory.ts
+./apps/backend/src/repositories/admin.ts
+./apps/backend/src/data/roster.ts
+./.cursor/rules/asg-platform-architecture.mdc
+./docs/CLIENT-HUB-PRD.md
+./docs/ORCHESTRATION-HUB-PRD.md
+./docs/PLATFORM-ARCHITECTURE.md
+./apps/admin-hub/tools/build-admin-console.mjs
+./docs/ASANA-LISTING-PROJECTS.md
+./apps/admin-hub/components/asg-open-house-schedule.html
+./apps/backend/src/routes/admin.ts
+./apps/backend/src/sync/marketing.ts
+./apps/backend/src/connectors/asana.ts
+./apps/backend/src/repositories/marketingStatus.ts
+./.cursor/rules/concept-notes.mdc
+./apps/admin-hub/tools/console-body.html
+./apps/backend/src/repositories/marketingTasks.ts
+./apps/backend/src/tools/asanaInspect.ts
+./apps/backend/supabase/migrations/0018_marketing_tasks.sql
+./apps/backend/src/repositories/asanaListings.ts
+./apps/admin-hub/components/asg-admin-console.html
+./apps/admin-hub/components/marketing-workload.html
+./infra/pi-remote/README.md
+./apps/backend/README.md
+./design/README.md
+./ARCHITECTURE.md
+./README.md
+./infra/pi-remote/scripts/sync-canonical.js
+./infra/pi-remote/scripts/deploy-pi.sh
+./infra/pi-remote/server.js
+./apps/backend/src/agents/research.ts
+./apps/backend/src/agents/copy.ts
+./apps/backend/src/repositories/listingMarketing.ts
+./apps/backend/src/agents/types.ts
+./apps/backend/src/connectors/anthropic.ts
+./apps/backend/supabase/migrations/0017_listing_marketing_agent.sql
+./apps/backend/src/agents/brand.ts
+./apps/backend/src/agents/worker.ts
+./apps/backend/src/repositories/intake.ts
+./apps/backend/src/agents/orchestrator.ts
+./apps/backend/src/agents/seedBrandCli.ts
+./apps/backend/src/agents/cli.ts
+./apps/backend/src/data/brandGuide.ts
+./apps/backend/package-lock.json
+./apps/backend/supabase/migrations/0016_asana_listing_projects.sql
+./apps/backend/src/repositories/portal.ts
+./docs/CLIENT-PORTAL-AUTH.md
+./apps/admin-hub/components/asg-seller-onboarding.html
+./apps/admin-hub/components/asg-buyer-onboarding.html
+./apps/backend/src/auth.ts
+./apps/backend/supabase/migrations/0015_client_portal.sql
+./apps/admin-hub/components/asg-client-portal.html
+./apps/admin-hub/components/asg-marketing-dashboard.html
+./apps/backend/src/repositories/marketing.ts
+./apps/backend/src/connectors/acuityIcs.ts
+./apps/backend/src/connectors/acuity.ts
+./apps/backend/src/sync/idx.ts
+./apps/backend/supabase/migrations/0014_address_matching.sql
+./apps/admin-hub/components/asg-search-homes.html
+./apps/backend/src/repositories/listings.ts
+./apps/backend/src/connectors/idx.ts
+./apps/admin-hub/apps-script/listing-hub/SupabaseSync.gs
+./apps/admin-hub/apps-script/hub-data/SupabaseSync.gs
+./apps/backend/supabase/migrations/0013_sheet_import.sql
+./apps/admin-hub/tools/console-shell.css
+./apps/admin-hub/components/listing-workshop.html
+./apps/admin-hub/tools/console-app.js
+./apps/backend/src/storage.ts
+./apps/backend/supabase/migrations/0012_listing_workshop.sql
+./apps/backend/src/repositories/directory.ts
+./apps/backend/supabase/migrations/0011_directory.sql
+./apps/admin-hub/apps-script/listing-hub/ListingHub.gs
+./apps/backend/railway.json
+./apps/admin-hub/tools/console-config.js
+./apps/backend/supabase/migrations/0010_admin_writes.sql
+./apps/backend/supabase/config.toml
+./apps/backend/supabase/migrations/0009_accounts.sql
+./apps/backend/src/db/seed.ts
+./apps/backend/src/repositories/commandCenter.ts
+./apps/backend/src/repositories/telemetry.ts
+./apps/backend/src/repositories/crm.ts
+./apps/backend/src/repositories/pipeline.ts
+./apps/backend/src/db/migrate.ts
+./apps/backend/src/sync/pipeline.ts
+./apps/backend/src/sync/photos.ts
+./apps/backend/src/connectors/sheets.ts
+./apps/backend/src/connectors/drive.ts
+./apps/backend/src/util/text.ts
+./apps/backend/src/util/http.ts
+./apps/backend/src/db/client.ts
+./apps/backend/src/logger.ts
+./apps/backend/supabase/migrations/0008_views.sql
+./apps/backend/supabase/migrations/0007_storage.sql
+./apps/backend/supabase/migrations/0006_marketing_pipeline.sql
+./apps/backend/supabase/migrations/0005_telemetry.sql
+./apps/backend/supabase/migrations/0004_hub_content.sql
+./apps/backend/supabase/migrations/0003_crm.sql
+./apps/backend/supabase/migrations/0002_listings.sql
+./apps/backend/supabase/migrations/0001_init.sql
+./apps/backend/.gitignore
+./apps/backend/tsconfig.json
+./apps/admin-hub/apps-script/follow-up-boss/SellerIntake.gs
+./docs/API-ENDPOINTS.md
+./apps/admin-hub/apps-script/follow-up-boss/BuyerIntake.gs
+./apps/admin-hub/components/asg-homepage-redesign.html
+./apps/admin-hub/components/tv-dashboard-multiview.html
+./apps/admin-hub/components/asg-listing-details.html
+./apps/admin-hub/components/asg-site-css-injection.html
+./apps/admin-hub/components/agent-cards.html
+./apps/admin-hub/components/team-directory.html
+./apps/admin-hub/components/team-roster-client.html
+./apps/admin-hub/components/listing-hub-standalone.html
+./.cursor/rules/no-em-dashes.mdc
+./apps/admin-hub/components/asg-site-js-injection.html
+./apps/admin-hub/shared/team-data.js
+./apps/admin-hub/apps-script/listing-hub/IdxSync.gs
+./apps/admin-hub/components/agent-onboarding.html
+./apps/admin-hub/components/asg-team-roster.html
+./apps/admin-hub/components/admin-master-dashboard.html
+./apps/admin-hub/components/1541-w-montana-squarespace-block.html
+./apps/admin-hub/apps-script/listing-hub/ListingMicrositePage.html
+./apps/admin-hub/apps-script/hub-data/HubData.gs
+./apps/admin-hub/components/agent-personal-hub-alex-stoykov.html
+./apps/admin-hub/components/admin-dashboard.html
+./apps/admin-hub/shared/listing-sell-detail-partial.js
+./apps/admin-hub/shared/listing-sell-detail.js
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-wordpress-theme.json
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-shadcn-theme.css
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-theme.js
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-figma-variables.json
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-preview.html
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-variables.css
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-tailwind.config.js
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-design-tokens.json
+./design/references/alexstoykovgroup-com/alexstoykovgroup-com-design-language.md
+./apps/admin-hub/components/marketing-output-tracker.html
+./apps/admin-hub/apps-script/marketing-output/MarketingOutputGmail.gs
+./apps/admin-hub/README.md
+./apps/admin-hub/apps-script/marketing-output/MarketingOutputEmbed.html
+./docs/COMPONENT-MAP.md
+./apps/admin-hub/react/MarketingOutputTracker.tsx
+./apps/admin-hub/components/agent-personal-hub-nicolas-gamboa-wills.html
+./apps/admin-hub/components/asg-landing-overhaul.html
+./apps/admin-hub/components/agent-personal-hub-angela-engelbrecht.html
+./apps/admin-hub/apps-script/listing-hub/ListingDetailPage.html
+./apps/admin-hub/components/agent-personal-hub-shelly-channey.html
+./apps/admin-hub/components/agent-personal-hub-sam-abadi.html
+./apps/admin-hub/components/agent-personal-hub-mino-conenna.html
+./apps/admin-hub/components/agent-personal-hub-matthew-clevenger.html
+./apps/admin-hub/components/agent-personal-hub-layne-zagorin.html
+./apps/admin-hub/components/agent-personal-hub-julian-levit.html
+./apps/admin-hub/components/agent-personal-hub-gabriel-rendon.html
+./apps/admin-hub/components/agent-personal-hub-barbara-laken.html
+./apps/admin-hub/components/asg-team-overhaul.html
+./apps/admin-hub/components/asg-how-we-work-overhaul.html
+./apps/admin-hub/components/asg-about-overhaul.html
+./apps/admin-hub/components/asg-neighborhoods-overhaul.html
+./apps/admin-hub/components/asg-listings-overhaul.html
+./apps/admin-hub/components/asg-sellers-overhaul.html
+./apps/admin-hub/components/asg-buyers-overhaul.html
+./apps/admin-hub/components/asg-home-overhaul.html
+./apps/admin-hub/components/agent-landing-alex-stoykov-buyer.html
+./apps/admin-hub/apps-script/landing-pages/LandingPages.gs
+./apps/admin-hub/components/buyer-page-onboarding-fullspread.html
+./apps/admin-hub/apps-script/landing-pages/README.md
+./apps/admin-hub/components/agent-landing-template.html
+./apps/admin-hub/components/agent-landing-alex-stoykov-seller.html
+./apps/admin-hub/components/agent-landing-rollout-guide.md
+./apps/admin-hub/components/asg-buy-overhaul.html
+./apps/admin-hub/components/buy.html
+./apps/admin-hub/components/index (1).html
+./apps/admin-hub/components/agent-landing-alex-stoykov-general.html
+./apps/admin-hub/components/command-center.html
+./apps/admin-hub/apps-script/command-center/CommandCenter.gs
+./apps/admin-hub/apps-script/command-center/README.md
+./docs/PROJECT-PHASES-AND-PERFORMANCE.md
+./apps/admin-hub/shared/usage-beacon.js
+./apps/admin-hub/apps-script/usage-log/UsageLog.gs
+./apps/admin-hub/apps-script/headshots/HeadshotsMailer.gs
+./apps/admin-hub/components/deal-tracker.html
+./apps/admin-hub/apps-script/follow-up-boss/FubAgentHub.gs
+./data/team-data.js
+./design/idx/README.md
+./design/idx/idx-details-enhancements.js
+./design/idx/categories/details.css
+./design/idx/squarespace-global.css
+./design/idx/squarespace-tail.css
+./design/idx/squarespace-global-part-a.css
+./design/references/apple-com/apple-com-wordpress-theme.json
+./design/references/apple-com/apple-com-shadcn-theme.css
+./design/references/apple-com/apple-com-theme.js
+./design/references/apple-com/apple-com-figma-variables.json
+./design/references/apple-com/apple-com-preview.html
+./design/references/apple-com/apple-com-variables.css
+./design/references/apple-com/apple-com-tailwind.config.js
+./design/references/apple-com/apple-com-design-tokens.json
+./design/references/apple-com/apple-com-design-language.md
+./design/extract-output/stripe-com-wordpress-theme.json
+./design/extract-output/stripe-com-shadcn-theme.css
+./design/extract-output/stripe-com-theme.js
+./design/extract-output/stripe-com-figma-variables.json
+./design/extract-output/stripe-com-preview.html
+./design/extract-output/stripe-com-variables.css
+./design/extract-output/stripe-com-tailwind.config.js
+./design/extract-output/stripe-com-design-tokens.json
+./design/extract-output/stripe-com-design-language.md
+./design/idx/squarespace-global-part-b.css
+./design/idx/idx-for-rent-chip.js
+./design/idx/build-squarespace-global.sh
+./design/idx/categories/roster.css
+./design/idx/categories/reports.css
+./design/idx/categories/property-updates.css
+./design/idx/categories/other.css
+./design/idx/categories/user.css
+./design/idx/categories/contact.css
+./design/idx/categories/listing.css
+./design/idx/categories/results.css
+./design/idx/categories/map-search.css
+./design/idx/categories/search.css
+./design/idx/page-templates.css
+./design/idx/idx-global.css
+./apps/admin-hub/asg-remote/index.html
+./apps/admin-hub/asg-remote/server.js
+./infra/pi-remote/index.html
+./infra/pi-remote/scripts/pi-update-dashboard.sh
+./infra/pi-remote/NEXT-CLI-HANDOFF.md
+./infra/pi-remote/MAC-STUDIO-PI-WORKFLOW.md
+./apps/admin-hub/apps-script/team-stats/TeamStats.gs
+./apps/admin-hub/.cursorrules
+./apps/admin-hub/apps-script/drive-folders/DriveRecentFolders.gs
+./apps/admin-hub/components/client-homepage-premium.html
+./.gitignore
+./infra/pi-remote/package.json
+./infra/pi-remote/workspace.html
+./infra/pi-remote/systemd/tv-remote.service
+./infra/pi-remote/systemd/tv-dashboard-kiosk.service
+./infra/pi-remote/scripts/start-dashboard.sh
+./docs/DEPLOYMENT.md
+./docs/ASG-DESIGN-SYSTEM-BRIEF.md
+./apps/admin-hub/components/marketing-assets.html
+./apps/admin-hub/asg-remote/README.md
+./apps/admin-hub/.gitignore
+  `;
+
+  const files = RAW_PATHS.split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^\.\//, ""))
+    .sort((a, b) => a.localeCompare(b));
+
+  const rules = [
+    { status: "backlog", test: (p) => /ORCHESTRATION-HUB-PRD/.test(p), reason: "Orchestration Hub is backlog only." },
+    { status: "legacy", test: (p) => p.includes("/apps-script/"), reason: "Legacy Apps Script generation." },
+    { status: "legacy", test: (p) => /admin-master-dashboard|admin-dashboard|agent-cards|listing-hub-standalone|marketing-assets/.test(p), reason: "Legacy standalone admin surface." },
+    { status: "stub", test: (p) => /buy\.html$|index \(1\)\.html$|buyer-page-onboarding-fullspread|asg-buy-overhaul/.test(p), reason: "Prototype or superseded onboarding/UI experiment." },
+    { status: "progress", test: (p) => /asg-admin-console|marketing-workload|command-center|team-directory|deal-tracker|listing-workshop/.test(p), reason: "Mid-migration unified admin console surface." },
+    { status: "progress", test: (p) => /agent-personal-hub-(?!alex-stoykov)/.test(p), reason: "Staged agent hub rollout (not fully production-ready)." },
+    { status: "progress", test: (p) => /agent-landing-template|agent-landing-rollout-guide/.test(p), reason: "Template exists; rollout still partial." },
+    { status: "live", test: (p) => p.startsWith("apps/backend/"), reason: "Core API/backend powering all hubs." },
+    { status: "live", test: (p) => /asg-homepage-redesign|asg-search-homes|asg-listing-details|asg-seller-onboarding|asg-buyer-onboarding|asg-client-portal|asg-team-roster|asg-how-we-work-overhaul/.test(p), reason: "Documented as live client-facing production path." },
+    { status: "live", test: (p) => p.startsWith("infra/pi-remote/"), reason: "Live infrastructure/runtime assets." },
+    { status: "ready", test: (p) => p.startsWith("docs/"), reason: "Documentation/specification source." },
+    { status: "ready", test: (p) => p.startsWith("design/"), reason: "Design system/reference asset set." },
+    { status: "ready", test: () => true, reason: "Tracked component in the repository." }
+  ];
+
+  const classify = (path) => {
+    if (DIRTY.has(path)) return { status: "live", reason: "Active in the current git working tree." };
+    for (const rule of rules) if (rule.test(path)) return { status: rule.status, reason: rule.reason };
+    return { status: "ready", reason: "Tracked component in the repository." };
+  };
+
+  const inferDescription = (path) => {
+    if (path.includes("supabase/migrations")) return "Database migration affecting Supabase/Postgres schema.";
+    if (path.includes("/routes/")) return "API route surface exposed by backend.";
+    if (path.includes("/repositories/")) return "Data access logic and query orchestration.";
+    if (path.includes("/sync/")) return "Data synchronization job or scheduler worker.";
+    if (path.includes("/connectors/")) return "External service integration connector.";
+    if (path.includes("/components/")) return "Squarespace-embedded UI component/page.";
+    if (path.includes("/apps-script/")) return "Google Apps Script endpoint or helper.";
+    if (path.endsWith(".md")) return "Documentation/spec/operations note.";
+    if (path.endsWith(".css")) return "Styling asset or design token output.";
+    if (path.endsWith(".html")) return "HTML surface, template, or embed.";
+    if (path.endsWith(".ts") || path.endsWith(".js") || path.endsWith(".tsx")) return "Application source code component.";
+    return "Repository artifact.";
+  };
+
+  const entries = files.map((path) => {
+    const parts = path.split("/");
+    const top = parts.length > 1 ? parts[0] : "root";
+    const sub = parts.length > 2 ? parts[1] : "root-files";
+    const c = classify(path);
+    return {
+      id: path,
+      name: parts[parts.length - 1],
+      path,
+      top,
+      sub,
+      status: c.status,
+      reason: c.reason,
+      desc: inferDescription(path)
+    };
+  });
+
+  const statusCounts = Object.fromEntries(Object.keys(STATUS).map((key) => [key, 0]));
+  entries.forEach((entry) => { statusCounts[entry.status] += 1; });
+
+  const statsEl = document.getElementById("stats");
+  const statCards = [
+    { value: entries.length, label: "Files Indexed" },
+    { value: new Set(entries.map((entry) => entry.top)).size, label: "Top Groups" },
+    { value: DIRTY.size, label: "Active Now" },
+    { value: statusCounts.progress, label: "Semi-built" }
+  ];
+  statsEl.innerHTML = statCards.map((item) => `<div class="stat"><b>${item.value}</b><span>${item.label}</span></div>`).join("");
+
+  const activeStatus = new Set(Object.keys(STATUS));
+  const legend = document.getElementById("legend");
+  legend.innerHTML = Object.entries(STATUS)
+    .map(([key, cfg]) => `<button class="chip on" data-status="${key}"><span class="dot ${cfg.dot}"></span>${cfg.label}<span class="n">${statusCounts[key]}</span></button>`)
+    .join("");
+  legend.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const status = chip.dataset.status;
+      if (activeStatus.has(status)) activeStatus.delete(status);
+      else activeStatus.add(status);
+      chip.classList.toggle("on", activeStatus.has(status));
+      chip.classList.toggle("off", !activeStatus.has(status));
+      render();
+    });
+  });
+
+  const treeRoot = { id: "root", name: "asg", path: "", type: "dir", children: [], parent: null };
+  const treeIndex = new Map([["", treeRoot]]);
+
+  function ensureDir(parts, parentPath) {
+    const path = parts.join("/");
+    if (treeIndex.has(path)) return treeIndex.get(path);
+    const name = parts[parts.length - 1] || "asg";
+    const parent = treeIndex.get(parentPath);
+    const dirNode = {
+      id: `dir:${path || "root"}`,
+      name,
+      path,
+      type: "dir",
+      parent,
+      children: [],
+      status: "ready",
+      reason: "Directory aggregate node.",
+      desc: "Folder in repository structure.",
+      fileCount: 0
+    };
+    parent.children.push(dirNode);
+    treeIndex.set(path, dirNode);
+    return dirNode;
+  }
+
+  for (const entry of entries) {
+    const parts = entry.path.split("/");
+    let parentPath = "";
+    for (let idx = 0; idx < parts.length - 1; idx += 1) {
+      const partial = parts.slice(0, idx + 1);
+      ensureDir(partial, parentPath);
+      parentPath = partial.join("/");
+    }
+    const parentNode = treeIndex.get(parentPath) || treeRoot;
+    parentNode.children.push({
+      id: `file:${entry.path}`,
+      name: entry.name,
+      path: entry.path,
+      type: "file",
+      parent: parentNode,
+      children: [],
+      status: entry.status,
+      reason: entry.reason,
+      desc: entry.desc,
+      fileCount: 1
+    });
+  }
+
+  function aggregateStatus(node) {
+    if (node.type === "file") return { status: node.status, fileCount: 1 };
+    const localCounts = Object.fromEntries(Object.keys(STATUS).map((key) => [key, 0]));
+    let fileCount = 0;
+    node.children.forEach((child) => {
+      const childAgg = aggregateStatus(child);
+      localCounts[childAgg.status] += childAgg.fileCount;
+      fileCount += childAgg.fileCount;
+    });
+    node.fileCount = fileCount;
+    const dominant = STATUS_PRIORITY.find((key) => localCounts[key] > 0) || "ready";
+    node.status = dominant;
+    node.reason = `Contains ${fileCount} file(s). Dominant state: ${STATUS[dominant].label}.`;
+    node.desc = "Directory node. Click to expand/collapse child components.";
+    return { status: dominant, fileCount };
+  }
+  aggregateStatus(treeRoot);
+
+  const searchInput = document.getElementById("search");
+  const drawer = document.getElementById("drawer");
+  const scrim = document.getElementById("scrim");
+  const dclose = document.getElementById("dclose");
+  const dtitle = document.getElementById("dtitle");
+  const dgrp = document.getElementById("dgrp");
+  const dbadge = document.getElementById("dbadge");
+  const dpath = document.getElementById("dpath");
+  const ddesc = document.getElementById("ddesc");
+
+  const svg = document.getElementById("graphSvg");
+  const scene = document.getElementById("graphScene");
+
+  const expanded = new Set(["dir:root", "dir:apps", "dir:docs", "dir:design", "dir:infra", "dir:.cursor"]);
+  const position = new Map();
+  const levelGap = 80;
+  const siblingGap = 16;
+  const topPad = 26;
+  const sidePad = 24;
+  const nodeH = 36;
+  const minNodeW = 132;
+  let latestGraph = null;
+
+  function openDrawer(payload) {
+    const cfg = STATUS[payload.status] || STATUS.ready;
+    dbadge.innerHTML = `<span class="dot ${cfg.dot}"></span>${cfg.label}`;
+    dtitle.textContent = payload.name;
+    dgrp.textContent = payload.group;
+    dpath.textContent = payload.path || "(repo root)";
+    ddesc.innerHTML = `${payload.desc}<br><br><strong>Status rationale:</strong> ${payload.reason}`;
+    drawer.classList.add("open");
+    scrim.classList.add("on");
+  }
+  function closeDrawer() {
+    drawer.classList.remove("open");
+    scrim.classList.remove("on");
+  }
+  dclose.addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", closeDrawer);
+  window.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closeDrawer(); });
+
+  function markVisibility(node, query) {
+    const queryHit = !query || node.name.toLowerCase().includes(query) || (node.path || "").toLowerCase().includes(query);
+    if (node.type === "file") {
+      node.visible = activeStatus.has(node.status) && queryHit;
+      node.forceExpand = false;
+      return node.visible;
+    }
+
+    let childVisible = false;
+    node.children.forEach((child) => {
+      if (markVisibility(child, query)) childVisible = true;
+    });
+    node.forceExpand = !!(query && childVisible);
+    node.visible = childVisible || (queryHit && activeStatus.has(node.status));
+    return node.visible;
+  }
+
+  function buildVisibleGraph(node, depth, nodes, edges) {
+    if (!node.visible) return;
+    nodes.push({ node, depth });
+    const canOpen = node.type === "dir" && (expanded.has(node.id) || node.forceExpand || node.id === "dir:root");
+    if (!canOpen) return;
+
+    const sortedChildren = [...node.children].sort((a, b) => {
+      if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    sortedChildren.forEach((child) => {
+      if (!child.visible) return;
+      edges.push({ from: node, to: child });
+      buildVisibleGraph(child, depth + 1, nodes, edges);
+    });
+  }
+
+  function layoutNodes(root, query) {
+    markVisibility(root, query);
+    const nodes = [];
+    const edges = [];
+    buildVisibleGraph(root, 0, nodes, edges);
+
+    let leafCursor = sidePad;
+
+    function place(node, depth) {
+      const openChildren = node.type === "dir" ? node.children.filter((child) => child.visible && (expanded.has(node.id) || node.forceExpand || node.id === "dir:root")) : [];
+      const y = topPad + depth * levelGap;
+      const width = nodeWidth(node);
+      if (!openChildren.length) {
+        const x = leafCursor;
+        leafCursor += width + siblingGap;
+        position.set(node.id, { x, y, depth });
+        return x + width / 2;
+      }
+      const centers = openChildren.map((child) => place(child, depth + 1));
+      const center = (Math.min(...centers) + Math.max(...centers)) / 2;
+      const x = center - width / 2;
+      position.set(node.id, { x, y, depth });
+      return center;
+    }
+    place(root, 0);
+
+    const layoutBoxes = nodes.map((item) => {
+      const pos = position.get(item.node.id);
+      const width = nodeWidth(item.node);
+      return { x: pos.x, y: pos.y, w: width, h: nodeH };
+    });
+    const minX = Math.min(...layoutBoxes.map((b) => b.x), 0);
+    if (minX < sidePad) {
+      const shift = sidePad - minX;
+      nodes.forEach((item) => {
+        const pos = position.get(item.node.id);
+        position.set(item.node.id, { x: pos.x + shift, y: pos.y, depth: pos.depth });
+      });
+    }
+    const maxDepth = nodes.reduce((m, item) => Math.max(m, item.depth), 0);
+    const maxRight = Math.max(...nodes.map((item) => {
+      const pos = position.get(item.node.id);
+      return pos.x + nodeWidth(item.node);
+    }), 0);
+    const width = Math.max(1200, maxRight + sidePad);
+    const height = Math.max(760, topPad + (maxDepth + 1) * levelGap + 80);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    return { nodes, edges, width, height };
+  }
+
+  function nodeWidth(node) {
+    const base = node.name.length * 7.1 + (node.type === "dir" ? 90 : 60);
+    return Math.max(minNodeW, Math.min(300, base));
+  }
+
+  function render() {
+    const query = (searchInput.value || "").trim().toLowerCase();
+    const graph = layoutNodes(treeRoot, query);
+    scene.innerHTML = "";
+    const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const nodeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    scene.appendChild(edgeLayer);
+    scene.appendChild(nodeLayer);
+
+    graph.edges.forEach((edge) => {
+      const fromPos = position.get(edge.from.id);
+      const toPos = position.get(edge.to.id);
+      if (!fromPos || !toPos) return;
+      const fromW = nodeWidth(edge.from);
+      const toW = nodeWidth(edge.to);
+      const x1 = fromPos.x + fromW / 2;
+      const y1 = fromPos.y + nodeH;
+      const x2 = toPos.x + toW / 2;
+      const y2 = toPos.y;
+      const c = Math.max(28, (y2 - y1) * 0.45);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("class", "edge");
+      path.setAttribute("d", `M${x1},${y1} C${x1},${y1 + c} ${x2},${y2 - c} ${x2},${y2}`);
+      edgeLayer.appendChild(path);
+    });
+
+    graph.nodes.forEach((item) => {
+      const node = item.node;
+      const pos = position.get(node.id);
+      if (!pos) return;
+      const width = nodeWidth(node);
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", `node-g ${node.type} ${node.status}`);
+      group.setAttribute("transform", `translate(${pos.x},${pos.y})`);
+
+      const box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      box.setAttribute("class", "node-box");
+      box.setAttribute("rx", node.type === "dir" ? "10" : "8");
+      box.setAttribute("ry", node.type === "dir" ? "10" : "8");
+      box.setAttribute("width", width);
+      box.setAttribute("height", nodeH);
+      group.appendChild(box);
+
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("cx", "10");
+      dot.setAttribute("cy", String(nodeH / 2));
+      dot.setAttribute("r", "4.4");
+      const colors = {
+        live: "var(--live)", progress: "var(--progress)", ready: "var(--ready)",
+        stub: "var(--stub)", legacy: "var(--legacy)", backlog: "var(--backlog)"
+      };
+      dot.setAttribute("fill", colors[node.status] || "var(--ready)");
+      group.appendChild(dot);
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("class", "label");
+      label.setAttribute("x", "20");
+      label.setAttribute("y", String(nodeH / 2));
+      label.textContent = node.name;
+      group.appendChild(label);
+
+      if (node.type === "dir") {
+        const meta = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        meta.setAttribute("class", "meta");
+        meta.setAttribute("x", String(Math.max(67, width - 66)));
+        meta.setAttribute("y", String(nodeH / 2));
+        meta.textContent = `${node.fileCount} files`;
+        group.appendChild(meta);
+
+        if (node.children.length) {
+          const tg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          tg.setAttribute("class", "toggle");
+          tg.setAttribute("width", "17");
+          tg.setAttribute("height", "17");
+          tg.setAttribute("x", String(width - 23));
+          tg.setAttribute("y", "9.5");
+          tg.setAttribute("rx", "4");
+          group.appendChild(tg);
+
+          const tt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          tt.setAttribute("class", "toggle-text");
+          tt.setAttribute("x", String(width - 14.5));
+          tt.setAttribute("y", "18");
+          const isOpen = expanded.has(node.id) || node.forceExpand || node.id === "dir:root";
+          tt.textContent = isOpen ? "-" : "+";
+          group.appendChild(tt);
+        }
+      }
+
+      group.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (node.type === "dir") {
+          const targetClass = String(ev.target.getAttribute("class") || "");
+          const isToggleClick = targetClass.includes("toggle");
+          if (isToggleClick) {
+            if (expanded.has(node.id)) expanded.delete(node.id);
+            else expanded.add(node.id);
+            render();
+            return;
+          }
+          if (node.id === "dir:root") {
+            openDrawer({
+              name: "asg",
+              path: "(repo root)",
+              group: "Root",
+              status: node.status,
+              desc: `Root directory with ${node.fileCount} files. Use +/- controls to expand or collapse branches.`,
+              reason: node.reason
+            });
+            return;
+          }
+          openDrawer({
+            name: node.name,
+            path: node.path || "(root)",
+            group: "Directory",
+            status: node.status,
+            desc: `Directory with ${node.fileCount} file(s). Click the +/- icon to expand or collapse this branch.`,
+            reason: node.reason
+          });
+          return;
+        }
+        openDrawer({
+          name: node.name,
+          path: node.path,
+          group: `${node.path.split("/").slice(0, -1).join("/") || "root"}`,
+          status: node.status,
+          desc: node.desc,
+          reason: node.reason
+        });
+      });
+
+      group.addEventListener("dblclick", (ev) => {
+        if (node.type !== "dir") return;
+        ev.stopPropagation();
+        if (expanded.has(node.id)) expanded.delete(node.id);
+        else expanded.add(node.id);
+        render();
+      });
+
+      nodeLayer.appendChild(group);
+    });
+  }
+
+  let viewState = { scale: 1, tx: 0, ty: 0 };
+  let panState = { on: false, x: 0, y: 0, tx: 0, ty: 0 };
+
+  function applyView() {
+    scene.setAttribute("transform", `translate(${viewState.tx} ${viewState.ty}) scale(${viewState.scale})`);
+  }
+  function fitToGraph(graph) {
+    if (!graph || !graph.nodes.length) {
+      viewState = { scale: 1, tx: 24, ty: 24 };
+      applyView();
+      return;
+    }
+    const bounds = graph.nodes.reduce((acc, item) => {
+      const pos = position.get(item.node.id);
+      const w = nodeWidth(item.node);
+      acc.minX = Math.min(acc.minX, pos.x);
+      acc.minY = Math.min(acc.minY, pos.y);
+      acc.maxX = Math.max(acc.maxX, pos.x + w);
+      acc.maxY = Math.max(acc.maxY, pos.y + nodeH);
+      return acc;
+    }, { minX: Infinity, minY: Infinity, maxX: 0, maxY: 0 });
+
+    const graphW = Math.max(1, bounds.maxX - bounds.minX);
+    const graphH = Math.max(1, bounds.maxY - bounds.minY);
+    const vb = svg.viewBox.baseVal;
+    const margin = 24;
+    const scaleX = (vb.width - margin * 2) / graphW;
+    const scaleY = (vb.height - margin * 2) / graphH;
+    const scale = Math.max(0.35, Math.min(2.4, Math.min(scaleX, scaleY)));
+    const tx = margin + (vb.width - margin * 2 - graphW * scale) / 2 - bounds.minX * scale;
+    const ty = margin + (vb.height - margin * 2 - graphH * scale) / 2 - bounds.minY * scale;
+    viewState = { scale, tx, ty };
+    applyView();
+  }
+
+  svg.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const oldScale = viewState.scale;
+    const delta = ev.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.max(0.35, Math.min(2.4, oldScale * delta));
+    const pt = svg.createSVGPoint();
+    pt.x = ev.clientX;
+    pt.y = ev.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const svgPoint = pt.matrixTransform(ctm.inverse());
+    viewState.tx = svgPoint.x - ((svgPoint.x - viewState.tx) * (newScale / oldScale));
+    viewState.ty = svgPoint.y - ((svgPoint.y - viewState.ty) * (newScale / oldScale));
+    viewState.scale = newScale;
+    applyView();
+  }, { passive: false });
+
+  svg.addEventListener("mousedown", (ev) => {
+    if (ev.target.closest(".node-g")) return;
+    panState = { on: true, x: ev.clientX, y: ev.clientY, tx: viewState.tx, ty: viewState.ty };
+    svg.classList.add("panning");
+  });
+  window.addEventListener("mousemove", (ev) => {
+    if (!panState.on) return;
+    const dx = ev.clientX - panState.x;
+    const dy = ev.clientY - panState.y;
+    viewState.tx = panState.tx + dx;
+    viewState.ty = panState.ty + dy;
+    applyView();
+  });
+  window.addEventListener("mouseup", () => {
+    panState.on = false;
+    svg.classList.remove("panning");
+  });
+
+  document.getElementById("fitView").addEventListener("click", () => fitToGraph(latestGraph));
+  document.getElementById("expandAll").addEventListener("click", () => {
+    treeIndex.forEach((node) => {
+      if (node.type === "dir") expanded.add(node.id);
+    });
+    render(true);
+  });
+  document.getElementById("collapseAll").addEventListener("click", () => {
+    [...expanded].forEach((id) => {
+      if (id !== "dir:root") expanded.delete(id);
+    });
+    render(true);
+  });
+  searchInput.addEventListener("input", render);
+
+  function render(shouldFit = false) {
+    const query = (searchInput.value || "").trim().toLowerCase();
+    const graph = layoutNodes(treeRoot, query);
+    latestGraph = graph;
+    scene.innerHTML = "";
+    const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const nodeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    scene.appendChild(edgeLayer);
+    scene.appendChild(nodeLayer);
+
+    graph.edges.forEach((edge) => {
+      const fromPos = position.get(edge.from.id);
+      const toPos = position.get(edge.to.id);
+      if (!fromPos || !toPos) return;
+      const fromW = nodeWidth(edge.from);
+      const toW = nodeWidth(edge.to);
+      const x1 = fromPos.x + fromW / 2;
+      const y1 = fromPos.y + nodeH;
+      const x2 = toPos.x + toW / 2;
+      const y2 = toPos.y;
+      const c = Math.max(28, (y2 - y1) * 0.45);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("class", "edge");
+      path.setAttribute("d", `M${x1},${y1} C${x1},${y1 + c} ${x2},${y2 - c} ${x2},${y2}`);
+      edgeLayer.appendChild(path);
+    });
+
+    graph.nodes.forEach((item) => {
+      const node = item.node;
+      const pos = position.get(node.id);
+      if (!pos) return;
+      const width = nodeWidth(node);
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", `node-g ${node.type} ${node.status}`);
+      group.setAttribute("transform", `translate(${pos.x},${pos.y})`);
+
+      const box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      box.setAttribute("class", "node-box");
+      box.setAttribute("rx", node.type === "dir" ? "10" : "8");
+      box.setAttribute("ry", node.type === "dir" ? "10" : "8");
+      box.setAttribute("width", width);
+      box.setAttribute("height", nodeH);
+      group.appendChild(box);
+
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("cx", "10");
+      dot.setAttribute("cy", String(nodeH / 2));
+      dot.setAttribute("r", "4.4");
+      const colors = {
+        live: "var(--live)", progress: "var(--progress)", ready: "var(--ready)",
+        stub: "var(--stub)", legacy: "var(--legacy)", backlog: "var(--backlog)"
+      };
+      dot.setAttribute("fill", colors[node.status] || "var(--ready)");
+      group.appendChild(dot);
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("class", "label");
+      label.setAttribute("x", "20");
+      label.setAttribute("y", String(nodeH / 2));
+      label.textContent = node.name;
+      group.appendChild(label);
+
+      if (node.type === "dir") {
+        const meta = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        meta.setAttribute("class", "meta");
+        meta.setAttribute("x", String(Math.max(67, width - 66)));
+        meta.setAttribute("y", String(nodeH / 2));
+        meta.textContent = `${node.fileCount} files`;
+        group.appendChild(meta);
+
+        if (node.children.length) {
+          const tg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          tg.setAttribute("class", "toggle");
+          tg.setAttribute("width", "17");
+          tg.setAttribute("height", "17");
+          tg.setAttribute("x", String(width - 23));
+          tg.setAttribute("y", "9.5");
+          tg.setAttribute("rx", "4");
+          group.appendChild(tg);
+
+          const tt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          tt.setAttribute("class", "toggle-text");
+          tt.setAttribute("x", String(width - 14.5));
+          tt.setAttribute("y", "18");
+          const isOpen = expanded.has(node.id) || node.forceExpand || node.id === "dir:root";
+          tt.textContent = isOpen ? "-" : "+";
+          group.appendChild(tt);
+        }
+      }
+
+      group.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (node.type === "dir") {
+          const targetClass = String(ev.target.getAttribute("class") || "");
+          const isToggleClick = targetClass.includes("toggle");
+          if (isToggleClick) {
+            if (expanded.has(node.id)) expanded.delete(node.id);
+            else expanded.add(node.id);
+            render();
+            return;
+          }
+          if (node.id === "dir:root") {
+            openDrawer({
+              name: "asg",
+              path: "(repo root)",
+              group: "Root",
+              status: node.status,
+              desc: `Root directory with ${node.fileCount} files. Use +/- controls to expand or collapse branches.`,
+              reason: node.reason
+            });
+            return;
+          }
+          openDrawer({
+            name: node.name,
+            path: node.path || "(root)",
+            group: "Directory",
+            status: node.status,
+            desc: `Directory with ${node.fileCount} file(s). Click the +/- icon to expand or collapse this branch.`,
+            reason: node.reason
+          });
+          return;
+        }
+        openDrawer({
+          name: node.name,
+          path: node.path,
+          group: `${node.path.split("/").slice(0, -1).join("/") || "root"}`,
+          status: node.status,
+          desc: node.desc,
+          reason: node.reason
+        });
+      });
+
+      group.addEventListener("dblclick", (ev) => {
+        if (node.type !== "dir") return;
+        ev.stopPropagation();
+        if (expanded.has(node.id)) expanded.delete(node.id);
+        else expanded.add(node.id);
+        render();
+      });
+
+      nodeLayer.appendChild(group);
+    });
+
+    if (shouldFit) fitToGraph(graph);
+    else applyView();
+  }
+
+  window.addEventListener("resize", () => fitToGraph(latestGraph));
+  render(true);
+})();
+</script>
+</body>
+</html>

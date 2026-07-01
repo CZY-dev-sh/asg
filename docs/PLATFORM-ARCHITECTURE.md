@@ -68,14 +68,14 @@ Four things came out of this conversation that touch more than one hub. Each get
 
 ### 5.2 Admin onboarding → lands in Admin Hub
 
-**Goal:** a new admin/ops hire gets a real onboarding flow instead of a manual SQL role change, and lands directly in the Admin Console once done.
+**✅ Shipped.** A new admin/ops hire no longer needs a manual SQL role change — an existing admin invites them by email from the console, and they land directly in the Admin Console.
 
-**Flow:**
-1. An existing admin invites a new admin by email (new capability — today there's no invite mechanism at all, just a database edit).
-2. New admin signs up (or accepts the invite) with their `@compass.com` email → role is set to `admin` directly by the invite, not inferred from domain or roster the way `agent` is.
-3. A short admin onboarding step collects anything needed for their profile (name, phone, area of responsibility) and lands them in the Admin Console at `/adminhub`.
+**Flow (as built):**
+1. An existing admin invites a new admin by email from the console's "Take action" → Invite admin form (`POST /api/admin/invites`).
+2. Supabase Auth's own `inviteUserByEmail()` sends the sign-up email — role is granted by the `admin_invites` record itself (via an extended `handle_new_user()` trigger), not inferred from domain or roster the way `agent` is. Inviting an email that already has an account promotes it to `admin` directly instead.
+3. The link authenticates them first (a Supabase quirk), so the console shows a set-password gate, then a short onboarding step (name, phone, area of responsibility) before landing them in the Admin Console at `/adminhub`.
 
-**Dependency:** this requires building the admin invite/provisioning capability flagged as a high-severity gap in `docs/ADMIN-HUB-PRD.md` §6.1 and §7 P2. Full spec lives there.
+Full spec lives in `docs/ADMIN-HUB-PRD.md` §4.5.
 
 ### 5.3 Admin visibility into agent hub usage/adoption
 
@@ -110,7 +110,7 @@ Each hub PRD's appendix already lists exactly which current files belong to it, 
 ## 7. Recommended sequencing across all four hubs
 
 1. **Data hygiene first** (Agent Hub PRD P0): fix FUB name-matching and pick one roster source of truth. Everything else — onboarding wizards, usage visibility — silently breaks if this isn't solid.
-2. **Admin provisioning flow** (Admin Hub PRD, elevated by §5.2): needed before you can safely onboard more admins, and it's a small, well-scoped build.
+2. **✅ Admin provisioning flow** (Admin Hub PRD §4.5, §5.2 above) — shipped.
 3. **Templated Agent Hub** (Agent Hub PRD P1): the actual unlock for §5.1's self-serve onboarding wizard. Do this before building the wizard, not after.
 4. **Self-serve agent onboarding wizard** (§5.1): now that there's a template to land agents on, build the wizard that replaces manual HTML copying.
 5. **Admin visibility into agent usage** (§5.3): mostly falls out of step 3–4 once usage attribution is automatic; finish wiring the remaining Command Center stubs.
@@ -120,6 +120,6 @@ Each hub PRD's appendix already lists exactly which current files belong to it, 
 ## 8. Open Decisions
 
 - [ ] Do you want the repo restructuring (§6) done now, as a dedicated pass, or deferred until after the Agent Hub template/onboarding work lands? (Recommendation: defer — restructuring 80+ files while the Agent Hub rebuild is also touching many of the same files invites merge pain for no functional benefit yet.)
-- [ ] For admin invites (§5.2): should any existing admin be able to invite a new admin, or should that stay restricted to you (`owner`) only?
+- [ ] For admin invites (§5.2): shipped as "any existing admin can invite" (simplest default) — worth revisiting once `owner` exists, to decide if inviting *new admins* specifically should be `owner`-only.
 - [ ] For the agent onboarding wizard (§5.1): should it fully replace `agent-onboarding.html`'s admin-facing checklist, or should that checklist remain as the *admin's* side of the process (license/compliance verification) while the wizard is the *agent's* side (self-reported profile info)?
 - [ ] Should `owner` be a fifth value in the existing `profiles.role` enum, or a separate boolean/flag on top of `admin` (simpler migration, slightly less clean separation)?

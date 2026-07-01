@@ -75,6 +75,17 @@
     loginMsg.className = "asgc-msg" + (kind ? " is-" + kind : "");
   }
 
+  /* Supabase's invite/recovery email links authenticate the browser *before*
+     a password is set (this is a known upstream quirk — see
+     github.com/supabase/supabase#45210), and the resulting session carries no
+     marker of that once established. The only reliable signal is the `type`
+     param on the URL hash at the moment the link is opened, so it's captured
+     here before Supabase's `detectSessionInUrl` consumes it. */
+  var pendingAuthType = (function () {
+    var m = /[#&]type=(invite|recovery)/.exec(location.hash || "");
+    return m ? m[1] : null;
+  })();
+
   async function handleSession(session) {
     if (!session) { state.session = null; state.token = null; state.profile = null; return; }
     state.session = session;
@@ -90,10 +101,111 @@
         return;
       }
       state.profile = data.profile;
+      if (pendingAuthType) { showSetPasswordGate(); return; }
+      if (role === "admin" && !data.profile.portalOnboardingCompleted) { showAdminOnboardingGate(); return; }
       enterApp();
     } catch (e) {
       showLoginMsg("Could not verify your account. " + (e.message || ""), "err");
     }
+  }
+
+  /* ---- gate overlays: set-password (invite/recovery) + admin onboarding ----
+     Self-contained (inline-styled) so they don't depend on markup added to
+     console-body.html — both fully block entry to the console until done. */
+  function gateOverlay(titleText, subText, fieldsHtml, submitLabel) {
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;" +
+      "background:rgba(17,17,17,.5);backdrop-filter:blur(6px);font-family:'Outfit','SF Pro Display',-apple-system,sans-serif;";
+    wrap.innerHTML =
+      '<form style="background:#fff;border-radius:20px;padding:32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);">' +
+      '<h2 style="margin:0 0 6px;font-size:1.25rem;font-weight:800;color:#111;">' + titleText + "</h2>" +
+      '<p style="margin:0 0 20px;font-size:13.5px;color:rgba(17,17,17,.58);line-height:1.5;">' + subText + "</p>" +
+      fieldsHtml +
+      '<p class="asgc-gate-msg" style="margin:10px 0 0;font-size:13px;min-height:16px;"></p>' +
+      '<button type="submit" style="margin-top:14px;width:100%;background:#111;color:#fff;border:none;border-radius:12px;' +
+      'padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;">' + submitLabel + "</button>" +
+      "</form>";
+    document.body.appendChild(wrap);
+    return wrap;
+  }
+  function gateInput(id, label, type) {
+    return '<div style="margin-bottom:12px;"><label style="display:block;font-size:12.5px;font-weight:600;color:#111;margin-bottom:5px;">' +
+      escapeHtml(label) + '</label><input id="' + id + '" type="' + (type || "text") + '" required ' +
+      'style="width:100%;box-sizing:border-box;border:1.5px solid rgba(17,17,17,.14);border-radius:10px;padding:11px 13px;' +
+      'font-family:inherit;font-size:14.5px;color:#111;background:#fff;"></div>';
+  }
+  function gateMsg(wrap, text, isErr) {
+    var el = wrap.querySelector(".asgc-gate-msg");
+    el.textContent = text || "";
+    el.style.color = isErr ? "#c0392b" : "rgba(17,17,17,.58)";
+  }
+
+  function showSetPasswordGate() {
+    var wrap = gateOverlay(
+      "Set your password",
+      "You're verified via email — pick a password to finish setting up your account.",
+      gateInput("asgcGatePw", "New password", "password") + gateInput("asgcGatePw2", "Confirm password", "password"),
+      "Save password",
+    );
+    wrap.querySelector("form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var pw = document.getElementById("asgcGatePw").value;
+      var pw2 = document.getElementById("asgcGatePw2").value;
+      if (pw.length < 8) return gateMsg(wrap, "Password must be at least 8 characters.", true);
+      if (pw !== pw2) return gateMsg(wrap, "Passwords don't match.", true);
+      gateMsg(wrap, "Saving…");
+      try {
+        var r = await supa.auth.updateUser({ password: pw });
+        if (r.error) throw r.error;
+        pendingAuthType = null;
+        wrap.remove();
+        if (state.profile.role === "admin" && !state.profile.portalOnboardingCompleted) showAdminOnboardingGate();
+        else enterApp();
+      } catch (err) {
+        gateMsg(wrap, err.message || "Could not save password.", true);
+      }
+    });
+  }
+
+  function showAdminOnboardingGate() {
+    var wrap = gateOverlay(
+      "Welcome to the Admin Console",
+      "A quick step before you're in — this fills out your console profile.",
+      gateInput("asgcGateName", "Full name") +
+        gateInput("asgcGatePhone", "Phone") +
+        gateInput("asgcGateArea", "Area of responsibility (e.g. Marketing, Transactions)"),
+      "Continue to console",
+    );
+    document.getElementById("asgcGateName").value = state.profile.fullName || "";
+    wrap.querySelector("form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var fullName = document.getElementById("asgcGateName").value.trim();
+      var phone = document.getElementById("asgcGatePhone").value.trim();
+      var area = document.getElementById("asgcGateArea").value.trim();
+      if (!fullName) return gateMsg(wrap, "Name is required.", true);
+      gateMsg(wrap, "Saving…");
+      try {
+        var res = await fetch(B + "/api/auth/me", {
+          method: "PATCH", headers: authHeaders(),
+          body: JSON.stringify({
+            fullName: fullName, phone: phone,
+            portalPreferences: { areaOfResponsibility: area },
+            completeOnboarding: true,
+          }),
+        });
+        var data = await res.json();
+        if (!data.ok) throw new Error(data.error || "save failed");
+        state.profile = data.profile ? {
+          id: state.profile.id, email: state.profile.email, role: state.profile.role,
+          fullName: data.profile.full_name, phone: data.profile.phone,
+          portalOnboardingCompleted: true, portalPreferences: data.profile.portal_preferences,
+        } : state.profile;
+        wrap.remove();
+        enterApp();
+      } catch (err) {
+        gateMsg(wrap, err.message || "Could not save.", true);
+      }
+    });
   }
 
   function enterApp() {
@@ -101,7 +213,7 @@
     app.setAttribute("data-state", "");
     var p = state.profile;
     paintProfile();
-    setSurface("overview");
+    setSurface(surfaceFromHash(), { fromHash: true });
     logEvent("action", "login", { role: p.role });
     loadHeadshot();
     setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 200);
@@ -189,16 +301,35 @@
   }
 
   /* ---- surface navigation ---- */
-  function setSurface(name) {
+  // Every surface this shell knows about — used to validate deep-link hashes.
+  var SURFACES = ["overview", "deals", "listings", "marketing", "directory", "leads", "account"];
+
+  function setSurface(name, opts) {
+    if (SURFACES.indexOf(name) === -1) name = "overview";
     var surfaces = app.querySelectorAll(".asgc-surface");
     for (var i = 0; i < surfaces.length; i++) surfaces[i].hidden = surfaces[i].getAttribute("data-surface") !== name;
     var items = document.querySelectorAll(".asgc-nav-link, .asgc-mlink");
     for (var j = 0; j < items.length; j++) items[j].classList.toggle("is-active", items[j].getAttribute("data-go") === name);
     try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) { window.scrollTo(0, 0); }
     window.dispatchEvent(new Event("resize"));
+    // Reflect the surface in the URL hash so it's bookmarkable, shareable and
+    // refresh-safe (all still on the single /adminhub page). `opts.fromHash`
+    // guards against a hashchange→setSurface→hash write loop.
+    if (!opts || !opts.fromHash) {
+      var target = "#" + name;
+      if (location.hash !== target) {
+        try { history.replaceState(null, "", target); } catch (e) { location.hash = name; }
+      }
+    }
     if (name === "account") loadAccount();
     if (window.ASGConsole) window.ASGConsole._emitSurface(name);
     logEvent("view", name);
+  }
+
+  // Read the current #hash into a known surface name (default: overview).
+  function surfaceFromHash() {
+    var h = (location.hash || "").replace(/^#/, "").toLowerCase();
+    return SURFACES.indexOf(h) !== -1 ? h : "overview";
   }
 
   function bindNav() {
@@ -212,6 +343,10 @@
     document.getElementById("asgcMpanel").addEventListener("click", go);
     document.getElementById("asgcLogoBtn").addEventListener("click", function () { setSurface("overview"); closeMobile(); });
     document.getElementById("asgcAcctBtn").addEventListener("click", function () { setSurface("account"); });
+    // Back/forward buttons and manual hash edits switch surfaces too.
+    window.addEventListener("hashchange", function () {
+      if (app.getAttribute("data-ready") === "1") setSurface(surfaceFromHash(), { fromHash: true });
+    });
     var so = document.getElementById("asgcSignOutM");
     if (so) so.addEventListener("click", doSignOut);
     bindNavChrome();
@@ -299,6 +434,60 @@
     } catch (e) {
       box.innerHTML = '<p style="color:rgba(0,0,0,.4);font-size:13px">Could not load activity.</p>';
     }
+    loadInvites();
+  }
+
+  /* ---- pending admin invites (admin only) ---- */
+  function loadInvites() {
+    var panel = document.getElementById("asgcInvitesPanel");
+    if (!panel) return;
+    var isAdmin = state.profile && state.profile.role === "admin";
+    panel.hidden = !isAdmin;
+    if (!isAdmin) return;
+    var list = document.getElementById("asgcInvitesList");
+    list.innerHTML = '<p style="color:rgba(0,0,0,.4);font-size:13px">Loading invites…</p>';
+    fetch(B + "/api/admin/invites", { headers: authHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error(data.error || "load failed");
+        renderInvites(data.invites || []);
+      })
+      .catch(function () {
+        list.innerHTML = '<p style="color:rgba(0,0,0,.4);font-size:13px">Could not load invites.</p>';
+      });
+  }
+
+  function renderInvites(invites) {
+    var list = document.getElementById("asgcInvitesList");
+    if (!invites.length) {
+      list.innerHTML = '<p style="color:rgba(0,0,0,.4);font-size:13px">No invites yet. Use “Invite admin” to add someone.</p>';
+      return;
+    }
+    list.innerHTML = invites.map(function (inv) {
+      var status = String(inv.status || "pending").toLowerCase();
+      var invitedBy = inv.invited_by_name || inv.invited_by_email;
+      var when = inv.created_at ? new Date(inv.created_at).toLocaleDateString() : "";
+      var meta = [inv.full_name, invitedBy ? "by " + invitedBy : "", when].filter(Boolean).join(" · ");
+      var canRevoke = status === "pending";
+      return '<div class="asgc-invite-row">' +
+        '<div class="asgc-invite-main">' +
+          '<div class="asgc-invite-email">' + escapeHtml(inv.email || "") + "</div>" +
+          '<div class="asgc-invite-meta"><span class="asgc-invite-status is-' + escapeHtml(status) + '">' + escapeHtml(status) + "</span>" + escapeHtml(meta) + "</div>" +
+        "</div>" +
+        (canRevoke ? '<button class="asgc-invite-revoke" data-revoke="' + escapeHtml(inv.id) + '" type="button">Revoke</button>' : "") +
+      "</div>";
+    }).join("");
+  }
+
+  async function revokeInvite(id) {
+    try {
+      var res = await fetch(B + "/api/admin/invites/" + encodeURIComponent(id), { method: "DELETE", headers: authHeaders() });
+      var data = await res.json();
+      if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+      toast("Invite revoked");
+      logEvent("action", "adminInvite.revoke", { id: id });
+      loadInvites();
+    } catch (e) { toast(e.message || "Revoke failed", true); }
   }
 
   function bindAccount() {
@@ -318,6 +507,16 @@
       } catch (e) { toast(e.message || "Save failed", true); }
     });
     document.getElementById("asgcSignOut").addEventListener("click", doSignOut);
+
+    var invitesList = document.getElementById("asgcInvitesList");
+    if (invitesList) {
+      invitesList.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-revoke]");
+        if (btn) revokeInvite(btn.getAttribute("data-revoke"));
+      });
+    }
+    var inviteNew = document.getElementById("asgcInviteNew");
+    if (inviteNew) inviteNew.addEventListener("click", function () { openAction(); showActionForm("inviteAdmin"); });
   }
 
   /* ---- write drawer ---- */
@@ -392,6 +591,15 @@
         { k: "pinned", label: "Pin to top", type: "check" },
       ],
       submit: function (v) { return { method: "POST", path: "/api/admin/updates", body: v }; },
+    },
+    inviteAdmin: {
+      title: "Invite admin", action: "adminInvite.create", reloadAfter: false,
+      hint: "Sends a sign-up email that lands them in the console as an admin — no manual role edit needed.",
+      fields: [
+        { k: "email", label: "Email", required: true },
+        { k: "fullName", label: "Name" },
+      ],
+      submit: function (v) { return { method: "POST", path: "/api/admin/invites", body: v }; },
     },
   };
   var currentForm = "listing";
@@ -479,6 +687,7 @@
     workflow: '<svg viewBox="0 0 24 24" fill="none"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 6l1 1 1.5-2M4 12l1 1 1.5-2M4 18l1 1 1.5-2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>',
     agent: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 20a6.5 6.5 0 0113 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
     update: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h3l8 4V5L7 9H4zM18 9a3 3 0 010 6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+    inviteAdmin: '<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3 20a6.5 6.5 0 0112 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 8v6M14 11h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   };
   var ACTION_SUB = {
     listing: "Add a new property to the hub.",
@@ -486,6 +695,7 @@
     workflow: "Advance the deal tracker checklist.",
     agent: "Add a member to the team directory.",
     update: "Post a team-wide announcement.",
+    inviteAdmin: "Bring a new ops/leadership hire into the console.",
   };
 
   function buildBento() {

@@ -10,6 +10,12 @@ import { getCommandCenter } from '../repositories/commandCenter.js';
 import { getMarketingOutput, getMarketingDashboard } from '../repositories/marketing.js';
 import { handleIntake } from '../repositories/intake.js';
 import { handleAcuityWebhook } from '../sync/marketing.js';
+import {
+  recordFubWebhookEvent,
+  processPendingFubWebhookEvents,
+  verifyFubSignature,
+  type FubWebhookPayload,
+} from '../sync/fubWebhooks.js';
 import * as portal from '../repositories/portal.js';
 import * as admin from '../repositories/admin.js';
 import * as marketingTasks from '../repositories/marketingTasks.js';
@@ -125,9 +131,12 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // ── Command Center ─────────────────────────────────────────────────────
-  app.get('/api/command-center', async (req) =>
-    getCommandCenter(q(req, 'view') ?? 'all', q(req, 'period') ?? '30d'),
-  );
+  // Staff-only (admin or agent). It aggregates pipeline volume, deal counts,
+  // adoption and marketing ops — leadership data that shouldn't be public.
+  app.get('/api/command-center', async (req, reply) => {
+    if (!(await requireAgent(req, reply))) return;
+    return getCommandCenter(q(req, 'view') ?? 'all', q(req, 'period') ?? '30d');
+  });
 
   // ── Hub Data (directory / events / updates / landing) ──────────────────
   app.get('/api/hub-data', async (req) =>
@@ -190,6 +199,39 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       return await handleAcuityWebhook(appointmentId);
     } catch (err) {
       log.error('acuity webhook error', err);
+      return reply.code(500).send({ ok: false, error: String(err) });
+    }
+  });
+
+  // ── FUB webhook (near-real-time push, replaces waiting for the poll) ────
+  // FUB requires a 2XX within 10s or it retries for up to 8 hours, so this
+  // handler does the minimum work to ack safely — verify, record, respond —
+  // then kicks off processing (fetch-the-changed-record + upsert) in the
+  // background. If that background pass doesn't finish (e.g. a deploy
+  // restarts mid-flight) the event just stays 'pending' and the fub-webhooks
+  // cron sweep picks it up within a minute; nothing is lost.
+  app.post('/api/webhooks/fub', async (req, reply) => {
+    const rawBody = (req as unknown as { rawBody?: string }).rawBody ?? '';
+    const signature = req.headers['fub-signature'] as string | undefined;
+    if (!verifyFubSignature(rawBody, signature)) {
+      log.warn('fub webhook: signature verification failed');
+      return reply.code(401).send({ ok: false, error: 'invalid signature' });
+    }
+    const payload = req.body as FubWebhookPayload;
+    if (!payload?.eventId || !payload?.event) {
+      return reply.code(400).send({ ok: false, error: 'malformed payload' });
+    }
+    try {
+      const { duplicate } = await recordFubWebhookEvent(payload);
+      reply.code(200).send({ ok: true, duplicate });
+      if (!duplicate) {
+        void processPendingFubWebhookEvents(5).catch((err) =>
+          log.error('fub webhook: background processing failed', err),
+        );
+      }
+      return;
+    } catch (err) {
+      log.error('fub webhook: failed to record event', err);
       return reply.code(500).send({ ok: false, error: String(err) });
     }
   });
@@ -258,6 +300,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
         phone: body.phone,
         clientType: body.clientType ?? body.client_type,
         portalPreferences: body.portalPreferences ?? body.portal_preferences,
+        completeOnboarding: body.completeOnboarding ?? body.complete_onboarding,
       });
       return { ok: true, profile };
     } catch (err) {
