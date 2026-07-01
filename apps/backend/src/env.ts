@@ -107,7 +107,7 @@ const schema = z.object({
   // Scheduler
   ENABLE_SCHEDULER: bool(false),
   CRON_IDX: z.string().default('*/15 * * * *'),
-  CRON_FUB: z.string().default('*/30 * * * *'),
+  CRON_FUB: z.string().default('* * * * *'),
   CRON_PIPELINE: z.string().default('*/30 * * * *'),
   CRON_PHOTOS: z.string().default('0 * * * *'),
   CRON_DIRECTORY: z.string().default('0 6 * * *'),
