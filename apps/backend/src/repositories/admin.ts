@@ -4,6 +4,7 @@ import { slugify, parseNumber, parseBool, parseDate, parseDateTime } from '../ut
 import { env, have } from '../env.js';
 import { createTaskInProject } from '../connectors/asana.js';
 import { asanaAssigneeForName, ensureListingAsanaProject, listingMarketingRequestLabel } from './asanaListings.js';
+import { setListingRequestStatus } from './marketingStatus.js';
 import { log } from '../logger.js';
 
 type Row = Record<string, unknown>;
@@ -489,6 +490,26 @@ export async function createRequest(
   return (await sql<Row[]>`select * from listing_requests where id = ${requestId}::uuid`)[0]!;
 }
 
+/**
+ * Hub-driven listing-request status toggle (complete / reopen / cancel). Delegates
+ * to the shared helper so the listing asset-status flip + Asana mirror match the
+ * inbound sync path exactly.
+ */
+export async function setRequestStatus(
+  requestId: string,
+  status: 'requested' | 'in_progress' | 'done' | 'cancelled',
+  actor: string | null = null,
+): Promise<boolean> {
+  return setListingRequestStatus(requestId, status, actor);
+}
+
+/** Agents (id + name + email + tier) for assignment pickers. */
+export async function listAgents(): Promise<Row[]> {
+  return sql<Row[]>`
+    select id, name, email, tier, role from agents
+    order by case tier when 'admin' then 0 else 1 end, name asc`;
+}
+
 export async function canAgentAccessListing(input: {
   listingId: string;
   agentId?: string | null;
@@ -889,6 +910,11 @@ export interface DirectoryUpsertResult {
  * When `deactivateMissing` is true (default) any emailed agent NOT in the
  * payload is flipped inactive, so deleting a row in the sheet removes them from
  * every UI surface. The whole sheet row is preserved in `raw`.
+ *
+ * This is the canonical write path for agent directory data (`data/roster.ts` +
+ * `sync/directory.ts`'s daily cron is a fallback seed only, and stops touching a
+ * row's fields the moment it's been synced through here — see the comment on
+ * `syncDirectory` for why).
  */
 export async function upsertDirectory(
   rows: unknown,

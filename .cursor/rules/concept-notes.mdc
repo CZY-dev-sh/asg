@@ -1,0 +1,44 @@
+---
+description: Adds brief, plain-language notes explaining notable patterns or concepts introduced in a change, as a separate section. Never affects the code itself.
+alwaysApply: true
+---
+
+# Concept Notes
+
+Alongside normal work, add short, plain-language notes explaining notable concepts a reader newer to the codebase might not recognize.
+
+## Rule 0 — Notes Never Change The Code
+
+Build at full production quality. Do not simplify, rename, over-comment, or swap tools to make anything easier to explain.
+
+Write exactly the code you would with no rule active. The notes are a separate section appended after the work.
+
+Code first, at full quality. Notes second, independently.
+
+## When To Add A Note
+
+After a change, scan it for a concept a reader new to engineering likely has not met. Note only genuinely new and important concepts.
+
+Prioritize core production concepts: HTTP/APIs, async and job queues, data modeling and SQL, auth and secrets, env/config, deploy and CI, errors/idempotency/retries, LLM and agent patterns, evals, webhooks/integrations, and observability.
+
+Add at most 1–3 notes per reply. If nothing new and important appeared, add nothing.
+
+Never repeat a concept already noted earlier in the conversation.
+
+## Format
+
+Plain English. Define every term. No unexplained jargon. One short analogy max. No filler.
+
+End the reply with this compact block and nothing more:
+
+Concept — What:
+Why it matters:
+Here: <file / line / pattern where it appears>
+
+Keep each block about 4 lines.
+
+After the block or blocks, add one footer line only:
+
+Ask "explain <name>" to go deeper.
+
+Only write a longer explanation when explicitly asked to "explain ".

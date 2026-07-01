@@ -103,6 +103,17 @@ export async function addProjectToPortfolio(input: {
   return true;
 }
 
+/** Mark a task complete or incomplete — the hub-driven half of two-way sync. */
+export async function setTaskCompleted(taskGid: string, completed: boolean): Promise<boolean> {
+  if (!have.asana() || !taskGid) return false;
+  await httpJson<{ data: unknown }>(`${BASE}/tasks/${encodeURIComponent(taskGid)}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${env.ASANA_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: { completed } }),
+  });
+  return true;
+}
+
 /** Create a task inside a specific project (the listing's project). */
 export async function createTaskInProject(input: {
   projectGid: string;
@@ -127,6 +138,109 @@ export async function createTaskInProject(input: {
     }),
   });
   return data.data ?? null;
+}
+
+// ── Discovery (read-only) ────────────────────────────────────────────────────
+// Helpers behind `npm run asana:inspect`: they only need a token (not a full
+// have.asana() config) so you can look up the workspace/portfolio/user GIDs the
+// rest of the integration consumes.
+
+export interface AsanaNamed {
+  gid: string;
+  name?: string | null;
+}
+
+export interface AsanaUser extends AsanaNamed {
+  email?: string | null;
+}
+
+async function asanaGet<T>(path: string, params?: Record<string, string>): Promise<T> {
+  const url = new URL(`${BASE}${path}`);
+  if (params) for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  return httpJson<T>(url.toString(), { headers: { Authorization: `Bearer ${env.ASANA_TOKEN}` } });
+}
+
+/** The authenticated user (and the workspaces their token can see). */
+export async function getMe(): Promise<(AsanaUser & { workspaces?: AsanaNamed[] }) | null> {
+  if (!env.ASANA_TOKEN) return null;
+  const data = await asanaGet<{ data: AsanaUser & { workspaces?: AsanaNamed[] } }>('/users/me', {
+    opt_fields: 'name,email,workspaces.name',
+  });
+  return data.data ?? null;
+}
+
+/** All workspaces the token can access. */
+export async function listWorkspaces(): Promise<AsanaNamed[]> {
+  if (!env.ASANA_TOKEN) return [];
+  const data = await asanaGet<{ data: AsanaNamed[] }>('/workspaces', { opt_fields: 'name', limit: '100' });
+  return data.data ?? [];
+}
+
+/** Members of a workspace (for the Tim/Ellie assignee GIDs). Uses GET /users with a
+ * workspace filter + offset pagination (the /workspaces/:gid/users endpoint 400s on
+ * large shared workspaces like compass.com). */
+export async function listUsers(workspaceGid: string): Promise<AsanaUser[]> {
+  if (!env.ASANA_TOKEN || !workspaceGid) return [];
+  const out: AsanaUser[] = [];
+  let offset: string | undefined;
+  do {
+    const url = new URL(`${BASE}/users`);
+    url.searchParams.set('workspace', workspaceGid);
+    url.searchParams.set('opt_fields', 'name,email');
+    url.searchParams.set('limit', '100');
+    if (offset) url.searchParams.set('offset', offset);
+    const data = await httpJson<{ data: AsanaUser[]; next_page?: { offset?: string } | null }>(url.toString(), {
+      headers: { Authorization: `Bearer ${env.ASANA_TOKEN}` },
+    });
+    out.push(...(data.data ?? []));
+    offset = data.next_page?.offset ?? undefined;
+  } while (offset && out.length < 5000);
+  return out;
+}
+
+/** Server-side typeahead search for users by name/email — the reliable way to find
+ * a member in a large org workspace where full pagination would miss or truncate them. */
+export async function typeaheadUsers(workspaceGid: string, query: string): Promise<AsanaUser[]> {
+  if (!env.ASANA_TOKEN || !workspaceGid || !query) return [];
+  const data = await asanaGet<{ data: AsanaUser[] }>(`/workspaces/${encodeURIComponent(workspaceGid)}/typeahead`, {
+    resource_type: 'user',
+    query,
+    opt_fields: 'name,email',
+    count: '50',
+  });
+  return data.data ?? [];
+}
+
+/** Portfolios in a workspace owned by `ownerGid` (Asana only lists an owner's own portfolios). */
+export async function listPortfolios(workspaceGid: string, ownerGid: string): Promise<AsanaNamed[]> {
+  if (!env.ASANA_TOKEN || !workspaceGid || !ownerGid) return [];
+  const data = await asanaGet<{ data: AsanaNamed[] }>('/portfolios', {
+    workspace: workspaceGid,
+    owner: ownerGid,
+    opt_fields: 'name',
+    limit: '100',
+  });
+  return data.data ?? [];
+}
+
+/** Projects in a workspace (for the marketing project GID), capped/paginated. */
+export async function listProjects(workspaceGid: string): Promise<AsanaNamed[]> {
+  if (!env.ASANA_TOKEN || !workspaceGid) return [];
+  const out: AsanaNamed[] = [];
+  let offset: string | undefined;
+  do {
+    const url = new URL(`${BASE}/projects`);
+    url.searchParams.set('workspace', workspaceGid);
+    url.searchParams.set('opt_fields', 'name');
+    url.searchParams.set('limit', '100');
+    if (offset) url.searchParams.set('offset', offset);
+    const data = await httpJson<{ data: AsanaNamed[]; next_page?: { offset?: string } | null }>(url.toString(), {
+      headers: { Authorization: `Bearer ${env.ASANA_TOKEN}` },
+    });
+    out.push(...(data.data ?? []));
+    offset = data.next_page?.offset ?? undefined;
+  } while (offset && out.length < 500);
+  return out;
 }
 
 /** All tasks in a project (for per-listing status sync). */

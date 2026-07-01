@@ -4,6 +4,7 @@ import { requireWrite, type AuthContext } from '../auth.js';
 import * as admin from '../repositories/admin.js';
 import { ApiError } from '../repositories/admin.js';
 import * as listingsRepo from '../repositories/listings.js';
+import * as marketingTasks from '../repositories/marketingTasks.js';
 import { getCalendar } from '../repositories/marketing.js';
 import { buildBookingUrl } from '../connectors/acuity.js';
 import { upsertDealWorkflow } from '../repositories/crm.js';
@@ -210,6 +211,99 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
         requestedBy: actorOf(ctx),
       });
       return { ok: true, request };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // Toggle a listing request's status from the hub (complete / reopen / cancel).
+  // Flips the listing asset status + best-effort mirrors completion to Asana.
+  app.patch('/api/admin/listings/:id/requests/:requestId', async (req, reply) => {
+    const ctx = await requireWrite(req, reply);
+    if (!ctx) return;
+    try {
+      const status = body(req).status as 'requested' | 'in_progress' | 'done' | 'cancelled';
+      const ok = await admin.setRequestStatus(param(req, 'requestId'), status, actorOf(ctx));
+      if (!ok) return reply.code(404).send({ ok: false, error: 'request not found' });
+      return { ok: true };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // Agents (id + name + email) for the assignment picker.
+  app.get('/api/admin/agents', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      return { ok: true, agents: await admin.listAgents() };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // ── Marketing workload + tasks (admin: assign + track across all agents) ──
+  // Per-agent workload across general tasks + listing requests.
+  app.get('/api/admin/marketing/workload', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      return { ok: true, workload: await marketingTasks.agentWorkload() };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // All marketing work for one agent (?agentId=).
+  app.get('/api/admin/marketing/tasks', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      const agentId = String((req.query as Record<string, string>)?.agentId ?? '');
+      if (!agentId) return reply.code(400).send({ ok: false, error: 'agentId required' });
+      return { ok: true, tasks: await marketingTasks.listForAgent(agentId) };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // Create + assign a marketing task to any agent.
+  app.post('/api/admin/marketing/tasks', async (req, reply) => {
+    const ctx = await requireWrite(req, reply);
+    if (!ctx) return;
+    try {
+      const b = body(req);
+      if (!b.agentId || !b.title) return reply.code(400).send({ ok: false, error: 'agentId and title required' });
+      const task = await marketingTasks.createTask({
+        agentId: String(b.agentId),
+        title: String(b.title),
+        category: b.category as string | undefined,
+        notes: b.notes as string | undefined,
+        assignee: b.assignee as string | undefined,
+        dueOn: b.dueOn as string | undefined,
+        listingId: b.listingId as string | undefined,
+        requestedBy: actorOf(ctx),
+        source: 'admin',
+        materials: b.materials,
+      });
+      return { ok: true, task };
+    } catch (err) {
+      return fail(reply, err);
+    }
+  });
+
+  // Update a marketing task: status (complete/reopen/cancel) and/or reassign.
+  app.patch('/api/admin/marketing/tasks/:id', async (req, reply) => {
+    if (!(await requireWrite(req, reply))) return;
+    try {
+      const b = body(req);
+      const id = param(req, 'id');
+      let task = null;
+      if (b.agentId !== undefined || b.assignee !== undefined) {
+        task = await marketingTasks.reassign(id, b.agentId as string | undefined, b.assignee as string | undefined);
+      }
+      if (b.status) {
+        task = await marketingTasks.setStatus(id, b.status as marketingTasks.TaskStatus);
+      }
+      if (!task) return reply.code(404).send({ ok: false, error: 'task not found' });
+      return { ok: true, task };
     } catch (err) {
       return fail(reply, err);
     }

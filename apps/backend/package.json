@@ -21,6 +21,8 @@
     "sync:pipeline": "tsx src/sync/cli.ts pipeline",
     "sync:directory": "tsx src/sync/cli.ts directory",
     "sync:marketing": "tsx src/sync/cli.ts marketing",
+    "asana:inspect": "tsx src/tools/asanaInspect.ts",
+    "roster:data-quality": "tsx src/tools/rosterDataQuality.ts",
     "agent:work": "tsx src/agents/cli.ts",
     "brand:seed": "tsx src/agents/seedBrandCli.ts",
     "db:migrate": "tsx src/db/migrate.ts",

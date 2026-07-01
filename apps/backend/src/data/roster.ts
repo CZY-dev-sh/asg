@@ -1,5 +1,9 @@
-// Canonical ASG team roster (mirrors /data/team-data.js). Used to seed the
-// agents/directory table. Update here when the team changes.
+// Fallback seed roster ONLY — not the source of truth. The Google Sheet behind
+// `POST /api/admin/directory` (see `repositories/admin.ts`) is canonical for any
+// agent it has synced; `sync/directory.ts` will not overwrite a row once that's
+// happened (see the guard + comment there). This file exists so an agent can
+// exist in `agents` (and therefore sign up) before/without a sheet edit, and so
+// a fresh environment has something to seed from. See docs/AGENT-HUB-PRD.md §4.4.
 
 export interface RosterEntry {
   name: string;

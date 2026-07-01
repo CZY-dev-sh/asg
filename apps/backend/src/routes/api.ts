@@ -12,6 +12,7 @@ import { handleIntake } from '../repositories/intake.js';
 import { handleAcuityWebhook } from '../sync/marketing.js';
 import * as portal from '../repositories/portal.js';
 import * as admin from '../repositories/admin.js';
+import * as marketingTasks from '../repositories/marketingTasks.js';
 import { anonClient, requireAuth, requireAgent } from '../auth.js';
 import { have } from '../env.js';
 import { runJob, type SyncJob } from '../sync/index.js';
@@ -316,5 +317,55 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await requireAgent(req, reply);
     if (!ctx) return;
     return crm.getDealTracker({ email: ctx.email ?? undefined });
+  });
+
+  // My marketing work (general tasks + listing requests), newest first.
+  app.get('/api/portal/agent/marketing', async (req, reply) => {
+    const ctx = await requireAgent(req, reply);
+    if (!ctx) return;
+    if (!ctx.profile?.agentId) return reply.code(403).send({ ok: false, error: 'no agent profile linked' });
+    return { ok: true, tasks: await marketingTasks.listForAgent(ctx.profile.agentId) };
+  });
+
+  // Self-serve a general (non-listing) marketing request.
+  app.post('/api/portal/agent/marketing', async (req, reply) => {
+    const ctx = await requireAgent(req, reply);
+    if (!ctx) return;
+    if (!ctx.profile?.agentId) return reply.code(403).send({ ok: false, error: 'no agent profile linked' });
+    const b = (req.body as Record<string, unknown>) ?? {};
+    if (!b.title) return reply.code(400).send({ ok: false, error: 'title required' });
+    const task = await marketingTasks.createTask({
+      agentId: ctx.profile.agentId,
+      title: String(b.title),
+      category: b.category as string | undefined,
+      notes: b.notes as string | undefined,
+      dueOn: b.dueOn as string | undefined,
+      requestedBy: ctx.profile.fullName ?? ctx.email ?? undefined,
+      source: 'agent_portal',
+      materials: b.materials,
+    });
+    return { ok: true, task };
+  });
+
+  // Self-serve a listing request (only for the agent's own listings).
+  app.post('/api/portal/agent/listings/:id/requests', async (req, reply) => {
+    const ctx = await requireAgent(req, reply);
+    if (!ctx) return;
+    const listingId = String((req.params as Record<string, string>).id ?? '');
+    const ok = await admin.canAgentAccessListing({
+      listingId,
+      agentId: ctx.profile?.agentId,
+      email: ctx.email ?? ctx.profile?.email,
+    });
+    if (!ok) return reply.code(403).send({ ok: false, error: 'listing access required' });
+    const b = (req.body as Record<string, unknown>) ?? {};
+    const request = await admin.createRequest(listingId, {
+      kind: b.kind as string | undefined,
+      notes: b.notes as string | undefined,
+      materials: b.materials,
+      assignee: b.assignee as string | undefined,
+      requestedBy: ctx.profile?.fullName ?? ctx.email ?? undefined,
+    });
+    return { ok: true, request };
   });
 }

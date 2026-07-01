@@ -9,6 +9,7 @@ import {
 } from '../connectors/acuity.js';
 import { fetchIcsAppointments } from '../connectors/acuityIcs.js';
 import { parseDate, parseDateTime, trim, normalizeAddress } from '../util/text.js';
+import { REQUEST_DELIVERED_COL } from '../repositories/marketingStatus.js';
 import type { SyncResult } from './runner.js';
 
 type Row = Record<string, unknown>;
@@ -174,16 +175,6 @@ async function syncListingRequestStatus(): Promise<void> {
     await sql`update listings set marketing_status = ${Number(open?.n ?? 0) > 0 ? 'In Progress' : 'Done'} where id = ${listingId}::uuid`;
   }
 }
-
-const REQUEST_DELIVERED_COL: Record<string, { status?: string; deliveredAt?: string }> = {
-  open_house_materials: { status: 'open_house_materials_status', deliveredAt: 'open_house_materials_delivered_at' },
-  fact_sheet: { status: 'fact_sheet_status', deliveredAt: 'fact_sheet_delivered_at' },
-  photos: { status: 'photos_status', deliveredAt: 'photos_delivered_at' },
-  matterport: { status: 'matterport_status', deliveredAt: 'matterport_delivered_at' },
-  floor_plan: { status: 'floor_plan_status', deliveredAt: 'floor_plan_delivered_at' },
-  video: { status: 'video_status', deliveredAt: 'video_delivered_at' },
-  other: {},
-};
 
 /**
  * Handle a single Acuity webhook delivery (realtime). The webhook only carries

@@ -46,6 +46,8 @@ const surfaces = {
   deals: read(resolve(comp, "deal-tracker.html")),
   // Listings surface is the Supabase-backed Listing Workshop (reads window.ASGConsole).
   listings: read(resolve(comp, "listing-workshop.html")),
+  // Marketing workload board (role-aware: admin assigns/tracks, agents self-serve).
+  marketing: read(resolve(comp, "marketing-workload.html")),
   directory: read(resolve(comp, "team-directory.html")),
   command: read(resolve(comp, "command-center.html")),
 };
@@ -72,6 +74,7 @@ const inject = (placeholder, name, hidden) => {
 inject("    <!--SURFACE:overview-->", "overview", false);
 inject("    <!--SURFACE:deals-->", "deals", true);
 inject("    <!--SURFACE:listings-->", "listings", true);
+inject("    <!--SURFACE:marketing-->", "marketing", true);
 inject("    <!--SURFACE:directory-->", "directory", true);
 inject("    <!--SURFACE:command-->", "command", true);
 

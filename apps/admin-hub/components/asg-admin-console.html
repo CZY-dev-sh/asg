@@ -506,6 +506,7 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
           <button class="asgc-nav-link is-active" data-go="overview" type="button">Overview</button>
           <button class="asgc-nav-link" data-go="deals" type="button">Deals</button>
           <button class="asgc-nav-link" data-go="listings" type="button">Listings</button>
+          <button class="asgc-nav-link" data-go="marketing" type="button">Marketing</button>
           <button class="asgc-nav-link" data-go="directory" type="button">Team Directory</button>
         </div>
 
@@ -532,6 +533,7 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
     <button class="asgc-mlink is-active" data-go="overview" type="button">Overview</button>
     <button class="asgc-mlink" data-go="deals" type="button">Deals</button>
     <button class="asgc-mlink" data-go="listings" type="button">Listings</button>
+    <button class="asgc-mlink" data-go="marketing" type="button">Marketing</button>
     <button class="asgc-mlink" data-go="directory" type="button">Team Directory</button>
     <button class="asgc-mlink" data-go="account" type="button">My profile</button>
     <button class="asgc-msignout" id="asgcSignOutM" type="button">Sign out</button>
@@ -8586,6 +8588,347 @@ function wireLhSellWorkspaceEvents(){
     });
   }
   boot();
+})();
+</script>
+
+  </section>
+  <section class="asgc-surface" data-surface="marketing" hidden>
+<!-- ASG Marketing Workload — console "Marketing" surface.
+     Self-contained: markup + logic + scoped styles (.mw-*).
+     Uses window.ASGConsole (apiBase, authHeaders, profile, toast, onSurface).
+     Role-aware: admins manage every agent's workload (create / assign / complete);
+     agents self-serve a request and watch their own queue. Supabase is the system
+     of record — Asana is mirrored best-effort by the backend. -->
+<div class="mw" id="mwRoot">
+  <header class="mw-hero">
+    <h1 class="mw-hero-title">Marketing</h1>
+    <p class="mw-hero-sub" id="mwHeroSub">Loading…</p>
+  </header>
+
+  <!-- ADMIN: create + assign -->
+  <section class="mw-panel" id="mwCreate" hidden>
+    <div class="mw-panel-head">
+      <h2>New marketing task</h2>
+      <p>Assign work to any agent. It shows up in their queue and mirrors to Asana when configured.</p>
+    </div>
+    <div class="mw-form">
+      <div class="mw-form-row"><label>Agent *</label><select class="asgc-input" id="mwNewAgent"><option value="">Loading…</option></select></div>
+      <div class="mw-form-row"><label>Title *</label><input class="asgc-input" id="mwNewTitle" type="text" placeholder="e.g. Just Listed social post"></div>
+      <div class="mw-form-row"><label>Category</label><select class="asgc-input" id="mwNewCategory"></select></div>
+      <div class="mw-form-row"><label>Assignee</label><select class="asgc-input" id="mwNewAssignee"></select></div>
+      <div class="mw-form-row"><label>Due</label><input class="asgc-input" id="mwNewDue" type="date"></div>
+      <div class="mw-form-row mw-form-wide"><label>Notes</label><textarea class="asgc-input" id="mwNewNotes" rows="2" placeholder="Any context or links"></textarea></div>
+    </div>
+    <div class="mw-form-foot"><button class="asgc-primary" id="mwNewSubmit" type="button">Create task</button></div>
+  </section>
+
+  <!-- ADMIN: per-agent workload -->
+  <section class="mw-panel" id="mwWorkload" hidden>
+    <div class="mw-panel-head"><h2>Workload by agent</h2><p>Open / in progress / done across general tasks and listing requests.</p></div>
+    <div class="mw-grid" id="mwGrid"><p class="mw-empty">Loading workload…</p></div>
+  </section>
+
+  <!-- AGENT: request form -->
+  <section class="mw-panel" id="mwRequest" hidden>
+    <div class="mw-panel-head"><h2>Request marketing</h2><p>Tell the marketing team what you need. You'll see it appear in your queue below.</p></div>
+    <div class="mw-form">
+      <div class="mw-form-row"><label>Title *</label><input class="asgc-input" id="mwReqTitle" type="text" placeholder="e.g. Open house flyer for 123 Main"></div>
+      <div class="mw-form-row"><label>Category</label><select class="asgc-input" id="mwReqCategory"></select></div>
+      <div class="mw-form-row"><label>Needed by</label><input class="asgc-input" id="mwReqDue" type="date"></div>
+      <div class="mw-form-row mw-form-wide"><label>Details</label><textarea class="asgc-input" id="mwReqNotes" rows="2" placeholder="Anything that helps us get it right"></textarea></div>
+    </div>
+    <div class="mw-form-foot"><button class="asgc-primary" id="mwReqSubmit" type="button">Send request</button></div>
+  </section>
+
+  <!-- Tasks list (admin: selected agent · agent: my queue) -->
+  <section class="mw-panel" id="mwTasks" hidden>
+    <div class="mw-panel-head"><h2 id="mwTasksTitle">Tasks</h2></div>
+    <div class="mw-tasks" id="mwTasksList"><p class="mw-empty">Select an agent to see their tasks.</p></div>
+  </section>
+</div>
+
+<style>
+  .mw { max-width: 1080px; margin: 0 auto; padding: 8px 16px 80px; }
+  .mw-hero { padding: 24px 4px 8px; }
+  .mw-hero-title { font-size: 30px; font-weight: 600; margin: 0 0 4px; letter-spacing: -.02em; }
+  .mw-hero-sub { color: rgba(0,0,0,.55); margin: 0; font-size: 15px; }
+  .mw-panel { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; padding: 18px 18px 16px; margin: 16px 0; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  .mw-panel-head h2 { font-size: 17px; margin: 0 0 2px; }
+  .mw-panel-head p { color: rgba(0,0,0,.5); margin: 0 0 12px; font-size: 13px; }
+  .mw-form { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .mw-form-row { display: flex; flex-direction: column; gap: 4px; }
+  .mw-form-row label { font-size: 12px; font-weight: 600; color: rgba(0,0,0,.6); }
+  .mw-form-wide { grid-column: 1 / -1; }
+  .mw-form-foot { margin-top: 14px; display: flex; justify-content: flex-end; }
+  .mw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; }
+  .mw-card { text-align: left; background: #fafafa; border: 1px solid rgba(0,0,0,.08); border-radius: 14px; padding: 14px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .mw-card:hover { border-color: rgba(0,0,0,.22); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .mw-card.is-active { border-color: #111; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+  .mw-card-name { font-weight: 600; font-size: 15px; margin: 0 0 8px; }
+  .mw-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mw-pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; font-weight: 600; }
+  .mw-pill.open { background: rgba(255,149,0,.16); color: #b8540f; }
+  .mw-pill.prog { background: rgba(0,122,255,.14); color: #0a5bd3; }
+  .mw-pill.done { background: rgba(52,199,89,.16); color: #1c7a36; }
+  .mw-tasks { display: flex; flex-direction: column; gap: 8px; }
+  .mw-task { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid rgba(0,0,0,.08); border-radius: 12px; background: #fff; }
+  .mw-task.is-done { background: #f6f9f6; }
+  .mw-task-main { flex: 1; min-width: 0; }
+  .mw-task-title { font-weight: 600; font-size: 14px; margin: 0; }
+  .mw-task-meta { color: rgba(0,0,0,.5); font-size: 12px; margin-top: 2px; }
+  .mw-task-meta .src { text-transform: capitalize; }
+  .mw-task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .mw-btn { font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 9px; border: 1px solid rgba(0,0,0,.14); background: #fff; cursor: pointer; }
+  .mw-btn:hover { border-color: rgba(0,0,0,.32); }
+  .mw-btn.is-primary { background: #111; color: #fff; border-color: #111; }
+  .mw-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 6px; }
+  .mw-status.requested { background: rgba(0,0,0,.06); color: rgba(0,0,0,.6); }
+  .mw-status.in_progress { background: rgba(0,122,255,.14); color: #0a5bd3; }
+  .mw-status.done { background: rgba(52,199,89,.16); color: #1c7a36; }
+  .mw-status.cancelled { background: rgba(0,0,0,.05); color: rgba(0,0,0,.4); text-decoration: line-through; }
+  .mw-empty { color: rgba(0,0,0,.4); font-size: 13px; margin: 4px 0; }
+  @media (max-width: 640px) { .mw-form { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+(function () {
+  function boot() {
+    var C = window.ASGConsole;
+    if (!C || !C.apiBase) return setTimeout(boot, 250);
+    var api = C.apiBase.replace(/\/$/, "");
+    var root = document.getElementById("mwRoot");
+    if (!root) return;
+
+    var CATEGORIES = [
+      ["general", "General"], ["social_post", "Social post"], ["flyer", "Flyer"],
+      ["cma", "CMA"], ["custom", "Custom"]
+    ];
+    var ASSIGNEES = [["", "Unassigned"], ["tim", "Tim"], ["ellie", "Ellie"], ["other", "Other"]];
+
+    var els = {
+      heroSub: document.getElementById("mwHeroSub"),
+      create: document.getElementById("mwCreate"),
+      workload: document.getElementById("mwWorkload"),
+      request: document.getElementById("mwRequest"),
+      tasks: document.getElementById("mwTasks"),
+      tasksTitle: document.getElementById("mwTasksTitle"),
+      tasksList: document.getElementById("mwTasksList"),
+      grid: document.getElementById("mwGrid")
+    };
+    var loaded = false;
+    var selectedAgent = null;
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function day(s) { try { return s ? new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""; } catch (e) { return ""; } }
+    function toast(m, e) { if (C.toast) C.toast(m, e); }
+    function opts(pairs, sel) {
+      return pairs.map(function (p) {
+        return '<option value="' + esc(p[0]) + '"' + (p[0] === sel ? " selected" : "") + ">" + esc(p[1]) + "</option>";
+      }).join("");
+    }
+
+    async function jget(path) {
+      var res = await fetch(api + path, { headers: C.authHeaders() });
+      return res.json();
+    }
+    async function jsend(method, path, body) {
+      var res = await fetch(api + path, { method: method, headers: C.authHeaders(), body: JSON.stringify(body || {}) });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
+      return data;
+    }
+
+    function statusLabel(s) { return s === "in_progress" ? "In progress" : s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function taskRow(t, isAdmin) {
+      var done = t.status === "done";
+      var meta = [];
+      meta.push('<span class="src">' + esc(t.source) + "</span>");
+      if (t.kind && t.kind !== t.title) meta.push(esc(t.kind));
+      if (t.assignee) meta.push("· " + esc(t.assignee));
+      if (t.due_on) meta.push("· due " + day(t.due_on));
+      var actions = "";
+      if (isAdmin && t.status !== "cancelled") {
+        actions = done
+          ? '<button class="mw-btn" data-act="reopen">Reopen</button>'
+          : '<button class="mw-btn is-primary" data-act="done">Complete</button><button class="mw-btn" data-act="cancel">Cancel</button>';
+      }
+      return '<div class="mw-task ' + (done ? "is-done" : "") + '" data-id="' + esc(t.id) + '" data-source="' + esc(t.source) + '" data-listing="' + esc(t.listing_id || "") + '">' +
+        '<div class="mw-task-main"><p class="mw-task-title">' + esc(t.title) + "</p>" +
+        '<p class="mw-task-meta">' + meta.join(" ") + "</p></div>" +
+        '<span class="mw-status ' + esc(t.status) + '">' + esc(statusLabel(t.status)) + "</span>" +
+        '<div class="mw-task-actions">' + actions + "</div></div>";
+    }
+
+    async function patchTaskStatus(el, status) {
+      var id = el.getAttribute("data-id");
+      var source = el.getAttribute("data-source");
+      var listing = el.getAttribute("data-listing");
+      if (source === "listing") {
+        await jsend("PATCH", "/api/admin/listings/" + listing + "/requests/" + id, { status: status });
+      } else {
+        await jsend("PATCH", "/api/admin/marketing/tasks/" + id, { status: status });
+      }
+    }
+
+    /* ---------- admin ---------- */
+    async function loadWorkload() {
+      try {
+        var data = await jget("/api/admin/marketing/workload");
+        var rows = data.workload || [];
+        if (!rows.length) { els.grid.innerHTML = '<p class="mw-empty">No marketing work yet.</p>'; return; }
+        els.grid.innerHTML = rows.map(function (r) {
+          return '<button class="mw-card" data-agent="' + esc(r.agent_id) + '" data-name="' + esc(r.agent_name || r.agent_email || "Agent") + '" type="button">' +
+            '<p class="mw-card-name">' + esc(r.agent_name || r.agent_email || "Agent") + "</p>" +
+            '<div class="mw-pills">' +
+            '<span class="mw-pill open">' + (Number(r.open) || 0) + " open</span>" +
+            '<span class="mw-pill prog">' + (Number(r.in_progress) || 0) + " in prog</span>" +
+            '<span class="mw-pill done">' + (Number(r.done) || 0) + " done</span>" +
+            "</div></button>";
+        }).join("");
+      } catch (e) { els.grid.innerHTML = '<p class="mw-empty">Could not load workload.</p>'; }
+    }
+
+    async function loadAgentTasks(agentId, name) {
+      selectedAgent = agentId;
+      els.tasks.hidden = false;
+      els.tasksTitle.textContent = name ? name + " · tasks" : "Tasks";
+      els.tasksList.innerHTML = '<p class="mw-empty">Loading…</p>';
+      var cards = els.grid.querySelectorAll(".mw-card");
+      for (var i = 0; i < cards.length; i++) cards[i].classList.toggle("is-active", cards[i].getAttribute("data-agent") === agentId);
+      try {
+        var data = await jget("/api/admin/marketing/tasks?agentId=" + encodeURIComponent(agentId));
+        var tasks = data.tasks || [];
+        els.tasksList.innerHTML = tasks.length ? tasks.map(function (t) { return taskRow(t, true); }).join("") : '<p class="mw-empty">No tasks for this agent.</p>';
+      } catch (e) { els.tasksList.innerHTML = '<p class="mw-empty">Could not load tasks.</p>'; }
+    }
+
+    async function loadAgentsInto(select) {
+      try {
+        var data = await jget("/api/admin/agents");
+        var agents = (data.agents || []).filter(function (a) { return a.tier !== "admin"; });
+        select.innerHTML = '<option value="">Select an agent…</option>' + agents.map(function (a) {
+          return '<option value="' + esc(a.id) + '">' + esc(a.name || a.email) + "</option>";
+        }).join("");
+      } catch (e) { select.innerHTML = '<option value="">Could not load agents</option>'; }
+    }
+
+    function bindAdmin() {
+      document.getElementById("mwNewCategory").innerHTML = opts(CATEGORIES, "general");
+      document.getElementById("mwNewAssignee").innerHTML = opts(ASSIGNEES, "");
+      loadAgentsInto(document.getElementById("mwNewAgent"));
+
+      document.getElementById("mwNewSubmit").addEventListener("click", async function () {
+        var agentId = document.getElementById("mwNewAgent").value;
+        var title = document.getElementById("mwNewTitle").value.trim();
+        if (!agentId) return toast("Pick an agent", true);
+        if (!title) return toast("Title is required", true);
+        var btn = this; btn.disabled = true;
+        try {
+          await jsend("POST", "/api/admin/marketing/tasks", {
+            agentId: agentId, title: title,
+            category: document.getElementById("mwNewCategory").value,
+            assignee: document.getElementById("mwNewAssignee").value || null,
+            dueOn: document.getElementById("mwNewDue").value || null,
+            notes: document.getElementById("mwNewNotes").value.trim() || null
+          });
+          document.getElementById("mwNewTitle").value = "";
+          document.getElementById("mwNewNotes").value = "";
+          document.getElementById("mwNewDue").value = "";
+          toast("Task created");
+          await loadWorkload();
+          if (selectedAgent === agentId) await loadAgentTasks(agentId, els.tasksTitle.textContent.replace(/ · tasks$/, ""));
+        } catch (e) { toast(e.message || "Create failed", true); }
+        finally { btn.disabled = false; }
+      });
+
+      els.grid.addEventListener("click", function (e) {
+        var card = e.target.closest(".mw-card");
+        if (card) loadAgentTasks(card.getAttribute("data-agent"), card.getAttribute("data-name"));
+      });
+
+      els.tasksList.addEventListener("click", async function (e) {
+        var btn = e.target.closest("[data-act]");
+        if (!btn) return;
+        var row = btn.closest(".mw-task");
+        var act = btn.getAttribute("data-act");
+        var status = act === "done" ? "done" : act === "reopen" ? "in_progress" : "cancelled";
+        btn.disabled = true;
+        try {
+          await patchTaskStatus(row, status);
+          toast("Updated");
+          await loadWorkload();
+          await loadAgentTasks(selectedAgent, els.tasksTitle.textContent.replace(/ · tasks$/, ""));
+        } catch (err) { toast(err.message || "Update failed", true); btn.disabled = false; }
+      });
+    }
+
+    /* ---------- agent ---------- */
+    async function loadMine() {
+      els.tasksList.innerHTML = '<p class="mw-empty">Loading…</p>';
+      try {
+        var data = await jget("/api/portal/agent/marketing");
+        var tasks = data.tasks || [];
+        els.tasksList.innerHTML = tasks.length ? tasks.map(function (t) { return taskRow(t, false); }).join("") : '<p class="mw-empty">No marketing requests yet.</p>';
+      } catch (e) { els.tasksList.innerHTML = '<p class="mw-empty">Could not load your tasks.</p>'; }
+    }
+
+    function bindAgent() {
+      document.getElementById("mwReqCategory").innerHTML = opts(CATEGORIES, "general");
+      document.getElementById("mwReqSubmit").addEventListener("click", async function () {
+        var title = document.getElementById("mwReqTitle").value.trim();
+        if (!title) return toast("Title is required", true);
+        var btn = this; btn.disabled = true;
+        try {
+          await jsend("POST", "/api/portal/agent/marketing", {
+            title: title,
+            category: document.getElementById("mwReqCategory").value,
+            dueOn: document.getElementById("mwReqDue").value || null,
+            notes: document.getElementById("mwReqNotes").value.trim() || null
+          });
+          document.getElementById("mwReqTitle").value = "";
+          document.getElementById("mwReqNotes").value = "";
+          document.getElementById("mwReqDue").value = "";
+          toast("Request sent");
+          await loadMine();
+        } catch (e) { toast(e.message || "Request failed", true); }
+        finally { btn.disabled = false; }
+      });
+    }
+
+    function setupForRole() {
+      var profile = C.profile && C.profile();
+      var isAdmin = profile && profile.role === "admin";
+      if (isAdmin) {
+        els.heroSub.textContent = "Assign marketing work, track each agent's queue, and mark tasks complete.";
+        els.create.hidden = false;
+        els.workload.hidden = false;
+        els.tasks.hidden = true;
+        bindAdmin();
+        loadWorkload();
+      } else {
+        els.heroSub.textContent = "Request marketing and track your queue. The marketing team works it and you'll see it complete here.";
+        els.request.hidden = false;
+        els.tasks.hidden = false;
+        els.tasksTitle.textContent = "My marketing";
+        bindAgent();
+        loadMine();
+      }
+    }
+
+    function load() { if (loaded) return; loaded = true; setupForRole(); }
+
+    if (C.onSurface) C.onSurface(function (name) { if (name === "marketing") load(); });
+    // If the surface is already visible on boot, load immediately.
+    var surface = root.closest(".asgc-surface");
+    if (surface && !surface.hidden) load();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();
 </script>
 

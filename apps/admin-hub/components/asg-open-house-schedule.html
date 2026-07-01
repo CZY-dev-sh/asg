@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Open House Schedule | Alex Stoykov Group</title>
+<meta name="description" content="This weekend's open houses with the Alex Stoykov Group.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://s3.amazonaws.com" crossorigin>
+<link rel="preconnect" href="https://www.compass.com" crossorigin>
+<link rel="preconnect" href="https://images.squarespace-cdn.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap">
+
+<!-- Leaflet: lightweight open-source map library powering the open-house map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   ASG design tokens (mirrors asg-homepage-redesign.html)
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f6f3;
+  --bg-soft:#f2f2f0;
+  --ink:#111111;
+  --muted:rgba(17,17,17,.58);
+  --muted-soft:rgba(17,17,17,.44);
+  --line:rgba(17,17,17,.08);
+  --line-strong:rgba(17,17,17,.18);
+  --shadow-card:0 10px 30px rgba(17,17,17,.06);
+  --shadow-hover:0 18px 40px rgba(17,17,17,.12);
+  --r-shell:34px;
+  --r-listing:22px;
+  --r-pill:999px;
+  --max:1480px;
+  --pad-x:20px;
+  --font:'Outfit','SF Pro Display',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.5;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+img{ max-width:100%; height:auto; display:block; }
+a{ color:inherit; text-decoration:none; }
+
+/* Class-scoped image rounding override (matches home page approach so
+   Squarespace's global img{border-radius} can't round the photos). */
+.oh-wrap img,
+.listing-media img,
+.nav-logo img{ border-radius:0 !important; }
+/* More specific than ".oh-wrap img" so the circular crop wins (both !important) */
+.oh-wrap img.oh-agent-photo{ border-radius:50% !important; }
+
+/* ════════════════════════════════════════════════════════════
+   SQUARESPACE OVERRIDES: this page ships its own nav, so hide the
+   native Squarespace header/announcement bar (this page only).
+   ════════════════════════════════════════════════════════════ */
+#header, header.Header, .Header, .Header-inner, header#header,
+.header-announcement-bar-wrapper, .sqs-announcement-bar-dropzone,
+#headerSpacer, .header-spacer{
+  display:none !important; visibility:hidden !important;
+  height:0 !important; min-height:0 !important;
+  margin:0 !important; padding:0 !important;
+}
+
+/* ════════════════ BUTTONS (from home page) ════════════════ */
+.btn{
+  appearance:none; cursor:pointer; white-space:nowrap;
+  font-family:var(--font); font-weight:700; font-size:.93rem;
+  border-radius:var(--r-pill); padding:13px 24px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; line-height:1;
+  transition:transform .18s ease, opacity .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-dark{ background:var(--ink); color:#fff; border:1px solid var(--ink); }
+.btn-dark:hover{ transform:translateY(-2px); opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+.btn-light{ background:#fff; color:var(--ink); border:1px solid rgba(17,17,17,.2); }
+.btn-light:hover{ transform:translateY(-2px); border-color:rgba(17,17,17,.42); }
+.btn-sm{ padding:10px 18px; font-size:.92rem; font-weight:600; }
+.btn-lg{ padding:18px 44px; font-size:1.14rem; }
+
+/* ════════════════ NAV: floating pill (from home page) ════════════════ */
+.nav-frost{
+  position:fixed; top:0; left:0; right:0; z-index:90;
+  height:140px; pointer-events:none;
+  backdrop-filter:blur(10px) saturate(106%);
+  -webkit-backdrop-filter:blur(10px) saturate(106%);
+  background:linear-gradient(to bottom, rgba(255,255,255,.72), rgba(255,255,255,.4) 50%, rgba(255,255,255,0));
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.9) 40%, rgba(0,0,0,.4) 72%, transparent);
+  transition:opacity .3s ease; opacity:0;
+}
+.nav-frost.is-scrolled{ opacity:1; }
+.nav-wrap{
+  position:fixed; top:18px; left:0; right:0; z-index:100;
+  padding:0 var(--pad-x);
+  animation:navDrop .9s var(--ease) both;
+}
+@keyframes navDrop{
+  from{ opacity:0; transform:translateY(-28px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.nav-inner{ max-width:var(--max); margin:0 auto; }
+.nav{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(18px) saturate(120%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  min-height:76px;
+  padding:9px 12px 9px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  box-shadow:0 2px 10px rgba(17,17,17,.04);
+  transition:box-shadow .35s ease, min-height .35s var(--ease), padding .35s var(--ease);
+}
+.nav.is-scrolled{ box-shadow:0 10px 32px rgba(17,17,17,.10); min-height:66px; }
+.nav-logo{ display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.nav-logo img{
+  width:58px; height:58px;
+  transition:width .35s var(--ease), height .35s var(--ease), transform .3s ease;
+}
+.nav.is-scrolled .nav-logo img{ width:50px; height:50px; }
+.nav-logo:hover img{ transform:rotate(-8deg); }
+.nav-logo span{ font-weight:800; font-size:1.32rem; letter-spacing:-.025em; white-space:nowrap; }
+.nav-links{ display:flex; align-items:center; gap:4px; position:relative; }
+.nav-link{
+  position:relative; z-index:1;
+  border-radius:var(--r-pill);
+  padding:14px 24px;
+  font-size:1.12rem; font-weight:600;
+  color:var(--muted); text-decoration:none; white-space:nowrap;
+  transition:color .2s ease;
+}
+.nav-link:hover{ color:var(--ink); }
+.nav-pill-ghost{
+  position:absolute; z-index:0;
+  border-radius:var(--r-pill);
+  background:rgba(17,17,17,.05);
+  border:1px solid rgba(17,17,17,.07);
+  opacity:0; pointer-events:none;
+  transition:left .28s var(--ease), width .28s var(--ease), opacity .2s ease;
+  top:0; bottom:0;
+}
+.nav-pill-ghost.is-on{ opacity:1; }
+.nav-cta{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.nav-cta .btn{ padding:16px 30px; font-size:1.04rem; font-weight:700; }
+.nav-burger{
+  display:none;
+  background:transparent; border:1px solid var(--line);
+  width:50px; height:50px; border-radius:var(--r-pill);
+  align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; color:var(--ink);
+}
+.nav-burger svg{ transition:transform .4s var(--ease); }
+.nav-burger.is-open svg{ transform:rotate(45deg); } /* plus → X */
+@media (max-width: 920px){
+  .nav-links,.nav-cta{ display:none; }
+  .nav-burger{ display:inline-flex; }
+}
+/* Mobile panel (from the landing/home nav): full-screen menu under the pill */
+.mobile-panel{
+  position:fixed; inset:0; z-index:95;
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  padding:100px 22px 40px;
+  display:flex; flex-direction:column; gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease; overflow-y:auto;
+}
+.mobile-panel.is-open{ opacity:1; pointer-events:auto; }
+.mobile-panel a.m-link{
+  display:block; padding:17px 20px; border-radius:20px;
+  font-size:1.25rem; font-weight:700; text-decoration:none;
+  border:1px solid var(--line); background:#fff;
+  transform:translateY(14px); opacity:0;
+  transition:transform .45s var(--ease), opacity .45s ease;
+}
+.mobile-panel.is-open a.m-link{ transform:translateY(0); opacity:1; }
+.mobile-panel.is-open a.m-link:nth-child(1){ transition-delay:.02s; }
+.mobile-panel.is-open a.m-link:nth-child(2){ transition-delay:.07s; }
+.mobile-panel.is-open a.m-link:nth-child(3){ transition-delay:.12s; }
+.mobile-panel.is-open a.m-link:nth-child(4){ transition-delay:.17s; }
+.mobile-panel-cta{ margin-top:16px; display:grid; gap:8px; }
+
+/* ════════════════ LAYOUT ════════════════ */
+.oh-wrap{ padding:104px var(--pad-x) 60px; } /* top padding clears the fixed nav */
+.oh-inner{ max-width:var(--max); margin:0 auto; }
+.shell{
+  max-width:var(--max); margin:0 auto;
+  background:var(--bg-alt); border:1px solid var(--line);
+  border-radius:var(--r-shell); padding:32px;
+}
+@media (max-width:980px){ .shell{ padding:22px; } }
+
+/* ════════════════ HEADER ════════════════ */
+.oh-head{ margin-bottom:30px; }
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:.76rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted); margin:0 0 14px;
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:8px 14px; background:var(--bg-soft);
+}
+.eyebrow .dot{
+  width:7px; height:7px; border-radius:50%; background:#1db954;
+  animation:pulseDot 2.2s ease infinite;
+}
+@keyframes pulseDot{
+  0%,100%{ box-shadow:0 0 0 0 rgba(29,185,84,.45); }
+  50%{ box-shadow:0 0 0 6px rgba(29,185,84,0); }
+}
+.oh-h1{
+  font-weight:800; font-size:clamp(2.2rem, 4.4vw, 3.4rem);
+  letter-spacing:-.045em; line-height:1.0; margin:0;
+}
+.oh-sub{
+  font-size:clamp(1.05rem, 1.7vw, 1.3rem); font-weight:700;
+  color:var(--ink); margin:12px 0 0; letter-spacing:-.01em; line-height:1.3;
+}
+.oh-sub-date{
+  display:inline-block; margin-top:3px;
+  font-weight:600; color:var(--muted-soft); font-size:.92em;
+}
+
+/* ════════════════ MAP ════════════════ */
+.oh-map-wrap{
+  margin:24px 0 6px;
+  border-radius:var(--r-listing); overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-card);
+  position:relative;
+  z-index:0; /* own stacking context: keeps Leaflet's high z-index controls under the fixed nav */
+}
+.oh-map{ width:100%; height:480px; background:var(--bg-alt); }
+.oh-map-section{ margin-top:38px; }
+/* Map is desktop-only; hidden on phones per design */
+@media (max-width:720px){ .oh-map-section{ display:none !important; } }
+
+/* ════════════════ BOTTOM CONTACT CTA ════════════════ */
+.oh-contact{
+  margin-top:36px; padding-top:32px;
+  border-top:1px solid var(--line-strong);
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+  text-align:center;
+}
+.oh-contact-text{
+  font-size:clamp(1.15rem, 2.1vw, 1.6rem); font-weight:700;
+  letter-spacing:-.025em; color:var(--ink); margin:0; max-width:26ch;
+  line-height:1.2;
+}
+@media (max-width:720px){
+  .oh-contact{ margin-top:26px; padding-top:24px; gap:14px; }
+  .oh-contact .btn-lg{ width:100%; padding:16px 0; }
+}
+
+/* ════════════════ END STATE (after the weekend's last open house) ════════════════ */
+.oh-end{
+  text-align:center; padding:48px 12px 40px;
+  display:flex; flex-direction:column; align-items:center; gap:20px;
+}
+.oh-end .oh-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--muted); border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:8px 14px; background:var(--bg-soft);
+}
+.oh-end-sub{
+  font-size:clamp(1.05rem, 1.9vw, 1.4rem); font-weight:500;
+  color:var(--muted); max-width:44ch; margin:0; line-height:1.5;
+}
+.oh-end-cta{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+@media (max-width:720px){
+  .oh-end{ padding:32px 6px 24px; gap:16px; }
+  .oh-end-cta{ width:100%; flex-direction:column; }
+  .oh-end-cta .btn{ width:100%; }
+}
+/* Leaflet popup styled as a mini listing card */
+.leaflet-popup-content-wrap{ border-radius:16px !important; padding:0 !important; overflow:hidden; box-shadow:0 16px 40px rgba(17,17,17,.18); }
+.leaflet-popup-content{ margin:0 !important; width:232px !important; }
+.leaflet-popup-tip{ box-shadow:0 16px 40px rgba(17,17,17,.18); }
+.oh-pop{ display:block; text-decoration:none; color:var(--ink); }
+.oh-pop img{ width:100%; height:124px; object-fit:cover; display:block; border-radius:0 !important; }
+.oh-pop-body{ padding:11px 13px 13px; }
+.oh-pop-price{ font-weight:800; font-size:1.12rem; letter-spacing:-.025em; line-height:1; }
+.oh-pop-addr{ font-weight:600; font-size:.85rem; margin-top:4px; line-height:1.2; }
+.oh-pop-meta{ color:var(--muted); font-size:.76rem; margin-top:3px; }
+.oh-pop-time{ font-size:.74rem; font-weight:700; color:#166534; margin-top:7px; }
+.oh-pop-cta{ display:block; margin-top:9px; text-align:center; background:var(--ink); color:#fff; border-radius:var(--r-pill); padding:8px 0; font-size:.78rem; font-weight:700; }
+/* Price-pin marker */
+.oh-pin{
+  display:inline-block;
+  background:var(--ink); color:#fff;
+  font-family:var(--font); font-weight:800; font-size:.74rem; letter-spacing:-.01em;
+  padding:5px 10px; border-radius:var(--r-pill);
+  white-space:nowrap; border:2px solid #fff;
+  box-shadow:0 4px 14px rgba(17,17,17,.32);
+  transform:translate(-50%,-50%);
+  transition:transform .15s ease, background .15s ease;
+  cursor:pointer;
+}
+.oh-pin:hover{ transform:translate(-50%,-50%) scale(1.09); background:#166534; }
+
+/* ════════════════ DAY SECTIONS ════════════════ */
+.day-section{ margin-top:38px; }
+.day-head{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin:0 0 20px; padding-bottom:14px;
+  border-bottom:1px solid var(--line-strong);
+}
+.day-head-main{ display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.day-head h2{
+  font-weight:800; font-size:clamp(1.5rem, 2.8vw, 2.1rem);
+  letter-spacing:-.035em; line-height:1; margin:0;
+}
+.day-head .day-date{ font-size:1rem; font-weight:600; color:var(--muted); }
+.day-head .day-count{
+  margin-left:auto; font-size:.72rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+  border:1px solid var(--line); border-radius:var(--r-pill);
+  padding:6px 12px; background:var(--bg-soft); white-space:nowrap;
+}
+@media (max-width:720px){
+  .day-head{ align-items:center; gap:10px; margin-bottom:16px; }
+  .day-head-main{ flex-direction:column; align-items:flex-start; gap:4px; }
+  .day-head h2{ font-size:2.1rem; letter-spacing:-.04em; }
+  .day-head .day-date{ font-size:.92rem; }
+  .day-head .day-count{
+    font-size:.6rem; letter-spacing:.06em;
+    padding:5px 9px; align-self:center;
+  }
+  .oh-sub{ font-size:1.02rem; }
+}
+
+/* ════════════════ GRID ════════════════ */
+.grid{ display:grid; gap:14px; grid-template-columns:repeat(3,1fr); }
+@media (max-width:980px){ .grid{ grid-template-columns:1fr; } }
+@media (min-width:981px) and (max-width:1280px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+
+/* ════════════════ LISTING CARD ════════════════ */
+.listing-card{
+  background:var(--bg); border:1px solid var(--line);
+  border-radius:var(--r-listing); overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.listing-card:hover{ transform:translateY(-5px); box-shadow:var(--shadow-hover); }
+.listing-media{ position:relative; aspect-ratio:16/10; background:#e9e9e4; overflow:hidden; }
+.listing-media img{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .6s var(--ease);
+}
+.listing-card:hover .listing-media img{ transform:scale(1.05); }
+.listing-flag{
+  position:absolute; top:12px; left:12px; z-index:3;
+  border-radius:var(--r-pill); padding:5px 12px;
+  font-size:.68rem; font-weight:800; letter-spacing:.05em;
+  line-height:1.2; text-transform:uppercase;
+  color:#166534; background:rgba(220,252,231,.94);
+  border:1px solid rgba(34,197,94,.35);
+  box-shadow:0 0 0 1px rgba(34,197,94,.12), 0 4px 14px rgba(34,197,94,.18);
+}
+.listing-body{ padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+.oh-time{
+  display:inline-flex; align-items:center; gap:8px;
+  align-self:flex-start;
+  font-size:.84rem; font-weight:700; letter-spacing:-.005em;
+  color:var(--ink); margin:0 0 12px;
+  padding:8px 13px; border-radius:14px;
+  background:var(--bg-alt); border:1px solid var(--line);
+}
+.oh-time svg{ flex-shrink:0; }
+.oh-time .hours{ color:var(--ink); }
+.listing-price{
+  font-size:1.48rem; font-weight:800; letter-spacing:-.03em;
+  line-height:1; margin:0;
+}
+.listing-addr{ font-weight:600; font-size:.96rem; margin:6px 0 0; line-height:1.25; }
+.listing-meta{ color:var(--muted); font-size:.84rem; margin:5px 0 0; line-height:1.3; }
+
+/* Hosting agent (small circular profile photo from the team directory) */
+.oh-agent{
+  display:flex; align-items:center; gap:10px;
+  margin-top:14px; padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.oh-agent-photo{
+  width:36px; height:36px; border-radius:50%;
+  object-fit:cover; flex-shrink:0;
+  border:1px solid var(--line); background:#e9e9e4;
+}
+.oh-agent-photo.is-tbd{
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; font-weight:800; color:var(--muted-soft);
+}
+.oh-agent-text{ display:flex; flex-direction:column; line-height:1.18; min-width:0; }
+.oh-agent-text .lbl{
+  font-size:.64rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted-soft);
+}
+.oh-agent-text .nm{ font-size:.9rem; font-weight:700; letter-spacing:-.01em; }
+
+.listing-cta{
+  margin-top:16px; width:100%; padding:12px 0;
+  border-radius:var(--r-pill); border:1px solid var(--ink);
+  background:var(--ink); color:#fff;
+  font-family:var(--font); font-weight:700; font-size:.87rem;
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  transition:transform .18s ease, opacity .18s ease, box-shadow .18s ease;
+}
+.listing-card:hover .listing-cta{ opacity:.92; box-shadow:0 10px 24px rgba(17,17,17,.18); }
+
+/* ════════════════ MOBILE NAV TWEAKS (from home page) ════════════════ */
+@media (max-width: 720px){
+  .oh-wrap{ padding-top:78px; }
+  .nav-wrap{ top:10px; }
+  .nav-frost{ height:96px; }
+  .nav{ min-height:60px; padding:6px 8px 6px 14px; gap:10px; }
+  .nav.is-scrolled{ min-height:56px; }
+  .nav-logo img{ width:42px; height:42px; }
+  .nav.is-scrolled .nav-logo img{ width:38px; height:38px; }
+  .nav-logo span{ font-size:1.02rem; }
+  .nav-burger{ width:44px; height:44px; }
+}
+
+/* ════════════════ MOBILE SWIPE DECK ════════════════
+   On phones each day's grid becomes a swipeable card deck (identical to
+   the home page listings): the top card spans the full width while the
+   previous/next cards peek out behind its left and right edges. JS poses
+   the cards, drives the drag physics, and keeps the height in sync. */
+@media (max-width: 720px){
+  .deck-grid.is-deck{
+    display:block; position:relative;
+    margin:0; padding:0;
+    touch-action:pan-y; /* vertical page scroll stays native */
+  }
+  .deck-grid.is-deck > *{
+    position:absolute; left:0; right:0; top:0;
+    margin:0;
+    border:0 !important; /* clean edges, no card hairline in the deck */
+    background:var(--bg) !important; /* opaque so back cards never bleed through */
+    transition:transform .55s var(--ease), opacity .35s ease,
+               box-shadow .35s ease, filter .45s ease;
+    transition-delay:0s;
+    will-change:transform, filter;
+  }
+  .deck-grid.is-deck > .deck-side{
+    filter:blur(7px) saturate(1.18) brightness(1.05);
+  }
+  .deck-grid.is-deck > .deck-top{
+    filter:none;
+    box-shadow:0 16px 40px rgba(17,17,17,.16);
+  }
+  .deck-grid.is-deck > .deck-dragging{
+    transition:none; cursor:grabbing;
+  }
+}
+
+/* Deck pagination dots (hidden on desktop, where the grid shows) */
+.deck-dots{ display:none; }
+@media (max-width: 720px){
+  .deck-dots{
+    display:flex; justify-content:center; align-items:center;
+    gap:6px; margin-top:16px; min-height:8px;
+  }
+  .deck-dots span{
+    width:7px; height:7px; border-radius:var(--r-pill);
+    background:rgba(17,17,17,.16);
+    transition:width .3s var(--ease), background .3s ease;
+  }
+  .deck-dots span.is-on{ width:20px; background:var(--ink); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OPEN HOUSE SCHEDULE
+     Standalone code block for Squarespace. The site's own header/footer
+     stays in place (this file ships no nav).
+
+     EDIT EACH WEEKEND:
+       1. Update .oh-h1 subline + the two .day-head dates below.
+       2. Place each listing card under Saturday and/or Sunday.
+       3. Per card set: .oh-time hours, .oh-agent (photo + name), href.
+     Listings, photos and times were pulled from each listing's Compass
+     page; agent photos come from the team directory (team-directory.html).
+     ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════ NAV (identical to home page) ═══════════ -->
+<div class="nav-frost" aria-hidden="true" id="navFrost"></div>
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <nav class="nav" id="nav" aria-label="Site">
+      <a class="nav-logo" href="https://www.alexstoykovgroup.com/" aria-label="Alex Stoykov Group Home">
+        <img src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=1500w" alt="Alex Stoykov Group">
+        <span class="nav-wordmark">Alex Stoykov Group</span>
+      </a>
+
+      <div class="nav-links" id="navLinks" role="navigation" aria-label="Primary">
+        <div class="nav-pill-ghost" id="navGhost" aria-hidden="true"></div>
+        <a class="nav-link" href="https://www.alexstoykovgroup.com/">Home</a>
+        <a class="nav-link" href="https://www.alexstoykovgroup.com/blog">Blog</a>
+        <a class="nav-link" href="https://www.alexstoykovgroup.com/our-team">Team</a>
+        <a class="nav-link" href="https://www.alexstoykovgroup.com/about">About</a>
+      </div>
+
+      <div class="nav-cta">
+        <a class="btn btn-dark btn-sm" href="https://www.alexstoykovgroup.com/contact">Contact Us</a>
+      </div>
+
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+        <!-- Plus icon; rotates 45° into an X while the menu is open -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="mobile-panel" id="mobilePanel" role="dialog" aria-modal="true">
+  <a class="m-link" href="https://www.alexstoykovgroup.com/">Home</a>
+  <a class="m-link" href="https://www.alexstoykovgroup.com/blog">Blog</a>
+  <a class="m-link" href="https://www.alexstoykovgroup.com/our-team">Team</a>
+  <a class="m-link" href="https://www.alexstoykovgroup.com/about">About</a>
+  <div class="mobile-panel-cta">
+    <a class="btn btn-dark" href="https://www.alexstoykovgroup.com/contact">Contact Us</a>
+  </div>
+</div>
+
+<section class="oh-wrap">
+  <div class="oh-inner">
+    <div class="shell" id="ohShell">
+
+      <header class="oh-head">
+        <h1 class="oh-h1">Open House Schedule</h1>
+        <p class="oh-sub">Saturday &amp; Sunday<br><span class="oh-sub-date">June 27&ndash;28, 2026</span></p>
+      </header>
+
+      <!-- ═══════════════════ SATURDAY ═══════════════════ -->
+      <section class="day-section" data-day="sat">
+        <div class="day-head">
+          <div class="day-head-main">
+            <h2>Saturday</h2>
+            <span class="day-date">June 27, 2026</span>
+          </div>
+          <span class="day-count">8 Open Houses</span>
+        </div>
+
+        <div class="grid deck-grid">
+
+          <!-- 1952 N Bissell Street -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1952-N-Bissell-St-Chicago-IL-60614/1WC0VG_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/7e2b/b2e74e8eca8de4bd4df72d600ec866c2/c019" alt="1952 N Bissell Street" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$1,599,900</p>
+              <p class="listing-addr">1952 N Bissell Street</p>
+              <p class="listing-meta">Lincoln Park · 3 bd · 3.5 ba · 2,500 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/702a9c44-c415-4b91-9c52-7ee6e05a6887/MatthewDetail-SS26.jpg?format=300w" alt="Matt Clevenger" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Matt Clevenger</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1967 N Maud Avenue A -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1967-N-Maud-Ave-Unit-A-Chicago-IL-60614/1VL1BM_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/f176/671f0edfd7a3bf5915c269a695d59b9b/c019" alt="1967 N Maud Avenue Unit A" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">2:00&ndash;4:00 PM</span></p>
+              <p class="listing-price">$875,000</p>
+              <p class="listing-addr">1967 N Maud Avenue, Unit A</p>
+              <p class="listing-meta">Lincoln Park · 2 bd · 2.5 ba · 2,000 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/608fc655-5886-4f4a-9ed1-2f64148d613e/Angela+Detail.jpg?format=300w" alt="Angela Engelbrecht" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Angela Engelbrecht</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1445 N Mohawk Street 2 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1445-N-Mohawk-St-Unit-2-Chicago-IL-60610/1WU31Q_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/9d03/30d90a88319cbe9db907a8cccd81bce1/c019" alt="1445 N Mohawk Street Unit 2" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$815,000</p>
+              <p class="listing-addr">1445 N Mohawk Street, Unit 2</p>
+              <p class="listing-meta">Near North Side · 3 bd · 3 ba · 2,000 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/b0962aa0-e196-44f7-9b96-a0f091ae90af/SamDetail-SS26.jpg?format=300w" alt="Sam Abadi" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Sam Abadi</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 933 N Wolcott Avenue 1 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/933-N-Wolcott-Ave-Unit-1-Chicago-IL-60622/1W16HQ_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/dc3e/e3cd0e1b0330fed4d14277b2ef8c2154/c019" alt="933 N Wolcott Avenue Unit 1" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$725,000</p>
+              <p class="listing-addr">933 N Wolcott Avenue, Unit 1</p>
+              <p class="listing-meta">West Town · 3 bd · 2.5 ba</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/b0962aa0-e196-44f7-9b96-a0f091ae90af/SamDetail-SS26.jpg?format=300w" alt="Sam Abadi" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Sam Abadi</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1425 W Fillmore Street 1 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1425-W-Fillmore-St-Unit-1-Chicago-IL-60607/1W8HW5_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/ac2d/d2ca227ef753c13ad58b4b53b32bb851/c019" alt="1425 W Fillmore Street Unit 1" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">11:00 AM&ndash;1:00 PM</span></p>
+              <p class="listing-price">$674,900</p>
+              <p class="listing-addr">1425 W Fillmore Street, Unit 1</p>
+              <p class="listing-meta">Near West Side · 4 bd · 3 ba · 2,400 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/bb353046-c2fb-469d-a044-86717a6e95f0/ShellyDetail-SS26.jpg?format=300w" alt="Shelly Channey" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Shelly Channey</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1712 W Wilson Avenue 3E -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1712-W-Wilson-Ave-Unit-3E-Chicago-IL-60640/1VUKXH_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/909f/f9094807bbf47aa71eb5d370985592aa/c019" alt="1712 W Wilson Avenue Unit 3E" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">11:00 AM&ndash;12:30 PM</span></p>
+              <p class="listing-price">$599,000</p>
+              <p class="listing-addr">1712 W Wilson Avenue, Unit 3E</p>
+              <p class="listing-meta">Uptown · 2 bd · 2.5 ba · 1,479 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/11050ae2-77b6-45f3-abeb-b39ffd0b5b3f/GabrielDetail-SS26.jpg?format=300w" alt="Gabriel Rendon" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Gabriel Rendon</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 728 W Addison Street G -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/728-W-Addison-St-Unit-G-Chicago-IL-60613/1VYN7K_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/0bf7/7fb0abf0e31b334a3487e3ca41aac1e8/c019" alt="728 W Addison Street Unit G" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">1:30&ndash;3:30 PM</span></p>
+              <p class="listing-price">$475,000</p>
+              <p class="listing-addr">728 W Addison Street, Unit G</p>
+              <p class="listing-meta">Lake View · 3 bd · 2 ba · 1,450 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f39c4c8f-c22f-4414-93a4-82c5f1722e24/ChatGPT+Image+Apr+15%2C+2026%2C+09_05_54+AM.png?format=300w" alt="Cheryl Cohn" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Cheryl Cohn</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 630 N State Street 2305 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/630-N-State-St-Unit-2305-Chicago-IL-60654/1WK5FK_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://www.compass.com/m/5daec347035a8736ff3e5b5445610252544a20a0abfab5493c08f89475390fb9/origin.jpg" alt="630 N State Street Unit 2305" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">10:30 AM&ndash;12:00 PM</span></p>
+              <p class="listing-price">$345,000</p>
+              <p class="listing-addr">630 N State Street, Unit 2305</p>
+              <p class="listing-meta">Near North Side · 1 bd · 1 ba · 775 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f39c4c8f-c22f-4414-93a4-82c5f1722e24/ChatGPT+Image+Apr+15%2C+2026%2C+09_05_54+AM.png?format=300w" alt="Cheryl Cohn" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Cheryl Cohn</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ═══════════════════ SUNDAY ═══════════════════ -->
+      <section class="day-section" data-day="sun">
+        <div class="day-head">
+          <div class="day-head-main">
+            <h2>Sunday</h2>
+            <span class="day-date">June 28, 2026</span>
+          </div>
+          <span class="day-count">5 Open Houses</span>
+        </div>
+
+        <div class="grid deck-grid">
+
+          <!-- 1952 N Bissell Street -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1952-N-Bissell-St-Chicago-IL-60614/1WC0VG_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/7e2b/b2e74e8eca8de4bd4df72d600ec866c2/c019" alt="1952 N Bissell Street" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">11:00 AM&ndash;1:00 PM</span></p>
+              <p class="listing-price">$1,599,900</p>
+              <p class="listing-addr">1952 N Bissell Street</p>
+              <p class="listing-meta">Lincoln Park · 3 bd · 3.5 ba · 2,500 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/f39c4c8f-c22f-4414-93a4-82c5f1722e24/ChatGPT+Image+Apr+15%2C+2026%2C+09_05_54+AM.png?format=300w" alt="Cheryl Cohn" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Cheryl Cohn</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1967 N Maud Avenue A -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1967-N-Maud-Ave-Unit-A-Chicago-IL-60614/1VL1BM_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/f176/671f0edfd7a3bf5915c269a695d59b9b/c019" alt="1967 N Maud Avenue Unit A" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$875,000</p>
+              <p class="listing-addr">1967 N Maud Avenue, Unit A</p>
+              <p class="listing-meta">Lincoln Park · 2 bd · 2.5 ba · 2,000 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/608fc655-5886-4f4a-9ed1-2f64148d613e/Angela+Detail.jpg?format=300w" alt="Angela Engelbrecht" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Angela Engelbrecht</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1445 N Mohawk Street 2 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1445-N-Mohawk-St-Unit-2-Chicago-IL-60610/1WU31Q_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/9d03/30d90a88319cbe9db907a8cccd81bce1/c019" alt="1445 N Mohawk Street Unit 2" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$815,000</p>
+              <p class="listing-addr">1445 N Mohawk Street, Unit 2</p>
+              <p class="listing-meta">Near North Side · 3 bd · 3 ba · 2,000 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/b0962aa0-e196-44f7-9b96-a0f091ae90af/SamDetail-SS26.jpg?format=300w" alt="Sam Abadi" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Sam Abadi</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 933 N Wolcott Avenue 1 -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/933-N-Wolcott-Ave-Unit-1-Chicago-IL-60622/1W16HQ_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/dc3e/e3cd0e1b0330fed4d14277b2ef8c2154/c019" alt="933 N Wolcott Avenue Unit 1" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;2:00 PM</span></p>
+              <p class="listing-price">$725,000</p>
+              <p class="listing-addr">933 N Wolcott Avenue, Unit 1</p>
+              <p class="listing-meta">West Town · 3 bd · 2.5 ba</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/b0962aa0-e196-44f7-9b96-a0f091ae90af/SamDetail-SS26.jpg?format=300w" alt="Sam Abadi" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Sam Abadi</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+          <!-- 1712 W Wilson Avenue 3E -->
+          <a class="listing-card" href="https://www.compass.com/homedetails/1712-W-Wilson-Ave-Unit-3E-Chicago-IL-60640/1VUKXH_pid/" target="_blank" rel="noopener">
+            <div class="listing-media">
+              <span class="listing-flag">Open House</span>
+              <img src="https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/909f/f9094807bbf47aa71eb5d370985592aa/c019" alt="1712 W Wilson Avenue Unit 3E" loading="lazy" decoding="async">
+            </div>
+            <div class="listing-body">
+              <p class="oh-time"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="hours">12:00&ndash;1:30 PM</span></p>
+              <p class="listing-price">$599,000</p>
+              <p class="listing-addr">1712 W Wilson Avenue, Unit 3E</p>
+              <p class="listing-meta">Uptown · 2 bd · 2.5 ba · 1,479 sq ft</p>
+              <div class="oh-agent">
+                <img class="oh-agent-photo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/11050ae2-77b6-45f3-abeb-b39ffd0b5b3f/GabrielDetail-SS26.jpg?format=300w" alt="Gabriel Rendon" loading="lazy">
+                <span class="oh-agent-text"><span class="lbl">Hosted by</span><span class="nm">Gabriel Rendon</span></span>
+              </div>
+              <span class="listing-cta">More Details &#8599;</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ═══════════ OPEN HOUSE MAP (Leaflet, desktop only) ═══════════ -->
+      <section class="day-section oh-map-section">
+        <div class="day-head">
+          <div class="day-head-main">
+            <h2>On the Map</h2>
+            <span class="day-date">All open houses across Chicago</span>
+          </div>
+        </div>
+        <div class="oh-map-wrap">
+          <div id="ohMap" class="oh-map" role="region" aria-label="Map of this weekend's open houses"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════ BOTTOM CONTACT CTA ═══════════ -->
+      <div class="oh-contact">
+        <p class="oh-contact-text">Questions about a property or want a private showing?</p>
+        <a class="btn btn-dark btn-lg" href="https://www.alexstoykovgroup.com/contact">Contact Us</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* ───── Schedule state by time of day ─────
+   Times are this weekend's last open-house end times, in Chicago time
+   (CDT = -05:00). UPDATE THESE EACH WEEKEND alongside the listings.
+     • After Saturday's last open house  → Sunday shows first (Saturday hidden).
+     • After Sunday's last open house     → the whole schedule is replaced with
+       a "see you next week" message.
+   Runs before the deck/map scripts so they build against the final DOM. */
+(function () {
+  'use strict';
+  var SAT_LAST_END = new Date('2026-06-27T16:00:00-05:00'); /* Sat 4:00 PM */
+  var SUN_LAST_END = new Date('2026-06-28T14:00:00-05:00'); /* Sun 2:00 PM */
+  var now = new Date();
+
+  var shell = document.getElementById('ohShell');
+  if (!shell) return;
+
+  if (now >= SUN_LAST_END) {
+    /* Weekend is over → replace the schedule with a friendly message */
+    window.__OH_MODE = 'end';
+    shell.innerHTML =
+      '<div class="oh-end">' +
+        '<span class="oh-eyebrow">Open House Schedule</span>' +
+        '<h1 class="oh-h1">That\u2019s a wrap for this weekend</h1>' +
+        '<p class="oh-end-sub">Our open houses are done for now. See you next week for our next round of open houses across Chicago.</p>' +
+        '<div class="oh-end-cta">' +
+          '<a class="btn btn-dark btn-lg" href="https://www.alexstoykovgroup.com/contact">Contact Us</a>' +
+          '<a class="btn btn-light btn-lg" href="https://www.alexstoykovgroup.com/">Back to Home</a>' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+
+  if (now >= SAT_LAST_END) {
+    /* Saturday's open houses are over → show Sunday first, hide Saturday */
+    window.__OH_MODE = 'sunday';
+    var sat = shell.querySelector('[data-day="sat"]');
+    if (sat) sat.style.display = 'none';
+  } else {
+    window.__OH_MODE = 'normal';
+  }
+})();
+</script>
+
+<script>
+/* ───── Mobile open-house deck (identical behavior to the home page) ─────
+   On phones (<=720px) each day's grid turns into a swipeable card deck:
+   the top card spans the full width while the previous and next cards peek
+   out behind its left and right edges. Swipe left for the next listing,
+   right for the previous one; the deck cycles endlessly. Desktop keeps the
+   normal grid. Runs once per .deck-grid (Saturday + Sunday). */
+(function () {
+  'use strict';
+  var mq = window.matchMedia('(max-width: 720px)');
+
+  function initDeck(grid){
+    var SIDE_SCALE = 0.94;  /* scale of the left/right peeking cards */
+
+    var dots = document.createElement('div');
+    dots.className = 'deck-dots';
+    dots.setAttribute('aria-hidden', 'true');
+    grid.parentNode.insertBefore(dots, grid.nextSibling);
+
+    var sequence = [];   /* original card order, for the dots */
+    var order = [];      /* current stack, order[0] is on top */
+    var animating = false;
+    var suppressClick = false;
+
+    function cardsIn(){
+      return Array.prototype.filter.call(grid.children, function (n) {
+        return n.nodeType === 1;
+      });
+    }
+
+    function renderDots(){
+      if (!grid.classList.contains('is-deck') || sequence.length < 2) {
+        dots.innerHTML = '';
+        return;
+      }
+      var current = sequence.indexOf(order[0]);
+      var html = '';
+      for (var i = 0; i < sequence.length; i++) {
+        html += '<span' + (i === current ? ' class="is-on"' : '') + '></span>';
+      }
+      dots.innerHTML = html;
+    }
+
+    function layout(){
+      if (!grid.classList.contains('is-deck')) return;
+      var n = order.length;
+      var maxH = 0;
+      order.forEach(function (el) { maxH = Math.max(maxH, el.offsetHeight); });
+      if (maxH > 0) grid.style.height = (maxH + 6) + 'px';
+
+      /* Horizontal offset that leaves a ~10px sliver of the side cards
+         visible beyond the main card's edges */
+      var w = grid.offsetWidth || 320;
+      var side = Math.round(w * (1 - SIDE_SCALE) / 2) + 10;
+
+      order.forEach(function (el, i) {
+        var pose;
+        if (i === 0)                 pose = { x: 0,     r: 0,    s: 1,          z: 30, o: 1 }; /* main */
+        else if (i === 1)            pose = { x: side,  r: 3.5,  s: SIDE_SCALE, z: 20, o: 1 }; /* next: right peek */
+        else if (i === n - 1 && n > 2) pose = { x: -side, r: -3.5, s: SIDE_SCALE, z: 19, o: 1 }; /* prev: left peek */
+        else                         pose = { x: 0,     r: 0,    s: .9,         z: 10, o: 0 }; /* hidden in the stack */
+        el.style.zIndex = String(pose.z);
+        el.style.transform = 'translateX(' + pose.x + 'px) rotate(' + pose.r + 'deg) scale(' + pose.s + ')';
+        el.style.opacity = String(pose.o);
+        el.style.pointerEvents = i === 0 ? 'auto' : 'none';
+        el.classList.toggle('deck-top', i === 0);
+        el.classList.toggle('deck-side', pose.o === 1 && i !== 0);
+      });
+      renderDots();
+    }
+
+    var layoutQueued = false;
+    function layoutSoon(){
+      if (layoutQueued) return;
+      layoutQueued = true;
+      requestAnimationFrame(function () { layoutQueued = false; layout(); });
+    }
+
+    function teardown(){
+      grid.classList.remove('is-deck');
+      grid.style.height = '';
+      cardsIn().forEach(function (el) {
+        el.classList.remove('deck-top', 'deck-side', 'deck-dragging');
+        el.style.transform = '';
+        el.style.opacity = '';
+        el.style.zIndex = '';
+        el.style.pointerEvents = '';
+      });
+      dots.innerHTML = '';
+    }
+
+    function build(){
+      sequence = cardsIn();
+      order = sequence.slice();
+      if (!mq.matches || !sequence.length) { teardown(); return; }
+      grid.classList.add('is-deck');
+      /* Re-measure once images decode (media uses aspect-ratio, so any
+         shift is minor) */
+      sequence.forEach(function (el) {
+        Array.prototype.forEach.call(el.querySelectorAll('img'), function (img) {
+          if (!img.complete) img.addEventListener('load', layoutSoon, { once: true });
+        });
+      });
+      layout();
+    }
+
+    /* ── Drag physics ── */
+    var drag = null;
+
+    grid.addEventListener('pointerdown', function (e) {
+      if (!grid.classList.contains('is-deck') || animating || order.length < 2) return;
+      if (!order[0].contains(e.target)) return;
+      drag = { x: e.clientX, y: e.clientY, dx: 0, active: false, id: e.pointerId };
+    });
+
+    grid.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      var dy = e.clientY - drag.y;
+      if (!drag.active) {
+        /* Decide intent: horizontal → deck swipe, vertical → page scroll */
+        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) {
+          if (Math.abs(dy) > 12) drag = null;
+          return;
+        }
+        drag.active = true;
+        order[0].classList.add('deck-dragging');
+        try { grid.setPointerCapture(drag.id); } catch (err) {}
+      }
+      drag.dx = dx;
+      order[0].style.transform = 'translateX(' + dx + 'px) rotate(' + (dx * 0.05) + 'deg)';
+    });
+
+    function endDrag(){
+      if (!drag) return;
+      var top = order[0];
+      var dx = drag.dx;
+      var wasDrag = drag.active;
+      drag = null;
+      if (!wasDrag) return;
+
+      top.classList.remove('deck-dragging');
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 350);
+
+      var threshold = Math.min(110, grid.offsetWidth * 0.3);
+      if (Math.abs(dx) > threshold) {
+        /* Fly off in the swipe direction, then re-enter as a side peek:
+           swipe left advances to the next card (the old top slides back
+           in on the left), swipe right returns to the previous one (it
+           slides back in on the right). */
+        animating = true;
+        var dir = dx > 0 ? 1 : -1;
+        top.style.transform = 'translateX(' + (dir * (grid.offsetWidth + 100)) + 'px) rotate(' + (dir * 10) + 'deg)';
+        top.style.opacity = '0';
+        setTimeout(function () {
+          if (dir < 0) order.push(order.shift()); /* next */
+          else order.unshift(order.pop());        /* previous */
+          layout(); /* transitions carry every card to its new pose */
+          animating = false;
+        }, 300);
+      } else {
+        layout(); /* below threshold: spring back */
+      }
+    }
+    grid.addEventListener('pointerup', endDrag);
+    grid.addEventListener('pointercancel', endDrag);
+
+    /* A swipe must not trigger the card's link */
+    grid.addEventListener('click', function (e) {
+      if (suppressClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    if (mq.addEventListener) mq.addEventListener('change', build);
+    else if (mq.addListener) mq.addListener(build);
+    window.addEventListener('resize', layoutSoon);
+
+    build();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.deck-grid'), initDeck);
+})();
+</script>
+
+<script>
+/* ───── Nav (identical behavior to the home page) ───── */
+(function () {
+  'use strict';
+  var nav = document.getElementById('nav');
+  var frost = document.getElementById('navFrost');
+  if (nav) {
+    var lastScrolled = false;
+    var onScroll = function () {
+      var scrolled = (window.scrollY || 0) > 24;
+      if (scrolled !== lastScrolled) {
+        nav.classList.toggle('is-scrolled', scrolled);
+        if (frost) frost.classList.toggle('is-scrolled', scrolled);
+        lastScrolled = scrolled;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* Sliding hover pill behind the desktop nav links */
+  var linksWrap = document.getElementById('navLinks');
+  var ghost = document.getElementById('navGhost');
+  if (linksWrap && ghost) {
+    linksWrap.querySelectorAll('.nav-link').forEach(function (link) {
+      link.addEventListener('mouseenter', function () {
+        var wrapBox = linksWrap.getBoundingClientRect();
+        var box = link.getBoundingClientRect();
+        ghost.style.left = (box.left - wrapBox.left) + 'px';
+        ghost.style.width = box.width + 'px';
+        ghost.classList.add('is-on');
+      });
+    });
+    linksWrap.addEventListener('mouseleave', function () {
+      ghost.classList.remove('is-on');
+    });
+  }
+
+  /* Mobile menu */
+  var burger = document.getElementById('navBurger');
+  var panel = document.getElementById('mobilePanel');
+  if (burger && panel) {
+    var openMobile = function () {
+      panel.classList.add('is-open');
+      burger.classList.add('is-open');
+      burger.setAttribute('aria-expanded', 'true');
+      burger.setAttribute('aria-label', 'Close menu');
+      document.body.style.overflow = 'hidden';
+    };
+    var closeMobile = function () {
+      panel.classList.remove('is-open');
+      burger.classList.remove('is-open');
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Open menu');
+      document.body.style.overflow = '';
+    };
+    burger.addEventListener('click', function () {
+      if (panel.classList.contains('is-open')) closeMobile();
+      else openMobile();
+    });
+    panel.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') closeMobile();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMobile();
+    });
+  }
+})();
+</script>
+
+<script>
+/* ───── Open House Map (Leaflet) ─────
+   One price-pin marker per listing. Hover shows a mini listing card;
+   clicking the pin (or the card) opens the Compass listing in a new tab. */
+(function () {
+  'use strict';
+  var el = document.getElementById('ohMap');
+  /* If Leaflet failed to load (e.g. CDN blocked by a host CSP) or the map
+     node is missing, drop the whole map section so it never shows as a large
+     empty box under the schedule (the map is the only desktop-only block). */
+  var hideMapSection = function () {
+    var section = el ? el.closest('.oh-map-section') : document.querySelector('.oh-map-section');
+    if (section) section.style.display = 'none';
+  };
+  if (typeof L === 'undefined' || !el) { hideMapSection(); return; }
+
+  var PHOTO = 'https://s3.amazonaws.com/mlsphotos.idxbroker.com/photos/';
+  var OH = [
+    { days:['sat','sun'], lat:41.917472,   lng:-87.652351,   price:'$1,599,900', short:'$1.6M',  address:'1952 N Bissell Street',        meta:'Lincoln Park · 3 bd · 3.5 ba', time:'Sat 12–2 PM · Sun 11 AM–1 PM',     photo:PHOTO+'7e2b/b2e74e8eca8de4bd4df72d600ec866c2/c019', url:'https://www.compass.com/homedetails/1952-N-Bissell-St-Chicago-IL-60614/1WC0VG_pid/' },
+    { days:['sat','sun'], lat:41.917327,   lng:-87.656905,   price:'$875,000',   short:'$875K', address:'1967 N Maud Avenue, Unit A',     meta:'Lincoln Park · 2 bd · 2.5 ba', time:'Sat 2–4 PM · Sun 12–2 PM',          photo:PHOTO+'f176/671f0edfd7a3bf5915c269a695d59b9b/c019', url:'https://www.compass.com/homedetails/1967-N-Maud-Ave-Unit-A-Chicago-IL-60614/1VL1BM_pid/' },
+    { days:['sat','sun'], lat:41.908863,   lng:-87.641800,   price:'$815,000',   short:'$815K', address:'1445 N Mohawk Street, Unit 2',   meta:'Near North Side · 3 bd · 3 ba', time:'Sat 12–2 PM · Sun 12–2 PM',        photo:PHOTO+'9d03/30d90a88319cbe9db907a8cccd81bce1/c019', url:'https://www.compass.com/homedetails/1445-N-Mohawk-St-Unit-2-Chicago-IL-60610/1WU31Q_pid/' },
+    { days:['sat','sun'], lat:41.898746,   lng:-87.674339,   price:'$725,000',   short:'$725K', address:'933 N Wolcott Avenue, Unit 1',   meta:'West Town · 3 bd · 2.5 ba',     time:'Sat 12–2 PM · Sun 12–2 PM',        photo:PHOTO+'dc3e/e3cd0e1b0330fed4d14277b2ef8c2154/c019', url:'https://www.compass.com/homedetails/933-N-Wolcott-Ave-Unit-1-Chicago-IL-60622/1W16HQ_pid/' },
+    { days:['sat'],       lat:41.868531,   lng:-87.662674,   price:'$674,900',   short:'$675K', address:'1425 W Fillmore Street, Unit 1', meta:'Near West Side · 4 bd · 3 ba',   time:'Sat 11 AM–1 PM',                   photo:PHOTO+'ac2d/d2ca227ef753c13ad58b4b53b32bb851/c019', url:'https://www.compass.com/homedetails/1425-W-Fillmore-St-Unit-1-Chicago-IL-60607/1W8HW5_pid/' },
+    { days:['sat','sun'], lat:41.965465,   lng:-87.671554,   price:'$599,000',   short:'$599K', address:'1712 W Wilson Avenue, Unit 3E',  meta:'Uptown · 2 bd · 2.5 ba',        time:'Sat 11 AM–12:30 PM · Sun 12–1:30 PM', photo:PHOTO+'909f/f9094807bbf47aa71eb5d370985592aa/c019', url:'https://www.compass.com/homedetails/1712-W-Wilson-Ave-Unit-3E-Chicago-IL-60640/1VUKXH_pid/' },
+    { days:['sat'],       lat:41.947327,   lng:-87.647840,   price:'$475,000',   short:'$475K', address:'728 W Addison Street, Unit G',   meta:'Lake View · 3 bd · 2 ba',       time:'Sat 1:30–3:30 PM',                 photo:PHOTO+'0bf7/7fb0abf0e31b334a3487e3ca41aac1e8/c019', url:'https://www.compass.com/homedetails/728-W-Addison-St-Unit-G-Chicago-IL-60613/1VYN7K_pid/' },
+    { days:['sat'],       lat:41.893576,   lng:-87.628471,   price:'$345,000',   short:'$345K', address:'630 N State Street, Unit 2305',  meta:'Near North Side · 1 bd · 1 ba', time:'Sat 10:30 AM–12 PM',               photo:'https://www.compass.com/m/5daec347035a8736ff3e5b5445610252544a20a0abfab5493c08f89475390fb9/origin.jpg', url:'https://www.compass.com/homedetails/630-N-State-St-Unit-2305-Chicago-IL-60654/1WK5FK_pid/' }
+  ];
+  var ohMode = window.__OH_MODE || 'normal';
+  if (ohMode === 'sunday') OH = OH.filter(function (o) { return o.days.indexOf('sun') >= 0; });
+
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  };
+
+  var map = L.map(el, { scrollWheelZoom:false, zoomControl:true }).setView([41.915, -87.655], 12);
+  map.attributionControl.setPrefix(false); /* drop the "Leaflet" flag from the map */
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+
+  var bounds = [];
+  OH.forEach(function (o) {
+    var icon = L.divIcon({ className:'oh-pin-wrap', html:'<span class="oh-pin">' + esc(o.short) + '</span>', iconSize:[0,0] });
+    var marker = L.marker([o.lat, o.lng], { icon:icon, riseOnHover:true }).addTo(map);
+
+    var card =
+      '<a class="oh-pop" href="' + esc(o.url) + '" target="_blank" rel="noopener">' +
+        '<img src="' + esc(o.photo) + '" alt="' + esc(o.address) + '" loading="lazy">' +
+        '<div class="oh-pop-body">' +
+          '<div class="oh-pop-price">' + esc(o.price) + '</div>' +
+          '<div class="oh-pop-addr">' + esc(o.address) + '</div>' +
+          '<div class="oh-pop-meta">' + esc(o.meta) + '</div>' +
+          '<div class="oh-pop-time">' + esc(o.time) + '</div>' +
+          '<span class="oh-pop-cta">More Details &#8599;</span>' +
+        '</div>' +
+      '</a>';
+    marker.bindPopup(card, { closeButton:false, offset:[0, -8], maxWidth:232 });
+
+    marker.on('mouseover', function () { this.openPopup(); });
+    marker.on('click', function () { window.open(o.url, '_blank', 'noopener'); });
+
+    bounds.push([o.lat, o.lng]);
+  });
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding:[50, 50] });
+    if (map.getZoom() > 14) map.setZoom(14);
+  } else {
+    hideMapSection(); /* nothing to plot → no empty map box */
+    return;
+  }
+  /* Re-measure once the container is laid out (Squarespace code blocks can
+     mount late, leaving Leaflet with a 0-height canvas). */
+  setTimeout(function () { map.invalidateSize(); }, 200);
+  window.addEventListener('resize', function () { map.invalidateSize(); });
+})();
+</script>
+
+</body>
+</html>

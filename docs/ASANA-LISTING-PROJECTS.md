@@ -31,6 +31,14 @@ Marketing assignees:
 
 If Tim or Ellie GIDs are empty, tasks are still created but remain unassigned.
 
+General (non-listing) marketing tasks:
+
+- `ASANA_AGENT_REQUEST_PROJECTS_JSON`
+  - JSON mapping agent email to their `Requests - <Agent>` Asana project gid.
+  - General marketing tasks (flyers, social posts, ad-hoc design) created in the hub
+    mirror into that project, best-effort. Leave blank to keep them hub-only.
+  - Discover the project gids with `npm run asana:inspect "requests -"`.
+
 ## What Gets Created
 
 When a seller submits onboarding:

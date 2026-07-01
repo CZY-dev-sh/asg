@@ -81,6 +81,16 @@ async function addToPortfolios(listing: Row, projectGid: string): Promise<string
 async function seedMarketingTasks(listingId: string, projectGid: string, address: string): Promise<void> {
   for (const spec of DEFAULT_TASKS) {
     try {
+      // The listing_request is the system of record. Creating it here (rather than
+      // only when an admin/agent requests work) means the default checklist also
+      // participates in two-way sync: completing the Asana task flips the request
+      // to delivered and rolls up the listing's per-asset status via syncMarketing.
+      const [req] = await sql<Row[]>`
+        insert into listing_requests (listing_id, kind, status, notes, requested_by, assignee)
+        values (${listingId}::uuid, ${spec.kind}, 'requested', ${spec.notes ?? null}, 'Onboarding', ${spec.assignee ?? null})
+        returning id`;
+      const requestId = String(req!.id);
+
       const task = await createTaskInProject({
         projectGid,
         name: `${spec.name} — ${address}`,
@@ -89,10 +99,15 @@ async function seedMarketingTasks(listingId: string, projectGid: string, address
       });
       if (task?.gid) {
         await sql`
-          insert into asana_tasks (id, title, listing_id, type, status, completed, url, synced_at)
-          values (${task.gid}, ${spec.name + ' — ' + address}, ${listingId}::uuid, ${spec.kind}, 'Open', false,
+          update listing_requests
+          set asana_task_gid = ${task.gid}, asana_task_url = ${task.permalink_url ?? null}, status = 'in_progress'
+          where id = ${requestId}::uuid`;
+        await sql`
+          insert into asana_tasks (id, title, listing_id, request_id, type, status, completed, url, synced_at)
+          values (${task.gid}, ${spec.name + ' — ' + address}, ${listingId}::uuid, ${requestId}::uuid, ${spec.kind}, 'Open', false,
                   ${task.permalink_url ?? null}, now())
-          on conflict (id) do update set listing_id = excluded.listing_id, type = excluded.type, synced_at = now()
+          on conflict (id) do update set listing_id = excluded.listing_id, request_id = excluded.request_id,
+                  type = excluded.type, synced_at = now()
         `;
       }
     } catch (err) {

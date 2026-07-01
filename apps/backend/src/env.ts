@@ -69,6 +69,7 @@ const schema = z.object({
   ASANA_AGENT_PORTFOLIOS_JSON: z.string().optional().default(''),
   ASANA_TIM_USER_GID: z.string().optional().default(''),
   ASANA_ELLIE_USER_GID: z.string().optional().default(''),
+  ASANA_AGENT_REQUEST_PROJECTS_JSON: z.string().optional().default(''),
 
   // Acuity
   ACUITY_USER_ID: z.string().optional().default(''),

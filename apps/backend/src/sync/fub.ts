@@ -1,6 +1,7 @@
 import { sql, j } from '../db/client.js';
 import { fubClient } from '../connectors/fub.js';
 import { env } from '../env.js';
+import { log } from '../logger.js';
 import { parseDate, parseDateTime, parseNumber, trim } from '../util/text.js';
 import type { SyncResult } from './runner.js';
 
@@ -17,6 +18,26 @@ function firstValue(arr: unknown): string | null {
     return trim(v?.value ?? '') || null;
   }
   return null;
+}
+
+/**
+ * Best-effort display name for a deal's agent, mirroring the fallback chain the
+ * legacy Apps Script hub used (this FUB account doesn't reliably populate any one
+ * field) — tried in order: explicit name fields on the deal, then its `users[]`.
+ * This is only a display/last-resort matching value — the real match is done by
+ * FUB user id straight off `raw` in the update cascade below, once the row exists.
+ */
+function resolveDealAgentName(d: Rec): string | null {
+  const candidates = [
+    pick(d, 'assignedUserName', 'assignedAgentName', 'agent', 'AssignedTo'),
+    (d.owner as Rec)?.name,
+  ];
+  for (const c of candidates) {
+    const s = trim(c);
+    if (s) return s;
+  }
+  const users = d.users as Array<{ name?: string }> | undefined;
+  return trim(users?.[0]?.name ?? '') || null;
 }
 
 function mapDealStatus(raw: string): string {
@@ -92,7 +113,7 @@ export async function syncFub(): Promise<SyncResult> {
         ${trim(d.name) || null}, ${parseNumber(d.price)}, ${stageName || null},
         ${d.pipelineId != null ? String(d.pipelineId) : null}, ${status},
         ${parseDate(pick(d, 'projectedCloseDate', 'closeDate'))},
-        ${trim(pick(d, 'agentName')) || null},
+        ${resolveDealAgentName(d)},
         ${`https://app.followupboss.com/2/deals/${d.id}`},
         ${personId ? `https://app.followupboss.com/2/people/view/${personId}` : null},
         ${j(d)}
@@ -109,11 +130,52 @@ export async function syncFub(): Promise<SyncResult> {
     update deals d set contact_id = c.id from contacts c
     where c.fub_person_id = d.fub_person_id and (d.contact_id is distinct from c.id)
   `;
-  await sql`
-    update deals d set agent_id = a.id from agents a
-    where d.agent_name is not null and lower(a.name) = lower(d.agent_name)
+
+  // Deal → agent matching, ID-based tiers first, name text-match only as last resort.
+  // This account doesn't reliably populate any single "assigned agent" field on a
+  // deal, so we cascade through the most reliable signal available for each deal:
+  //
+  // 1. The deal's own assigned FUB user id (`users[]`/`assignedUserId`), matched
+  //    against `agents.fub_user_id` — an id match, not a name match, so nicknames
+  //    and spelling don't matter.
+  // 2. The deal's primary contact's already-resolved agent (`contacts.assigned_agent_id`,
+  //    itself id-matched during the contacts pass above) — this is what the legacy
+  //    Apps Script hub falls back to in practice, since deal-level assignment is
+  //    frequently blank on this account.
+  // 3. Case-insensitive text match on `agent_name` (a display name scraped from
+  //    whatever field the deal did have) — kept only as a last resort, since this
+  //    is exactly the brittle path that silently produces empty deal trackers.
+  const byDealUser = await sql`
+    update deals d set agent_id = a.id
+    from agents a
+    where a.fub_user_id is not null
+      and a.fub_user_id = coalesce(d.raw->'users'->0->>'id', d.raw->>'assignedUserId')
       and (d.agent_id is distinct from a.id)
   `;
+  const byContact = await sql`
+    update deals d set agent_id = c.assigned_agent_id
+    from contacts c
+    where d.agent_id is null and d.contact_id = c.id and c.assigned_agent_id is not null
+  `;
+  const byName = await sql`
+    update deals d set agent_id = a.id from agents a
+    where d.agent_id is null and d.agent_name is not null and lower(a.name) = lower(d.agent_name)
+  `;
+  const unmatchedRows = await sql<{ unmatched: number }[]>`
+    select count(*)::int as unmatched from deals where agent_id is null
+  `;
+  const agentMatch = {
+    byDealUserId: (byDealUser as unknown as { count?: number }).count ?? 0,
+    byContactFallback: (byContact as unknown as { count?: number }).count ?? 0,
+    byNameFallback: (byName as unknown as { count?: number }).count ?? 0,
+    stillUnmatched: unmatchedRows[0]?.unmatched ?? 0,
+  };
+  if (agentMatch.stillUnmatched > 0) {
+    log.warn(
+      `syncFub: ${agentMatch.stillUnmatched} deal(s) have no matching agent after id/contact/name fallback ` +
+        '— check for a FUB user whose email does not match their roster/agents row.',
+    );
+  }
 
   // ── tasks, notes, appointments (recent) ──
   const tasks = (await fub.tasks({ sort: '-created' }).catch(() => [])) as Rec[];
@@ -181,6 +243,7 @@ export async function syncFub(): Promise<SyncResult> {
       tasks: tasks.length,
       notes: notes.length,
       appointments: appts.length,
+      agentMatch,
     },
   };
 }

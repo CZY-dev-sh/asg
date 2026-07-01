@@ -1,0 +1,33 @@
+---
+description: The 4-hub product architecture for ASG (Alex Stoykov Group) and where to find the specs
+alwaysApply: true
+---
+
+# ASG Platform: Four Hubs, One Backend
+
+This product is organized into four hubs, not one monolithic app. Before making product/architecture decisions, check the relevant PRD:
+
+| Hub | Audience | PRD |
+| --- | --- | --- |
+| **Client Hub** | Buyers, sellers, renters, prospects | `docs/CLIENT-HUB-PRD.md` |
+| **Admin Hub** | Ops/leadership (Tim, Ellie, Alex, TC) | `docs/ADMIN-HUB-PRD.md` |
+| **Agent Hub** | ASG's ~26 agents | `docs/AGENT-HUB-PRD.md` |
+| **Orchestration Hub** | Tim only (sole engineer), backlog | `docs/ORCHESTRATION-HUB-PRD.md` |
+
+Start with `docs/PLATFORM-ARCHITECTURE.md` — it's the map that ties all four together and holds cross-cutting decisions (identity/role model, target repo structure, sequencing) that don't belong in a single hub's PRD.
+
+## Core principle: Supabase is the single source of truth
+
+One Postgres database, one Supabase Auth system, one API layer (`apps/backend`, on Railway). Every hub is a different view over the same backend — no hub should get its own data store or its own auth.
+
+`profiles.role` is the one place identity/role lives: `client | agent | admin`, plus a proposed `owner` role reserved for Orchestration Hub only (never self-serve, never inferred, set manually for one account).
+
+## Known transitional state (don't treat these as permanent)
+
+- Several surfaces still call legacy, unauthenticated Google Apps Script endpoints instead of the Railway API — each hub PRD tracks its own migration off of this.
+- `apps/admin-hub/components/` currently holds files for **all three active hubs at once** (a naming artifact from before the 3-hub split existed) — `docs/PLATFORM-ARCHITECTURE.md` §6 has the proposed target layout (`apps/client-hub/`, `apps/admin-hub/`, `apps/agent-hub/`, `apps/orchestration-hub/`), not yet executed.
+- Agent identity/roster currently has multiple competing sources (`roster.ts`, a Google Sheet, a hardcoded directory array) — treat this as a known gap, not a design choice to build on top of.
+
+## When asked to build something new
+
+Check which hub it belongs to (or whether it's cross-cutting, like agent/admin onboarding) and read that hub's PRD's "Gaps & Risks" and roadmap sections first — there is usually already a documented plan and a stated dependency order.
