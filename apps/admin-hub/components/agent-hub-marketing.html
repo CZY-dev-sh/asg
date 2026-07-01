@@ -1,0 +1,93 @@
+<div class="agent-surface" id="agentMarketing">
+  <div class="agent-surface-head">
+    <h2>Marketing</h2>
+    <p>Your branding assets, marketing requests, and upcoming meeting.</p>
+  </div>
+
+  <div class="agent-mkt-grid">
+    <section class="asgc-panel">
+      <h3>Take action</h3>
+      <div class="agent-action-list" id="agentMktActions"></div>
+    </section>
+
+    <section class="asgc-panel">
+      <h3>Branding assets</h3>
+      <p class="agent-muted">Download the latest ASG-designed assets for your business.</p>
+      <div class="agent-asset-list" id="agentMktAssets"></div>
+    </section>
+
+    <section class="asgc-panel">
+      <h3>Next marketing meeting</h3>
+      <div id="agentMktMeeting" class="agent-meeting">
+        <p class="agent-muted">Book time with the marketing team to plan your next campaign.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style>
+  #agentMarketing{max-width:1080px;margin:0 auto;padding:8px 0 40px}
+  #agentMarketing .agent-surface-head{margin:6px 4px 18px}
+  #agentMarketing .agent-surface-head h2{font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#111}
+  #agentMarketing .agent-surface-head p{margin:0;color:rgba(17,17,17,.55);font-size:14px}
+  #agentMarketing .agent-mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  #agentMarketing .asgc-panel h3{margin:0 0 10px}
+  #agentMarketing .agent-muted{color:rgba(17,17,17,.55);font-size:13px;margin:0 0 12px}
+  #agentMarketing .agent-action-list,#agentMarketing .agent-asset-list{display:flex;flex-direction:column;gap:9px}
+  #agentMarketing .agent-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border:1px solid rgba(17,17,17,.1);border-radius:14px;padding:13px 15px;text-decoration:none;color:#111;
+    background:#fff;transition:border-color .15s,transform .15s}
+  #agentMarketing .agent-row:hover{border-color:rgba(17,17,17,.28);transform:translateY(-1px)}
+  #agentMarketing .agent-row .t{font-size:14px;font-weight:700;line-height:1.2}
+  #agentMarketing .agent-row .s{font-size:12px;color:rgba(17,17,17,.5)}
+  #agentMarketing .agent-row .pill{font-size:12px;font-weight:700;color:#fff;background:#111;border-radius:999px;padding:6px 13px;white-space:nowrap}
+  #agentMarketing .agent-row.is-off{opacity:.55;pointer-events:none}
+  #agentMarketing .agent-meeting{font-size:14px;color:#111}
+  @media(max-width:820px){#agentMarketing .agent-mkt-grid{grid-template-columns:1fr}}
+</style>
+
+<script>
+(function(){
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function row(title,sub,href,pill,off){
+    var tag=href&&!off?"a":"div";
+    var attrs=href&&!off?' href="'+esc(href)+'" target="_blank" rel="noopener"':"";
+    return "<"+tag+' class="agent-row'+(off?" is-off":"")+'"'+attrs+'><span><span class="t">'+esc(title)+
+      '</span><br><span class="s">'+esc(sub)+'</span></span><span class="pill">'+esc(pill)+"</span></"+tag+">";
+  }
+  function fmtWhen(ts){ if(!ts)return""; try{return new Date(ts).toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});}catch(e){return"";} }
+
+  function render(){
+    var a=window.ASG_AGENT||{};
+    var b=a.branding||{};
+    var actions=document.getElementById("agentMktActions");
+    var assets=document.getElementById("agentMktAssets");
+    if(!actions||!assets)return;
+
+    actions.innerHTML=[
+      row("Book Marketing", "Schedule marketing for your listing", a.book, "Book", !a.book),
+      row("Request Marketing", "Request social or print collateral", a.request, "Request", !a.request),
+      row("Seller Wizard", "Onboard a seller from your database", a.sellerWizard, "Open", !a.sellerWizard),
+      row("My Landing Page", "Open your public ASG page", a.landing, "Open", !a.landing)
+    ].join("");
+
+    var assetDefs=[
+      ["Marketing Drive Folder","All your ASG-designed assets", b.marketingDriveUrl],
+      ["Buyer Guide", b.buyerGuideUpdatedAt?("Updated "+ (fmtWhen(b.buyerGuideUpdatedAt)||"recently")):"Last updated: not tracked yet", b.buyerGuideUrl],
+      ["Seller Guide", b.sellerGuideUpdatedAt?("Updated "+ (fmtWhen(b.sellerGuideUpdatedAt)||"recently")):"Last updated: not tracked yet", b.sellerGuideUrl],
+      ["Listing Presentation", b.listingPresentationUpdatedAt?("Updated "+ (fmtWhen(b.listingPresentationUpdatedAt)||"recently")):"Last updated: not tracked yet", b.listingPresentationUrl],
+      ["Business Card", b.businessCardUpdatedAt?("Updated "+ (fmtWhen(b.businessCardUpdatedAt)||"recently")):"Last updated: not tracked yet", b.businessCardUrl]
+    ];
+    assets.innerHTML=assetDefs.map(function(d){ return row(d[0], d[1], d[2], "Access", !d[2]); }).join("");
+
+    var meeting=document.getElementById("agentMktMeeting");
+    if(meeting){
+      meeting.innerHTML='<p class="agent-muted">Book time with the marketing team to plan your next campaign.</p>'+
+        row("Book a marketing meeting","Pick a time that works for you", a.book, "Book", !a.book);
+    }
+  }
+
+  window.__asgInitMarketing = render;
+  if(window.ASG_AGENT) render();
+})();
+</script>

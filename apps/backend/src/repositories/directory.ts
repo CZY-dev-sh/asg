@@ -11,7 +11,8 @@ export async function getDirectory() {
            start_date, birthday, next_birthday, headshots_url, landing_page_url,
            marketing_drive_url, buyer_guide_url, seller_guide_url, listing_presentation_url,
            business_card_url, buyer_guide_updated_at, seller_guide_updated_at,
-           listing_presentation_updated_at, business_card_updated_at, active
+           listing_presentation_updated_at, business_card_updated_at,
+           marketing_request_url, fub_name, active
     from agents where active = true
     order by case tier when 'admin' then 0 else 1 end, seniority_rank asc nulls last, name asc
   `;
@@ -52,6 +53,8 @@ export async function getDirectory() {
       sellerGuideUpdatedAt: r.seller_guide_updated_at,
       listingPresentationUpdatedAt: r.listing_presentation_updated_at,
       businessCardUpdatedAt: r.business_card_updated_at,
+      marketingRequestUrl: r.marketing_request_url,
+      fubName: r.fub_name,
     };
   });
 }

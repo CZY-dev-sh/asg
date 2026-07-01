@@ -963,6 +963,7 @@ export async function upsertDirectory(
           listing_presentation_url, business_card_url,
           buyer_guide_updated_at, seller_guide_updated_at,
           listing_presentation_updated_at, business_card_updated_at,
+          marketing_request_url, fub_name,
           active, directory_synced_at, raw
         ) values (
           ${slug}, ${name ?? slug}, ${email},
@@ -985,6 +986,8 @@ export async function upsertDirectory(
           ${str(pickKey(raw, ['seller_guide_updated_at']))},
           ${str(pickKey(raw, ['listing_presentation_updated_at']))},
           ${str(pickKey(raw, ['business_card_updated_at']))},
+          ${str(pickKey(raw, ['marketing_request_url', 'request_form_url', 'marketing_request']))},
+          ${str(pickKey(raw, ['fub_name', 'follow_up_boss_name', 'fub_display_name']))},
           true, now(), ${j(raw)}
         )
         on conflict (${email ? db`email` : db`slug`}) do update set
@@ -1013,6 +1016,8 @@ export async function upsertDirectory(
           seller_guide_updated_at = excluded.seller_guide_updated_at,
           listing_presentation_updated_at = excluded.listing_presentation_updated_at,
           business_card_updated_at = excluded.business_card_updated_at,
+          marketing_request_url = coalesce(excluded.marketing_request_url, agents.marketing_request_url),
+          fub_name = coalesce(excluded.fub_name, agents.fub_name),
           active = true,
           directory_synced_at = excluded.directory_synced_at,
           raw = excluded.raw,
