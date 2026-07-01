@@ -245,4 +245,5 @@ Alex Stoykov's is the only one with the mock-data flag off and an inline listing
 - `docs/PROJECT-PHASES-AND-PERFORMANCE.md` — Phase 7 (Agent Personal Hubs) and open decision on a shared generator/template
 - `apps/admin-hub/components/agent-landing-rollout-guide.md` — the template pattern to reuse for personal hubs
 - `docs/PLATFORM-ARCHITECTURE.md` — how this hub fits with Client Hub, Admin Hub, and Orchestration Hub, and the cross-cutting onboarding-wizard spec (§5.1)
+- `docs/FUB-DATA-STANDARDS.md` — team-facing checklist of what to keep current in FUB so hubs/reports actually populate; hand this to agents, don't make them read this PRD
 - `docs/ADMIN-HUB-PRD.md`, `docs/CLIENT-HUB-PRD.md` — the other two active hub PRDs

@@ -306,3 +306,4 @@ tv-dashboard-multiview.html  +  asg-remote (Pi kiosk + phone remote)
 - `docs/ASANA-LISTING-PROJECTS.md` — Asana project/portfolio routing shared with Client Hub's seller onboarding
 - `docs/PLATFORM-ARCHITECTURE.md` — how this hub fits with Client Hub, Agent Hub, and Orchestration Hub; cross-hub specs for admin onboarding (§5.2) and agent usage visibility (§5.3)
 - `docs/AGENT-HUB-PRD.md` — the templated-hub rebuild that agent usage attribution (§4.6) depends on
+- `docs/FUB-DATA-STANDARDS.md` — the team-facing FUB data checklist this console's numbers/deal tracker/Command Center all depend on
