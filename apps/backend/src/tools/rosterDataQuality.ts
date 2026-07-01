@@ -36,6 +36,13 @@ const KNOWN_EXCEPTIONS = {
     'deannine.weberronan@compass.com',
     'preety.sidhu@compass.com',
   ]),
+  /**
+   * Admin staff who will never have a FUB seat (their role doesn't touch
+   * deals/contacts directly) — unlike `pendingFubOnboarding` this is permanent,
+   * not "not yet". Note other admins (Seph, Ian, Ellyn) DO have FUB seats for
+   * task assignment, so this is a per-person call, not "all admins skip FUB".
+   */
+  noFubNeeded: new Set<string>(['tim.urmanczy@compass.com', 'ellie.ngassa@compass.com']),
 };
 
 async function main(): Promise<void> {
@@ -61,9 +68,19 @@ async function main(): Promise<void> {
   }
 
   console.log('');
+  console.log('=== Admins who intentionally have no FUB seat ===');
+  const noFubNeeded = agents.filter((a) => KNOWN_EXCEPTIONS.noFubNeeded.has(a.email.toLowerCase()));
+  for (const a of noFubNeeded) {
+    console.log(`  ${a.name} <${a.email}> — role doesn't need FUB, not a data bug.`);
+  }
+
+  console.log('');
   console.log('=== Agents with an unexplained FUB mismatch (needs investigation) ===');
   const unmatched = agents.filter(
-    (a) => !a.fub_user_id && !KNOWN_EXCEPTIONS.pendingFubOnboarding.has(a.email.toLowerCase()),
+    (a) =>
+      !a.fub_user_id &&
+      !KNOWN_EXCEPTIONS.pendingFubOnboarding.has(a.email.toLowerCase()) &&
+      !KNOWN_EXCEPTIONS.noFubNeeded.has(a.email.toLowerCase()),
   );
   if (!unmatched.length) {
     console.log('  none.');
