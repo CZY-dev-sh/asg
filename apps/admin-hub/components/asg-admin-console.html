@@ -4931,8 +4931,13 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
       var data = await res.json();
       if (!data.ok || !data.profile) throw new Error("no profile");
       var role = data.profile.role;
-      if (role !== "admin" && role !== "agent") {
-        showLoginMsg("This account is not an ASG staff account.", "err");
+      if (role === "agent") {
+        showLoginMsg("This is the Admin Hub. Your Agent Hub is coming soon \u2014 reach out to the ASG team for access.", "err");
+        await supa.auth.signOut();
+        return;
+      }
+      if (role !== "admin") {
+        showLoginMsg("This account is not an ASG admin account.", "err");
         await supa.auth.signOut();
         return;
       }

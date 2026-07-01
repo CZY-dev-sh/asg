@@ -35,9 +35,12 @@ const STAFF: Array<'admin' | 'agent'> = ['admin', 'agent'];
  *   • the X-Asg-Secret header matching WEBHOOK_SECRET (server-to-server)
  */
 export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
-  // ── Listings (admins + agents) ──────────────────────────────────────────
+  // ── Listing edits + images: ADMIN ONLY ──────────────────────────────────
+  // Agents get read-only access to the workshop (GET routes below) and may
+  // request/book marketing, but only admins can create/edit listings, change
+  // status, or upload/manage images.
   app.post('/api/admin/listings', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       return { ok: true, listing: await admin.createListing(body(req)) };
     } catch (err) {
@@ -46,7 +49,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.patch('/api/admin/listings/:id', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       return { ok: true, listing: await admin.updateListing(param(req, 'id'), body(req)) };
     } catch (err) {
@@ -55,7 +58,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post('/api/admin/listings/:id/archive', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const archived = body(req).archived;
       return { ok: true, listing: await admin.setListingArchived(param(req, 'id'), archived === undefined ? true : Boolean(archived)) };
@@ -65,7 +68,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post('/api/admin/listings/:id/cover', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const url = String(body(req).url ?? body(req).coverImageUrl ?? '');
       if (!url) return reply.code(400).send({ ok: false, error: 'url required' });
@@ -76,7 +79,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post('/api/admin/listings/:id/photos', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const b = body(req);
       const photo = await admin.addListingPhoto(param(req, 'id'), {
@@ -94,7 +97,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.delete('/api/admin/photos/:photoId', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       return await admin.deleteListingPhoto(param(req, 'photoId'));
     } catch (err) {
@@ -135,7 +138,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
 
   // Signed direct-to-Storage upload targets (browser PUTs the bytes itself).
   app.post('/api/admin/listings/:id/photo-uploads', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const files = (body(req).files ?? body(req).photos) as Array<{ name?: string; contentType?: string }>;
       return { ok: true, uploads: await admin.signListingUploads(param(req, 'id'), files) };
@@ -146,7 +149,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register photos that were uploaded via the signed URLs above.
   app.post('/api/admin/listings/:id/photos/register', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const photos = body(req).photos as Array<{ path: string; caption?: string; position?: number; contentType?: string }>;
       return { ok: true, photos: await admin.registerListingPhotos(param(req, 'id'), photos) };
@@ -156,7 +159,7 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post('/api/admin/listings/:id/photos/reorder', async (req, reply) => {
-    if (!(await requireWrite(req, reply, STAFF))) return;
+    if (!(await requireWrite(req, reply))) return; // admin only
     try {
       const order = (body(req).order ?? body(req).ids) as string[];
       return await admin.reorderListingPhotos(param(req, 'id'), order);
