@@ -27,7 +27,7 @@ async function main(): Promise<void> {
 
   const agents = await sql<AgentRow[]>`
     select name, email, tier, active, fub_user_id from agents
-    where tier in ('senior', 'junior') order by tier, name
+    where active = true order by tier, name
   `;
   const fubUsers = (await fub.users()) as Array<{ id?: unknown; name?: string; email?: string }>;
   const fubByEmail = new Map(fubUsers.map((u) => [String(u.email ?? '').toLowerCase(), u]));
