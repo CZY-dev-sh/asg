@@ -102,6 +102,12 @@ const schema = z.object({
   // Pipeline CSVs
   PIPELINE_BUYERS_CSV: z.string().optional().default(''),
   PIPELINE_SELLERS_CSV: z.string().optional().default(''),
+  // "ASG Deals 2026" workbook stats (Apps Script JSON). Source of truth for
+  // per-agent volume on the hubs — transaction coordinators maintain the sheet.
+  // agent_stats is refreshed from here on the pipeline cron, NOT from FUB.
+  DEALS_STATS_API: z.string().optional().default(
+    'https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec',
+  ),
 
   // Anthropic (listing marketing agent). Drafts only — never auto-publishes.
   ANTHROPIC_API_KEY: z.string().optional().default(''),

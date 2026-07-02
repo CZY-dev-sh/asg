@@ -1,0 +1,36 @@
+---
+description: Canonical data sources for ASG hubs — agent avatars and deal/volume stats
+alwaysApply: true
+---
+
+# Hub Data Conventions
+
+## Agent avatars: always the directory `icon_photo_url`
+
+Every hub (Admin, Agent, Client, personal hubs, TV dashboards) renders agent
+profile icons from the team directory's `agents.icon_photo_url` — never from
+hardcoded CDN URLs, FUB, or Google auth photos.
+
+- The photos are mirrored into Supabase Storage (`headshots/agents/{slug}-icon.*`)
+  by `npm run photos:mirror-agents`; `agents.icon_photo_source` remembers the
+  external URL each mirror came from so the directory sheet sync only replaces
+  a photo when the sheet provides a genuinely new one.
+- Frontends fetch `/api/directory` (or `/api/hub-data?view=directory`) and read
+  `iconPhotoUrl` first, then `headshot`/`photo` as fallback. Hardcoded `TEAM`
+  arrays in components must be overridden with directory photos at load
+  (see `applyIconPhotoOverridesFromDirectory` in `admin-dashboard.html`).
+- New surfaces showing an agent's face must follow the same cascade:
+  `iconPhotoUrl → headshot → initials`.
+
+## Deal/volume stats: always the "ASG Deals 2026" sheet, never FUB
+
+Per-agent and team volume/deal counts shown on hub Overviews come from the
+ASG Deals 2026 workbook maintained by transaction coordinators — FUB is not
+the source of truth for production numbers.
+
+- `refreshAgentStats()` (`apps/backend/src/sync/pipeline.ts`) imports the
+  sheet's Apps Script stats endpoint (`env.DEALS_STATS_API`) into `agent_stats`
+  on the pipeline cron; `/api/pipeline-stats` serves it to the hubs.
+- Do not rewire `agent_stats`, `/api/pipeline-stats`, or Overview KPIs to
+  FUB-derived tables (`deals`, `agent_volume`). FUB powers deal *workflow*
+  surfaces (deal tracker checklists), not volume stats.

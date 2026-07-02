@@ -4237,7 +4237,8 @@ window.__asgInitOverview=function(){
     var name = (me && me.name) || p.fullName || p.email;
     var email = (me && me.email) || p.email;
     var phone = (me && me.phone) || p.phone || "";
-    var photo = (me && me.headshot) || null;
+    // Rule: agent avatars always come from the directory icon_photo_url.
+    var photo = (me && (me.iconPhotoUrl || me.headshot)) || null;
     var landing = (me && me.landingPageUrl) || null;
     var request = (me && me.marketingRequestUrl) || null;
     var fubName = (me && me.fubName) || name;

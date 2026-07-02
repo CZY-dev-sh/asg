@@ -3387,15 +3387,21 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
   }
 
   function extractDirectoryRows(payload){
-    if(!payload||payload.success!==true||!payload.data||!payload.data.directory) return [];
+    if(!payload) return [];
+    // Supabase backend shape: { ok:true, directory:[...] }
+    if(Array.isArray(payload.directory)) return payload.directory.slice();
+    // Legacy Apps Script shape: { success:true, data:{ directory:{ success:true, rows:[...] } } }
+    if(payload.success!==true||!payload.data||!payload.data.directory) return [];
     const dir=payload.data.directory;
     if(!dir||dir.success!==true||!Array.isArray(dir.rows)) return [];
     return dir.rows.slice();
   }
 
-  /** Same cascade as tv-dashboard-multiview / team-directory (icon → medium → legacy). */
+  /** Icon photo first, always (team-directory icon_photo_url is the canonical
+      agent avatar across every hub) — then medium/legacy fallbacks. */
   function resolveDirectoryRowPhotoUrl(row){
     return String((row&&(
+      row.iconPhotoUrl||
       row.icon_photo_url||
       row.icon_photo||
       row.iconphoto||
@@ -3404,6 +3410,7 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
       row.photo_url||
       row.image_url||
       row.photo||
+      row.headshotUrl||
       row.headshot_url||
       row.headshot
     ))||"").trim();
@@ -10427,7 +10434,8 @@ function wireLhSellWorkspaceEvents(){
       var data = await res.json();
       var list = data.directory || [];
       var me = list.filter(function (m) { return String(m.email || "").toLowerCase() === p.email.toLowerCase(); })[0];
-      state.photo = me && me.headshot ? me.headshot : null;
+      // Rule: agent avatars always come from the directory icon_photo_url.
+      state.photo = me ? (me.iconPhotoUrl || me.headshot || null) : null;
       if (state.photo) {
         paintProfile();
         setAvatar(document.getElementById("asgcAcctBig"), state.photo, p.fullName, p.email);

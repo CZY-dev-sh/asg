@@ -2820,15 +2820,21 @@
   }
 
   function extractDirectoryRows(payload){
-    if(!payload||payload.success!==true||!payload.data||!payload.data.directory) return [];
+    if(!payload) return [];
+    // Supabase backend shape: { ok:true, directory:[...] }
+    if(Array.isArray(payload.directory)) return payload.directory.slice();
+    // Legacy Apps Script shape: { success:true, data:{ directory:{ success:true, rows:[...] } } }
+    if(payload.success!==true||!payload.data||!payload.data.directory) return [];
     const dir=payload.data.directory;
     if(!dir||dir.success!==true||!Array.isArray(dir.rows)) return [];
     return dir.rows.slice();
   }
 
-  /** Same cascade as tv-dashboard-multiview / team-directory (icon → medium → legacy). */
+  /** Icon photo first, always (team-directory icon_photo_url is the canonical
+      agent avatar across every hub) — then medium/legacy fallbacks. */
   function resolveDirectoryRowPhotoUrl(row){
     return String((row&&(
+      row.iconPhotoUrl||
       row.icon_photo_url||
       row.icon_photo||
       row.iconphoto||
@@ -2837,6 +2843,7 @@
       row.photo_url||
       row.image_url||
       row.photo||
+      row.headshotUrl||
       row.headshot_url||
       row.headshot
     ))||"").trim();

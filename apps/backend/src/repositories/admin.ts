@@ -964,6 +964,7 @@ export async function upsertDirectory(
           buyer_guide_updated_at, seller_guide_updated_at,
           listing_presentation_updated_at, business_card_updated_at,
           marketing_request_url, fub_name,
+          icon_photo_source,
           active, directory_synced_at, raw
         ) values (
           ${slug}, ${name ?? slug}, ${email},
@@ -988,6 +989,7 @@ export async function upsertDirectory(
           ${str(pickKey(raw, ['business_card_updated_at']))},
           ${str(pickKey(raw, ['marketing_request_url', 'request_form_url', 'marketing_request']))},
           ${str(pickKey(raw, ['fub_name', 'follow_up_boss_name', 'fub_display_name']))},
+          ${icon},
           true, now(), ${j(raw)}
         )
         on conflict (${email ? db`email` : db`slug`}) do update set
@@ -999,7 +1001,16 @@ export async function upsertDirectory(
           tier = excluded.tier,
           role = excluded.role,
           admin_role = excluded.admin_role,
-          icon_photo_url = excluded.icon_photo_url,
+          -- Icon photos are mirrored into Supabase Storage (photos:mirror-agents)
+          -- and every hub renders avatars from icon_photo_url. Only take the
+          -- sheet's URL when it's actually a NEW photo (different from the one
+          -- we mirrored); otherwise keep the Supabase copy.
+          icon_photo_url = case
+            when excluded.icon_photo_source is distinct from agents.icon_photo_source
+              then excluded.icon_photo_url
+            else agents.icon_photo_url
+          end,
+          icon_photo_source = coalesce(excluded.icon_photo_source, agents.icon_photo_source),
           headshot_url = coalesce(excluded.headshot_url, agents.headshot_url),
           start_date = excluded.start_date,
           birthday = excluded.birthday,

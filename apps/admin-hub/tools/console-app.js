@@ -238,7 +238,8 @@
       var data = await res.json();
       var list = data.directory || [];
       var me = list.filter(function (m) { return String(m.email || "").toLowerCase() === p.email.toLowerCase(); })[0];
-      state.photo = me && me.headshot ? me.headshot : null;
+      // Rule: agent avatars always come from the directory icon_photo_url.
+      state.photo = me ? (me.iconPhotoUrl || me.headshot || null) : null;
       if (state.photo) {
         paintProfile();
         setAvatar(document.getElementById("asgcAcctBig"), state.photo, p.fullName, p.email);
