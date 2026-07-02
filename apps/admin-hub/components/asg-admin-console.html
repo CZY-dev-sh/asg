@@ -10222,6 +10222,49 @@ function wireLhSellWorkspaceEvents(){
 @media (max-width: 640px){#lwRoot .amd-lh-assets-grid{ grid-template-columns: 1fr; }}
 /* ── Workshop-only additions (editing affordances on top of the dashboard design) ── */
 #lwRoot{border:none;border-radius:0;padding:0;background:transparent}
+
+/* ── Spacing pass: give the bento boxes and their contents more breathing room ── */
+/* Sections and cards */
+#lwRoot .amd-lh-status{padding:28px;margin-bottom:18px}
+#lwRoot .amd-lh-card{padding:26px 28px}
+#lwRoot .amd-lh-stage-area{gap:18px}
+#lwRoot .amd-lh-stage-content{gap:18px}
+#lwRoot .amd-lh-trio{gap:18px}
+/* Bento headlines: more space below, calmer icon/title row */
+#lwRoot .amd-lh-label{margin:0 0 22px;gap:12px}
+#lwRoot .amd-lh-ico{width:34px;height:34px;flex:0 0 34px;border-radius:11px}
+/* Overview: agent row and hero */
+#lwRoot .amd-lh-overview{gap:20px;margin:0 0 22px}
+#lwRoot .amd-lh-hero{padding:4px 4px 22px;margin-bottom:22px;gap:10px}
+/* Stat tiles (Open House / Seller / Compass / Financials) */
+#lwRoot .amd-lh-status-grid{gap:14px}
+/* Let 3 or 4 tiles share one row evenly instead of orphaning the 4th */
+#lwRoot .amd-lh-status-grid--trio{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+#lwRoot .amd-lh-stat{padding:18px 20px;gap:4px;min-height:116px;border-radius:16px}
+#lwRoot .amd-lh-stat-k{margin-bottom:2px}
+#lwRoot .amd-lh-stat-v{margin-top:6px}
+#lwRoot .amd-lh-stat-meta{margin-top:6px;line-height:1.45}
+#lwRoot .amd-lh-stat-actions{margin-top:14px}
+#lwRoot .amd-lh-stat.is-seller .amd-lh-stat-action{margin-top:14px}
+/* Full-details foldout */
+#lwRoot .amd-lh-foldout{margin-top:22px;padding-top:18px}
+#lwRoot .amd-lh-foldout-body{margin-top:18px;padding:6px}
+/* Marketing status roadmap */
+#lwRoot .amd-lh-roadmap{margin-top:8px;padding:24px 12px 12px}
+/* Marketing asset tiles */
+#lwRoot .amd-lh-assets-grid{gap:14px}
+#lwRoot .amd-lh-asset{padding:20px;gap:12px;min-height:128px;border-radius:16px}
+#lwRoot .amd-lh-asset-head{gap:12px}
+#lwRoot .amd-lh-asset-ico{width:30px;height:30px;flex:0 0 30px}
+#lwRoot .amd-lh-asset .amd-lh-asset-btn{margin-top:auto}
+/* List view: stats, open-house rail, cards */
+#lwRoot .amd-sell-stats{gap:14px;margin-bottom:16px}
+#lwRoot .amd-sell-stat{padding:16px 18px}
+#lwRoot .amd-sell-grid{gap:16px}
+#lwRoot .amd-sell-card{padding:12px;gap:14px}
+#lwRoot .amd-sell-main{gap:5px;padding:4px 70px 4px 0}
+#lwRoot .amd-panel-head--workspace{margin-bottom:16px}
+#lwRoot .amd-panel-head--listing{padding:6px 2px 20px;margin-bottom:20px}
 #lwRoot .lw-node-wrap{position:relative}
 #lwRoot .lw-node-select{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 #lwRoot .amd-lh-agent{position:relative}
