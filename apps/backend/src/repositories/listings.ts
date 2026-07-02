@@ -2,6 +2,7 @@ import { sql } from '../db/client.js';
 import { extractDriveId } from '../connectors/drive.js';
 
 export interface PhotoOut {
+  id?: string;
   url: string;
   thumbUrl: string;
   caption: string;
@@ -192,7 +193,7 @@ async function loadPhotos(
   const byIdx = new Map<string, PhotoOut[]>();
   if (listingIds.length) {
     const rows = await sql<Row[]>`
-      select listing_id, public_url, thumb_url, caption, position, source
+      select id, listing_id, public_url, thumb_url, caption, position, source
       from listing_photos
       where listing_id = any(${listingIds}) and source <> 'idx'
       order by position asc
@@ -201,6 +202,7 @@ async function loadPhotos(
       const key = String(r.listing_id);
       const arr = byListing.get(key) ?? [];
       arr.push({
+        id: String(r.id),
         url: String(r.public_url ?? ''),
         thumbUrl: String(r.thumb_url ?? r.public_url ?? ''),
         caption: (r.caption as string) ?? '',
@@ -470,12 +472,88 @@ export async function getListingDetail(listingId: string): Promise<
   if (rows.length === 0) return null;
   const [listing] = await attachPhotos(rows);
   if (!listing) return null;
-  const [appointments, requests, activity] = await Promise.all([
+  const [appointments, requests, activity, idxExtras] = await Promise.all([
     getAppointments(listingId),
     getRequests(listingId),
     getActivity(listingId),
+    getIdxExtras(listing.idxListingId),
   ]);
-  return { ...listing, appointments, requests, activity };
+  return { ...listing, ...idxExtras, appointments, requests, activity };
+}
+
+/**
+ * Deep MLS facts for the workshop detail view, extracted from the raw IDX
+ * payload (idx_listings.raw + raw.advanced) that the enriched view doesn't
+ * flatten: taxes, HOA, schools, county, parking, sold data, etc.
+ */
+async function getIdxExtras(idxListingId: string | null): Promise<Record<string, unknown>> {
+  if (!idxListingId) return {};
+  const rows = await sql<Row[]>`
+    select raw, year_built, property_type from idx_listings where idx_listing_id = ${idxListingId} limit 1`;
+  if (rows.length === 0) return {};
+  const raw = (rows[0]!.raw ?? {}) as Record<string, unknown>;
+  const adv = (raw.advanced ?? {}) as Record<string, unknown>;
+  const s = (v: unknown): string | null => {
+    if (v == null) return null;
+    if (Array.isArray(v)) return v.map((x) => String(x)).filter(Boolean).join(', ') || null;
+    const t = String(v).trim();
+    return t || null;
+  };
+  const n = (v: unknown): number | null => {
+    if (v == null || v === '') return null;
+    const x = Number(String(v).replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(x) ? x : null;
+  };
+  // "Listed by: Compass" line lives in the courtesy disclaimers.
+  let listOffice: string | null = null;
+  try {
+    const courtesy = typeof raw.courtesy === 'string' ? JSON.parse(raw.courtesy) : raw.courtesy;
+    if (Array.isArray(courtesy)) {
+      for (const c of courtesy) {
+        const m = String((c as Record<string, unknown>)?.text ?? '').match(/listed by:\s*(.+)/i);
+        if (m) { listOffice = m[1]!.trim(); break; }
+      }
+    }
+  } catch { /* courtesy is best-effort */ }
+  const listedAt = s(raw.dateAdded);
+  let dom: number | null = null;
+  if (listedAt && !raw.soldDate) {
+    const d = new Date(listedAt);
+    if (!Number.isNaN(d.getTime())) dom = Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+  }
+  return {
+    mlsCounty: s(raw.countyName),
+    mlsTaxes: n(adv.taxannualamount),
+    mlsTaxYear: n(adv.taxyear),
+    mlsHoaDues: n(adv.associationfee ?? adv.masterassociationfee),
+    mlsHoaFrequency: s(adv.associationfeefrequency),
+    mlsHoaIncludes: s(adv.associationfeeincludes),
+    mlsSchoolDistrict: s(adv.highschooldistrict),
+    mlsElementarySchool: s(adv.elementaryschool),
+    mlsMiddleSchool: s(adv.middleorjuniorschool),
+    mlsHighSchool: s(adv.highschool),
+    mlsYearBuilt: n(rows[0]!.year_built),
+    mlsStories: n(adv.storiestotal),
+    mlsTotalRooms: n(adv.roomstotal),
+    mlsGarageSpaces: n(adv.garagespaces),
+    mlsParking: s(adv.parkingfeatures) ?? s(adv.parkingtotal),
+    mlsDaysOnMarket: dom,
+    mlsListDate: listedAt,
+    mlsSoldPrice: n(raw.soldPrice),
+    mlsSoldDate: s(raw.soldDate),
+    mlsHomeType: s(adv.mrdTpc),
+    mlsRehabYear: s(adv.mrdRehabYear),
+    mlsTownship: s(adv.township),
+    mlsOhCount: n(raw.ohCount),
+    mlsPropType: s(rows[0]!.property_type),
+    mlsPropSubType: s(raw.idxPropType ?? raw.propType),
+    mlsListOffice: listOffice,
+    mlsOwnership: s(adv.ownership),
+    mlsExposure: s(adv.exposure),
+    mlsPetsAllowed: s(adv.petsallowed),
+    mlsWaterfront: s(adv.waterfrontyn),
+    mlsLotSize: s(adv.lotsizedimensions),
+  };
 }
 
 /**

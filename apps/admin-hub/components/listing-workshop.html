@@ -1,25 +1,2007 @@
 <!-- ASG Listing Workshop — console "Listings" surface.
-     Self-contained: markup + logic. Styling lives in console-shell.css (.lw-*).
+     Design mirrors the Listings Workspace in admin-master-dashboard.html
+     (same amd-* classes + extracted CSS, rescoped to #lwRoot), wired to the
+     Supabase backend instead of the Apps Script sheet.
      Uses window.ASGConsole (apiBase, authHeaders, toast, onSurface) from the shell. -->
-<div class="lw" id="lwRoot">
-  <header class="lw-hero">
-    <h1 class="lw-hero-title">Listings</h1>
-    <p class="lw-hero-sub">Every listing in one place. Open one to manage photos, marketing assets, scheduled media and what's been shared with the agent.</p>
-  </header>
+<div id="lwRoot">
+  <style>
+#lwRoot{--bg:#f6f6f6;--card:#ffffff;--ink:#111111;--muted:#666666;--line:rgba(17,17,17,0.12);--radius:20px;--asg-apl-label:#1c1c1e;--asg-apl-secondary:rgba(60,60,67,0.6);--asg-apl-separator:rgba(60,60,67,0.12);--asg-apl-fill:rgba(118,118,128,0.12);--asg-apl-fill-soft:rgba(118,118,128,0.06);font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);width:100%;box-sizing:border-box;position:relative}
+#lwRoot *{box-sizing:border-box}
+#lwRoot img{border-radius:0 !important}
+@keyframes amd-keys-float{
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-3px) rotate(6deg); }
+  }
+#lwRoot .amd-panel-head{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+#lwRoot .amd-panel-title{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+#lwRoot .amd-panel-head--workspace{
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+#lwRoot .amd-panel-title--workspace{
+    font-size: clamp(24px, 4vw, 34px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    font-weight: 800;
+  }
+#lwRoot .amd-panel-title--listing{
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    color: #1c1c1e;
+  }
+#lwRoot .amd-panel-head--listing{
+    align-items: center;
+    gap: 16px;
+    padding: 4px 2px 18px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+  }
+#lwRoot .amd-panel-sub{
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+@keyframes amd-glow-pulse{
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #00c853); }
+    50% { opacity: 0.55; filter: drop-shadow(0 0 10px #00c853); }
+  }
+@keyframes amd-red-blink{
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 0px #c0392b); }
+    50% { opacity: 0.45; filter: drop-shadow(0 0 8px #c0392b); }
+  }
+@keyframes amd-green-blink{
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px #00c853); }
+    50% { opacity: 0.45; filter: drop-shadow(0 0 10px #00c853); }
+  }
+#lwRoot .amd-empty,
+  #lwRoot .amd-error,
+  #lwRoot .amd-loading{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+  }
+#lwRoot .amd-data-spinner{
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(17, 17, 17, 0.1);
+    border-top-color: rgba(17, 17, 17, 0.55);
+    animation: amd-spin 0.75s linear infinite;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+#lwRoot .amd-data-spinner--sm{
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+@keyframes amd-spin{
+    to {
+      transform: rotate(360deg);
+    }
+  }
+#lwRoot .amd-panel-body-loading .amd-data-spinner{
+    width: 28px;
+    height: 28px;
+  }
+#lwRoot .amd-sell-stat-v .amd-data-spinner{
+    margin: 0 auto;
+  }
+@media (max-width: 760px){#lwRoot{
+      border-radius: 20px;
+      padding: 14px;
+    }}
+@keyframes amd-dt-fadein{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes amd-dt-pulse{ 0%,100%{opacity:1} 50%{opacity:.45} }
+#lwRoot .amd-view-tools{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0 14px;
+  }
+#lwRoot .amd-view-tools--workspace{
+    margin: 0;
+    flex: 0 1 430px;
+    width: min(430px, 100%);
+  }
+#lwRoot .amd-view-tools--workspace .amd-search-wrap{
+    min-width: 0;
+  }
+#lwRoot .amd-view-tools--workspace input[type="search"]{
+    min-height: 34px;
+  }
+#lwRoot .amd-view-tools select,
+  #lwRoot .amd-view-tools input{
+    min-height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #fafafa;
+    color: #111;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 12px;
+  }
+#lwRoot .amd-view-tools input{
+    flex: 1;
+    min-width: 220px;
+  }
+#lwRoot .amd-search-wrap{
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+  }
+#lwRoot .amd-search-wrap input[type="search"]{
+    width: 100%;
+    padding-right: 34px;
+  }
+#lwRoot .amd-search-wrap input[type="search"]:focus{
+    outline: none;
+    border-color: rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+  }
+#lwRoot .amd-search-wrap input[type="search"]::-webkit-search-cancel-button{
+    -webkit-appearance: none;
+    appearance: none;
+  }
+#lwRoot .amd-search-clear{
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.12);
+    color: #fff;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+#lwRoot .amd-search-wrap.has-value .amd-search-clear{
+    display: flex;
+  }
+#lwRoot .amd-search-clear:hover{
+    background: rgba(0, 0, 0, 0.55);
+  }
+#lwRoot .amd-sell-stats{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+#lwRoot .amd-sell-stat{
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+  }
+#lwRoot .amd-sell-stat-k{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+#lwRoot .amd-sell-stat-v{
+    margin-top: 5px;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #111;
+  }
+#lwRoot .amd-oh-weekend{
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 12px;
+  }
+#lwRoot .amd-oh-weekend > summary{
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 76px;
+    padding: 12px;
+  }
+#lwRoot .amd-oh-weekend > summary::-webkit-details-marker{ display: none; }
+#lwRoot .amd-oh-weekend-preview{
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+#lwRoot .amd-oh-weekend-preview-title{
+    margin: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+#lwRoot .amd-oh-weekend-preview-meta{
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #111;
+  }
+#lwRoot .amd-oh-weekend-preview-sub{
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    font-weight: 600;
+  }
+#lwRoot .amd-oh-weekend-chev{
+    width: 20px;
+    height: 20px;
+    color: rgba(60, 60, 67, 0.72);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+#lwRoot .amd-oh-weekend[open] > summary .amd-oh-weekend-chev{
+    transform: rotate(180deg);
+  }
+#lwRoot .amd-oh-weekend-body{
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 12px;
+  }
+#lwRoot .amd-oh-weekend-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+#lwRoot .amd-oh-weekend-title{
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #111;
+  }
+#lwRoot .amd-oh-weekend-sub{
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    font-weight: 600;
+  }
+#lwRoot .amd-oh-weekend-sections{
+    display: grid;
+    gap: 10px;
+  }
+#lwRoot .amd-oh-weekend-day-title{
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.7);
+  }
+#lwRoot .amd-oh-weekend-list{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+#lwRoot .amd-oh-weekend-row{
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    min-height: 112px;
+  }
+#lwRoot .amd-oh-weekend-photo{
+    width: 100%;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #eef2f7;
+  }
+#lwRoot .amd-oh-weekend-photo img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+#lwRoot .amd-oh-weekend-photo-empty{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+  }
+#lwRoot .amd-oh-weekend-main{
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+#lwRoot .amd-oh-weekend-addr{
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1e;
+    line-height: 1.2;
+  }
+#lwRoot .amd-oh-weekend-meta{
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.76);
+    line-height: 1.2;
+  }
+#lwRoot .amd-oh-weekend-empty{
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.62);
+    font-weight: 600;
+    font-style: italic;
+    padding: 2px 0;
+  }
+#lwRoot .amd-oh-weekend-loading{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(60, 60, 67, 0.72);
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 54px;
+  }
+@media (max-width: 1280px){#lwRoot .amd-oh-weekend-list{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }}
+@media (max-width: 900px){#lwRoot .amd-oh-weekend-list{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }}
+@media (max-width: 680px){#lwRoot .amd-oh-weekend-list{
+      grid-template-columns: 1fr;
+    }
+#lwRoot .amd-oh-weekend-row{
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+#lwRoot .amd-oh-weekend-photo{
+      height: 140px;
+    }}
+#lwRoot .amd-lh-stat-action.amd-oh-marketing-delivered{
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+  }
+#lwRoot .amd-sell-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+#lwRoot .amd-sell-card{
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    background: #fff;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+#lwRoot .amd-sell-card:hover{
+    transform: translateY(-1px);
+    border-color: rgba(0, 0, 0, 0.16);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  }
+#lwRoot .amd-sell-card-cover{
+    width: 100%;
+    height: 110px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #eef2f7;
+  }
+#lwRoot .amd-sell-card-cover img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+#lwRoot .amd-sell-main{
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 70px;
+  }
+#lwRoot .amd-sell-card .amd-sell-card-details{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+  }
+#lwRoot .amd-sell-cover-empty{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }
+#lwRoot .amd-sell-address{
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-weight: 800;
+  }
+#lwRoot .amd-sell-meta{
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+  }
+#lwRoot .amd-sell-badges{
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-sell-badge{
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 9px;
+    line-height: 1;
+    background: #f8fafc;
+  }
+#lwRoot .amd-sell-links{
+    margin-top: 2px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-mini-btn{
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 8px 11px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+#lwRoot .amd-mini-btn.is-dark{
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+#lwRoot .amd-sell-overlay{
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 24px;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.22);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+#lwRoot .amd-sell-overlay-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: #f7f7f7;
+  }
+#lwRoot .amd-sell-overlay-title{
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+#lwRoot .amd-sell-overlay-actions{
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-sell-overlay-x{
+    appearance: none;
+    border: 0;
+    background: rgba(120, 120, 128, 0.14);
+    color: #1c1c1e;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+#lwRoot .amd-sell-overlay-x:hover{
+    background: rgba(120, 120, 128, 0.22);
+    color: #1c1c1e;
+  }
+#lwRoot .amd-sell-overlay-x:active{
+    transform: scale(0.94);
+  }
+#lwRoot .amd-sell-overlay-x svg{
+    display: block;
+  }
+#lwRoot .amd-sell-overlay-body{
+    flex: 1;
+    overflow: auto;
+    padding: 18px;
+    background: #f8fafc;
+  }
+#lwRoot .amd-sell-detail-grid{
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+#lwRoot .amd-sell-detail-page{
+    overflow: auto;
+    padding-bottom: 2px;
+    --asg-apl-label: #1c1c1e;
+    --asg-apl-secondary: rgba(60, 60, 67, 0.6);
+    --asg-apl-tertiary: rgba(60, 60, 67, 0.3);
+    --asg-apl-separator: rgba(60, 60, 67, 0.12);
+    --asg-apl-fill: rgba(118, 118, 128, 0.12);
+    --asg-apl-fill-soft: rgba(118, 118, 128, 0.06);
+    --asg-apl-bg: #ffffff;
+    --asg-apl-bg-grouped: #f5f5f7;
+    --asg-apl-blue: #007aff;
+    --asg-apl-blue-tint: rgba(0, 122, 255, 0.12);
+    --asg-apl-blue-tint-strong: rgba(0, 122, 255, 0.18);
+    --asg-apl-green: #34c759;
+    --asg-apl-green-tint: rgba(52, 199, 89, 0.16);
+    --asg-apl-orange: #ff9500;
+    --asg-apl-orange-tint: rgba(255, 149, 0, 0.16);
+  }
+#lwRoot .amd-sell-detail-card{
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+  }
+#lwRoot .amd-sell-detail-k{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #667085;
+    margin-bottom: 6px;
+  }
+#lwRoot .amd-sell-detail-v{
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+#lwRoot .amd-sell-assets{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+/* Apple-design: Photos carousel within detail page */
+  #lwRoot .amd-sell-detail-page .amd-sell-carousel{
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--asg-apl-fill-soft);
+    margin-bottom: 0;
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-view{
+    position: relative;
+    display: block;
+    background: var(--asg-apl-fill-soft);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-img-wrap{
+    min-height: 260px;
+    background: var(--asg-apl-fill-soft);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-img-wrap .amd-sell-carousel-img{
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+    background: var(--asg-apl-fill-soft);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: #111;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.14s ease, transform 0.12s ease, opacity 0.14s ease;
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow:hover:not(:disabled){
+    background: #fff;
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow:active:not(:disabled){
+    transform: translateY(-50%) scale(0.96);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow:disabled{
+    opacity: 0.28;
+    cursor: default;
+    box-shadow: none;
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow.is-next{
+    right: 10px;
+    left: auto;
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-arrow:not(.is-next){
+    left: 10px;
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-foot,
+  #lwRoot .amd-sell-detail-page .amd-lh-media-foot{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    border-top: 1px solid var(--asg-apl-separator);
+  }
+#lwRoot .amd-sell-detail-page .amd-sell-carousel-count{
+    font-size: 12px;
+    color: var(--asg-apl-secondary);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    font-variant-numeric: tabular-nums;
+  }
+#lwRoot .amd-sell-detail-page .amd-lh-media-meta{
+    font-size: 12px;
+    color: var(--asg-apl-secondary);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    min-width: 56px;
+    text-align: right;
+  }
+#lwRoot .amd-sell-asset{
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 92px;
+  }
+#lwRoot .amd-sell-asset-title{
+    font-size: 11px;
+    color: #334155;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+#lwRoot .amd-sell-asset-btn{
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 6px 10px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: #111;
+    background: #fff;
+  }
+#lwRoot .amd-sell-asset-btn.is-off{
+    opacity: 0.5;
+    pointer-events: none;
+  }
+/* Apple-design: Mini-buttons inside detail page (capsule, gray) */
+  #lwRoot .amd-sell-detail-page .amd-mini-btn{
+    appearance: none;
+    border: 0;
+    background: var(--asg-apl-fill);
+    color: var(--asg-apl-label);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    padding: 8px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.14s ease, transform 0.12s ease;
+  }
+#lwRoot .amd-sell-detail-page .amd-mini-btn:hover{
+    background: rgba(118, 118, 128, 0.2);
+  }
+#lwRoot .amd-sell-detail-page .amd-mini-btn:active{
+    transform: scale(0.97);
+  }
+#lwRoot .amd-sell-detail-page .amd-mini-btn.is-dark{
+    background: #111;
+    color: #fff;
+    border: 0;
+  }
+#lwRoot .amd-sell-detail-page .amd-mini-btn.is-dark:hover{
+    background: #000;
+  }
+#lwRoot .amd-sell-detail-page .amd-mini-btn.is-off{
+    opacity: 0.45;
+    pointer-events: none;
+  }
+/* Apple-design: Status card */
+  #lwRoot .amd-lh-status{
+    background: #ffffff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 24px rgba(15, 23, 42, 0.03);
+  }
+/* Overview row: agent block on the left, editable status chips on the right. */
+  #lwRoot .amd-lh-overview{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 16px;
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-lh-overview .amd-lh-agent{
+    margin: 0;
+  }
+#lwRoot .amd-lh-edit-chips{
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+#lwRoot .amd-lh-edit-chip-col{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+#lwRoot .amd-lh-edit-chip-title{
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(60, 60, 67, 0.55);
+    line-height: 1;
+    white-space: nowrap;
+  }
+/* Inline editable chip — looks like a tinted pill but behaves as a select. */
+  #lwRoot .amd-lh-edit-chip{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+#lwRoot .amd-lh-edit-chip select{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 28px 7px 13px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.14s ease, box-shadow 0.14s ease;
+    outline: none;
+  }
+#lwRoot .amd-lh-edit-chip select:hover{
+    background: rgba(118, 118, 128, 0.2);
+  }
+#lwRoot .amd-lh-edit-chip select:focus{
+    box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.12);
+  }
+#lwRoot .amd-lh-edit-chip::after{
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-right: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: translate(0, -68%) rotate(45deg);
+    color: rgba(60, 60, 67, 0.6);
+    pointer-events: none;
+  }
+#lwRoot .amd-lh-edit-chip.is-phase select{ background: rgba(0, 122, 255, 0.12); color: #0a66c2; }
+#lwRoot .amd-lh-edit-chip.is-phase::after{ color: #0a66c2; }
+#lwRoot .amd-lh-edit-chip.is-phase select:hover{ background: rgba(0, 122, 255, 0.2); }
+#lwRoot .amd-lh-edit-chip.is-type select{ background: rgba(255, 149, 0, 0.16); color: #a8540f; }
+#lwRoot .amd-lh-edit-chip.is-type::after{ color: #a8540f; }
+#lwRoot .amd-lh-edit-chip.is-type select:hover{ background: rgba(255, 149, 0, 0.24); }
+#lwRoot .amd-lh-edit-chip.is-saving select{
+    opacity: 0.55;
+    cursor: progress;
+  }
+#lwRoot .amd-lh-edit-chip.is-saved::after{
+    width: 4px;
+    height: 8px;
+    border-right: 1.8px solid #1d7a3a;
+    border-bottom: 1.8px solid #1d7a3a;
+    transform: translate(0, -60%) rotate(45deg);
+    color: #1d7a3a;
+  }
+#lwRoot .amd-lh-edit-chip.is-error select{
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.4);
+  }
+#lwRoot .amd-lh-agent{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 14px;
+  }
+#lwRoot .amd-lh-agent-photo{
+    width: 52px;
+    height: 52px;
+    border-radius: 999px !important;
+    object-fit: cover;
+    border: 0;
+    box-shadow: 0 0 0 1px rgba(60, 60, 67, 0.10);
+    background: rgba(118, 118, 128, 0.12);
+  }
+#lwRoot .amd-lh-agent-name{
+    font-size: 17px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.15;
+    letter-spacing: -0.022em;
+  }
+#lwRoot .amd-lh-agent-role{
+    margin-top: 2px;
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.6);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+/* Apple-design: tinted pill badges */
+  #lwRoot .amd-lh-badges{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 16px;
+  }
+#lwRoot .amd-lh-badge{
+    border-radius: 999px;
+    border: 0;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+  }
+#lwRoot .amd-lh-badge.is-blue{ background: rgba(0, 122, 255, 0.12); color: #0a66c2; border: 0; }
+#lwRoot .amd-lh-badge.is-green{ background: rgba(52, 199, 89, 0.16); color: #1d7a3a; border: 0; }
+#lwRoot .amd-lh-badge.is-orange{ background: rgba(255, 149, 0, 0.16); color: #a8540f; border: 0; }
+/* Apple-design: status grid cells (flat, grouped) */
+  #lwRoot .amd-lh-status-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+#lwRoot .amd-lh-stat{
+    border: 0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(118, 118, 128, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* Push action buttons to the bottom so they line up across tiles even
+       when the stat values are different heights (Location vs Specs etc). */
+    justify-content: space-between;
+    min-height: 96px;
+  }
+#lwRoot .amd-lh-stat-k{
+    font-size: 12px;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.6);
+  }
+#lwRoot .amd-lh-stat-v{
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.018em;
+    line-height: 1.25;
+  }
+#lwRoot .amd-lh-stat-action{
+    margin-top: 10px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    padding: 8px 14px;
+    cursor: pointer;
+    align-self: flex-start;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.14s ease, transform 0.12s ease;
+  }
+#lwRoot a.amd-lh-stat-action:hover{ color: #fff; }
+#lwRoot .amd-lh-stat-action:hover{
+    background: #000;
+  }
+#lwRoot .amd-lh-stat-action:active{
+    transform: scale(0.97);
+  }
+/* Apple-design: trio of media cards */
+  #lwRoot .amd-lh-trio{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+  }
+#lwRoot .amd-lh-card{
+    background: #ffffff;
+    border: 1px solid rgba(60, 60, 67, 0.10);
+    border-radius: 22px;
+    padding: 18px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 24px rgba(15, 23, 42, 0.03);
+  }
+#lwRoot .amd-lh-card.is-marketing{
+    grid-column: 1 / -1;
+  }
+/* MLS Snapshot + MRED Details grids — dense stat tiles inside the bento. */
+  #lwRoot .amd-lh-mls-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px 14px;
+  }
+#lwRoot .amd-lh-mls-grid .amd-lh-stat{
+    background: rgba(118, 118, 128, 0.06);
+    border-radius: 12px;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+#lwRoot .amd-lh-mls-foot{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(60, 60, 67, 0.08);
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-lh-mls-agent{
+    font-size: 13px;
+    color: rgba(60, 60, 67, 0.78);
+    font-weight: 500;
+  }
+/* Hero strip — big price + status pill + MLS link + spec line. Sits at
+     the very top of the Listing Overview, replacing the old preview chips
+     bento for a more native, info-dense first read. */
+  #lwRoot .amd-lh-hero{
+    padding: 4px 4px 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+#lwRoot .amd-lh-hero-price{
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: #1c1c1e;
+    line-height: 1.05;
+  }
+#lwRoot .amd-lh-hero-loc{
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.78);
+    letter-spacing: -0.006em;
+    margin-top: -2px;
+  }
+/* Status pill anchored in the top-right of the listing overview (replaces
+     the old STATUS / TYPE edit chips). Sized larger than the inline pill
+     since it's the only visual anchor on the right side now. */
+  #lwRoot .amd-lh-overview-status{
+    margin-left: auto;
+    display: flex;
+    align-items: flex-start;
+  }
+#lwRoot .amd-lh-overview-status .amd-lh-hero-pill{
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+/* 2-up variant of the status grid for when Location + Financials live in
+     the hero — Open House and Seller sit strictly side-by-side at the same
+     width, no spanning, at every viewport. */
+  #lwRoot .amd-lh-status-grid--duo{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+#lwRoot .amd-lh-status-grid--trio{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+#lwRoot .amd-lh-status-grid--duo > .amd-lh-stat,
+  #lwRoot .amd-lh-status-grid--duo > .amd-lh-stat.is-seller,
+  #lwRoot .amd-lh-status-grid--duo > .amd-lh-stat.is-openhouse,
+  #lwRoot .amd-lh-status-grid--trio > .amd-lh-stat,
+  #lwRoot .amd-lh-status-grid--trio > .amd-lh-stat.is-seller,
+  #lwRoot .amd-lh-status-grid--trio > .amd-lh-stat.is-openhouse,
+  #lwRoot .amd-lh-status-grid--trio > .amd-lh-stat.is-compass{
+    grid-column: auto;
+    min-width: 0;
+  }
+#lwRoot .amd-lh-stat.is-compass .amd-lh-stat-v{
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+#lwRoot .amd-lh-stat.is-compass .amd-lh-stat-v a{
+    color: #007aff;
+    text-decoration: none;
+  }
+#lwRoot .amd-lh-stat.is-compass .amd-lh-stat-v a:hover{
+    text-decoration: underline;
+  }
+@media (max-width: 720px){#lwRoot .amd-lh-status-grid--trio{
+      grid-template-columns: 1fr;
+    }}
+#lwRoot .amd-lh-hero-meta{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    font-size: 13.5px;
+    color: rgba(60, 60, 67, 0.78);
+  }
+#lwRoot .amd-lh-hero-pill{
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(52, 199, 89, 0.12);
+    color: #1c7a3e;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: -0.005em;
+  }
+/* Shared status-tone palette. Used by .amd-lh-hero-pill (detail overview)
+     and .amd-sell-badge.is-status-* (listing cards) so status colors match
+     across the master dashboard. Same opacity (0.12 fill) for every tone. */
+  #lwRoot .is-status-active,
+  #lwRoot .amd-lh-hero-pill.is-status-active{
+    background: rgba(52, 199, 89, 0.12);
+    color: #1c7a3e;
+    border-color: transparent;
+  }
+#lwRoot .is-status-pending,
+  #lwRoot .amd-lh-hero-pill.is-status-pending{
+    background: rgba(255, 204, 0, 0.18);
+    color: #8a6a00;
+    border-color: transparent;
+  }
+#lwRoot .is-status-pre,
+  #lwRoot .amd-lh-hero-pill.is-status-pre{
+    background: rgba(120, 120, 128, 0.16);
+    color: #4a4a4f;
+    border-color: transparent;
+  }
+#lwRoot .is-status-closed,
+  #lwRoot .amd-lh-hero-pill.is-status-closed{
+    background: rgba(255, 59, 48, 0.12);
+    color: #b3261e;
+    border-color: transparent;
+  }
+#lwRoot .amd-lh-hero-meta-link{
+    color: rgba(60, 60, 67, 0.78);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed rgba(60, 60, 67, 0.25);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+#lwRoot .amd-lh-hero-meta-link:hover{
+    color: #007aff;
+    border-bottom-color: #007aff;
+  }
+#lwRoot .amd-lh-hero-meta-item{
+    font-weight: 500;
+  }
+#lwRoot .amd-lh-hero-specs{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 0;
+    font-size: 14px;
+    color: rgba(28, 28, 30, 0.78);
+  }
+#lwRoot .amd-lh-hero-specs > span{ padding: 0 10px; }
+#lwRoot .amd-lh-hero-specs > span:first-child{ padding-left: 0; }
+#lwRoot .amd-lh-hero-specs > span:last-child{ padding-right: 0; }
+#lwRoot .amd-lh-hero-specs b{
+    color: #1c1c1e;
+    font-weight: 600;
+  }
+#lwRoot .amd-lh-hero-sep{
+    color: rgba(60, 60, 67, 0.3);
+    font-weight: 400;
+    user-select: none;
+  }
+/* Native <details> fold-out — full Listing Details inline at the bottom
+     of the Listing Overview. No nested bento, no extra chrome, just a
+     summary row that opens to reveal the long-tail data. */
+  #lwRoot .amd-lh-foldout{
+    margin-top: 14px;
+    border-top: 1px solid rgba(60, 60, 67, 0.08);
+    padding-top: 14px;
+  }
+#lwRoot .amd-lh-foldout > summary{
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+#lwRoot .amd-lh-foldout > summary:hover{
+    background: rgba(118, 118, 128, 0.06);
+  }
+#lwRoot .amd-lh-foldout > summary::-webkit-details-marker{ display: none; }
+#lwRoot .amd-lh-foldout-chev{
+    color: rgba(60, 60, 67, 0.7);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+#lwRoot .amd-lh-foldout[open] > summary .amd-lh-foldout-chev{
+    transform: rotate(180deg);
+  }
+#lwRoot .amd-lh-foldout-summary > span:first-child{
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.012em;
+  }
+#lwRoot .amd-lh-foldout-hint{
+    font-size: 12.5px;
+    color: rgba(60, 60, 67, 0.55);
+    font-weight: 500;
+  }
+#lwRoot .amd-lh-foldout-body{
+    margin-top: 14px;
+    padding: 4px;
+  }
+#lwRoot .amd-lh-mred-remarks{
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(28, 28, 30, 0.86);
+    background: rgba(118, 118, 128, 0.05);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+  }
+/* Compact detail list — native iOS-Settings-style key/value rows. No
+     individual backgrounds, no chunky tiles. Two columns at wide widths,
+     single column at narrow. Used in the Listing Overview fold-out. */
+  #lwRoot .amd-lh-detail-list{
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+    row-gap: 0;
+  }
+#lwRoot .amd-lh-detail-row{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+  }
+#lwRoot .amd-lh-detail-k{
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(60, 60, 67, 0.65);
+    letter-spacing: -0.005em;
+    flex: 0 0 auto;
+  }
+#lwRoot .amd-lh-detail-v{
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.008em;
+    text-align: right;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+@media (max-width: 720px){#lwRoot .amd-lh-detail-list{ grid-template-columns: 1fr; }}
+#lwRoot .amd-lh-stat.is-openhouse{
+    background: rgba(118, 118, 128, 0.06);
+    border: 0;
+  }
+#lwRoot .amd-lh-stat.is-openhouse .amd-lh-stat-meta{
+    color: #1c1c1e;
+    font-weight: 600;
+  }
+#lwRoot .amd-lh-label{
+    margin: 0 0 16px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+    text-transform: none;
+    color: #1c1c1e;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.15;
+  }
+#lwRoot .amd-lh-dot{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34c759;
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.18);
+  }
+#lwRoot .amd-lh-dot.is-blue{
+    background: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.18);
+  }
+#lwRoot .amd-lh-dot.is-orange{
+    background: #ff9500;
+    box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.18);
+  }
+/* Bento icon badges — same vibe as the personal-hub mobile section
+     icons: tinted rounded square with a stroked SVG glyph. */
+  #lwRoot .amd-lh-ico{
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 10px;
+    background: rgba(118, 118, 128, 0.14);
+    color: #1c1c1e;
+  }
+#lwRoot .amd-lh-ico svg{
+    width: 17px;
+    height: 17px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+#lwRoot .amd-lh-ico.is-status{ background: rgba(17, 17, 17, 0.08);  color: #111; }
+#lwRoot .amd-lh-ico.is-photos{ background: rgba(52, 199, 89, 0.16); color: #15803d; }
+#lwRoot .amd-lh-ico.is-matterport{ background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+#lwRoot .amd-lh-ico.is-marketing{ background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+/* Status-grid cell icon (smaller — sits next to each cell key). */
+  #lwRoot .amd-lh-stat-k{
+    display: flex;
+    align-items: center;
+  }
+#lwRoot .amd-lh-stat-ico{
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    border-radius: 7px;
+    background: rgba(118, 118, 128, 0.14);
+    color: #1c1c1e;
+    margin-right: 8px;
+  }
+#lwRoot .amd-lh-stat-ico svg{
+    width: 11px;
+    height: 11px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+#lwRoot .amd-lh-stat-ico.is-pin{ background: rgba(0, 122, 255, 0.14);  color: #0a66c2; }
+#lwRoot .amd-lh-stat-ico.is-ruler{ background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+#lwRoot .amd-lh-stat-ico.is-chart{ background: rgba(255, 149, 0, 0.16);  color: #b8540f; }
+#lwRoot .amd-lh-stat-ico.is-camera{ background: rgba(52, 199, 89, 0.16);  color: #15803d; }
+/* Marketing-asset tile: icon + title on one row inside each bento. */
+  #lwRoot .amd-lh-asset-head{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+  }
+#lwRoot .amd-lh-asset-ico{
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border-radius: 8px;
+    background: rgba(118, 118, 128, 0.12);
+    color: #1c1c1e;
+  }
+#lwRoot .amd-lh-asset-ico svg{
+    width: 13px;
+    height: 13px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+#lwRoot .amd-lh-asset-ico.is-camera{ background: rgba(52, 199, 89, 0.16); color: #15803d; }
+#lwRoot .amd-lh-asset-ico.is-cube{ background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+#lwRoot .amd-lh-asset-ico.is-video{ background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+#lwRoot .amd-lh-asset-ico.is-plan{ background: rgba(0, 122, 255, 0.14); color: #0a66c2; }
+#lwRoot .amd-lh-asset-ico.is-doc{ background: rgba(17, 17, 17, 0.08);  color: #111; }
+#lwRoot .amd-lh-asset-ico.is-book{ background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+#lwRoot .amd-lh-asset-ico.is-flyer{ background: rgba(255, 149, 0, 0.16); color: #b8540f; }
+#lwRoot .amd-lh-asset-ico.is-sign{ background: rgba(139, 92, 246, 0.16); color: #6d28d9; }
+#lwRoot .amd-lh-fill{ flex: 1; min-height: 0; }
+/* Matterport block: wrapper unifies embed + foot under one rounded
+     clip, identical to the Photos carousel. */
+  #lwRoot .amd-lh-media-block{
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--asg-apl-fill-soft);
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+#lwRoot .amd-lh-embed{
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    /* Light “stage” instead of black — avoids harsh triangular corners when
+       the Matterport iframe is rounded or anti-aliased by host CSS. */
+    background: #f2f2f7;
+    height: 260px;
+    margin-bottom: 0;
+    box-shadow: none;
+  }
+/* Top corners of the player area match the outer block (footer stays square). */
+  #lwRoot .amd-lh-media-block .amd-lh-embed{
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+/* When embed appears standalone (no wrapper), still round it. */
+  #lwRoot .amd-lh-fill > .amd-lh-embed{
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 1px var(--asg-apl-separator);
+  }
+/* Guard: Squarespace themes often add border-radius / shadow on iframes,
+     which leaves gaps against a dark letterbox — neutralize inside our shell. */
+  #lwRoot .amd-lh-embed iframe{
+    width: 100%;
+    height: 100%;
+    border: 0 !important;
+    outline: 0 !important;
+    display: block;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #f2f2f7 !important;
+  }
+/* Apple-design: marketing assets */
+  #lwRoot .amd-lh-assets-grid{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+#lwRoot .amd-lh-asset{
+    border: 0;
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: rgba(118, 118, 128, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 96px;
+  }
+#lwRoot .amd-lh-asset .amd-lh-asset-btn{
+    margin-top: auto;
+    justify-self: auto;
+    align-self: flex-start;
+  }
+#lwRoot .amd-lh-asset-title{
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    min-height: 0;
+  }
+#lwRoot .amd-lh-asset-btn{
+    justify-self: start;
+    border: 0;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: #fff;
+    background: #111;
+    transition: background 0.14s ease, transform 0.12s ease;
+    line-height: 1;
+    box-shadow: none;
+  }
+#lwRoot .amd-lh-asset-btn:hover{
+    background: #000;
+    transform: none;
+    box-shadow: none;
+  }
+#lwRoot .amd-lh-asset-btn:active{
+    transform: scale(0.97);
+  }
+#lwRoot .amd-lh-asset-btn.is-off{
+    opacity: 1;
+    pointer-events: none;
+    border: 0;
+    color: rgba(60, 60, 67, 0.45);
+    background: rgba(118, 118, 128, 0.10);
+    box-shadow: none;
+  }
+/* Request-this-asset fallback button (when the asset URL is missing
+     but we know the agent's Asana request form). Lower-emphasis pill
+     so it doesn't compete with real "Open Asset" links. */
+  #lwRoot .amd-lh-asset-btn.is-request{
+    color: #111;
+    background: rgba(17, 17, 17, 0.08);
+    border: 1px solid rgba(17, 17, 17, 0.14);
+    padding: 6px 12px;
+  }
+#lwRoot .amd-lh-asset-btn.is-request:hover{
+    background: rgba(17, 17, 17, 0.14);
+    color: #111;
+  }
+#lwRoot .amd-lh-empty{
+    border: 0;
+    border-radius: 14px;
+    padding: 18px 14px;
+    color: rgba(60, 60, 67, 0.6);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    text-align: center;
+    background: rgba(118, 118, 128, 0.06);
+  }
+#lwRoot .amd-lh-empty-actions{
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+/* Seller questionnaire bento tile (spans two columns inside listing overview). */
+  #lwRoot .amd-lh-stat.is-seller{
+    grid-column: span 2;
+    gap: 4px;
+  }
+#lwRoot .amd-lh-stat.is-seller .amd-lh-stat-v{
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1c1e;
+    line-height: 1.35;
+  }
+#lwRoot .amd-lh-stat-meta{
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+    letter-spacing: -0.005em;
+    line-height: 1.35;
+  }
+#lwRoot .amd-lh-stat.is-seller .amd-lh-stat-action{
+    margin-top: 10px;
+  }
+#lwRoot .amd-lh-stat-actions{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+#lwRoot .amd-lh-stat-actions .amd-lh-stat-action{ margin-top: 0; }
+#lwRoot .amd-lh-stat-action.is-secondary{
+    background: rgba(17, 17, 17, 0.08);
+    color: #111;
+  }
+#lwRoot .amd-lh-stat-action.is-secondary:hover{
+    background: rgba(17, 17, 17, 0.14);
+  }
+#lwRoot .amd-lh-stat-action.is-icon{
+    padding: 6px 10px 6px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+#lwRoot .amd-lh-stat-action .amd-cta-check,
+  #lwRoot .amd-lh-stat-action .amd-cta-copy{
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+#lwRoot .amd-lh-stat-action .amd-cta-check{
+    display: none;
+    color: #157a36;
+  }
+#lwRoot .amd-lh-stat-action.is-copied .amd-cta-copy{ display: none; }
+#lwRoot .amd-lh-stat-action.is-copied .amd-cta-check{ display: inline-block; }
+#lwRoot .amd-lh-stat-action.is-copied{
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+  }
+/* Marketing-asset bento tile meta line (status + ETA). */
+  #lwRoot .amd-lh-asset-meta{
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: rgba(60, 60, 67, 0.7);
+    letter-spacing: -0.005em;
+  }
+#lwRoot .amd-lh-asset-meta .amd-lh-asset-status{
+    display: inline-block;
+    font-weight: 600;
+    color: #1c1c1e;
+    margin-right: 4px;
+  }
+#lwRoot .amd-lh-asset-meta.is-done .amd-lh-asset-status{ color: #157a36; }
+#lwRoot .amd-lh-asset-meta.is-progress .amd-lh-asset-status{ color: #0a4d8c; }
+#lwRoot .amd-lh-asset-meta.is-waiting .amd-lh-asset-status{ color: #8a4a08; }
+/* Stage container holds Marketing Status + Marketing Assets + Photos/Matterport.
+     A glass-blur overlay sits on top in Stage 1 (Marketing Action Plan). */
+  #lwRoot .amd-lh-stage-area{
+    position: relative;
+    display: grid;
+    gap: 14px;
+  }
+#lwRoot .amd-lh-stage-content{
+    display: grid;
+    gap: 14px;
+    transition: filter 0.45s ease, opacity 0.45s ease, transform 0.45s ease;
+  }
+#lwRoot .amd-lh-stage-area[data-stage="1"] .amd-lh-stage-content{
+    filter: blur(2px) saturate(0.96);
+    opacity: 0.72;
+    transform: scale(0.998);
+    pointer-events: none;
+    user-select: none;
+  }
+#lwRoot .amd-lh-stage-overlay{
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 12px;
+    border-radius: 22px;
+    background: rgba(244, 244, 247, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(1.05);
+    backdrop-filter: blur(20px) saturate(1.05);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    opacity: 1;
+  }
+#lwRoot .amd-lh-stage-overlay.is-leaving{
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+    pointer-events: none;
+  }
+#lwRoot .amd-lh-stage-panel{
+    width: min(640px, 100%);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(60, 60, 67, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    padding: 22px 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+#lwRoot .amd-lh-stage-title{
+    margin: 0;
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    color: #1c1c1e;
+  }
+#lwRoot .amd-lh-stage-sub{
+    margin: 0;
+    font-size: 14px;
+    color: rgba(60, 60, 67, 0.7);
+    line-height: 1.45;
+  }
+#lwRoot .amd-lh-stage-steps{
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    display: grid;
+    gap: 10px;
+  }
+#lwRoot .amd-lh-stage-step{
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(118, 118, 128, 0.07);
+    transition: background 0.2s ease;
+  }
+#lwRoot .amd-lh-stage-step.is-done{
+    background: rgba(52, 199, 89, 0.10);
+  }
+#lwRoot .amd-lh-stage-step-num{
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(118, 118, 128, 0.2);
+    color: #1c1c1e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    transition: transform 0.35s cubic-bezier(0.4, 1.5, 0.6, 1), background 0.25s ease, color 0.25s ease;
+  }
+#lwRoot .amd-lh-stage-step.is-done .amd-lh-stage-step-num{
+    background: #34c759;
+    color: #fff;
+    transform: scale(1.06);
+  }
+#lwRoot .amd-lh-stage-step-num svg{
+    width: 16px;
+    height: 16px;
+    stroke-dasharray: 22;
+    stroke-dashoffset: 22;
+    animation: amdCheckDraw 0.45s ease forwards;
+  }
+@keyframes amdCheckDraw{
+    to { stroke-dashoffset: 0; }
+  }
+#lwRoot .amd-lh-stage-step-body{ min-width: 0; }
+#lwRoot .amd-lh-stage-step-title{
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.012em;
+    line-height: 1.25;
+  }
+#lwRoot .amd-lh-stage-step-meta{
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(60, 60, 67, 0.7);
+  }
+#lwRoot .amd-lh-stage-step-cta{
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.14s ease, transform 0.14s ease;
+    white-space: nowrap;
+  }
+#lwRoot .amd-lh-stage-step-cta:hover{ background: #000; }
+#lwRoot .amd-lh-stage-step-cta:active{ transform: scale(0.97); }
+#lwRoot .amd-lh-stage-step-cta.is-secondary{
+    background: rgba(17, 17, 17, 0.08);
+    color: #111;
+  }
+#lwRoot .amd-lh-stage-step-cta.is-secondary:hover{
+    background: rgba(17, 17, 17, 0.14);
+  }
+#lwRoot .amd-lh-stage-step-cta.is-done{
+    background: rgba(52, 199, 89, 0.16);
+    color: #157a36;
+    pointer-events: none;
+  }
+#lwRoot .amd-lh-stage-step-cta[disabled]{
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+#lwRoot .amd-lh-stage-continue{
+    margin-top: 6px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 22px;
+    background: #111;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background 0.14s ease, transform 0.14s ease, opacity 0.2s ease;
+  }
+#lwRoot .amd-lh-stage-continue:hover:not(:disabled){ background: #000; }
+#lwRoot .amd-lh-stage-continue:active:not(:disabled){ transform: scale(0.97); }
+#lwRoot .amd-lh-stage-continue:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+/* Marketing Status roadmap — horizontal timeline with checkpoints and dates. */
+  #lwRoot .amd-lh-roadmap{
+    position: relative;
+    margin-top: 4px;
+    padding: 18px 8px 6px;
+  }
+#lwRoot .amd-lh-roadmap-track{
+    --amd-roadmap-cols: 6;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--amd-roadmap-cols), minmax(0, 1fr));
+    gap: 0;
+  }
+#lwRoot .amd-lh-roadmap-track::before{
+    content: "";
+    position: absolute;
+    /* Center the rail on the dot midpoint (dot height 28px → midpoint 14px,
+       line is 2px → top:13px puts the rail exactly through the dot center). */
+    top: 13px;
+    /* Rail starts at the first dot's center and ends at the last dot's center,
+       so the offsets equal half a column width. */
+    left: calc(50% / var(--amd-roadmap-cols));
+    right: calc(50% / var(--amd-roadmap-cols));
+    height: 2px;
+    background: rgba(60, 60, 67, 0.14);
+    border-radius: 999px;
+    z-index: 0;
+  }
+#lwRoot .amd-lh-roadmap-track::after{
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: calc(50% / var(--amd-roadmap-cols));
+    /* The rail spans (100% − 1 column). Multiply by --amd-roadmap-progress
+       (a unitless 0–1 value) to keep the gradient aligned to the dot
+       centers regardless of column count. */
+    width: calc((100% - 100% / var(--amd-roadmap-cols)) * var(--amd-roadmap-progress, 0));
+    height: 2px;
+    background: linear-gradient(90deg, #34c759, #007aff);
+    border-radius: 999px;
+    z-index: 1;
+    transition: width 0.5s ease;
+  }
+#lwRoot .amd-lh-roadmap-node{
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 6px;
+    min-width: 0;
+  }
+#lwRoot .amd-lh-roadmap-dot{
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid rgba(60, 60, 67, 0.25);
+    color: rgba(60, 60, 67, 0.6);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.35s cubic-bezier(0.4, 1.5, 0.6, 1);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+#lwRoot .amd-lh-roadmap-dot svg{
+    width: 14px;
+    height: 14px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+#lwRoot .amd-lh-roadmap-node.is-done .amd-lh-roadmap-dot{
+    background: #34c759;
+    border-color: #34c759;
+    color: #fff;
+    transform: scale(1.05);
+  }
+#lwRoot .amd-lh-roadmap-node.is-progress .amd-lh-roadmap-dot{
+    background: #007aff;
+    border-color: #007aff;
+    color: #fff;
+  }
+#lwRoot .amd-lh-roadmap-node.is-waiting .amd-lh-roadmap-dot{
+    background: #fff;
+    border-color: #ff9500;
+    color: #ff9500;
+  }
+#lwRoot .amd-lh-roadmap-label{
+    margin-top: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1c1c1e;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+  }
+#lwRoot .amd-lh-roadmap-status{
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(60, 60, 67, 0.65);
+  }
+#lwRoot .amd-lh-roadmap-node.is-done .amd-lh-roadmap-status{ color: #157a36; }
+#lwRoot .amd-lh-roadmap-node.is-progress .amd-lh-roadmap-status{ color: #0a4d8c; }
+#lwRoot .amd-lh-roadmap-node.is-waiting .amd-lh-roadmap-status{ color: #8a4a08; }
+#lwRoot .amd-lh-roadmap-meta{
+    margin-top: 1px;
+    font-size: 11px;
+    color: rgba(60, 60, 67, 0.55);
+    line-height: 1.3;
+  }
+/* Copy-link-then-checkmark inline animation for the questionnaire CTA. */
+  #lwRoot .amd-lh-stage-step-cta .amd-cta-check{
+    display: none;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+#lwRoot .amd-lh-stage-step-cta.is-done .amd-cta-check{
+    display: inline-block;
+  }
+@media (max-width: 900px){#lwRoot .amd-sell-grid{ grid-template-columns: 1fr; }
+#lwRoot .amd-sell-stats{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#lwRoot .amd-sell-card{ grid-template-columns: 1fr; }
+#lwRoot .amd-sell-card-cover{ height: 180px; }
+#lwRoot .amd-sell-overlay{ inset: 0; border-radius: 16px; }
+#lwRoot .amd-sell-detail-grid{ grid-template-columns: 1fr; }
+#lwRoot .amd-sell-assets{ grid-template-columns: 1fr; }
+#lwRoot .amd-lh-status-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* In the 4-tile layout, seller spans both columns. In the duo layout
+       (Open House + Seller only) we want them strictly side-by-side. */
+    #lwRoot .amd-lh-status-grid:not(.amd-lh-status-grid--duo) .amd-lh-stat.is-seller{ grid-column: span 2; }
+#lwRoot .amd-lh-status-grid--duo{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#lwRoot .amd-lh-status-grid--duo .amd-lh-stat{ grid-column: auto; }
+#lwRoot .amd-lh-trio{ grid-template-columns: 1fr; }
+#lwRoot .amd-lh-card{ min-height: 0; }
+#lwRoot .amd-lh-assets-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#lwRoot .amd-lh-roadmap-track{ grid-template-columns: repeat(var(--amd-roadmap-cols), minmax(0, 1fr)); }
+#lwRoot .amd-lh-roadmap-label{ font-size: 11px; }
+#lwRoot .amd-lh-roadmap-meta{ font-size: 10.5px; }}
+@media (max-width: 640px){#lwRoot .amd-lh-assets-grid{ grid-template-columns: 1fr; }}
+/* ── Workshop-only additions (editing affordances on top of the dashboard design) ── */
+#lwRoot{border:none;border-radius:0;padding:0;background:transparent}
+#lwRoot .lw-node-wrap{position:relative}
+#lwRoot .lw-node-select{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+#lwRoot .amd-lh-agent{position:relative}
+#lwRoot .lw-agent-edit{background:none;border:none;cursor:pointer;font-size:13px;color:rgba(60,60,67,.6);padding:2px 6px;border-radius:8px}
+#lwRoot .lw-agent-edit:hover{background:rgba(0,0,0,.05);color:#111}
+#lwRoot .lw-agent-select{font-family:inherit;font-size:14px;font-weight:600;padding:6px 10px;border:1px solid rgba(60,60,67,.18);border-radius:10px;background:#fff}
+#lwRoot .lw-asset-editor{display:none;margin-top:14px;border-top:1px solid rgba(60,60,67,.12);padding-top:14px;grid-column:1/-1}
+#lwRoot .lw-asset-editor.is-open{display:block}
+#lwRoot .lw-asset-editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+#lwRoot .lw-asset-editor label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:rgba(60,60,67,.7)}
+#lwRoot .lw-asset-editor input{font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid rgba(60,60,67,.18);border-radius:10px}
+#lwRoot .lw-sq-content{display:none;margin-top:12px;background:rgba(118,118,128,.06);border-radius:14px;padding:14px}
+#lwRoot .lw-sq-content.is-open{display:block}
+#lwRoot .lw-sq-content pre{white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.5;margin:0;max-height:420px;overflow:auto}
+#lwRoot .lw-photo-del{position:absolute;top:10px;right:52px;z-index:3;background:rgba(17,17,17,.65);color:#fff;border:none;border-radius:10px;padding:5px 9px;font-size:12px;cursor:pointer}
+#lwRoot .lw-photo-del:hover{background:rgba(192,57,43,.9)}
+#lwRoot .lw-req-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+#lwRoot .lw-req-row{display:flex;align-items:center;gap:10px;font-size:13px;padding:9px 12px;background:rgba(118,118,128,.06);border-radius:12px}
+#lwRoot .lw-req-row b{font-weight:700}
+#lwRoot .lw-req-row .lw-req-when{margin-left:auto;color:rgba(60,60,67,.6);font-size:12px}
+#lwRoot .lw-tlx{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+#lwRoot .lw-tlx li{font-size:13px;padding:8px 12px;background:rgba(118,118,128,.06);border-radius:12px}
+#lwRoot .lw-tlx .lw-tlx-meta{display:block;color:rgba(60,60,67,.6);font-size:12px;margin-top:2px}
+#lwRoot .lw-req-new{display:flex;gap:8px;margin-top:12px}
+#lwRoot .lw-req-new select{font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid rgba(60,60,67,.18);border-radius:10px;background:#fff}
+#lwRoot .lw-upload-prog{font-size:12px;color:rgba(60,60,67,.6);margin-left:8px}
+  </style>
 
-  <!-- LIST VIEW -->
-  <div class="lw-listview" id="lwListView">
-    <section class="lw-cal" id="lwCal" hidden>
-      <h2 class="lw-cal-title">Up next</h2>
-      <div class="lw-cal-rail" id="lwCalRail"></div>
-    </section>
-    <div class="lw-list" id="lwList">
-      <p class="lw-empty">Loading listings…</p>
-    </div>
-  </div>
-
-  <!-- DETAIL / WORKSHOP VIEW -->
-  <div class="lw-detail" id="lwDetail" hidden></div>
+  <div id="lwListView"><div class="amd-loading" aria-busy="true">Loading listings…</div></div>
+  <div id="lwDetail" hidden></div>
 </div>
 
 <script>
@@ -31,35 +2013,30 @@
     var root = document.getElementById("lwRoot");
     if (!root) return;
     var listView = document.getElementById("lwListView");
-    var listEl = document.getElementById("lwList");
     var detailEl = document.getElementById("lwDetail");
-    var calWrap = document.getElementById("lwCal");
-    var calRail = document.getElementById("lwCalRail");
     var loaded = false;
     var current = null;
+    var allListings = [];
+    var searchQ = "";
+    var slideIdx = 0;
 
     var STATUS_ENUMS = {
       photosStatus: ["Not Booked", "Booked", "Scheduled", "Editing", "Delivered"],
-      videoStatus: ["Not Booked", "Booked", "Editing", "Delivered"],
       matterportStatus: ["Not Booked", "Booked", "Delivered"],
       floorPlanStatus: ["Not Booked", "Booked", "Delivered"],
+      videoStatus: ["Not Booked", "Booked", "Editing", "Delivered"],
       factSheetStatus: ["Not Requested", "Requested", "Building", "Delivered"],
       openHouseMaterialsStatus: ["Not Requested", "Requested", "Building", "Delivered"],
       marketingStatus: ["Not Started", "In Progress", "Done"]
     };
-    var STATUS_LABELS = {
-      photosStatus: "Photos", videoStatus: "Video", matterportStatus: "Matterport",
-      floorPlanStatus: "Floor Plan", factSheetStatus: "Fact Sheet",
-      openHouseMaterialsStatus: "Open House Materials", marketingStatus: "Overall"
-    };
     var ASSET_FIELDS = [
+      ["photosFolderUrl", "Photos folder"],
       ["matterportUrl", "Matterport 3D tour"],
       ["videoUrl", "Video"],
       ["floorPlanUrl", "Floor plan"],
       ["factSheetUrl", "Fact sheet"],
       ["openHouseMaterialsUrl", "Open house materials"],
       ["bookletUrl", "Booklet"],
-      ["photosFolderUrl", "Photos folder (external)"],
       ["compassLink", "Compass listing link"]
     ];
     var REQUEST_KINDS = [
@@ -71,17 +2048,48 @@
       ["video", "Video"],
       ["other", "Other"]
     ];
+    var BENTO_ICONS = {
+      photos: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.4h1.8l1.1-1.6h4.2l1.1 1.6H13c.55 0 1 .45 1 1V12c0 .55-.45 1-1 1H3a1 1 0 0 1-1-1V6.4c0-.55.45-1 1-1Z"/><circle cx="8" cy="9.2" r="2.2"/></svg>',
+      camera: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.4h1.8l1.1-1.6h4.2l1.1 1.6H13c.55 0 1 .45 1 1V12c0 .55-.45 1-1 1H3a1 1 0 0 1-1-1V6.4c0-.55.45-1 1-1Z"/><circle cx="8" cy="9.2" r="2.2"/></svg>',
+      cube: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6 13.4 5v6L8 13.4 2.6 11V5Z"/><path d="M2.6 5 8 7.8m5.4-2.8L8 7.8m0 0v5.6"/></svg>',
+      matterport: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.6 13.4 5v6L8 13.4 2.6 11V5Z"/><path d="M2.6 5 8 7.8m5.4-2.8L8 7.8m0 0v5.6"/></svg>',
+      video: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="4.4" width="8.4" height="7.2" rx="1.2"/><path d="m10.8 6.6 2.6-1.4v5.6l-2.6-1.4Z"/></svg>',
+      plan: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="2.6" width="11.2" height="10.8" rx="1.4"/><path d="M5.8 2.6v6.8m-3.4-3h6.8m.4 0H13.6M5.8 9.4v4"/></svg>',
+      doc: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.4 2.6h5l2.6 2.6V13a.8.8 0 0 1-.8.8H4.4a.8.8 0 0 1-.8-.8V3.4a.8.8 0 0 1 .8-.8Z"/><path d="M9.4 2.6v2.6H12M5.6 8.4h4.8m-4.8 2h4.8m-4.8 2h3"/></svg>',
+      flyer: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2.6" width="10" height="10.8" rx="1.2"/><path d="M5.2 5.4h5.6M5.2 7.6h5.6M5.2 9.8h3.6"/></svg>'
+    };
+    var CHEV_L = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+    var CHEV_R = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+    var MARKETING_ASSET_ICONS = { "Photos": "camera", "Matterport": "cube", "Video": "video", "Floor Plan": "plan", "Fact Sheet": "doc", "Open House Materials": "flyer" };
+    var MARKETING_ASSET_KIND = { "Photos": "photos", "Matterport": "matterport", "Video": "video", "Floor Plan": "floor_plan", "Fact Sheet": "fact_sheet", "Open House Materials": "open_house_materials" };
+    var MARKETING_ASSET_ACTION = { "Photos": "book", "Matterport": "book", "Video": "book", "Floor Plan": "book", "Fact Sheet": "request", "Open House Materials": "request" };
 
+    /* ---------- helpers ---------- */
     function esc(s) {
       return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
         return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
       });
     }
-    function money(n) { return n == null ? "" : "$" + Number(n).toLocaleString(); }
+    function money(n) {
+      if (n == null || n === "") return "";
+      var x = Number(String(n).replace(/[^0-9.\-]/g, ""));
+      if (!isFinite(x) || x === 0) return String(n);
+      return "$" + x.toLocaleString();
+    }
     function when(s) { try { return s ? new Date(s).toLocaleString() : ""; } catch (e) { return s || ""; } }
-    function day(s) { try { return s ? new Date(s).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""; } catch (e) { return ""; } }
+    function fmtDate(s) {
+      if (!s) return "";
+      var d = new Date(s);
+      if (isNaN(d.getTime())) return String(s);
+      try { return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return String(s); }
+    }
+    function fmtDay(s) {
+      if (!s) return "";
+      var d = new Date(s);
+      if (isNaN(d.getTime())) return String(s);
+      try { return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); } catch (e) { return String(s); }
+    }
     function toast(m, e) { if (C.toast) C.toast(m, e); }
-
     async function jget(path) {
       var res = await fetch(api + path, { headers: C.authHeaders() });
       return res.json();
@@ -92,259 +2100,739 @@
       if (!res.ok || data.ok === false) throw new Error(data.error || ("HTTP " + res.status));
       return data;
     }
+    function copyText(t, msg) {
+      try { navigator.clipboard.writeText(t); toast(msg || "Copied"); }
+      catch (e) { toast("Could not copy", true); }
+    }
+    function streetOf(address) { return String(address || "").split(",")[0].trim(); }
 
-    function showList() { listView.hidden = false; detailEl.hidden = true; current = null; }
-    function showDetail() { listView.hidden = true; detailEl.hidden = false; }
+    function formatStatusDisplay(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      var k = s.toLowerCase();
+      if (k.indexOf("under contract") >= 0) return "Under Contract";
+      return s.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_\-]+/g, " ").replace(/\s+/g, " ")
+        .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+    function statusToneClass(rawStatus) {
+      var k = String(rawStatus || "").toLowerCase();
+      if (!k) return "";
+      if (k.indexOf("pre") === 0 || k.indexOf("coming") > -1) return "is-status-pre";
+      if (k.indexOf("under") > -1 || k.indexOf("contract") > -1 || k.indexOf("pending") > -1) return "is-status-pending";
+      if (k.indexOf("closed") > -1 || k.indexOf("sold") > -1 || k.indexOf("withdraw") > -1 || k.indexOf("expired") > -1) return "is-status-closed";
+      if (k.indexOf("active") > -1 || k.indexOf("live") > -1) return "is-status-active";
+      return "";
+    }
+    function listingStatusLabel(l) {
+      var s = String(l.status || "").toLowerCase();
+      if (s.indexOf("coming") === 0 || s.indexOf("pre") === 0 || (!s && l.source === "onboarding")) return "Coming Soon";
+      return formatStatusDisplay(l.idxMlsStatus || l.status || "Active");
+    }
+    function groupOf(l) {
+      var s = String(l.status || "").toLowerCase();
+      var mls = String(l.idxMlsStatus || "").toLowerCase();
+      if (s.indexOf("coming") === 0 || s.indexOf("pre") === 0 || (!s && l.source === "onboarding")) return "coming";
+      if (l.archived || s.indexOf("closed") === 0 || s.indexOf("sold") === 0 || mls.indexOf("closed") > -1 || mls.indexOf("sold") > -1) return "closed";
+      if (s.indexOf("under contract") > -1 || s.indexOf("pending") > -1 || mls.indexOf("contract") > -1) return "uc";
+      return "active";
+    }
+    function specsText(l) {
+      var b = [];
+      if (l.beds != null) b.push(l.beds + " bd");
+      if (l.baths != null) b.push(l.baths + " ba");
+      if (l.sqFt) b.push(Number(l.sqFt).toLocaleString() + " sf");
+      return b.join(" · ");
+    }
+    function matterportEmbedUrl(rawUrl) {
+      var u = String(rawUrl || "").trim();
+      if (!u) return "";
+      if (/my\.matterport\.com\/show\/?\?m=/i.test(u)) return u + (u.indexOf("&play=") === -1 ? "&play=1" : "");
+      var m = u.match(/matterport\.com.*[?&]m=([A-Za-z0-9]+)/i);
+      if (m) return "https://my.matterport.com/show/?m=" + m[1] + "&play=1";
+      return "";
+    }
 
-    /* ---------- list + calendar ---------- */
+    /* ---------- roster (agent assignment + photos) ---------- */
+    var rosterCache = null;
+    async function loadAgentRoster() {
+      if (rosterCache) return rosterCache;
+      try {
+        var data = await jget("/api/directory");
+        rosterCache = (data.directory || []).filter(function (a) { return a.name; });
+      } catch (e) { rosterCache = []; }
+      return rosterCache;
+    }
+    function rosterPhotoFor(name) {
+      var n = String(name || "").toLowerCase().trim();
+      if (!rosterCache || !n) return "";
+      for (var i = 0; i < rosterCache.length; i++) {
+        if (String(rosterCache[i].name || "").toLowerCase().trim() === n)
+          return rosterCache[i].iconPhotoUrl || rosterCache[i].headshot || "";
+      }
+      return "";
+    }
+
+    /* ---------- LIST VIEW ---------- */
     async function loadList() {
       try {
         var res = await fetch(api + "/api/listings?view=all");
         var data = await res.json();
-        var arr = data.listings || [];
-        renderList(arr);
+        allListings = data.listings || [];
+        await loadAgentRoster();
+        renderList();
       } catch (e) {
-        listEl.innerHTML = '<p class="lw-empty">Could not load listings.</p>';
+        listView.innerHTML = '<div class="amd-error">Could not load listings.</div>';
       }
     }
 
-    /* Coming Soon = admin-entered + seller-wizard listings that aren't on the
-       MLS yet. The IDX sync flips their status to the live MLS status ("Active",
-       …) once the property appears in the feed, which moves them out of here. */
-    function groupOf(l) {
-      var s = String(l.status || "").toLowerCase();
-      if (s.indexOf("coming") === 0 || s.indexOf("pre") === 0 || (!s && l.source === "onboarding")) return "Coming Soon";
-      if (l.archived || s.indexOf("closed") === 0) return "Closed";
-      return "Active";
+    function weekendRange() {
+      var now = new Date();
+      var sat = new Date(now); sat.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7));
+      var sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+      sat.setHours(0, 0, 0, 0); sun.setHours(23, 59, 59, 999);
+      return { sat: sat, sun: sun };
     }
-
-    function statusChip(l) {
-      var g = groupOf(l);
-      var label = g === "Coming Soon" ? "Coming Soon" : (l.status || l.idxMlsStatus || g);
-      var s = String(label).toLowerCase();
-      var cls = "is-active";
-      if (g === "Coming Soon") cls = "is-soon";
-      else if (s.indexOf("closed") === 0 || s.indexOf("sold") === 0) cls = "is-closed";
-      else if (s.indexOf("under contract") !== -1 || s.indexOf("pending") !== -1 || s.indexOf("contingent") !== -1) cls = "is-pending";
-      return '<span class="lw-status-chip ' + cls + '">' + esc(label) + "</span>";
-    }
-
-    function renderList(arr) {
-      if (!arr.length) { listEl.innerHTML = '<p class="lw-empty">No listings yet.</p>'; return; }
-      var groups = { "Coming Soon": [], "Active": [], "Closed": [] };
-      arr.forEach(function (l) { (groups[groupOf(l)] || groups.Active).push(l); });
-      var html = "";
-      ["Coming Soon", "Active", "Closed"].forEach(function (g) {
-        var rows = groups[g];
-        if (!rows.length) return;
-        html += '<h2 class="lw-group">' + g + ' <span>' + rows.length + '</span></h2><div class="lw-grid">';
-        html += rows.map(card).join("");
-        html += "</div>";
+    function weekendScheduleHtml(rows) {
+      var r = weekendRange();
+      var items = [];
+      rows.forEach(function (l) {
+        if (!l.nextOpenHouseDate) return;
+        var d = new Date(l.nextOpenHouseDate);
+        if (isNaN(d.getTime()) || d < r.sat || d > r.sun) return;
+        items.push({ l: l, d: d });
       });
-      listEl.innerHTML = html;
-    }
-
-    /* "933 N Wolcott Avenue 1, Chicago, Illinois" → "933 N Wolcott Avenue 1" */
-    function streetOf(address) {
-      return String(address || "").split(",")[0].trim();
+      function section(label, dayNum) {
+        var list = items.filter(function (it) { return it.d.getDay() === dayNum; });
+        return '<section class="amd-oh-weekend-day"><h5 class="amd-oh-weekend-day-title">' + label + "</h5>" +
+          (list.length
+            ? '<div class="amd-oh-weekend-list">' + list.map(function (it) {
+                return '<button type="button" class="amd-oh-weekend-card" data-open="' + esc(it.l.id) + '">' +
+                  '<div class="amd-oh-weekend-card-addr">' + esc(streetOf(it.l.address)) + "</div>" +
+                  '<div class="amd-oh-weekend-card-meta">' + esc(fmtDay(it.l.nextOpenHouseDate)) + (it.l.agent ? " · " + esc(it.l.agent) : "") + "</div>" +
+                "</button>";
+              }).join("") + "</div>"
+            : '<div class="amd-oh-weekend-empty">No open houses scheduled.</div>') +
+        "</section>";
+      }
+      var sub;
+      try {
+        sub = r.sat.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " – " + r.sun.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      } catch (e) { sub = "Upcoming weekend"; }
+      return '<details class="amd-oh-weekend"><summary>' +
+        '<div class="amd-oh-weekend-preview">' +
+          '<h4 class="amd-oh-weekend-preview-title">Open House Schedule</h4>' +
+          '<div class="amd-oh-weekend-preview-meta">' + items.length + (items.length === 1 ? " Open House" : " Open Houses") + "</div>" +
+          '<div class="amd-oh-weekend-preview-sub">' + esc(sub) + "</div>" +
+        "</div>" +
+        '<svg class="amd-oh-weekend-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+      "</summary>" +
+      '<div class="amd-oh-weekend-body"><div class="amd-oh-weekend-sections">' + section("Saturday", 6) + section("Sunday", 0) + "</div></div></details>";
     }
 
     function card(l) {
       var cover = l.coverImage || l.idxCoverImage || "";
-      var beds = l.beds != null ? l.beds + " bd" : "";
-      var baths = l.baths != null ? l.baths + " ba" : "";
-      var sqft = l.sqFt != null ? Number(l.sqFt).toLocaleString() + " sqft" : "";
-      var facts = [beds, baths, sqft].filter(Boolean).join(" · ");
-      var ms = l.marketingStatus || "";
-      return '<button class="lw-card" data-id="' + esc(l.id) + '" type="button">' +
-        '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '>' +
-        statusChip(l) + "</span>" +
-        '<span class="lw-card-body">' +
-        '<span class="lw-card-addr">' + esc(streetOf(l.address) || "(no address)") + "</span>" +
-        (l.neighborhood ? '<span class="lw-card-hood">' + esc(l.neighborhood) + "</span>" : "") +
-        '<span class="lw-card-meta">' + esc(money(l.listPrice) || "") + "</span>" +
-        '<span class="lw-card-meta">' + esc(facts) + "</span>" +
-        '<span class="lw-card-tags">' +
-        (l.agent ? '<span class="lw-tag is-agent">' + esc(l.agent) + "</span>" : "") +
-        (ms ? '<span class="lw-tag is-ms">' + esc(ms) + "</span>" : "") +
-        "</span></span></button>";
+      var status = listingStatusLabel(l);
+      var chips = [status];
+      if (l.listingType) chips.push(String(l.listingType).trim());
+      var factsBits = [];
+      var price = money(l.listPrice);
+      if (price) factsBits.push(price);
+      var sp = specsText(l);
+      if (sp) factsBits.push(sp);
+      return '<article class="amd-sell-card" role="button" tabindex="0" data-open="' + esc(l.id) + '">' +
+        '<div class="amd-sell-card-cover">' +
+          (cover
+            ? '<img src="' + esc(cover) + '" alt="' + esc(l.address || "Listing cover") + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.parentNode.innerHTML=\'<div class=&quot;amd-sell-cover-empty&quot;>No cover image</div>\'">'
+            : '<div class="amd-sell-cover-empty">No cover image</div>') +
+        "</div>" +
+        '<button class="amd-mini-btn is-dark amd-sell-card-details" type="button" data-open="' + esc(l.id) + '">Details</button>' +
+        '<div class="amd-sell-main">' +
+          '<h4 class="amd-sell-address">' + esc(streetOf(l.address) || "Untitled Listing") + "</h4>" +
+          '<p class="amd-sell-meta">' + esc(l.agent || "Unassigned") + (l.neighborhood ? " · " + esc(l.neighborhood) : "") + "</p>" +
+          '<div class="amd-sell-badges">' +
+            chips.map(function (chip, ci) {
+              var tone = ci === 0 ? statusToneClass(chip) : "";
+              return '<span class="amd-sell-badge' + (tone ? " " + tone : "") + '">' + esc(chip) + "</span>";
+            }).join("") +
+          "</div>" +
+          '<p class="amd-sell-meta">' + esc(factsBits.join(" · ") || "No bed/bath/sqft yet") + "</p>" +
+        "</div>" +
+      "</article>";
     }
 
-    async function loadCalendar() {
-      try {
-        var data = await jget("/api/admin/calendar?days=45");
-        var items = [];
-        (data.appointments || []).forEach(function (a) {
-          items.push({ kind: "media", title: a.title || a.type || "Media", sub: a.listingAddress || a.clientName || "", at: a.startsAt, listingId: a.listingId });
-        });
-        (data.events || []).forEach(function (e) {
-          items.push({ kind: "event", title: e.title, sub: e.location || "", at: e.startsAt, listingId: null });
-        });
-        items.sort(function (x, y) { return new Date(x.at || 0) - new Date(y.at || 0); });
-        if (!items.length) { calWrap.hidden = true; return; }
-        calRail.innerHTML = items.slice(0, 12).map(function (it) {
-          return '<button class="lw-cal-card" type="button"' + (it.listingId ? ' data-id="' + esc(it.listingId) + '"' : "") + '>' +
-            '<span class="lw-cal-day">' + esc(day(it.at)) + "</span>" +
-            '<span class="lw-cal-tt">' + esc(it.title) + "</span>" +
-            '<span class="lw-cal-sub">' + esc(it.sub) + "</span>" +
-            '<span class="lw-cal-kind is-' + it.kind + '">' + (it.kind === "media" ? "Media" : "Meeting") + "</span>" +
-            "</button>";
-        }).join("");
-        calWrap.hidden = false;
-      } catch (e) { calWrap.hidden = true; }
+    function renderList() {
+      var q = searchQ.toLowerCase();
+      var rows = allListings.filter(function (l) {
+        if (!q) return true;
+        return [l.address, l.neighborhood, l.agent].join(" ").toLowerCase().indexOf(q) > -1;
+      });
+      var groups = { coming: [], active: [], uc: [], closed: [] };
+      rows.forEach(function (l) { groups[groupOf(l)].push(l); });
+      // The IDX mirror holds 1,000+ closed listings — render only a page of
+      // them unless the admin is searching (search scans everything).
+      var closedShown = q ? groups.closed : groups.closed.slice(0, 12);
+      var ordered = groups.coming.concat(groups.active, groups.uc, closedShown);
+      var openRows = groups.coming.concat(groups.active, groups.uc);
+      var html =
+        '<div class="amd-panel-head amd-panel-head--workspace">' +
+          '<h3 class="amd-panel-title amd-panel-title--workspace">Listings Workspace</h3>' +
+          '<div class="amd-view-tools amd-view-tools--workspace">' +
+            '<div class="amd-search-wrap' + (searchQ ? " has-value" : "") + '">' +
+              '<input type="search" id="lwSearch" value="' + esc(searchQ) + '" placeholder="Search by address, neighborhood, or agent...">' +
+              '<button type="button" class="amd-search-clear" id="lwSearchClear" aria-label="Clear search">&times;</button>' +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="amd-sell-stats">' +
+          '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Active Listings</div><div class="amd-sell-stat-v">' + groups.active.length + "</div></article>" +
+          '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Coming Soon</div><div class="amd-sell-stat-v">' + groups.coming.length + "</div></article>" +
+          '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Under Contract</div><div class="amd-sell-stat-v">' + groups.uc.length + "</div></article>" +
+          '<article class="amd-sell-stat"><div class="amd-sell-stat-k">Closed</div><div class="amd-sell-stat-v">' + groups.closed.length + "</div></article>" +
+        "</div>" +
+        weekendScheduleHtml(openRows);
+      if (!ordered.length) {
+        html += '<div class="amd-empty">No listings match this filter yet.</div>';
+      } else {
+        html += '<div class="amd-sell-grid">' + ordered.map(card).join("") + "</div>";
+      }
+      listView.innerHTML = html;
+      var si = document.getElementById("lwSearch");
+      si.addEventListener("input", function () {
+        searchQ = si.value;
+        var pos = si.selectionStart;
+        renderList();
+        var si2 = document.getElementById("lwSearch");
+        si2.focus();
+        try { si2.setSelectionRange(pos, pos); } catch (e) {}
+      });
+      document.getElementById("lwSearchClear").addEventListener("click", function () { searchQ = ""; renderList(); });
     }
 
-    /* ---------- detail / workshop ---------- */
+    /* ---------- DETAIL VIEW ---------- */
     async function openListing(id) {
-      showDetail();
-      detailEl.innerHTML = '<p class="lw-empty">Loading workshop…</p>';
+      detailEl.innerHTML = '<div class="amd-loading" aria-busy="true">Loading listing…</div>';
+      listView.hidden = true;
+      detailEl.hidden = false;
+      slideIdx = 0;
       try {
         var data = await jget("/api/admin/listings/" + id);
         if (!data.ok) throw new Error(data.error || "not found");
         current = data.listing;
         renderDetail(current);
       } catch (e) {
-        detailEl.innerHTML = '<p class="lw-empty">Could not load this listing. ' + esc(e.message || "") + "</p>";
+        detailEl.innerHTML = '<div class="amd-error">Could not load listing. ' + esc(e.message || "") + "</div>";
       }
     }
-
-    function statusSelect(key, val) {
-      var opts = STATUS_ENUMS[key].map(function (o) {
-        return '<option value="' + esc(o) + '"' + (o === val ? " selected" : "") + ">" + esc(o) + "</option>";
-      }).join("");
-      return '<label class="lw-status"><span>' + esc(STATUS_LABELS[key]) + '</span><select data-status="' + key + '">' +
-        '<option value=""' + (!val ? " selected" : "") + ">—</option>" + opts + "</select></label>";
+    function showList() { listView.hidden = false; detailEl.hidden = true; current = null; }
+    async function refreshDetail(id) {
+      try { var data = await jget("/api/admin/listings/" + id); if (data.ok) { current = data.listing; renderDetail(current); } }
+      catch (e) {}
     }
 
-    function photoTile(p, id) {
-      return '<div class="lw-photo" draggable="true" data-pid="' + esc(p.id || "") + '">' +
-        '<img src="' + esc(p.thumbUrl || p.url) + '" alt="">' +
-        '<button class="lw-photo-x" data-del="' + esc(p.id || "") + '" title="Remove">×</button>' +
+    function detailPhotos(l) {
+      var out = [];
+      (l.galleryPhotos || []).forEach(function (p) { out.push({ id: p.id, url: p.url, source: p.source, caption: p.caption }); });
+      (l.mlsPhotos || []).forEach(function (p) { out.push({ url: p.url, source: "idx", caption: p.caption }); });
+      return out;
+    }
+
+    function serviceTone(statusKey, raw) {
+      var s = String(raw || "").toLowerCase();
+      if (s.indexOf("deliver") > -1 || s === "done") return "done";
+      if (s.indexOf("edit") > -1 || s.indexOf("build") > -1) return "waiting";
+      if (s.indexOf("book") > -1 || s.indexOf("schedul") > -1 || s.indexOf("request") > -1 || s.indexOf("progress") > -1) return "progress";
+      return "pending";
+    }
+
+    function marketingStatusCard(l) {
+      function node(key, label, icon) {
+        var raw = l[key] || "";
+        var tone = serviceTone(key, raw);
+        var fallback = key === "factSheetStatus" || key === "openHouseMaterialsStatus" ? "Not Requested" : "Not Booked";
+        var statusLabel = raw || fallback;
+        var metaLabel = "";
+        if (key === "photosStatus" && tone === "progress" && l.photosDatetime) metaLabel = "Booked " + fmtDay(l.photosDatetime);
+        if (tone === "done") {
+          var deliveredAt = l[key.replace("Status", "DeliveredAt")];
+          if (deliveredAt) metaLabel = "Delivered " + fmtDate(deliveredAt);
+        }
+        return { key: key, label: label, icon: icon, tone: tone, statusLabel: statusLabel, metaLabel: metaLabel };
+      }
+      var qReceived = !!(l.sellerQuestionnaireContent || "").trim();
+      var qSent = l.sellerQuestionnaireSent || qReceived;
+      var nodes = [
+        { key: null, label: "Seller Questionnaire", icon: "doc", tone: qSent ? "done" : "pending", statusLabel: qReceived ? "Received" : (qSent ? "Sent" : "Pending"), metaLabel: qReceived ? "Details below" : (qSent ? "" : "Awaiting seller") },
+        node("photosStatus", "Photos", "camera"),
+        node("matterportStatus", "Matterport", "cube"),
+        node("floorPlanStatus", "Floor Plan", "plan"),
+        node("videoStatus", "Video", "video"),
+        node("factSheetStatus", "Fact Sheet", "doc"),
+        node("openHouseMaterialsStatus", "Open House Materials", "doc")
+      ];
+      var done = 0;
+      nodes.forEach(function (n) {
+        if (n.tone === "done") done++;
+        else if (n.tone === "waiting") done += 0.66;
+        else if (n.tone === "progress") done += 0.5;
+      });
+      var pct = nodes.length > 1 ? done / (nodes.length - 1) : 0;
+      if (pct < 0) pct = 0;
+      if (pct > 1) pct = 1;
+      var check = '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12.5 10 17.5 19 7.5"></polyline></svg>';
+      var nodeHtml = nodes.map(function (n) {
+        var inner = n.tone === "done" ? check : (BENTO_ICONS[n.icon] || BENTO_ICONS.doc);
+        // Each editable node carries an invisible <select> over the dot so the
+        // roadmap stays visually identical but statuses stay editable.
+        var selectHtml = "";
+        if (n.key) {
+          selectHtml = '<select class="lw-node-select" data-status="' + n.key + '" title="Update ' + esc(n.label) + ' status">' +
+            STATUS_ENUMS[n.key].map(function (o) {
+              return '<option value="' + esc(o) + '"' + (String(l[n.key] || "") === o ? " selected" : "") + ">" + esc(o) + "</option>";
+            }).join("") + "</select>";
+        }
+        return '<div class="amd-lh-roadmap-node is-' + esc(n.tone) + '">' +
+          '<div class="lw-node-wrap"><div class="amd-lh-roadmap-dot">' + inner + "</div>" + selectHtml + "</div>" +
+          '<div class="amd-lh-roadmap-label">' + esc(n.label) + "</div>" +
+          '<div class="amd-lh-roadmap-status">' + esc(n.statusLabel) + "</div>" +
+          (n.metaLabel ? '<div class="amd-lh-roadmap-meta">' + esc(n.metaLabel) + "</div>" : "") +
         "</div>";
+      }).join("");
+      return '<article class="amd-lh-card is-marketing is-marketing-status">' +
+        '<div class="amd-lh-label">Marketing Status</div>' +
+        '<div class="amd-lh-roadmap"><div class="amd-lh-roadmap-track" style="--amd-roadmap-cols:' + nodes.length + ';--amd-roadmap-progress:' + pct.toFixed(3) + '">' +
+          nodeHtml +
+        "</div></div>" +
+      "</article>";
     }
 
-    function requestRow(r) {
-      var st = r.status === "delivered" ? "Delivered" : r.status === "in_progress" ? "In progress" : r.status === "cancelled" ? "Cancelled" : "Requested";
-      var label = (REQUEST_KINDS.filter(function (k) { return k[0] === r.kind; })[0] || [null, r.kind])[1];
-      return '<div class="lw-req"><span class="lw-req-k">' + esc(label) + "</span>" +
-        '<span class="lw-req-s is-' + esc(r.status) + '">' + esc(st) + "</span>" +
-        (r.asanaTaskUrl ? '<a class="lw-req-link" href="' + esc(r.asanaTaskUrl) + '" target="_blank" rel="noopener">Asana ↗</a>' : "") +
-        '<span class="lw-req-t">' + esc(when(r.requestedAt)) + "</span></div>";
+    function marketingAssetsCard(l) {
+      var links = {
+        "Photos": l.photos, "Matterport": l.matterport, "Video": l.video,
+        "Floor Plan": l.floorPlan, "Fact Sheet": l.factSheet, "Open House Materials": l.openHouse
+      };
+      var tiles = Object.keys(links).map(function (label) {
+        var href = String(links[label] || "").trim();
+        var iconKind = MARKETING_ASSET_ICONS[label] || "doc";
+        var statusKeyMap = { "Photos": "photosStatus", "Matterport": "matterportStatus", "Video": "videoStatus", "Floor Plan": "floorPlanStatus", "Fact Sheet": "factSheetStatus", "Open House Materials": "openHouseMaterialsStatus" };
+        var raw = l[statusKeyMap[label]] || "";
+        var tone = serviceTone(statusKeyMap[label], raw);
+        var statusLabel = raw || (MARKETING_ASSET_ACTION[label] === "book" ? "Not Booked" : "Not Requested");
+        var btnHtml;
+        if (href) {
+          btnHtml = '<a class="amd-lh-asset-btn" href="' + esc(href) + '" target="_blank" rel="noopener">Open Asset ↗</a>';
+        } else if (MARKETING_ASSET_ACTION[label] === "book") {
+          btnHtml = '<button class="amd-lh-asset-btn is-request" type="button" data-book-media="1">Book →</button>';
+        } else {
+          btnHtml = '<button class="amd-lh-asset-btn is-request" type="button" data-request-kind="' + esc(MARKETING_ASSET_KIND[label]) + '">Request →</button>';
+        }
+        return '<div class="amd-lh-asset">' +
+          '<div class="amd-lh-asset-head">' +
+            '<span class="amd-lh-asset-ico is-' + iconKind + '">' + (BENTO_ICONS[iconKind] || BENTO_ICONS.doc) + "</span>" +
+            '<div class="amd-lh-asset-title">' + esc(label) + "</div>" +
+          "</div>" +
+          '<div class="amd-lh-asset-meta is-' + esc(tone) + '"><span class="amd-lh-asset-status">' + esc(statusLabel) + "</span></div>" +
+          btnHtml +
+        "</div>";
+      }).join("");
+      var editorFields = ASSET_FIELDS.map(function (f) {
+        var current = { photosFolderUrl: l.photos, matterportUrl: l.matterport, videoUrl: l.video, floorPlanUrl: l.floorPlan, factSheetUrl: l.factSheet, openHouseMaterialsUrl: l.openHouse, bookletUrl: l.bookletUrl, compassLink: l.compassLink }[f[0]] || "";
+        return '<label><span>' + esc(f[1]) + '</span><input type="url" data-asset="' + f[0] + '" value="' + esc(current) + '" placeholder="https://…"></label>';
+      }).join("");
+      return '<article class="amd-lh-card is-marketing">' +
+        '<div class="amd-lh-label">Marketing Assets <button class="amd-mini-btn" type="button" id="lwEditAssets" style="margin-left:auto">Edit links</button></div>' +
+        '<div class="amd-lh-fill"><div class="amd-lh-assets-grid">' + tiles + "</div>" +
+        '<div class="lw-asset-editor" id="lwAssetEditor">' +
+          '<div class="lw-asset-editor-grid">' + editorFields + "</div>" +
+          '<div style="margin-top:10px"><button class="amd-mini-btn is-dark" type="button" id="lwSaveAssets">Save links</button></div>' +
+        "</div></div>" +
+      "</article>";
     }
 
-    function activityRow(a) {
-      return '<li class="lw-tl-item is-' + esc(a.type) + '"><span class="lw-tl-dot"></span>' +
-        '<span class="lw-tl-body"><span class="lw-tl-label">' + esc(a.label || a.type) + "</span>" +
-        '<span class="lw-tl-meta">' + esc([a.actor, when(a.ts)].filter(Boolean).join(" · ")) + "</span></span></li>";
+    function photosCard(l) {
+      var photos = detailPhotos(l);
+      var idx = photos.length ? ((slideIdx % photos.length) + photos.length) % photos.length : 0;
+      slideIdx = idx;
+      var item = photos.length ? photos[idx] : null;
+      var photosAssetUrl = String(l.photos || "").trim();
+      return '<article class="amd-lh-card">' +
+        '<div class="amd-lh-label"><span class="amd-lh-ico is-photos">' + BENTO_ICONS.photos + "</span>Photos</div>" +
+        '<div class="amd-lh-fill"><div class="amd-sell-carousel">' +
+          '<div class="amd-sell-carousel-view">' +
+            '<button class="amd-sell-carousel-arrow" type="button" aria-label="Previous photo" data-photo-prev="1"' + (!photos.length ? " disabled" : "") + ">" + CHEV_L + "</button>" +
+            '<div class="amd-sell-carousel-img-wrap">' +
+              (item
+                ? '<img class="amd-sell-carousel-img" src="' + esc(item.url) + '" alt="' + esc(l.address || "Listing photo") + '" loading="lazy">' +
+                  (item.source !== "idx" && item.id
+                    ? '<button class="lw-photo-del" type="button" data-del="' + esc(item.id) + '" title="Remove this uploaded photo">Remove</button>'
+                    : "")
+                : '<div class="amd-sell-cover-empty" style="height:230px">No photos found</div>') +
+            "</div>" +
+            '<button class="amd-sell-carousel-arrow is-next" type="button" aria-label="Next photo" data-photo-next="1"' + (!photos.length ? " disabled" : "") + ">" + CHEV_R + "</button>" +
+          "</div>" +
+          '<div class="amd-sell-carousel-foot">' +
+            '<div class="amd-sell-links">' +
+              '<button class="amd-mini-btn is-dark" type="button" id="lwUploadBtn">Upload photos</button>' +
+              (photosAssetUrl ? '<button class="amd-mini-btn" type="button" data-copy="' + esc(photosAssetUrl) + '">Copy folder link</button>' : "") +
+              '<input type="file" id="lwFile" accept="image/*" multiple hidden><span class="lw-upload-prog" id="lwProg"></span>' +
+            "</div>" +
+            '<div class="amd-sell-carousel-count">' + (photos.length ? (idx + 1) + " / " + photos.length : "0 / 0") + "</div>" +
+          "</div>" +
+        "</div></div>" +
+      "</article>";
+    }
+
+    function matterportCard(l) {
+      var mpRaw = String(l.matterport || "").trim();
+      var mpEmbed = matterportEmbedUrl(mpRaw);
+      var body;
+      if (mpEmbed) {
+        body = '<div class="amd-lh-media-block">' +
+          '<div class="amd-lh-embed"><iframe src="' + esc(mpEmbed) + '" allowfullscreen loading="lazy"></iframe></div>' +
+          '<div class="amd-lh-media-foot"><div class="amd-sell-links">' +
+            '<button class="amd-mini-btn" type="button" data-copy="' + esc(mpRaw) + '">Copy link</button>' +
+            '<a class="amd-mini-btn is-dark" href="' + esc(mpRaw) + '" target="_blank" rel="noopener">Open</a>' +
+          '</div><div class="amd-lh-media-meta">3D tour</div></div>' +
+        "</div>";
+      } else {
+        body = '<div class="amd-sell-carousel">' +
+          '<div class="amd-sell-carousel-view"><div class="amd-sell-carousel-img-wrap">' +
+            '<div class="amd-sell-cover-empty" style="height:230px">' + (mpRaw ? "Embed not available for this URL." : "No Matterport link yet.") + "</div>" +
+          "</div></div>" +
+          '<div class="amd-sell-carousel-foot"><div class="amd-sell-links">' +
+            '<button class="amd-mini-btn is-dark" type="button" data-book-media="1">Book Matterport</button>' +
+          '</div><div class="amd-lh-media-meta">3D tour</div></div>' +
+        "</div>";
+      }
+      return '<article class="amd-lh-card">' +
+        '<div class="amd-lh-label"><span class="amd-lh-ico is-matterport">' + BENTO_ICONS.matterport + "</span>Matterport</div>" +
+        '<div class="amd-lh-fill">' + body + "</div>" +
+      "</article>";
+    }
+
+    function requestsCard(l) {
+      var reqs = l.requests || [];
+      var rows = reqs.length ? reqs.map(function (r) {
+        var label = (REQUEST_KINDS.filter(function (k) { return k[0] === r.kind; })[0] || [null, r.kind])[1];
+        return '<div class="lw-req-row"><b>' + esc(label) + "</b><span>" + esc(r.status || "") + "</span>" +
+          (r.asanaTaskUrl ? '<a class="amd-mini-btn" href="' + esc(r.asanaTaskUrl) + '" target="_blank" rel="noopener">Asana ↗</a>' : "") +
+          '<span class="lw-req-when">' + esc(when(r.requestedAt)) + "</span></div>";
+      }).join("") : '<div class="amd-empty" style="margin-top:12px">No requests yet.</div>';
+      return '<article class="amd-lh-card is-marketing">' +
+        '<div class="amd-lh-label">Marketing Requests</div>' +
+        '<div class="amd-lh-fill">' +
+          '<div class="lw-req-new"><select id="lwReqKind">' +
+            REQUEST_KINDS.map(function (k) { return '<option value="' + k[0] + '">' + esc(k[1]) + "</option>"; }).join("") +
+          '</select><button class="amd-mini-btn is-dark" type="button" id="lwReqBtn">Request</button></div>' +
+          '<div class="lw-req-list">' + rows + "</div>" +
+        "</div>" +
+      "</article>";
+    }
+
+    function historyCard(l) {
+      var acts = l.activity || [];
+      var rows = acts.length ? '<ul class="lw-tlx">' + acts.map(function (a) {
+        return "<li><b>" + esc(a.label || a.type) + '</b><span class="lw-tlx-meta">' + esc([a.actor, when(a.ts)].filter(Boolean).join(" · ")) + "</span></li>";
+      }).join("") + "</ul>" : '<div class="amd-empty" style="margin-top:12px">No activity yet.</div>';
+      return '<article class="amd-lh-card is-marketing">' +
+        '<div class="amd-lh-label">History</div>' +
+        '<div class="amd-lh-fill">' + rows + "</div>" +
+      "</article>";
     }
 
     function renderDetail(l) {
-      var appts = l.appointments || [], reqs = l.requests || [], acts = l.activity || [];
-      var gallery = l.galleryPhotos || [];
-      var html = "";
-      html += '<button class="lw-back" id="lwBack" type="button">← All listings</button>';
-      html += '<div class="lw-detail-head">';
-      html += '<div><h1 class="lw-d-addr">' + esc(l.address || "") + "</h1>" +
-        '<p class="lw-d-sub">' + esc([l.neighborhood, money(l.listPrice), l.status].filter(Boolean).join(" · ")) + "</p></div>";
-      html += '<div class="lw-d-actions">' +
-        '<button class="lw-btn" id="lwBook" type="button">Book media</button>' +
-        '<button class="lw-btn is-primary" id="lwShare" type="button">Share with agent</button></div>';
-      html += "</div>";
+      var statusLabel = listingStatusLabel(l);
+      var tone = statusToneClass(statusLabel);
+      var agentName = l.agent || "Unassigned";
+      var agentPhoto = rosterPhotoFor(agentName);
+      var heroPrice = money(l.mlsSoldPrice || l.listPrice);
+      var heroMls = String(l.idxListingId || l.mlsNumber || "").trim();
+      var heroDetailsUrl = String(l.mlsFullDetailsUrl || l.idxDetailsUrl || "").trim();
 
-      // facts + seller
-      var facts = [
-        ["MLS #", l.mlsNumber], ["Beds", l.beds], ["Baths", l.baths],
-        ["Sq ft", l.sqFt != null ? Number(l.sqFt).toLocaleString() : ""],
-        ["List date", l.listDate ? day(l.listDate) : ""]
-      ].filter(function (f) { return f[1] != null && f[1] !== ""; });
-      html += '<div class="lw-panels">';
-      html += '<section class="lw-panel"><h3>Overview</h3><div class="lw-facts">' +
-        facts.map(function (f) { return '<div><dt>' + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</div>";
-      html += '<div class="lw-assign"><label class="lw-field"><span>Listing agent</span>' +
-        '<select id="lwAgentSel"><option value="">Loading roster…</option></select></label></div>';
-      if (l.sellerQuestionnaireContent)
-        html += '<details class="lw-quest"><summary>Seller questionnaire</summary><pre>' + esc(l.sellerQuestionnaireContent) + "</pre></details>";
-      html += "</section>";
+      // Location line
+      var locBits = [];
+      if (l.neighborhood) locBits.push(l.neighborhood);
+      if (l.mlsCity && l.mlsCity !== l.neighborhood) locBits.push(l.mlsCity);
+      if (l.mlsZip) locBits.push(l.mlsZip);
+      if (l.mlsCounty) locBits.push(l.mlsCounty + " County");
 
-      // marketing status
-      html += '<section class="lw-panel"><h3>Marketing status</h3><div class="lw-statuses">' +
-        Object.keys(STATUS_ENUMS).map(function (k) { return statusSelect(k, l[k]); }).join("") + "</div></section>";
+      // Property facts line
+      var propBits = [];
+      if (l.beds != null) propBits.push("<span><b>" + esc(l.beds) + "</b> bd</span>");
+      if (l.baths != null) propBits.push("<span><b>" + esc(l.baths) + "</b> ba</span>");
+      if (l.sqFt) propBits.push("<span><b>" + esc(Number(l.sqFt).toLocaleString()) + "</b> sf</span>");
+      var propType = [l.mlsPropType, l.mlsPropSubType].filter(function (v, i, a) { return v && a.indexOf(v) === i; }).join(" · ") || l.listingType;
+      if (propType) propBits.push("<span>" + esc(propType) + "</span>");
+      if (l.mlsYearBuilt) propBits.push("<span>Built " + esc(l.mlsYearBuilt) + "</span>");
+      if (heroMls) {
+        propBits.push(heroDetailsUrl
+          ? '<span><a class="amd-lh-hero-meta-link" href="' + esc(heroDetailsUrl) + '" target="_blank" rel="noopener">MLS# ' + esc(heroMls) + " ↗</a></span>"
+          : "<span>MLS# " + esc(heroMls) + "</span>");
+      }
+      if (l.mlsDaysOnMarket != null) propBits.push("<span>" + esc(l.mlsDaysOnMarket) + " days on market</span>");
+      if (l.mlsTaxes) propBits.push("<span>Taxes <b>" + esc(money(l.mlsTaxes)) + "</b>/yr</span>");
+      if (l.mlsHoaDues) propBits.push("<span>HOA <b>" + esc(money(l.mlsHoaDues)) + "</b></span>");
 
-      // assets
-      html += '<section class="lw-panel"><h3>Assets</h3><div class="lw-assets">' +
-        ASSET_FIELDS.map(function (f) {
-          return '<label class="lw-field"><span>' + esc(f[1]) + '</span>' +
-            '<input type="url" data-asset="' + f[0] + '" value="' + esc(l[f[0]] || "") + '" placeholder="https://…"></label>';
-        }).join("") +
-        '</div><button class="lw-btn" id="lwSaveAssets" type="button">Save assets</button></section>';
-      html += "</div>"; // panels
+      var heroHtml = '<div class="amd-lh-hero">' +
+        (heroPrice ? '<div class="amd-lh-hero-price">' + esc(heroPrice) + "</div>" : "") +
+        (locBits.length ? '<div class="amd-lh-hero-loc">' + esc(locBits.join(" · ")) + "</div>" : "") +
+        (propBits.length ? '<div class="amd-lh-hero-specs">' + propBits.join('<span class="amd-lh-hero-sep" aria-hidden="true">·</span>') + "</div>" : "") +
+      "</div>";
 
-      // photos
-      html += '<section class="lw-panel"><h3>Photos <span class="lw-count">' + gallery.length + "</span></h3>" +
-        '<div class="lw-drop" id="lwDrop"><input type="file" id="lwFile" accept="image/*" multiple hidden>' +
-        '<span>Drag photos here or <button class="lw-link" id="lwPick" type="button">browse</button></span>' +
-        '<span class="lw-drop-prog" id="lwProg"></span></div>' +
-        '<div class="lw-photos" id="lwPhotos">' + gallery.map(function (p) { return photoTile(p, l.id); }).join("") + "</div></section>";
+      /* ---- tiles ---- */
+      // Open House tile
+      var ohMatStatus = String(l.openHouseMaterialsStatus || "").toLowerCase();
+      var ohDelivered = ohMatStatus.indexOf("deliver") > -1;
+      var ohRequested = ohDelivered || ohMatStatus.indexOf("request") > -1 || ohMatStatus.indexOf("build") > -1;
+      var ohValueHtml = l.nextOpenHouseDate
+        ? '<div class="amd-lh-stat-meta" style="margin-top:0"><b>' + esc(fmtDay(l.nextOpenHouseDate)) + "</b></div>"
+        : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">No open house scheduled</span>';
+      ohValueHtml += '<div class="amd-lh-stat-meta" style="margin-top:6px;">Marketing: <b>' + (ohDelivered ? "Delivered" : ohRequested ? "Requested" : "Not Requested") + "</b></div>";
+      var ohActions = ohDelivered
+        ? '<button class="amd-lh-stat-action is-secondary" type="button" disabled>✓ Delivered</button>'
+        : ohRequested
+          ? '<button class="amd-lh-stat-action is-secondary" type="button" disabled>✓ Requested</button>'
+          : '<button class="amd-lh-stat-action" type="button" data-request-kind="open_house_materials">Request Marketing</button>';
+      var ohTile = '<div class="amd-lh-stat is-openhouse">' +
+        '<div class="amd-lh-stat-k">Open House</div>' +
+        '<div class="amd-lh-stat-v">' + ohValueHtml + "</div>" +
+        '<div class="amd-lh-stat-actions">' + ohActions + "</div>" +
+      "</div>";
 
-      // requests
-      html += '<section class="lw-panel"><h3>Marketing requests</h3>' +
-        '<div class="lw-req-new"><select id="lwReqKind">' +
-        REQUEST_KINDS.map(function (k) { return '<option value="' + k[0] + '">' + esc(k[1]) + "</option>"; }).join("") +
-        '</select><button class="lw-btn" id="lwReqBtn" type="button">Request</button></div>' +
-        '<div class="lw-reqs" id="lwReqs">' + (reqs.length ? reqs.map(requestRow).join("") : '<p class="lw-empty">No requests yet.</p>') + "</div></section>";
+      // Seller Questionnaire tile
+      var sqReceived = !!(l.sellerQuestionnaireContent || "").trim();
+      var sellerLine, sellerMeta = "", sellerActions = "";
+      if (sqReceived) {
+        sellerLine = l.sellerName ? esc(l.sellerName) : '<span style="color:rgba(60,60,67,0.6);font-weight:500;">Details received</span>';
+        var mb = [];
+        if (l.sellerEmail) mb.push(esc(l.sellerEmail));
+        if (l.sellerPhone) mb.push(esc(l.sellerPhone));
+        if (mb.length) sellerMeta = '<div class="amd-lh-stat-meta">' + mb.join(" · ") + "</div>";
+        sellerActions = '<div class="amd-lh-stat-actions"><button class="amd-lh-stat-action" type="button" id="lwSqToggle">Questionnaire Details</button></div>';
+      } else {
+        sellerLine = '<span style="color:rgba(60,60,67,0.6);font-weight:500;">Not sent yet</span>';
+        sellerMeta = '<div class="amd-lh-stat-meta">Send the seller questionnaire so we can capture their goals before the listing goes live.</div>';
+      }
+      var sellerTile = '<div class="amd-lh-stat is-seller">' +
+        '<div class="amd-lh-stat-k">Seller Questionnaire</div>' +
+        '<div class="amd-lh-stat-v">' + sellerLine + "</div>" + sellerMeta + sellerActions +
+      "</div>";
 
-      // schedule
-      html += '<section class="lw-panel"><h3>Scheduled media</h3>' +
-        (appts.length ? '<div class="lw-appts">' + appts.map(function (a) {
-          return '<div class="lw-appt"><span class="lw-appt-t">' + esc(a.type || a.title || "Appointment") + "</span>" +
-            '<span class="lw-appt-when">' + esc(when(a.startsAt)) + "</span>" +
-            (a.status ? '<span class="lw-tag">' + esc(a.status) + "</span>" : "") + "</div>";
-        }).join("") + "</div>" : '<p class="lw-empty">No media booked yet.</p>') + "</section>";
+      // Compass link tile
+      var compassLink = String(l.compassLink || "").trim();
+      var compassTile;
+      if (compassLink) {
+        var disp = compassLink.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+        if (disp.length > 48) disp = disp.slice(0, 45) + "…";
+        compassTile = '<div class="amd-lh-stat is-compass">' +
+          '<div class="amd-lh-stat-k">Compass Link</div>' +
+          '<div class="amd-lh-stat-v"><a href="' + esc(compassLink) + '" target="_blank" rel="noopener" title="' + esc(compassLink) + '">' + esc(disp) + " ↗</a></div>" +
+          '<div class="amd-lh-stat-actions"><button class="amd-lh-stat-action" type="button" data-copy="' + esc(compassLink) + '">Copy URL</button></div>' +
+        "</div>";
+      } else {
+        compassTile = '<div class="amd-lh-stat is-compass">' +
+          '<div class="amd-lh-stat-k">Compass Link</div>' +
+          '<div class="amd-lh-stat-v"><span style="color:rgba(60,60,67,0.6);font-weight:500;">Not posted yet</span></div>' +
+          '<div class="amd-lh-stat-meta">Add the Compass listing URL under Marketing Assets → Edit links.</div>' +
+        "</div>";
+      }
 
-      // history
-      html += '<section class="lw-panel"><h3>History</h3>' +
-        (acts.length ? '<ul class="lw-tl">' + acts.map(activityRow).join("") + "</ul>" : '<p class="lw-empty">No activity yet.</p>') + "</section>";
+      // Financials tile
+      var financeK, financeV, financeMeta = "";
+      if (l.mlsTaxes) {
+        financeK = "Annual Taxes"; financeV = esc(money(l.mlsTaxes));
+        financeMeta = l.mlsHoaDues ? "HOA " + esc(money(l.mlsHoaDues)) + (l.mlsHoaFrequency ? " · " + esc(l.mlsHoaFrequency) : "") : "";
+      } else if (l.mlsHoaDues) {
+        financeK = "HOA / Assessments"; financeV = esc(money(l.mlsHoaDues));
+        financeMeta = l.mlsHoaFrequency ? esc(l.mlsHoaFrequency) : "";
+      } else if (l.mlsListDate || l.mlsDaysOnMarket != null) {
+        financeK = "On Market";
+        financeV = l.mlsDaysOnMarket != null ? esc(l.mlsDaysOnMarket) + " days" : esc(fmtDate(l.mlsListDate));
+        financeMeta = l.mlsListDate ? "Listed " + esc(fmtDate(l.mlsListDate)) : "";
+      } else {
+        financeK = "Activity"; financeV = '<span style="color:rgba(60,60,67,0.6);font-weight:500;">—</span>';
+      }
+      var financeTile = '<div class="amd-lh-stat">' +
+        '<div class="amd-lh-stat-k">' + esc(financeK) + "</div>" +
+        '<div class="amd-lh-stat-v">' + financeV + "</div>" +
+        (financeMeta ? '<div class="amd-lh-stat-meta">' + financeMeta + "</div>" : "") +
+      "</div>";
 
+      /* ---- full details foldout (remarks + MLS facts) ---- */
+      var remarks = String(l.mlsRemarks || "").trim();
+      var soldVsAsk = "";
+      if (l.mlsSoldPrice) {
+        soldVsAsk = money(l.mlsSoldPrice);
+        if (l.listPrice) {
+          var diff = Number(l.mlsSoldPrice) - Number(l.listPrice);
+          var pctd = ((diff / Number(l.listPrice)) * 100).toFixed(1);
+          soldVsAsk += " (vs ask " + money(l.listPrice) + ", " + (diff >= 0 ? "+" : "−") + Math.abs(pctd) + "%)";
+        }
+      }
+      var fullRows = [
+        ["MLS #", heroMls],
+        ["Status", statusLabel],
+        ["List Price", money(l.listPrice)],
+        ["List Date", fmtDate(l.mlsListDate || l.listDate)],
+        ["Days on Market", l.mlsDaysOnMarket],
+        ["Property Type", propType],
+        ["Home Type", l.mlsHomeType],
+        ["Year Built", l.mlsYearBuilt],
+        ["Year Rehabbed", l.mlsRehabYear],
+        ["Stories", l.mlsStories],
+        ["Total Rooms", l.mlsTotalRooms],
+        ["Garage", l.mlsGarageSpaces],
+        ["Parking", l.mlsParking],
+        ["Lot Size", l.mlsLotSize],
+        ["Ownership", l.mlsOwnership],
+        ["Exposure", l.mlsExposure],
+        ["Pets", l.mlsPetsAllowed],
+        ["Waterfront", l.mlsWaterfront],
+        ["Open Houses", l.mlsOhCount],
+        ["Sold Price", soldVsAsk],
+        ["Sold Date", fmtDate(l.mlsSoldDate)],
+        ["Annual Taxes", l.mlsTaxes ? money(l.mlsTaxes) + (l.mlsTaxYear ? " (" + l.mlsTaxYear + ")" : "") : ""],
+        ["HOA / Assessments", l.mlsHoaDues ? money(l.mlsHoaDues) + (l.mlsHoaFrequency ? " · " + l.mlsHoaFrequency : "") : ""],
+        ["HOA Includes", l.mlsHoaIncludes],
+        ["MLS Area", String(l.mlsAreaMajor || "").replace(/^CHI\s*-\s*/i, "")],
+        ["Township", l.mlsTownship],
+        ["City", l.mlsCity],
+        ["County", l.mlsCounty],
+        ["Zip", l.mlsZip],
+        ["School District", l.mlsSchoolDistrict],
+        ["Elementary", l.mlsElementarySchool],
+        ["Middle", l.mlsMiddleSchool],
+        ["High", l.mlsHighSchool],
+        ["Seller", l.sellerName],
+        ["Co-list Agent", l.coListAgentName]
+      ].filter(function (r) { return r[1] != null && String(r[1]).trim() !== ""; });
+      var detailsFoldout = "";
+      if (remarks || fullRows.length) {
+        var grid = fullRows.map(function (r) {
+          return '<div class="amd-lh-detail-row"><dt class="amd-lh-detail-k">' + esc(r[0]) + '</dt><dd class="amd-lh-detail-v">' + esc(r[1]) + "</dd></div>";
+        }).join("");
+        var mlsFoot = String(l.mlsListOffice || "").trim();
+        detailsFoldout = '<details class="amd-lh-foldout">' +
+          '<summary class="amd-lh-foldout-summary">' +
+            "<span>Full listing details</span>" +
+            '<span class="amd-lh-foldout-hint">Description, schools, taxes &amp; more</span>' +
+            '<svg class="amd-lh-foldout-chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+          "</summary>" +
+          '<div class="amd-lh-foldout-body">' +
+            (remarks ? '<div class="amd-lh-mred-remarks">' + esc(remarks) + "</div>" : "") +
+            (grid ? '<dl class="amd-lh-detail-list">' + grid + "</dl>" : "") +
+            '<div class="amd-lh-mls-foot">' +
+              (mlsFoot ? '<div class="amd-lh-mls-agent">Listed by ' + esc(mlsFoot) + "</div>" : "<div></div>") +
+              (heroDetailsUrl ? '<a class="amd-mini-btn is-dark" href="' + esc(heroDetailsUrl) + '" target="_blank" rel="noopener">Open MLS Detail ↗</a>' : "") +
+            "</div>" +
+          "</div>" +
+        "</details>";
+      }
+
+      var html =
+        '<div class="amd-panel-head amd-panel-head--listing">' +
+          '<h3 class="amd-panel-title amd-panel-title--listing">' + esc(l.address || "") + "</h3>" +
+          '<div class="amd-sell-overlay-actions">' +
+            '<button class="amd-mini-btn" type="button" id="lwBook">Book media</button>' +
+            '<button class="amd-mini-btn is-dark" type="button" id="lwShare">Share with agent</button>' +
+            '<button class="amd-sell-overlay-x" type="button" id="lwClose" aria-label="Close">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+            "</button>" +
+          "</div>" +
+        "</div>" +
+        '<div class="amd-sell-detail-page">' +
+          '<section class="amd-lh-status">' +
+            '<div class="amd-lh-label">Listing Overview</div>' +
+            '<div class="amd-lh-overview">' +
+              '<div class="amd-lh-agent" id="lwAgentBlock">' +
+                (agentPhoto
+                  ? '<img class="amd-lh-agent-photo" src="' + esc(agentPhoto) + '" alt="' + esc(agentName) + '" loading="lazy">'
+                  : '<div class="amd-lh-agent-photo" aria-hidden="true"></div>') +
+                '<div><div class="amd-lh-agent-name" id="lwAgentName">' + esc(agentName) +
+                  ' <button class="lw-agent-edit" type="button" id="lwAgentEdit" title="Change listing agent">✎</button></div>' +
+                '<div class="amd-lh-agent-role">Listing Agent</div></div>' +
+              "</div>" +
+              (statusLabel ? '<div class="amd-lh-overview-status"><span class="amd-lh-hero-pill' + (tone ? " " + tone : "") + '">' + esc(statusLabel) + "</span></div>" : "") +
+            "</div>" +
+            heroHtml +
+            '<div class="amd-lh-status-grid amd-lh-status-grid--trio">' + ohTile + sellerTile + compassTile + financeTile + "</div>" +
+            (sqReceived ? '<div class="lw-sq-content" id="lwSqContent"><pre>' + esc(l.sellerQuestionnaireContent) + "</pre></div>" : "") +
+            detailsFoldout +
+          "</section>" +
+          '<div class="amd-lh-stage-area"><div class="amd-lh-stage-content">' +
+            marketingStatusCard(l) +
+            marketingAssetsCard(l) +
+            '<section class="amd-lh-trio">' + photosCard(l) + matterportCard(l) + "</section>" +
+            requestsCard(l) +
+            historyCard(l) +
+          "</div></div>" +
+        "</div>";
       detailEl.innerHTML = html;
       bindDetail(l);
     }
 
     function bindDetail(l) {
-      document.getElementById("lwBack").addEventListener("click", function () { showList(); });
+      document.getElementById("lwClose").addEventListener("click", showList);
 
-      // agent assignment
-      fillAgentSelect(l);
-      document.getElementById("lwAgentSel").addEventListener("change", async function () {
-        var name = this.value;
-        try {
-          await jsend("PATCH", "/api/admin/listings/" + l.id, { agentName: name || null });
-          l.agent = name || null;
-          toast(name ? "Assigned to " + name : "Listing unassigned");
-        } catch (e) { toast(e.message || "Assignment failed", true); }
+      // agent assignment (✎ swaps the name for a roster select)
+      document.getElementById("lwAgentEdit").addEventListener("click", async function () {
+        var nameEl = document.getElementById("lwAgentName");
+        var roster = await loadAgentRoster();
+        var names = roster.filter(function (a) { return a.tier !== "admin"; }).map(function (a) { return a.name; });
+        if (l.agent && names.indexOf(l.agent) === -1) names.unshift(l.agent);
+        var sel = document.createElement("select");
+        sel.className = "lw-agent-select";
+        sel.innerHTML = '<option value="">Unassigned</option>' + names.map(function (n) {
+          return '<option value="' + esc(n) + '"' + (n === l.agent ? " selected" : "") + ">" + esc(n) + "</option>";
+        }).join("");
+        nameEl.replaceWith(sel);
+        sel.focus();
+        sel.addEventListener("change", async function () {
+          var name = sel.value;
+          try {
+            await jsend("PATCH", "/api/admin/listings/" + l.id, { agentName: name || null });
+            toast(name ? "Assigned to " + name : "Listing unassigned");
+            await refreshDetail(l.id);
+            loadList();
+          } catch (e) { toast(e.message || "Assignment failed", true); }
+        });
+        sel.addEventListener("blur", function () { setTimeout(function () { if (current && current.id === l.id) renderDetail(current); }, 150); });
       });
 
-      // statuses
+      // status roadmap selects
       detailEl.querySelectorAll("select[data-status]").forEach(function (sel) {
         sel.addEventListener("change", async function () {
           var body = {}; body[sel.getAttribute("data-status")] = sel.value;
-          try { await jsend("PATCH", "/api/admin/listings/" + l.id, body); toast("Status updated"); }
-          catch (e) { toast(e.message || "Update failed", true); }
+          try {
+            await jsend("PATCH", "/api/admin/listings/" + l.id, body);
+            toast("Status updated");
+            await refreshDetail(l.id);
+          } catch (e) { toast(e.message || "Update failed", true); }
         });
       });
 
-      // assets
+      // asset links editor
+      document.getElementById("lwEditAssets").addEventListener("click", function () {
+        document.getElementById("lwAssetEditor").classList.toggle("is-open");
+      });
       document.getElementById("lwSaveAssets").addEventListener("click", async function () {
         var body = {};
         detailEl.querySelectorAll("input[data-asset]").forEach(function (inp) { body[inp.getAttribute("data-asset")] = inp.value.trim(); });
-        try { await jsend("PATCH", "/api/admin/listings/" + l.id, body); toast("Assets saved"); }
+        try { await jsend("PATCH", "/api/admin/listings/" + l.id, body); toast("Assets saved"); await refreshDetail(l.id); }
         catch (e) { toast(e.message || "Save failed", true); }
       });
 
-      // book media
-      document.getElementById("lwBook").addEventListener("click", async function () {
+      // copy buttons
+      detailEl.querySelectorAll("[data-copy]").forEach(function (btn) {
+        btn.addEventListener("click", function () { copyText(btn.getAttribute("data-copy")); });
+      });
+
+      // book media (Acuity) — head button + any "Book →" tile button
+      async function bookMedia() {
         try { var d = await jget("/api/admin/listings/" + l.id + "/acuity-link"); if (d.ok && d.url) window.open(d.url, "_blank", "noopener"); else throw new Error(d.error || "no link"); }
         catch (e) { toast(e.message || "Could not open Acuity", true); }
-      });
+      }
+      document.getElementById("lwBook").addEventListener("click", bookMedia);
+      detailEl.querySelectorAll("[data-book-media]").forEach(function (btn) { btn.addEventListener("click", bookMedia); });
 
       // share
       document.getElementById("lwShare").addEventListener("click", async function () {
@@ -352,8 +2840,18 @@
         catch (e) { toast(e.message || "Share failed", true); }
       });
 
-      // requests
-      document.getElementById("lwReqBtn").addEventListener("click", async function () {
+      // request buttons (tiles + requests card)
+      detailEl.querySelectorAll("[data-request-kind]").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          try {
+            await jsend("POST", "/api/admin/listings/" + l.id + "/requests", { kind: btn.getAttribute("data-request-kind") });
+            toast("Request created");
+            await refreshDetail(l.id);
+          } catch (e) { toast(e.message || "Request failed", true); }
+        });
+      });
+      var reqBtn = document.getElementById("lwReqBtn");
+      if (reqBtn) reqBtn.addEventListener("click", async function () {
         var kind = document.getElementById("lwReqKind").value;
         try {
           await jsend("POST", "/api/admin/listings/" + l.id + "/requests", { kind: kind });
@@ -362,24 +2860,31 @@
         } catch (e) { toast(e.message || "Request failed", true); }
       });
 
-      // photo delete
-      detailEl.querySelectorAll("[data-del]").forEach(function (btn) {
-        btn.addEventListener("click", async function () {
-          var pid = btn.getAttribute("data-del");
-          if (!pid) return;
-          try { await jsend("DELETE", "/api/admin/photos/" + pid, {}); btn.closest(".lw-photo").remove(); toast("Photo removed"); }
-          catch (e) { toast(e.message || "Delete failed", true); }
-        });
+      // seller questionnaire toggle
+      var sqToggle = document.getElementById("lwSqToggle");
+      if (sqToggle) sqToggle.addEventListener("click", function () {
+        document.getElementById("lwSqContent").classList.toggle("is-open");
+      });
+
+      // photo carousel
+      var prev = detailEl.querySelector("[data-photo-prev]");
+      var next = detailEl.querySelector("[data-photo-next]");
+      if (prev) prev.addEventListener("click", function () { slideIdx--; renderDetail(current); });
+      if (next) next.addEventListener("click", function () { slideIdx++; renderDetail(current); });
+      var delBtn = detailEl.querySelector("[data-del]");
+      if (delBtn) delBtn.addEventListener("click", async function () {
+        try {
+          await jsend("DELETE", "/api/admin/photos/" + delBtn.getAttribute("data-del"), {});
+          toast("Photo removed");
+          slideIdx = 0;
+          await refreshDetail(l.id);
+        } catch (e) { toast(e.message || "Delete failed", true); }
       });
 
       // uploads
       var fileInput = document.getElementById("lwFile");
-      var drop = document.getElementById("lwDrop");
-      document.getElementById("lwPick").addEventListener("click", function () { fileInput.click(); });
+      document.getElementById("lwUploadBtn").addEventListener("click", function () { fileInput.click(); });
       fileInput.addEventListener("change", function () { if (fileInput.files.length) uploadPhotos(l.id, fileInput.files); });
-      ["dragover", "dragenter"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
-      ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); }); });
-      drop.addEventListener("drop", function (e) { if (e.dataTransfer && e.dataTransfer.files.length) uploadPhotos(l.id, e.dataTransfer.files); });
     }
 
     async function uploadPhotos(id, fileList) {
@@ -407,46 +2912,19 @@
       } catch (e) { prog.textContent = ""; toast(e.message || "Upload failed", true); }
     }
 
-    async function refreshDetail(id) {
-      try { var data = await jget("/api/admin/listings/" + id); if (data.ok) { current = data.listing; renderDetail(current); } }
-      catch (e) {}
-    }
-
-    /* ---------- agent assignment ---------- */
-    var rosterCache = null;
-    async function loadAgentRoster() {
-      if (rosterCache) return rosterCache;
-      var data = await jget("/api/directory");
-      rosterCache = (data.directory || []).filter(function (a) { return a.tier !== "admin" && a.name; });
-      return rosterCache;
-    }
-
-    async function fillAgentSelect(l) {
-      var sel = document.getElementById("lwAgentSel");
-      if (!sel) return;
-      try {
-        var roster = await loadAgentRoster();
-        var names = roster.map(function (a) { return a.name; });
-        if (l.agent && names.indexOf(l.agent) === -1) names.unshift(l.agent);
-        sel.innerHTML = '<option value="">Unassigned</option>' +
-          names.map(function (n) { return '<option value="' + esc(n) + '"' + (n === l.agent ? " selected" : "") + ">" + esc(n) + "</option>"; }).join("");
-      } catch (e) {
-        sel.innerHTML = '<option value="">Could not load roster</option>';
-      }
-    }
-
     /* ---------- wiring ---------- */
-    listEl.addEventListener("click", function (e) {
-      var c = e.target.closest(".lw-card");
-      if (c) openListing(c.getAttribute("data-id"));
+    root.addEventListener("click", function (e) {
+      var c = e.target.closest("[data-open]");
+      if (c && !detailEl.contains(c)) openListing(c.getAttribute("data-open"));
     });
-    calRail.addEventListener("click", function (e) {
-      var c = e.target.closest(".lw-cal-card[data-id]");
-      if (c) openListing(c.getAttribute("data-id"));
+    root.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      var c = e.target.closest("article[data-open]");
+      if (c) { e.preventDefault(); openListing(c.getAttribute("data-open")); }
     });
 
     C.onSurface(function (name) {
-      if (name === "listings" && !loaded) { loaded = true; loadList(); loadCalendar(); }
+      if (name === "listings" && !loaded) { loaded = true; loadList(); }
     });
   }
   boot();
