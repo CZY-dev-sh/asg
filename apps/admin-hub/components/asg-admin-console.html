@@ -9351,6 +9351,25 @@ function wireLhSellWorkspaceEvents(){
 #lwRoot .amd-lh-status-grid--trio{
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+/* Four tiles (Open House · Seller · Compass · Financials): keep them on one
+     even row on desktop so the 4th never orphans, fold to a balanced 2×2 on
+     tablets, then stack on phones. */
+  #lwRoot .amd-lh-status-grid--quad{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+#lwRoot .amd-lh-status-grid--quad > .amd-lh-stat,
+  #lwRoot .amd-lh-status-grid--quad > .amd-lh-stat.is-seller,
+  #lwRoot .amd-lh-status-grid--quad > .amd-lh-stat.is-openhouse,
+  #lwRoot .amd-lh-status-grid--quad > .amd-lh-stat.is-compass{
+    grid-column: auto;
+    min-width: 0;
+  }
+@media (max-width: 1040px){
+    #lwRoot .amd-lh-status-grid--quad{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+@media (max-width: 560px){
+    #lwRoot .amd-lh-status-grid--quad{ grid-template-columns: 1fr; }
+  }
 #lwRoot .amd-lh-status-grid--duo > .amd-lh-stat,
   #lwRoot .amd-lh-status-grid--duo > .amd-lh-stat.is-seller,
   #lwRoot .amd-lh-status-grid--duo > .amd-lh-stat.is-openhouse,
@@ -9551,6 +9570,13 @@ function wireLhSellWorkspaceEvents(){
     text-align: right;
     line-height: 1.35;
     word-break: break-word;
+  }
+/* Long values (Parking lists, HOA inclusions, verbose home types) get a
+     full-width row so they read on one or two clean lines instead of being
+     crushed into a half-width column and wrapping awkwardly. */
+  #lwRoot .amd-lh-detail-row--wide{
+    grid-column: 1 / -1;
+    gap: 24px;
   }
 @media (max-width: 720px){#lwRoot .amd-lh-detail-list{ grid-template-columns: 1fr; }}
 #lwRoot .amd-lh-stat.is-openhouse{
@@ -10959,7 +10985,8 @@ function wireLhSellWorkspaceEvents(){
       var detailsFoldout = "";
       if (remarks || fullRows.length) {
         var grid = fullRows.map(function (r) {
-          return '<div class="amd-lh-detail-row"><dt class="amd-lh-detail-k">' + esc(r[0]) + '</dt><dd class="amd-lh-detail-v">' + esc(r[1]) + "</dd></div>";
+          var wide = String(r[1]).length > 30;
+          return '<div class="amd-lh-detail-row' + (wide ? " amd-lh-detail-row--wide" : "") + '"><dt class="amd-lh-detail-k">' + esc(r[0]) + '</dt><dd class="amd-lh-detail-v">' + esc(r[1]) + "</dd></div>";
         }).join("");
         var mlsFoot = String(l.mlsListOffice || "").trim();
         detailsFoldout = '<details class="amd-lh-foldout">' +
@@ -11005,7 +11032,7 @@ function wireLhSellWorkspaceEvents(){
               (statusLabel ? '<div class="amd-lh-overview-status"><span class="amd-lh-hero-pill' + (tone ? " " + tone : "") + '">' + esc(statusLabel) + "</span></div>" : "") +
             "</div>" +
             heroHtml +
-            '<div class="amd-lh-status-grid amd-lh-status-grid--trio">' + ohTile + sellerTile + compassTile + financeTile + "</div>" +
+            '<div class="amd-lh-status-grid amd-lh-status-grid--quad">' + ohTile + sellerTile + compassTile + financeTile + "</div>" +
             (sqReceived ? '<div class="lw-sq-content" id="lwSqContent"><pre>' + esc(l.sellerQuestionnaireContent) + "</pre></div>" : "") +
             detailsFoldout +
           "</section>" +
