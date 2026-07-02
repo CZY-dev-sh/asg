@@ -10231,7 +10231,7 @@ function wireLhSellWorkspaceEvents(){
 #lwRoot .amd-lh-stage-content{gap:18px}
 #lwRoot .amd-lh-trio{gap:18px}
 /* Bento headlines: more space below, calmer icon/title row */
-#lwRoot .amd-lh-label{margin:0 0 22px;gap:12px}
+#lwRoot .amd-lh-label{margin:0 0 18px;gap:12px}
 #lwRoot .amd-lh-ico{width:34px;height:34px;flex:0 0 34px;border-radius:11px}
 /* Overview: agent row and hero */
 #lwRoot .amd-lh-overview{gap:20px;margin:0 0 22px}
@@ -10249,14 +10249,23 @@ function wireLhSellWorkspaceEvents(){
 /* Full-details foldout */
 #lwRoot .amd-lh-foldout{margin-top:22px;padding-top:18px}
 #lwRoot .amd-lh-foldout-body{margin-top:18px;padding:6px}
-/* Marketing status roadmap */
-#lwRoot .amd-lh-roadmap{margin-top:8px;padding:24px 12px 12px}
-/* Marketing asset tiles */
+/* Marketing status roadmap: keep the rail close to the headline, air below */
+#lwRoot .amd-lh-card.is-marketing-status .amd-lh-label{margin-bottom:10px}
+#lwRoot .amd-lh-roadmap{margin-top:0;padding:14px 10px 8px}
+/* Marketing asset tiles: title row → status → CTA in a steady rhythm */
 #lwRoot .amd-lh-assets-grid{gap:14px}
-#lwRoot .amd-lh-asset{padding:20px;gap:12px;min-height:128px;border-radius:16px}
+#lwRoot .amd-lh-asset{padding:18px;gap:0;min-height:0;border-radius:16px}
 #lwRoot .amd-lh-asset-head{gap:12px}
 #lwRoot .amd-lh-asset-ico{width:30px;height:30px;flex:0 0 30px}
+#lwRoot .amd-lh-asset-meta{margin:10px 0 14px}
 #lwRoot .amd-lh-asset .amd-lh-asset-btn{margin-top:auto}
+/* Don't let the roomier padding eat narrow screens */
+@media (max-width: 760px){
+  #lwRoot .amd-lh-status{padding:20px}
+  #lwRoot .amd-lh-card{padding:18px 20px}
+  #lwRoot .amd-lh-stat{padding:16px}
+  #lwRoot .amd-lh-asset{padding:16px}
+}
 /* List view: stats, open-house rail, cards */
 #lwRoot .amd-sell-stats{gap:14px;margin-bottom:16px}
 #lwRoot .amd-sell-stat{padding:16px 18px}
