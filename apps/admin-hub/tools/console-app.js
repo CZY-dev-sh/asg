@@ -307,7 +307,7 @@
 
   /* ---- surface navigation ---- */
   // Every surface this shell knows about — used to validate deep-link hashes.
-  var SURFACES = ["overview", "deals", "listings", "marketing", "directory", "leads", "account"];
+  var SURFACES = ["overview", "deals", "listings", "marketing", "directory", "leads", "resources", "account"];
 
   function setSurface(name, opts) {
     if (SURFACES.indexOf(name) === -1) name = "overview";

@@ -41,18 +41,21 @@ function patchListings(src) {
 }
 
 /* --- load + patch the surfaces ---
-   Overview is now the Command Center (real pipeline/adoption/marketing/system
-   data), replacing the legacy admin-dashboard.html. Leads is a triage surface
-   over the existing /api/admin/leads routes. */
+   Overview is the team-performance admin dashboard (KPIs, directory, pipeline
+   leaderboard, marketing actions/assets, listing hub, quick links) — the view
+   the team already knows. Marketing is the Acuity+Asana production view;
+   Resources is the shareable link library; Leads is a triage surface over the
+   existing /api/admin/leads routes. */
 const surfaces = {
-  overview: read(resolve(comp, "command-center.html")),
+  overview: patchOverview(read(resolve(comp, "admin-dashboard.html"))),
   deals: read(resolve(comp, "deal-tracker.html")),
   // Listings surface is the Supabase-backed Listing Workshop (reads window.ASGConsole).
   listings: read(resolve(comp, "listing-workshop.html")),
-  // Marketing workload board (role-aware: admin assigns/tracks, agents self-serve).
-  marketing: read(resolve(comp, "marketing-workload.html")),
+  // Marketing production stats (Acuity schedule + Asana workload, read-only).
+  marketing: read(resolve(comp, "marketing-production.html")),
   directory: read(resolve(comp, "team-directory.html")),
   leads: read(resolve(comp, "leads-triage.html")),
+  resources: read(resolve(comp, "admin-resources.html")),
 };
 
 function section(name, content, hidden) {
@@ -80,6 +83,7 @@ inject("    <!--SURFACE:listings-->", "listings", true);
 inject("    <!--SURFACE:marketing-->", "marketing", true);
 inject("    <!--SURFACE:directory-->", "directory", true);
 inject("    <!--SURFACE:leads-->", "leads", true);
+inject("    <!--SURFACE:resources-->", "resources", true);
 
 /* --- assemble --- */
 const out = `<!-- ════════════════════════════════════════════════════════════════

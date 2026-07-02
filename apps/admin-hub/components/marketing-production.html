@@ -1,0 +1,191 @@
+<!-- ASG Marketing Production — console "Marketing" surface.
+     Read-only production view: how much marketing we're doing (Acuity shoots,
+     Asana tasks, deliveries) and what's next on the schedule.
+     Data: GET {API}/api/marketing-dashboard?days=30 (kpis, appointments, team).
+     Uses window.ASGConsole (apiBase, onSurface). Scoped styles (.mp-*). -->
+<div class="mp" id="mpRoot">
+  <header class="mp-hero">
+    <h1>Marketing</h1>
+    <p id="mpHeroSub">Production overview — Acuity schedule and Asana workload.</p>
+  </header>
+
+  <!-- KPI strip -->
+  <div class="mp-kpis" id="mpKpis">
+    <div class="mp-kpi"><span class="mp-kpi-label">Upcoming shoots</span><span class="mp-kpi-value" id="mpKpiShoots">—</span><span class="mp-kpi-sub">booked in Acuity</span></div>
+    <div class="mp-kpi"><span class="mp-kpi-label">This week</span><span class="mp-kpi-value" id="mpKpiWeek">—</span><span class="mp-kpi-sub">appointments in 7 days</span></div>
+    <div class="mp-kpi"><span class="mp-kpi-label">Open tasks</span><span class="mp-kpi-value" id="mpKpiOpen">—</span><span class="mp-kpi-sub">Asana, in production</span></div>
+    <div class="mp-kpi"><span class="mp-kpi-label">Completed</span><span class="mp-kpi-value" id="mpKpiDone">—</span><span class="mp-kpi-sub">Asana, last 30 days</span></div>
+    <div class="mp-kpi"><span class="mp-kpi-label">Deliveries</span><span class="mp-kpi-value" id="mpKpiDeliv">—</span><span class="mp-kpi-sub">sent, last 30 days</span></div>
+  </div>
+
+  <div class="mp-grid">
+    <!-- Up next: schedule -->
+    <section class="mp-panel mp-panel-wide">
+      <div class="mp-panel-head">
+        <h2>Up next</h2>
+        <p>Upcoming shoots and meetings from Acuity, linked to listings.</p>
+      </div>
+      <div class="mp-schedule" id="mpSchedule"><p class="mp-empty">Loading schedule…</p></div>
+    </section>
+
+    <!-- Asana workload -->
+    <section class="mp-panel">
+      <div class="mp-panel-head">
+        <h2>Asana workload</h2>
+        <p>Open vs completed tasks per person.</p>
+      </div>
+      <div class="mp-list" id="mpWorkload"><p class="mp-empty">Loading…</p></div>
+    </section>
+
+    <!-- Photographers -->
+    <section class="mp-panel">
+      <div class="mp-panel-head">
+        <h2>Shoots by photographer</h2>
+        <p>Acuity volume, trailing window.</p>
+      </div>
+      <div class="mp-list" id="mpPhotogs"><p class="mp-empty">Loading…</p></div>
+    </section>
+
+    <!-- Recent Asana tasks -->
+    <section class="mp-panel mp-panel-wide">
+      <div class="mp-panel-head">
+        <h2>Recent Asana tasks</h2>
+        <p>Latest production items, newest first.</p>
+      </div>
+      <div class="mp-tasks" id="mpTasks"><p class="mp-empty">Loading…</p></div>
+    </section>
+  </div>
+</div>
+
+<style>
+  .mp { max-width: 1160px; margin: 0 auto; padding: 8px 16px 80px; }
+  .mp-hero { padding: 24px 4px 14px; }
+  .mp-hero h1 { font-size: 30px; font-weight: 700; margin: 0 0 4px; letter-spacing: -.02em; }
+  .mp-hero p { color: rgba(0,0,0,.55); margin: 0; font-size: 15px; }
+  .mp-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+  .mp-kpi { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 3px; }
+  .mp-kpi-label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: rgba(0,0,0,.45); }
+  .mp-kpi-value { font-size: 26px; font-weight: 800; color: #111; }
+  .mp-kpi-sub { font-size: 12px; color: rgba(0,0,0,.42); }
+  .mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mp-panel { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; padding: 18px; min-width: 0; }
+  .mp-panel-wide { grid-column: 1 / -1; }
+  .mp-panel-head h2 { margin: 0 0 3px; font-size: 17px; font-weight: 700; }
+  .mp-panel-head p { margin: 0 0 12px; font-size: 13px; color: rgba(0,0,0,.5); }
+  .mp-empty { color: rgba(0,0,0,.42); font-size: 13.5px; margin: 6px 0; }
+  .mp-schedule { display: flex; flex-direction: column; gap: 8px; }
+  .mp-appt { display: flex; align-items: center; gap: 14px; border: 1px solid rgba(0,0,0,.08); border-radius: 13px; padding: 11px 14px; }
+  .mp-appt-when { min-width: 118px; }
+  .mp-appt-when .d { font-size: 13px; font-weight: 700; color: #111; }
+  .mp-appt-when .t { font-size: 12px; color: rgba(0,0,0,.5); }
+  .mp-appt-main { flex: 1; min-width: 0; }
+  .mp-appt-main .a { font-size: 14px; font-weight: 700; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mp-appt-main .m { font-size: 12.5px; color: rgba(0,0,0,.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mp-badge { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; border-radius: 999px; padding: 4px 11px; white-space: nowrap; }
+  .mp-badge.is-shoot { color: #1f7a5a; background: rgba(31,122,90,.1); }
+  .mp-badge.is-meeting { color: #3a5ccc; background: rgba(58,92,204,.1); }
+  .mp-badge.is-other { color: #8a6d2f; background: rgba(138,109,47,.1); }
+  .mp-list { display: flex; flex-direction: column; gap: 7px; }
+  .mp-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13.5px; border-bottom: 1px solid rgba(0,0,0,.06); padding: 7px 2px; }
+  .mp-row:last-child { border-bottom: none; }
+  .mp-row .n { font-weight: 600; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mp-row .v { color: rgba(0,0,0,.55); white-space: nowrap; }
+  .mp-tasks { display: flex; flex-direction: column; gap: 7px; }
+  .mp-task { display: flex; align-items: center; gap: 10px; font-size: 13.5px; border: 1px solid rgba(0,0,0,.07); border-radius: 11px; padding: 9px 12px; }
+  .mp-task .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .mp-task .dot.is-open { background: #f97316; }
+  .mp-task .dot.is-done { background: #22c55e; }
+  .mp-task .tt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: #111; }
+  .mp-task .who { color: rgba(0,0,0,.5); white-space: nowrap; font-size: 12.5px; }
+  .mp-task a { color: inherit; text-decoration: none; }
+  @media (max-width: 900px) { .mp-kpis { grid-template-columns: repeat(2, 1fr); } .mp-grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+(function () {
+  var loaded = false;
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function num(v) { return v == null ? "—" : String(v); }
+  function dayLabel(iso) {
+    var d = new Date(iso), today = new Date();
+    var diff = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Tomorrow";
+    return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  }
+  function timeLabel(iso) { return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+
+  async function load() {
+    if (loaded) return;
+    var C = window.ASGConsole || {};
+    var B = C.apiBase || window.ASG_API_BASE || "";
+    try {
+      var res = await fetch(B + "/api/marketing-dashboard?days=30", { cache: "no-store" });
+      var data = await res.json();
+      if (!data || !data.ok) throw new Error("bad payload");
+      loaded = true;
+      render(data);
+    } catch (e) {
+      document.getElementById("mpSchedule").innerHTML = '<p class="mp-empty">Unable to load marketing data right now.</p>';
+    }
+  }
+
+  function render(data) {
+    var k = data.kpis || {};
+    document.getElementById("mpKpiShoots").textContent = num(k.upcomingShoots);
+    document.getElementById("mpKpiWeek").textContent = num(k.thisWeek);
+    document.getElementById("mpKpiOpen").textContent = num(k.openTasks);
+    document.getElementById("mpKpiDone").textContent = num(k.completed30);
+    document.getElementById("mpKpiDeliv").textContent = num(k.deliveries);
+
+    var now = Date.now();
+    var future = (data.appointments || []).filter(function (a) {
+      return a.startsAt && new Date(a.startsAt).getTime() >= now;
+    }).slice(0, 12);
+    var sched = document.getElementById("mpSchedule");
+    sched.innerHTML = future.length ? future.map(function (a) {
+      var addr = a.listingAddress || a.address || "";
+      var meta = [a.client, a.photographer && ("with " + a.photographer)].filter(Boolean).join(" · ");
+      var addOns = (a.addOns || []).length ? " · " + a.addOns.join(", ") : "";
+      return '<div class="mp-appt">' +
+        '<div class="mp-appt-when"><div class="d">' + esc(dayLabel(a.startsAt)) + '</div><div class="t">' + esc(timeLabel(a.startsAt)) + "</div></div>" +
+        '<div class="mp-appt-main"><div class="a">' + esc(addr || a.type || "Appointment") + '</div><div class="m">' + esc((a.type || "") + (meta ? " · " + meta : "") + addOns) + "</div></div>" +
+        '<span class="mp-badge is-' + esc(a.kind || "other") + '">' + esc(a.kind || "other") + "</span>" +
+        "</div>";
+    }).join("") : '<p class="mp-empty">Nothing booked ahead in Acuity.</p>';
+
+    var team = data.team || {};
+    var wl = document.getElementById("mpWorkload");
+    var workload = team.asanaWorkload || [];
+    wl.innerHTML = workload.length ? workload.map(function (w) {
+      return '<div class="mp-row"><span class="n">' + esc(w.agent) + '</span><span class="v">' + esc(w.open) + " open · " + esc(w.completed) + " done</span></div>";
+    }).join("") : '<p class="mp-empty">Asana isn\u2019t reporting workload yet.</p>';
+
+    var ph = document.getElementById("mpPhotogs");
+    var photogs = (team.photographers || []).filter(function (p) { return p.shoots > 0; });
+    ph.innerHTML = photogs.length ? photogs.map(function (p) {
+      return '<div class="mp-row"><span class="n">' + esc(p.name) + '</span><span class="v">' + esc(p.shoots) + " shoots</span></div>";
+    }).join("") : '<p class="mp-empty">No shoots in this window.</p>';
+
+    var tasksEl = document.getElementById("mpTasks");
+    var recent = (data.asana && data.asana.recent) || [];
+    tasksEl.innerHTML = recent.length ? recent.map(function (t) {
+      var title = t.url ? '<a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.title) + "</a>" : esc(t.title);
+      return '<div class="mp-task"><span class="dot ' + (t.completed ? "is-done" : "is-open") + '"></span>' +
+        '<span class="tt">' + title + '</span><span class="who">' + esc(t.agent || "") + (t.due_on ? " · due " + esc(t.due_on) : "") + "</span></div>";
+    }).join("") : '<p class="mp-empty">No Asana tasks synced yet.</p>';
+  }
+
+  function boot() {
+    var C = window.ASGConsole;
+    if (C && C.onSurface) C.onSurface(function (name) { if (name === "marketing") load(); });
+    else load();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
