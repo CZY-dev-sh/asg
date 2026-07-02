@@ -6,19 +6,21 @@ type HubRow = {
   address?: string;
   mlsNumber?: string;
   idxListingId?: string;
-  coListAgentName?: string;
   neighborhood?: string;
 };
 
 const FALLBACK_AGENT = 'Alex Stoykov';
 
 /**
- * Overlay per-listing assignment from the "Listing Hub" sheet (Apps Script
- * JSON). The sheet carries the MLS co-list agent pulled from the MRED feed;
- * that person is the ASG agent who owns the listing, so we assign them as the
- * listing agent (falling back to Alex Stoykov when the sheet has no one).
- * Neighborhood is copied over too — the IDX feed rarely provides it.
- * Rows match by MLS number first, then by standardized address.
+ * Overlay per-listing neighborhood from the "Listing Hub" sheet (Apps Script
+ * JSON) — the IDX bulk feed rarely provides it. Rows match by MLS number
+ * first, then by standardized address.
+ *
+ * Agent assignment is deliberately NOT sourced from the sheet: its co-list
+ * column mixes MLS data with hand-entered and guessed values. Assignment is
+ * manual — admins set the listing agent in the console, and the seller wizard
+ * assigns the agent the seller picked. This overlay never overwrites those;
+ * it only defaults still-unassigned open listings to Alex Stoykov.
  */
 export async function overlayListingHub(): Promise<{ rows: number; matched: number }> {
   if (!env.LISTING_HUB_API) return { rows: 0, matched: 0 };
@@ -37,25 +39,19 @@ export async function overlayListingHub(): Promise<{ rows: number; matched: numb
   for (const r of rows) {
     const address = (r.address ?? '').trim();
     const mls = (r.mlsNumber ?? r.idxListingId ?? '').trim();
-    const co = (r.coListAgentName ?? '').trim();
     const hood = (r.neighborhood ?? '').trim();
-    const agentName = co || FALLBACK_AGENT;
-    if (!address && !mls) continue;
+    if (!hood || (!address && !mls)) continue;
     const result = await sql`
       update listings l
-      set agent_name = ${agentName},
-          agent_id = (select id from agents where lower(name) = lower(${agentName}) limit 1),
-          co_agent_name = ${co || null},
-          co_agent_id = (select id from agents where ${co} <> '' and lower(name) = lower(${co}) limit 1),
-          neighborhood = coalesce(nullif(${hood}, ''), l.neighborhood),
-          updated_at = now()
-      where (${mls} <> '' and l.idx_listing_id = ${mls})
-         or (l.address_std is not null and l.address_std = address_std(${address}))
+      set neighborhood = ${hood}, updated_at = now()
+      where l.neighborhood is null
+        and ((${mls} <> '' and l.idx_listing_id = ${mls})
+          or (l.address_std is not null and l.address_std = address_std(${address})))
     `;
     matched += (result as unknown as { count?: number }).count ?? 0;
   }
 
-  // Open listings the sheet doesn't know about default to Alex Stoykov.
+  // Open listings nobody has assigned yet default to Alex Stoykov.
   await sql`
     update listings
     set agent_name = ${FALLBACK_AGENT},

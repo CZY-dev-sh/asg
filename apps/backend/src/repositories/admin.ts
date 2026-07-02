@@ -195,7 +195,21 @@ export async function updateListing(id: string, body: Row): Promise<Row> {
   if (!Object.keys(scalar).length && !Object.keys(uuid).length && !Object.keys(json).length)
     throw new ApiError(400, 'no writable fields supplied');
   await applyUpdate('listings', id, { scalar, uuid, json });
+  await linkListingAgentsByName(id, body);
   return (await fetchOne('listings', id))!;
+}
+
+/** Sending just agentName/coAgentName assigns the roster agent: resolve the
+ *  name to agents.id so RLS and per-agent hubs see the listing as theirs. */
+async function linkListingAgentsByName(id: string, body: Row): Promise<void> {
+  if (body.agentName !== undefined && body.agentId === undefined)
+    await sql`
+      update listings set agent_id = (select a.id from agents a where lower(a.name) = lower(agent_name) limit 1)
+      where id = ${id}::uuid`;
+  if (body.coAgentName !== undefined && body.coAgentId === undefined)
+    await sql`
+      update listings set co_agent_id = (select a.id from agents a where lower(a.name) = lower(co_agent_name) limit 1)
+      where id = ${id}::uuid`;
 }
 
 export async function createListing(body: Row): Promise<Row> {
@@ -225,6 +239,7 @@ export async function createListing(body: Row): Promise<Row> {
       throw new ApiError(409, 'a listing with this address or slug already exists');
     throw err;
   }
+  await linkListingAgentsByName(id, rest);
   return (await fetchOne('listings', id))!;
 }
 

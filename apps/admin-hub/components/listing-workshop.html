@@ -255,11 +255,13 @@
       var facts = [
         ["MLS #", l.mlsNumber], ["Beds", l.beds], ["Baths", l.baths],
         ["Sq ft", l.sqFt != null ? Number(l.sqFt).toLocaleString() : ""],
-        ["Agent", l.agent], ["Co-list", l.coListAgentName], ["List date", l.listDate ? day(l.listDate) : ""]
+        ["List date", l.listDate ? day(l.listDate) : ""]
       ].filter(function (f) { return f[1] != null && f[1] !== ""; });
       html += '<div class="lw-panels">';
       html += '<section class="lw-panel"><h3>Overview</h3><div class="lw-facts">' +
         facts.map(function (f) { return '<div><dt>' + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</div>";
+      html += '<div class="lw-assign"><label class="lw-field"><span>Listing agent</span>' +
+        '<select id="lwAgentSel"><option value="">Loading roster…</option></select></label></div>';
       if (l.sellerQuestionnaireContent)
         html += '<details class="lw-quest"><summary>Seller questionnaire</summary><pre>' + esc(l.sellerQuestionnaireContent) + "</pre></details>";
       html += "</section>";
@@ -309,6 +311,17 @@
 
     function bindDetail(l) {
       document.getElementById("lwBack").addEventListener("click", function () { showList(); });
+
+      // agent assignment
+      fillAgentSelect(l);
+      document.getElementById("lwAgentSel").addEventListener("change", async function () {
+        var name = this.value;
+        try {
+          await jsend("PATCH", "/api/admin/listings/" + l.id, { agentName: name || null });
+          l.agent = name || null;
+          toast(name ? "Assigned to " + name : "Listing unassigned");
+        } catch (e) { toast(e.message || "Assignment failed", true); }
+      });
 
       // statuses
       detailEl.querySelectorAll("select[data-status]").forEach(function (sel) {
@@ -397,6 +410,29 @@
     async function refreshDetail(id) {
       try { var data = await jget("/api/admin/listings/" + id); if (data.ok) { current = data.listing; renderDetail(current); } }
       catch (e) {}
+    }
+
+    /* ---------- agent assignment ---------- */
+    var rosterCache = null;
+    async function loadAgentRoster() {
+      if (rosterCache) return rosterCache;
+      var data = await jget("/api/directory");
+      rosterCache = (data.directory || []).filter(function (a) { return a.tier !== "admin" && a.name; });
+      return rosterCache;
+    }
+
+    async function fillAgentSelect(l) {
+      var sel = document.getElementById("lwAgentSel");
+      if (!sel) return;
+      try {
+        var roster = await loadAgentRoster();
+        var names = roster.map(function (a) { return a.name; });
+        if (l.agent && names.indexOf(l.agent) === -1) names.unshift(l.agent);
+        sel.innerHTML = '<option value="">Unassigned</option>' +
+          names.map(function (n) { return '<option value="' + esc(n) + '"' + (n === l.agent ? " selected" : "") + ">" + esc(n) + "</option>"; }).join("");
+      } catch (e) {
+        sel.innerHTML = '<option value="">Could not load roster</option>';
+      }
     }
 
     /* ---------- wiring ---------- */

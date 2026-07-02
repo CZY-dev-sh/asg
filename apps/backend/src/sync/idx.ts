@@ -125,9 +125,10 @@ export async function syncIdx(): Promise<SyncResult> {
   `;
   const created = (materialized as unknown as { count?: number }).count ?? 0;
 
-  // Assign agents + neighborhoods from the Listing Hub sheet (co-list agent
-  // from the MLS, maintained there). Runs last so freshly materialized rows
-  // are covered too.
+  // Fill neighborhoods from the Listing Hub sheet and default unassigned
+  // listings to Alex Stoykov. Agent assignment itself is manual (console) or
+  // from the seller wizard — never sheet-driven. Runs last so freshly
+  // materialized rows are covered too.
   const overlay = await overlayListingHub();
 
   return {
