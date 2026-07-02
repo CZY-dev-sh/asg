@@ -108,6 +108,11 @@ const schema = z.object({
   DEALS_STATS_API: z.string().optional().default(
     'https://script.google.com/macros/s/AKfycbz-dZlLjHKgcN-UmVF3O3252VCFDTiMgxtsiW1f-KGxny6F0PI37ntpZQsWni1LxnBLAg/exec',
   ),
+  // "Listing Hub" sheet (Apps Script JSON). Source of truth for per-listing
+  // agent assignment (co-list agent) and neighborhood; overlaid during idx sync.
+  LISTING_HUB_API: z.string().optional().default(
+    'https://script.google.com/macros/s/AKfycbzM94w8ZqUTkDD2WPNO9lB35qVp-s7Uo-05dSUtRiwEd-soR1bxx6PBnuEmVdvVpOuL/exec',
+  ),
 
   // Anthropic (listing marketing agent). Drafts only — never auto-publishes.
   ANTHROPIC_API_KEY: z.string().optional().default(''),

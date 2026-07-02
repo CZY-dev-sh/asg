@@ -389,11 +389,13 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
 #asgc-app .lw-status-chip.is-pending{background:rgba(249,115,22,.92);color:#fff}
 #asgc-app .lw-status-chip.is-closed{background:rgba(17,17,17,.78);color:#fff}
 #asgc-app .lw-card-body{display:block;padding:14px 15px 16px}
-#asgc-app .lw-card-addr{display:block;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:4px}
+#asgc-app .lw-card-addr{display:block;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:2px}
+#asgc-app .lw-card-hood{display:block;font-size:12px;font-weight:600;color:var(--asgc-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 #asgc-app .lw-card-meta{display:block;font-size:13px;color:var(--asgc-muted)}
 #asgc-app .lw-card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 #asgc-app .lw-tag{font-size:11px;font-weight:600;background:rgba(0,0,0,.05);border-radius:999px;padding:3px 9px;color:var(--asgc-ink)}
 #asgc-app .lw-tag.is-ms{background:rgba(59,130,246,.12);color:#1d4ed8}
+#asgc-app .lw-tag.is-agent{background:rgba(17,17,17,.08);color:var(--asgc-ink)}
 
 /* detail */
 #asgc-app .lw-back{background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:var(--asgc-muted);cursor:pointer;padding:0;margin:0 0 16px}
@@ -8390,6 +8392,11 @@ function wireLhSellWorkspaceEvents(){
       listEl.innerHTML = html;
     }
 
+    /* "933 N Wolcott Avenue 1, Chicago, Illinois" → "933 N Wolcott Avenue 1" */
+    function streetOf(address) {
+      return String(address || "").split(",")[0].trim();
+    }
+
     function card(l) {
       var cover = l.coverImage || l.idxCoverImage || "";
       var beds = l.beds != null ? l.beds + " bd" : "";
@@ -8401,11 +8408,12 @@ function wireLhSellWorkspaceEvents(){
         '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '>' +
         statusChip(l) + "</span>" +
         '<span class="lw-card-body">' +
-        '<span class="lw-card-addr">' + esc(l.address || "(no address)") + "</span>" +
-        '<span class="lw-card-meta">' + esc([l.neighborhood, money(l.listPrice)].filter(Boolean).join(" · ")) + "</span>" +
+        '<span class="lw-card-addr">' + esc(streetOf(l.address) || "(no address)") + "</span>" +
+        (l.neighborhood ? '<span class="lw-card-hood">' + esc(l.neighborhood) + "</span>" : "") +
+        '<span class="lw-card-meta">' + esc(money(l.listPrice) || "") + "</span>" +
         '<span class="lw-card-meta">' + esc(facts) + "</span>" +
         '<span class="lw-card-tags">' +
-        (l.agent ? '<span class="lw-tag">' + esc(l.agent) + "</span>" : "") +
+        (l.agent ? '<span class="lw-tag is-agent">' + esc(l.agent) + "</span>" : "") +
         (ms ? '<span class="lw-tag is-ms">' + esc(ms) + "</span>" : "") +
         "</span></span></button>";
     }

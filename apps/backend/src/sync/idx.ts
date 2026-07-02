@@ -1,5 +1,6 @@
 import { sql, j } from '../db/client.js';
 import { idxClient, type NormalizedIdxListing } from '../connectors/idx.js';
+import { overlayListingHub } from './listingHub.js';
 import type { SyncResult } from './runner.js';
 
 /**
@@ -124,7 +125,16 @@ export async function syncIdx(): Promise<SyncResult> {
   `;
   const created = (materialized as unknown as { count?: number }).count ?? 0;
 
-  return { source: 'idx', records: listings.length, meta: { feeds: 3, listingsCreated: created } };
+  // Assign agents + neighborhoods from the Listing Hub sheet (co-list agent
+  // from the MLS, maintained there). Runs last so freshly materialized rows
+  // are covered too.
+  const overlay = await overlayListingHub();
+
+  return {
+    source: 'idx',
+    records: listings.length,
+    meta: { feeds: 3, listingsCreated: created, hubRows: overlay.rows, hubMatched: overlay.matched },
+  };
 }
 
 async function upsertIdxListing(L: NormalizedIdxListing): Promise<void> {

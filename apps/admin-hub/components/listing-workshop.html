@@ -144,6 +144,11 @@
       listEl.innerHTML = html;
     }
 
+    /* "933 N Wolcott Avenue 1, Chicago, Illinois" → "933 N Wolcott Avenue 1" */
+    function streetOf(address) {
+      return String(address || "").split(",")[0].trim();
+    }
+
     function card(l) {
       var cover = l.coverImage || l.idxCoverImage || "";
       var beds = l.beds != null ? l.beds + " bd" : "";
@@ -155,11 +160,12 @@
         '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '>' +
         statusChip(l) + "</span>" +
         '<span class="lw-card-body">' +
-        '<span class="lw-card-addr">' + esc(l.address || "(no address)") + "</span>" +
-        '<span class="lw-card-meta">' + esc([l.neighborhood, money(l.listPrice)].filter(Boolean).join(" · ")) + "</span>" +
+        '<span class="lw-card-addr">' + esc(streetOf(l.address) || "(no address)") + "</span>" +
+        (l.neighborhood ? '<span class="lw-card-hood">' + esc(l.neighborhood) + "</span>" : "") +
+        '<span class="lw-card-meta">' + esc(money(l.listPrice) || "") + "</span>" +
         '<span class="lw-card-meta">' + esc(facts) + "</span>" +
         '<span class="lw-card-tags">' +
-        (l.agent ? '<span class="lw-tag">' + esc(l.agent) + "</span>" : "") +
+        (l.agent ? '<span class="lw-tag is-agent">' + esc(l.agent) + "</span>" : "") +
         (ms ? '<span class="lw-tag is-ms">' + esc(ms) + "</span>" : "") +
         "</span></span></button>";
     }
