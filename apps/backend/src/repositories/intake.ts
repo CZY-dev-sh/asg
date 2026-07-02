@@ -152,7 +152,7 @@ async function createListingFromSellerIntake(
       agent_id, agent_name, seller_name, seller_email, seller_phone,
       seller_questionnaire_content, seller_questionnaire_sent, seller_questionnaire_sent_at, lead_id
     ) values (
-      ${address}, 'Pre Listing', 'prelisting', 'Sale', 'onboarding',
+      ${address}, 'Coming Soon', 'prelisting', 'Sale', 'onboarding',
       ${who.agentId}, ${who.agentName}, ${who.sellerName}, ${who.sellerEmail}, ${who.sellerPhone},
       ${questionnaire}, true, now(), ${who.leadId}
     )

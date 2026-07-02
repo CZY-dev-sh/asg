@@ -108,19 +108,33 @@
       }
     }
 
+    /* Coming Soon = admin-entered + seller-wizard listings that aren't on the
+       MLS yet. The IDX sync flips their status to the live MLS status ("Active",
+       …) once the property appears in the feed, which moves them out of here. */
     function groupOf(l) {
       var s = String(l.status || "").toLowerCase();
-      if (l.source === "onboarding" || s.indexOf("pre") === 0) return "Pre-Listing";
+      if (s.indexOf("coming") === 0 || s.indexOf("pre") === 0 || (!s && l.source === "onboarding")) return "Coming Soon";
       if (l.archived || s.indexOf("closed") === 0) return "Closed";
       return "Active";
     }
 
+    function statusChip(l) {
+      var g = groupOf(l);
+      var label = g === "Coming Soon" ? "Coming Soon" : (l.status || l.idxMlsStatus || g);
+      var s = String(label).toLowerCase();
+      var cls = "is-active";
+      if (g === "Coming Soon") cls = "is-soon";
+      else if (s.indexOf("closed") === 0 || s.indexOf("sold") === 0) cls = "is-closed";
+      else if (s.indexOf("under contract") !== -1 || s.indexOf("pending") !== -1 || s.indexOf("contingent") !== -1) cls = "is-pending";
+      return '<span class="lw-status-chip ' + cls + '">' + esc(label) + "</span>";
+    }
+
     function renderList(arr) {
       if (!arr.length) { listEl.innerHTML = '<p class="lw-empty">No listings yet.</p>'; return; }
-      var groups = { "Pre-Listing": [], "Active": [], "Closed": [] };
+      var groups = { "Coming Soon": [], "Active": [], "Closed": [] };
       arr.forEach(function (l) { (groups[groupOf(l)] || groups.Active).push(l); });
       var html = "";
-      ["Pre-Listing", "Active", "Closed"].forEach(function (g) {
+      ["Coming Soon", "Active", "Closed"].forEach(function (g) {
         var rows = groups[g];
         if (!rows.length) return;
         html += '<h2 class="lw-group">' + g + ' <span>' + rows.length + '</span></h2><div class="lw-grid">';
@@ -138,7 +152,8 @@
       var facts = [beds, baths, sqft].filter(Boolean).join(" · ");
       var ms = l.marketingStatus || "";
       return '<button class="lw-card" data-id="' + esc(l.id) + '" type="button">' +
-        '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '></span>' +
+        '<span class="lw-card-img"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : ' data-empty="1"') + '>' +
+        statusChip(l) + "</span>" +
         '<span class="lw-card-body">' +
         '<span class="lw-card-addr">' + esc(l.address || "(no address)") + "</span>" +
         '<span class="lw-card-meta">' + esc([l.neighborhood, money(l.listPrice)].filter(Boolean).join(" · ")) + "</span>" +

@@ -209,8 +209,11 @@ export async function createListing(body: Row): Promise<Row> {
   try {
     // One transaction: stub insert + field updates roll back together.
     id = await sql.begin(async (tx) => {
+      // Admin-created listings start as Coming Soon; the IDX sync flips them to
+      // the live MLS status once they appear in the feed (matched by address).
       const [row] = await tx<Row[]>`
-        insert into listings (address, slug, source) values (${address}, ${slug}, 'manual')
+        insert into listings (address, slug, source, status)
+        values (${address}, ${slug}, 'manual', 'Coming Soon')
         returning id`;
       const newId = String(row!.id);
       if (Object.keys(scalar).length || Object.keys(uuid).length || Object.keys(json).length)

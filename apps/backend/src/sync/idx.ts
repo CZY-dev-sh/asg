@@ -54,6 +54,27 @@ export async function syncIdx(): Promise<SyncResult> {
       and not exists (select 1 from listings l3 where l3.idx_listing_id = c.idx_listing_id)
   `;
 
+  // Promote Coming Soon → live MLS status. Admin-created and seller-wizard
+  // listings sit in "Coming Soon" until the property shows up in the IDX feed
+  // (linked above by address); then they adopt the MLS status ("Active", etc.)
+  // and the flip is recorded on the listing timeline.
+  const promoted = await sql<{ id: string; new_status: string }[]>`
+    update listings l
+    set status = x.status, updated_at = now()
+    from idx_listings x
+    where l.idx_listing_id = x.idx_listing_id
+      and lower(coalesce(l.status, '')) in ('coming soon', 'pre listing', 'pre-listing')
+      and coalesce(x.status, '') <> ''
+    returning l.id, x.status as new_status
+  `;
+  for (const p of promoted) {
+    await sql`
+      insert into listing_activity (listing_id, type, label, actor, meta, client_visible)
+      values (${p.id}::uuid, 'status_changed', ${'Listed on MLS — status is now ' + p.new_status},
+              'IDX sync', ${j({ from: 'Coming Soon', to: p.new_status })}, true)
+    `;
+  }
+
   // Co-listing agent groundwork: pull the co-list agent name from the IDX raw
   // payload (field name varies by feed), then resolve it to a roster agent so
   // listings can later route to each agent's personal hub by co_agent.
