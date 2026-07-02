@@ -110,7 +110,7 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
   animation:asgc-pop .4s ease both;
 }
 @keyframes asgc-pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-.asgc-login-logo{width:54px;height:54px;border-radius:16px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto 18px}
+.asgc-login-logo{width:72px;height:72px;object-fit:contain;display:block;margin:0 auto 18px}
 .asgc-login-card h1{font-size:22px;font-weight:700;margin:0 0 4px}
 .asgc-login-card p{font-size:13.5px;color:var(--asgc-muted);margin:0 0 24px;line-height:1.5}
 .asgc-google-btn{
@@ -382,8 +382,13 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
 #asgc-app .lw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
 #asgc-app .lw-card{text-align:left;background:var(--asgc-card);border:1px solid var(--asgc-border);border-radius:20px;overflow:hidden;cursor:pointer;font-family:inherit;padding:0;transition:.2s var(--asgc-ease)}
 #asgc-app .lw-card:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(0,0,0,.1)}
-#asgc-app .lw-card-img{display:block;height:150px;background:#ece9e4 center/cover no-repeat}
+#asgc-app .lw-card-img{display:block;height:150px;background:#ece9e4 center/cover no-repeat;position:relative}
 #asgc-app .lw-card-img[data-empty]{background:linear-gradient(135deg,#f2f0ec,#e6e3dd)}
+#asgc-app .lw-status-chip{position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:4px 11px;backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(0,0,0,.14)}
+#asgc-app .lw-status-chip.is-soon{background:rgba(37,99,235,.92);color:#fff}
+#asgc-app .lw-status-chip.is-active{background:rgba(34,197,94,.92);color:#fff}
+#asgc-app .lw-status-chip.is-pending{background:rgba(249,115,22,.92);color:#fff}
+#asgc-app .lw-status-chip.is-closed{background:rgba(17,17,17,.78);color:#fff}
 #asgc-app .lw-card-body{display:block;padding:14px 15px 16px}
 #asgc-app .lw-card-addr{display:block;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:4px}
 #asgc-app .lw-card-meta{display:block;font-size:13px;color:var(--asgc-muted)}
@@ -476,7 +481,8 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
   <!-- ── Login gate ─────────────────────────────────────────── -->
   <div id="asgc-login">
     <div class="asgc-login-card">
-      <div class="asgc-login-logo">AS</div>
+      <img class="asgc-login-logo" src="https://images.squarespace-cdn.com/content/v1/645525ddf33bc2091db5603a/fab4526a-3108-47f6-88fb-cc55decbef88/Logo.png?format=500w" alt="Alex Stoykov Group">
+
       <h1>ASG Agent Hub</h1>
       <p>Sign in with your Compass account to see your stats, listings, deals, and marketing.</p>
 

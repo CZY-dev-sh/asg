@@ -59,7 +59,7 @@ body{margin:0 !important;padding:0 !important;background:#fff !important;}
   animation:asgc-pop .4s ease both;
 }
 @keyframes asgc-pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-.asgc-login-logo{width:54px;height:54px;border-radius:16px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;margin:0 auto 18px}
+.asgc-login-logo{width:72px;height:72px;object-fit:contain;display:block;margin:0 auto 18px}
 .asgc-login-card h1{font-size:22px;font-weight:700;margin:0 0 4px}
 .asgc-login-card p{font-size:13.5px;color:var(--asgc-muted);margin:0 0 24px;line-height:1.5}
 .asgc-google-btn{
